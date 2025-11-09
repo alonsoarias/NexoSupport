@@ -1,0 +1,60 @@
+{
+    "name": "iser/auth-system",
+    "description": "Sistema de Autenticación Modular ISER - Núcleo del Sistema",
+    "type": "project",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "ISER Development Team",
+            "email": "dev@iser.edu"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "ext-pdo": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "vlucas/phpdotenv": "^5.6",
+        "firebase/php-jwt": "^6.10",
+        "mustache/mustache": "^2.14",
+        "monolog/monolog": "^3.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "ISER\\Core\\": "core/",
+            "ISER\\Modules\\": "modules/"
+        },
+        "files": [
+            "core/Autoloader.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ISER\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit --configuration phpunit.xml",
+        "test-coverage": "phpunit --configuration phpunit.xml --coverage-html var/coverage",
+        "install-system": [
+            "@php install/cli_install.php"
+        ],
+        "check-requirements": [
+            "@php -r \"echo 'PHP Version: ' . phpversion() . PHP_EOL;\"",
+            "@php -r \"echo 'Extensions: ' . implode(', ', get_loaded_extensions()) . PHP_EOL;\""
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

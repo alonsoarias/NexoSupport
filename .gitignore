@@ -1,0 +1,54 @@
+# =========================================
+# ISER AUTHENTICATION SYSTEM - GITIGNORE
+# =========================================
+
+# Environment files
+.env
+.env.local
+.env.production
+config.php
+
+# Composer
+/vendor/
+composer.lock
+
+# Logs
+var/logs/*
+!var/logs/.gitkeep
+
+# Cache
+var/cache/*
+!var/cache/.gitkeep
+
+# PHPUnit
+.phpunit.result.cache
+var/coverage/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.directory
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# User uploads (will be configured in later phases)
+public_html/uploads/*
+!public_html/uploads/.gitkeep
+
+# Database backups
+*.sql
+*.sql.gz
+
+# Session files
+var/sessions/*
+!var/sessions/.gitkeep
