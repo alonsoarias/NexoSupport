@@ -173,7 +173,7 @@ class AuthManual implements AuthInterface
         return $this->userManager->getUserByEmail($email);
     }
 
-    public function changePassword(int $userId, string $newPassword, string $oldPassword = null): bool
+    public function changePassword(int $userId, string $newPassword, ?string $oldPassword = null): bool
     {
         if ($oldPassword !== null) {
             $user = $this->userManager->getUserById($userId);

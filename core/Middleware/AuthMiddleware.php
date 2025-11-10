@@ -1,4 +1,9 @@
 <?php
+/**
+ * ISER - Authentication Middleware
+ * @package ISER\Core\Middleware
+ */
+
 namespace ISER\Core\Middleware;
 
 use ISER\Core\Session\JWTSession;

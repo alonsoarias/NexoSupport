@@ -31,7 +31,7 @@ class Recaptcha
         return '<script src="https://www.google.com/recaptcha/api.js" async defer></script>';
     }
 
-    public function verify(string $response, string $remoteIp = null): bool
+    public function verify(string $response, ?string $remoteIp = null): bool
     {
         if (!$this->enabled) return true;
         if (empty($response)) return false;

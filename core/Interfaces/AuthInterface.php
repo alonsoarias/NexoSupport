@@ -153,10 +153,10 @@ interface AuthInterface
      *
      * @param int $userId User ID
      * @param string $newPassword New password
-     * @param string $oldPassword Old password (for verification)
+     * @param string|null $oldPassword Old password (for verification)
      * @return bool True on success
      */
-    public function changePassword(int $userId, string $newPassword, string $oldPassword = null): bool;
+    public function changePassword(int $userId, string $newPassword, ?string $oldPassword = null): bool;
 
     /**
      * Reset user password
