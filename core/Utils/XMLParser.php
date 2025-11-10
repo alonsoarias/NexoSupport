@@ -243,7 +243,7 @@ class XMLParser
      * @param SimpleXMLElement $xml Elemento XML
      * @return array Array resultante
      */
-    private function simpleXMLToArray(SimpleXMLElement $xml): array
+    public function simpleXMLToArray(SimpleXMLElement $xml): array
     {
         $array = [];
 

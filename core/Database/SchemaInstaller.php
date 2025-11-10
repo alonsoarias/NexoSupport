@@ -54,25 +54,47 @@ class SchemaInstaller
         echo '<p class="text-info small">→ Parseando archivo XML...</p>';
         flush(); ob_flush();
 
-        // Parsear XML directamente con SimpleXML (más confiable)
+        // Parsear XML directamente con DOMDocument (evita problemas del XMLParser)
         try {
+            set_time_limit(60); // 60 segundos solo para parsing
+
             $xmlContent = file_get_contents($xmlFile);
             echo '<p class="text-info small">→ Archivo leído (' . strlen($xmlContent) . ' bytes)...</p>';
             flush(); ob_flush();
 
-            $xml = simplexml_load_string($xmlContent, 'SimpleXMLElement', LIBXML_NONET | LIBXML_NOBLANKS);
-            if ($xml === false) {
+            // Usar DOMDocument
+            $dom = new \DOMDocument('1.0', 'UTF-8');
+            $dom->preserveWhiteSpace = false;
+            $dom->formatOutput = true;
+
+            libxml_use_internal_errors(true);
+            $loaded = $dom->loadXML($xmlContent, LIBXML_NONET | LIBXML_NOBLANKS);
+
+            if (!$loaded) {
                 $errors = libxml_get_errors();
-                throw new Exception("Error al parsear XML: " . print_r($errors, true));
+                libxml_clear_errors();
+                throw new Exception("Error al parsear XML con DOM: " . print_r($errors, true));
             }
 
-            echo '<p class="text-info small">→ SimpleXML cargado exitosamente...</p>';
+            libxml_clear_errors();
+            libxml_use_internal_errors(false);
+
+            echo '<p class="text-info small">→ DOM cargado exitosamente...</p>';
             flush(); ob_flush();
 
-            // Convertir SimpleXML a array
-            $schema = json_decode(json_encode($xml), true);
+            // Convertir DOM a SimpleXML y luego a array (método más confiable)
+            $simpleXML = simplexml_import_dom($dom);
+            if ($simpleXML === false) {
+                throw new Exception("Error al convertir DOM a SimpleXML");
+            }
 
-            echo '<p class="text-info small">→ XML convertido a array...</p>';
+            echo '<p class="text-info small">→ Convertido a SimpleXML...</p>';
+            flush(); ob_flush();
+
+            // Ahora usar la función del XMLParser para convertir a array
+            $schema = $this->xmlParser->simpleXMLToArray($simpleXML);
+
+            echo '<p class="text-info small">→ XML convertido a array (' . count($schema) . ' elementos)...</p>';
             flush(); ob_flush();
 
         } catch (Exception $e) {
