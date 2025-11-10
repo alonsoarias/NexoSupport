@@ -53,40 +53,65 @@ if (!isset($_SESSION['installation_complete'])) {
         // CREAR ARCHIVO .env CON LA CONFIGURACIÓN
         // ====================================================================
 
+        // Generar claves de seguridad únicas
+        $jwtSecret = bin2hex(random_bytes(32));
+        $appKey = bin2hex(random_bytes(32));
+
         $envContent = <<<ENV
 # ============================================================
 # CONFIGURACIÓN DE NEXOSUPPORT
 # Generado automáticamente: {$_SERVER['REQUEST_TIME']}
 # ============================================================
 
-# Base de Datos
-DB_DRIVER={$_SESSION['db_driver']}
-DB_HOST={$_SESSION['db_host']}
-DB_PORT={$_SESSION['db_port']}
-DB_NAME={$_SESSION['db_name']}
-DB_USER={$_SESSION['db_user']}
-DB_PASS={$_SESSION['db_pass']}
-DB_PREFIX={$_SESSION['db_prefix']}
-DB_CHARSET=utf8mb4
-
-# Sistema
-DEBUG_MODE=false
+# Aplicación
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY={$appKey}
 BASE_URL={$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}
 TIMEZONE=America/Mexico_City
 DEFAULT_LANG=es
 
-# Seguridad (Cambiar SECRET_KEY en producción)
-SECRET_KEY=
+# Base de Datos
+DB_CONNECTION={$_SESSION['db_driver']}
+DB_HOST={$_SESSION['db_host']}
+DB_PORT={$_SESSION['db_port']}
+DB_DATABASE={$_SESSION['db_name']}
+DB_USERNAME={$_SESSION['db_user']}
+DB_PASSWORD={$_SESSION['db_pass']}
+DB_PREFIX={$_SESSION['db_prefix']}
+DB_CHARSET=utf8mb4
+DB_COLLATION=utf8mb4_unicode_ci
+
+# JWT (JSON Web Tokens)
+JWT_SECRET={$jwtSecret}
+JWT_ALGORITHM=HS256
+JWT_EXPIRATION=3600
+JWT_REFRESH_EXPIRATION=604800
+
+# Sesión
+SESSION_LIFETIME=7200
+SESSION_SECURE=false
+SESSION_HTTPONLY=true
+SESSION_SAMESITE=Lax
+
+# Logging
+LOG_CHANNEL=daily
+LOG_LEVEL=debug
+LOG_PATH=var/logs/iser.log
+LOG_MAX_FILES=14
+
+# Contraseñas - Política
+PASSWORD_MIN_LENGTH=8
+PASSWORD_REQUIRE_UPPERCASE=true
+PASSWORD_REQUIRE_LOWERCASE=true
+PASSWORD_REQUIRE_NUMBERS=true
+PASSWORD_REQUIRE_SPECIAL=true
 
 # Instalación
 INSTALLED=true
 INSTALL_DATE={$_SERVER['REQUEST_TIME']}
 
 ENV;
-
-        // Generar SECRET_KEY único
-        $secretKey = bin2hex(random_bytes(32));
-        $envContent = str_replace('SECRET_KEY=', "SECRET_KEY={$secretKey}", $envContent);
 
         // Escribir archivo .env
         $envPath = BASE_DIR . '/.env';
