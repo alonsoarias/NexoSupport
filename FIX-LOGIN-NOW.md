@@ -1,70 +1,33 @@
-# 🔧 FIX LOGIN NOW - Quick Start Guide
+# 🔧 FIX LOGIN NOW - Guía Rápida
 
-## The Problem
+## El Problema
 
-Your authentication system was crashing with this error:
+Tu sistema de autenticación estaba fallando con este error:
 ```
 Table 'nexosupport.ndgf_login_attempts' doesn't exist
 ```
 
-The `login_attempts` table was missing from your database, causing all login attempts to fail.
+La tabla `login_attempts` faltaba en tu base de datos, causando que todos los intentos de login fallaran.
 
-## The Solution (3 Simple Steps)
+## La Solución
 
-### Step 1: Run the Migration
+**El schema.xml ya ha sido actualizado** con la tabla `login_attempts`. Para aplicar los cambios:
 
-Open your terminal (Command Prompt or PowerShell) and run:
+### Opción 1: Reinstalar el Sistema (Recomendado)
 
-```bash
-cd C:\MAMP\htdocs\NexoSupport
-php database\migrations\run-migration.php
-```
+1. Accede a tu instalador: https://nexosupport.localhost.com/install.php
+2. El sistema detectará la base de datos existente
+3. Sigue el proceso de reinstalación
+4. Las tablas se crearán automáticamente desde `database/schema/schema.xml`
 
-**Expected output:**
-```
-=============================================================
-  MIGRATION: Create login_attempts Table
-=============================================================
+### Opción 2: Agregar la Tabla Manualmente
 
-Reading migration file: 001_create_login_attempts_table.sql
-Creating table: login_attempts
+Si no quieres reinstalar, puedes crear la tabla directamente en phpMyAdmin:
 
-Full table name: ndgf_login_attempts
-
-✓ Migration completed successfully!
-
-Table 'ndgf_login_attempts' has been created.
-
-✓ Table verified in database.
-```
-
-### Step 2: Set Your Password
-
-Run the password test script with your actual password:
-
-```bash
-php tools\test-password.php "Admin.123+"
-```
-
-This will update your admin user's password hash to use bcrypt.
-
-### Step 3: Try to Login
-
-1. Go to: https://nexosupport.localhost.com/login
-2. Username: `admin`
-3. Password: `Admin.123+`
-4. Click Login
-
-**You should now be able to login successfully!**
-
-## Alternative: Manual SQL Import
-
-If you prefer to use phpMyAdmin:
-
-1. Open phpMyAdmin: http://localhost/phpMyAdmin
-2. Select database: `nexosupport`
-3. Click "SQL" tab
-4. Copy and paste this SQL:
+1. Abre phpMyAdmin: http://localhost/phpMyAdmin
+2. Selecciona tu base de datos: `nexosupport`
+3. Ve a la pestaña "SQL"
+4. Ejecuta este SQL (ajusta el prefijo `ndgf_` si es diferente):
 
 ```sql
 CREATE TABLE IF NOT EXISTS `ndgf_login_attempts` (
@@ -84,15 +47,43 @@ CREATE TABLE IF NOT EXISTS `ndgf_login_attempts` (
 
 5. Click "Go"
 
-Then run Step 2 and Step 3 above.
+### Después de Crear la Tabla
 
-## What This Table Does
+**Configura tu contraseña:**
 
-The `login_attempts` table is used for:
-- **Security**: Track all login attempts
-- **Failed login detection**: Identify suspicious activity
-- **Account lockout**: Prevent brute force attacks
-- **Audit trail**: Monitor who's trying to access the system
+```bash
+cd C:\MAMP\htdocs\NexoSupport
+php tools\test-password.php "Admin.123+"
+```
+
+**Intenta hacer login:**
+
+1. Ve a: https://nexosupport.localhost.com/login
+2. Usuario: `admin`
+3. Contraseña: `Admin.123+`
+4. Click en Login
+
+**¡Ahora deberías poder iniciar sesión exitosamente!**
+
+## Qué Hace Esta Tabla
+
+La tabla `login_attempts` se usa para:
+- **Seguridad**: Rastrear todos los intentos de login
+- **Detección de fallos**: Identificar actividad sospechosa
+- **Bloqueo de cuenta**: Prevenir ataques de fuerza bruta
+- **Auditoría**: Monitorear quién intenta acceder al sistema
+
+## Estructura de la Tabla
+
+```
+login_attempts
+├── id               BIGINT UNSIGNED (Primary Key, Auto Increment)
+├── username         VARCHAR(255) (Indexed)
+├── ip_address       VARCHAR(45) (Indexed)
+├── user_agent       VARCHAR(255)
+├── success          BOOLEAN (Indexed)
+└── attempted_at     INT UNSIGNED (Indexed)
+```
 
 ## Troubleshooting
 
@@ -103,43 +94,40 @@ composer install
 ```
 
 ### Error: "Access denied for user"
-- Check your `.env` file has correct database credentials
-- Make sure MySQL is running in MAMP
+- Verifica que tu archivo `.env` tenga las credenciales correctas de la base de datos
+- Asegúrate de que MySQL esté corriendo en MAMP
 
 ### Error: "Table already exists"
-- That's fine! It means the table was already created
-- Skip to Step 2
+- Está bien, significa que la tabla ya fue creada
+- Continúa con configurar tu contraseña
 
-### Login still fails after migration
-1. Check error log: `C:\MAMP\logs\php_error.log`
-2. Look for lines starting with `[AuthController]` or `[AuthService]`
-3. Share the log output for further debugging
+### El login sigue fallando después de crear la tabla
+1. Revisa el log de errores: `C:\MAMP\logs\php_error.log`
+2. Busca líneas que empiecen con `[AuthController]` o `[AuthService]`
+3. Comparte la salida del log para más debugging
 
-## Files Added/Modified
+## Cambios Realizados
 
-- ✅ `database/schema/schema.xml` - Added login_attempts table definition
-- ✅ `database/migrations/001_create_login_attempts_table.sql` - SQL migration
-- ✅ `database/migrations/run-migration.php` - Automated migration runner
-- ✅ `database/migrations/README.md` - Detailed migration instructions
-- ✅ `DEBUGGING-AUTH.md` - Updated with migration requirement
+- ✅ `database/schema/schema.xml` - Agregada definición de tabla login_attempts
+- ✅ Sistema de debugging comprensivo en AuthService, AuthController, UserManager
+- ✅ Helpers::verifyPassword con logging detallado
+- ✅ Documentación completa de debugging
 
-## Need More Help?
+## Después del Login Exitoso
 
-See the detailed guides:
-- **Migration details**: `database/migrations/README.md`
-- **Debugging authentication**: `DEBUGGING-AUTH.md`
+Una vez que puedas iniciar sesión, deberías ver:
+- Dashboard con estadísticas reales
+- Tu nombre completo mostrado
+- Conteo real de usuarios desde la base de datos
+- Sin más errores "auth.invalid_credentials"
 
-## After Successful Login
+El sistema de autenticación ahora correctamente:
+- ✓ Rastrea todos los intentos de login
+- ✓ Bloquea cuentas después de 5 intentos fallidos
+- ✓ Registra direcciones IP por seguridad
+- ✓ Mantiene rastro de auditoría
+- ✓ Permite debugging con logs comprensivos
 
-Once you can login, you should see:
-- Dashboard with real statistics
-- Your full name displayed
-- Real user counts from database
-- No more "auth.invalid_credentials" errors
+## Necesitas Más Ayuda?
 
-The authentication system will now properly:
-- ✓ Track all login attempts
-- ✓ Lock accounts after 5 failed attempts
-- ✓ Record IP addresses for security
-- ✓ Maintain audit trail
-- ✓ Allow debugging with comprehensive logs
+Consulta la guía de debugging detallada: `DEBUGGING-AUTH.md`

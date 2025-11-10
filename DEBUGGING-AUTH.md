@@ -2,22 +2,22 @@
 
 ## CRITICAL: Missing Table Fix Required
 
-**⚠️ IMPORTANT: You must run the database migration first!**
+**⚠️ IMPORTANTE: Debes crear la tabla login_attempts primero!**
 
-The `login_attempts` table is missing from your database, which causes authentication to crash.
+La tabla `login_attempts` faltaba en tu base de datos, causando que la autenticación falle.
 
-### Run This First:
+### Solución:
 
-```bash
-cd C:\MAMP\htdocs\NexoSupport
-php database\migrations\run-migration.php
-```
+**Opción 1: Reinstalar el Sistema (Recomendado)**
+- Accede a: https://nexosupport.localhost.com/install.php
+- El `schema.xml` ya está actualizado con la tabla `login_attempts`
+- El instalador creará todas las tablas automáticamente
 
-**OR** import the SQL file manually via phpMyAdmin:
-- File: `database/migrations/001_create_login_attempts_table.sql`
-- See: `database/migrations/README.md` for detailed instructions
+**Opción 2: Crear la Tabla Manualmente**
+- Consulta: `FIX-LOGIN-NOW.md` para el SQL completo
+- Ejecuta el SQL en phpMyAdmin
 
-After running the migration, continue with the debugging steps below.
+Después de crear la tabla, continúa con los pasos de debugging abajo.
 
 ---
 
