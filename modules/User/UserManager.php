@@ -71,6 +71,225 @@ class UserManager
         return $this->db->delete('users', ['id' => $id]) > 0;
     }
 
+    /**
+     * Soft delete a user (mark as deleted instead of removing)
+     */
+    public function softDelete(int $id): bool
+    {
+        return $this->update($id, ['deleted' => 1]);
+    }
+
+    /**
+     * Restore a soft-deleted user
+     */
+    public function restore(int $id): bool
+    {
+        return $this->update($id, ['deleted' => 0]);
+    }
+
+    /**
+     * Check if user is soft-deleted
+     */
+    public function isDeleted(int $id): bool
+    {
+        $user = $this->getUserById($id);
+        return $user && ($user['deleted'] ?? 0) == 1;
+    }
+
+    /**
+     * Suspend a user account
+     */
+    public function suspend(int $id): bool
+    {
+        return $this->update($id, ['suspended' => 1]);
+    }
+
+    /**
+     * Reactivate a suspended user account
+     */
+    public function unsuspend(int $id): bool
+    {
+        return $this->update($id, ['suspended' => 0]);
+    }
+
+    /**
+     * Check if user is suspended
+     */
+    public function isSuspended(int $id): bool
+    {
+        $user = $this->getUserById($id);
+        return $user && ($user['suspended'] ?? 0) == 1;
+    }
+
+    /**
+     * Update user's last login information
+     */
+    public function updateLastLogin(int $id, string $ip): bool
+    {
+        return $this->update($id, [
+            'lastlogin' => time(),
+            'lastip' => $ip
+        ]);
+    }
+
+    /**
+     * Get all users with pagination and filters
+     */
+    public function getUsers(int $limit = 50, int $offset = 0, array $filters = []): array
+    {
+        $sql = "SELECT * FROM {$this->db->table('users')} WHERE 1=1";
+        $params = [];
+
+        // Apply filters
+        if (isset($filters['status'])) {
+            $sql .= " AND status = :status";
+            $params[':status'] = $filters['status'];
+        }
+
+        if (isset($filters['deleted'])) {
+            $sql .= " AND deleted = :deleted";
+            $params[':deleted'] = $filters['deleted'];
+        } else {
+            // By default, exclude deleted users
+            $sql .= " AND deleted = 0";
+        }
+
+        if (isset($filters['suspended'])) {
+            $sql .= " AND suspended = :suspended";
+            $params[':suspended'] = $filters['suspended'];
+        }
+
+        if (isset($filters['search'])) {
+            $sql .= " AND (username LIKE :search OR email LIKE :search
+                     OR firstname LIKE :search OR lastname LIKE :search)";
+            $params[':search'] = '%' . $filters['search'] . '%';
+        }
+
+        $sql .= " ORDER BY timecreated DESC LIMIT :limit OFFSET :offset";
+
+        return $this->db->getConnection()->fetchAll($sql, array_merge($params, [
+            ':limit' => $limit,
+            ':offset' => $offset
+        ]));
+    }
+
+    /**
+     * Count total users with filters
+     */
+    public function countUsers(array $filters = []): int
+    {
+        $sql = "SELECT COUNT(*) as count FROM {$this->db->table('users')} WHERE 1=1";
+        $params = [];
+
+        // Apply same filters as getUsers
+        if (isset($filters['status'])) {
+            $sql .= " AND status = :status";
+            $params[':status'] = $filters['status'];
+        }
+
+        if (isset($filters['deleted'])) {
+            $sql .= " AND deleted = :deleted";
+            $params[':deleted'] = $filters['deleted'];
+        } else {
+            $sql .= " AND deleted = 0";
+        }
+
+        if (isset($filters['suspended'])) {
+            $sql .= " AND suspended = :suspended";
+            $params[':suspended'] = $filters['suspended'];
+        }
+
+        if (isset($filters['search'])) {
+            $sql .= " AND (username LIKE :search OR email LIKE :search
+                     OR firstname LIKE :search OR lastname LIKE :search)";
+            $params[':search'] = '%' . $filters['search'] . '%';
+        }
+
+        $result = $this->db->getConnection()->fetchOne($sql, $params);
+        return (int)($result['count'] ?? 0);
+    }
+
+    /**
+     * Bulk update users
+     */
+    public function bulkUpdate(array $userIds, array $data): int
+    {
+        if (empty($userIds)) return 0;
+
+        $data['timemodified'] = time();
+        $updated = 0;
+
+        foreach ($userIds as $userId) {
+            if ($this->update($userId, $data)) {
+                $updated++;
+            }
+        }
+
+        return $updated;
+    }
+
+    /**
+     * Bulk soft delete users
+     */
+    public function bulkSoftDelete(array $userIds): int
+    {
+        return $this->bulkUpdate($userIds, ['deleted' => 1]);
+    }
+
+    /**
+     * Bulk suspend users
+     */
+    public function bulkSuspend(array $userIds): int
+    {
+        return $this->bulkUpdate($userIds, ['suspended' => 1]);
+    }
+
+    /**
+     * Get user's full name
+     */
+    public function getFullName(int $id): string
+    {
+        $user = $this->getUserById($id);
+        if (!$user) return '';
+        return trim($user['firstname'] . ' ' . $user['lastname']);
+    }
+
+    /**
+     * Check if username exists (excluding a specific user id for updates)
+     */
+    public function usernameExists(string $username, ?int $excludeId = null): bool
+    {
+        $sql = "SELECT COUNT(*) as count FROM {$this->db->table('users')}
+                WHERE username = :username";
+        $params = [':username' => $username];
+
+        if ($excludeId !== null) {
+            $sql .= " AND id != :excludeId";
+            $params[':excludeId'] = $excludeId;
+        }
+
+        $result = $this->db->getConnection()->fetchOne($sql, $params);
+        return ($result['count'] ?? 0) > 0;
+    }
+
+    /**
+     * Check if email exists (excluding a specific user id for updates)
+     */
+    public function emailExists(string $email, ?int $excludeId = null): bool
+    {
+        $sql = "SELECT COUNT(*) as count FROM {$this->db->table('users')}
+                WHERE email = :email";
+        $params = [':email' => $email];
+
+        if ($excludeId !== null) {
+            $sql .= " AND id != :excludeId";
+            $params[':excludeId'] = $excludeId;
+        }
+
+        $result = $this->db->getConnection()->fetchOne($sql, $params);
+        return ($result['count'] ?? 0) > 0;
+    }
+
     public function recordLoginAttempt(string $username, bool $success, string $ip): void
     {
         $this->db->insert('login_attempts', [
