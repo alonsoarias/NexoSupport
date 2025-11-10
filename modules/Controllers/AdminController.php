@@ -247,7 +247,7 @@ class AdminController
         try {
             $sql = "SELECT * FROM {$this->db->table('login_attempts')}
                     ORDER BY attempted_at DESC LIMIT :limit";
-            $stmt = $this->db->getConnection()->prepare($sql);
+            $stmt = $this->db->getConnection()->getConnection()->prepare($sql);
             $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
             $stmt->execute();
             $attempts = $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -346,7 +346,7 @@ class AdminController
                     ORDER BY attempts DESC
                     LIMIT :limit";
 
-            $stmt = $this->db->getConnection()->prepare($sql);
+            $stmt = $this->db->getConnection()->getConnection()->prepare($sql);
             $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
             $stmt->execute();
 
@@ -367,7 +367,7 @@ class AdminController
                     ORDER BY attempted_at DESC
                     LIMIT :limit";
 
-            $stmt = $this->db->getConnection()->prepare($sql);
+            $stmt = $this->db->getConnection()->getConnection()->prepare($sql);
             $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
             $stmt->execute();
             $attempts = $stmt->fetchAll(\PDO::FETCH_ASSOC);
