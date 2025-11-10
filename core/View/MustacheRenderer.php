@@ -137,9 +137,9 @@ class MustacheRenderer
                 if (strpos($text, '|') !== false) {
                     [$key, $params] = explode('|', $text, 2);
                     parse_str($params, $replace);
-                    return __($key, $replace);
+                    return \__($key, $replace);
                 }
-                return __($text);
+                return \__($text);
             },
 
             // Helper de fecha
@@ -210,7 +210,7 @@ class MustacheRenderer
         $this->translator->setLocale($locale);
         $this->setGlobalData([
             'locale' => $locale,
-            'app_name' => __('common.app_name'),
+            'app_name' => \__('common.app_name'),
         ]);
     }
 
