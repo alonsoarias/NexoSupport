@@ -3,12 +3,46 @@
  * Stage 3: Database Installation
  */
 
-// Check if already installed
+// Función para verificar si las tablas existen realmente
+function tablesExist($pdo, $prefix) {
+    try {
+        $stmt = $pdo->query("SHOW TABLES LIKE '{$prefix}users'");
+        return $stmt->rowCount() > 0;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+// Verificar si realmente las tablas existen
+$reallyInstalled = false;
 if (isset($_SESSION['db_installed']) && $_SESSION['db_installed']) {
+    try {
+        $dsn = "mysql:host={$_SESSION['db_host']};port={$_SESSION['db_port']};dbname={$_SESSION['db_name']}";
+        $pdo = new PDO($dsn, $_SESSION['db_user'], $_SESSION['db_pass']);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $reallyInstalled = tablesExist($pdo, $_SESSION['db_prefix']);
+    } catch (Exception $e) {
+        $reallyInstalled = false;
+    }
+}
+
+// Si la sesión dice que está instalado pero las tablas no existen, limpiar flag
+if (isset($_SESSION['db_installed']) && !$reallyInstalled) {
+    unset($_SESSION['db_installed']);
+}
+
+// Check if already installed (con verificación real)
+if ($reallyInstalled) {
     ?>
     <div class="alert alert-success">
         <i class="bi bi-check-circle-fill"></i>
         <strong>Base de datos ya instalada</strong>
+        <p class="mb-0 mt-2 small">Las tablas del sistema ya existen en la base de datos.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i>
+        Si desea reinstalar, debe eliminar las tablas existentes manualmente primero.
     </div>
 
     <form method="POST">
@@ -85,9 +119,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['install'])) {
     <i class="bi bi-info-circle"></i>
     <strong>Se instalarán:</strong>
     <ul class="mb-0 mt-2">
-        <li>12 tablas del sistema</li>
-        <li>Datos iniciales (roles, permisos, configuraciones)</li>
-        <li>Índices y claves foráneas</li>
+        <li><strong>13 tablas del sistema</strong></li>
+        <li>Datos iniciales: 4 roles, 9 permisos, 8 configuraciones</li>
+        <li>Índices optimizados y claves foráneas</li>
+        <li>Relaciones: usuarios-roles, roles-permisos</li>
     </ul>
 </div>
 
