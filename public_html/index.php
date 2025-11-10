@@ -94,8 +94,15 @@ try {
     $app->init();
 } catch (Exception $e) {
     error_log('Bootstrap Error: ' . $e->getMessage());
+    error_log('Bootstrap Stack Trace: ' . $e->getTraceAsString());
     http_response_code(500);
-    die('<h1>System Error</h1><p>Failed to initialize the application. Check logs for details.</p>');
+
+    // Mostrar error detallado temporalmente para debugging
+    die('<h1>System Error</h1><p>Failed to initialize the application.</p><pre style="text-align:left;background:#f5f5f5;padding:15px;margin:20px;border:1px solid #ddd;overflow:auto;max-width:800px;margin-left:auto;margin-right:auto;">'
+        . '<strong>Error:</strong> ' . htmlspecialchars($e->getMessage()) . "\n\n"
+        . '<strong>File:</strong> ' . htmlspecialchars($e->getFile()) . ':' . $e->getLine() . "\n\n"
+        . '<strong>Stack Trace:</strong>' . "\n" . htmlspecialchars($e->getTraceAsString())
+        . '</pre>');
 }
 
 // Crear router
@@ -200,6 +207,9 @@ try {
 } catch (Exception $e) {
     // Error 500
     error_log('Server Error: ' . $e->getMessage());
+    error_log('Server Error Stack Trace: ' . $e->getTraceAsString());
+
+    // Mostrar error detallado temporalmente para debugging
     $html = '<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -213,6 +223,11 @@ try {
         <h1 style="color: var(--iser-red); font-size: 4rem;">500</h1>
         <h2>Error del Servidor</h2>
         <p style="color: var(--text-secondary); margin: 20px 0;">Ocurrió un error inesperado.</p>
+        <div style="text-align: left; background: #f5f5f5; padding: 15px; margin: 20px auto; border: 1px solid #ddd; max-width: 800px; overflow: auto;">
+            <strong>Error:</strong> ' . htmlspecialchars($e->getMessage()) . '<br><br>
+            <strong>File:</strong> ' . htmlspecialchars($e->getFile()) . ':' . $e->getLine() . '<br><br>
+            <strong>Stack Trace:</strong><br><pre>' . htmlspecialchars($e->getTraceAsString()) . '</pre>
+        </div>
         <a href="/" class="btn btn-primary">Volver al inicio</a>
     </div>
 </body>
