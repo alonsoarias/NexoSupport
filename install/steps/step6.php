@@ -1,88 +1,175 @@
 <?php
 /**
- * Paso 6: Finalización
+ * Paso 6: Crear Usuario Administrador
  */
 ?>
 
-<div class="text-center mb-4">
-    <div class="mb-4">
-        <i class="bi bi-check-circle text-success" style="font-size: 5rem;"></i>
-    </div>
-    <h2 class="text-success mb-3">¡Instalación Completada!</h2>
+<div class="mb-4">
     <p class="lead">
-        ISER Authentication System ha sido instalado exitosamente.
+        Cree la cuenta de administrador principal del sistema.
     </p>
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <strong>Importante:</strong> Guarde estas credenciales en un lugar seguro. Este usuario tendrá acceso
+        completo al sistema.
+    </div>
 </div>
 
-<div class="card bg-light border-0 mb-4">
-    <div class="card-body">
-        <h5 class="card-title mb-3">
-            <i class="bi bi-info-circle me-2"></i>Información Importante
-        </h5>
-
-        <div class="alert alert-warning mb-3">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            <strong>Seguridad:</strong> Por favor, elimine o restrinja el acceso al directorio
-            <code>/public_html/install/</code> para prevenir reinstalaciones no autorizadas.
+<form method="POST" action="?step=6" id="admin-form">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="username" class="form-label">
+                    <i class="bi bi-person me-1"></i> Nombre de Usuario
+                    <span class="text-danger">*</span>
+                </label>
+                <input type="text"
+                       class="form-control"
+                       id="username"
+                       name="username"
+                       pattern="[a-zA-Z0-9_]+"
+                       minlength="4"
+                       maxlength="50"
+                       required>
+                <div class="form-text">Solo letras, números y guiones bajos (4-50 caracteres)</div>
+            </div>
         </div>
 
-        <h6 class="mb-2">Próximos Pasos:</h6>
-        <ol class="mb-3">
-            <li>Inicie sesión con su cuenta de administrador</li>
-            <li>Configure las opciones de email en el archivo <code>.env</code></li>
-            <li>Revise la configuración de seguridad</li>
-            <li>Cree usuarios y roles adicionales según sea necesario</li>
-            <li>Configure MFA (autenticación de dos factores) si lo desea</li>
-        </ol>
-
-        <h6 class="mb-2">Recursos del Sistema:</h6>
-        <ul class="mb-0">
-            <li><strong>Panel de Administración:</strong> <code>/admin/</code></li>
-            <li><strong>Sistema de Reportes:</strong> <code>/report/</code></li>
-            <li><strong>API REST:</strong> <code>/api/v1/</code></li>
-            <li><strong>Logs:</strong> <code>/var/logs/</code></li>
-        </ul>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="email" class="form-label">
+                    <i class="bi bi-envelope me-1"></i> Correo Electrónico
+                    <span class="text-danger">*</span>
+                </label>
+                <input type="email"
+                       class="form-control"
+                       id="email"
+                       name="email"
+                       required>
+            </div>
+        </div>
     </div>
-</div>
 
-<div class="card border-primary mb-4">
-    <div class="card-header bg-primary text-white">
-        <i class="bi bi-key me-2"></i>Credenciales de Acceso
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="first_name" class="form-label">
+                    Nombre
+                </label>
+                <input type="text"
+                       class="form-control"
+                       id="first_name"
+                       name="first_name"
+                       value="Admin">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="last_name" class="form-label">
+                    Apellido
+                </label>
+                <input type="text"
+                       class="form-control"
+                       id="last_name"
+                       name="last_name"
+                       value="User">
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        <p class="mb-2">Utilice estas credenciales para iniciar sesión:</p>
-        <ul class="mb-0">
-            <li><strong>Usuario:</strong> <code><?= htmlspecialchars($_SESSION['admin_username'] ?? 'admin') ?></code></li>
-            <li><strong>Email:</strong> <code><?= htmlspecialchars($_SESSION['admin_email'] ?? '') ?></code></li>
-            <li><strong>URL de Login:</strong> <a href="../login.php">../login.php</a></li>
-        </ul>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="password" class="form-label">
+                    <i class="bi bi-key me-1"></i> Contraseña
+                    <span class="text-danger">*</span>
+                </label>
+                <input type="password"
+                       class="form-control"
+                       id="password"
+                       name="password"
+                       minlength="8"
+                       required>
+                <div class="form-text">Mínimo 8 caracteres</div>
+                <div id="password-strength" class="mt-2"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="password_confirm" class="form-label">
+                    Confirmar Contraseña
+                    <span class="text-danger">*</span>
+                </label>
+                <input type="password"
+                       class="form-control"
+                       id="password_confirm"
+                       name="password_confirm"
+                       minlength="8"
+                       required>
+                <div id="password-match" class="mt-2"></div>
+            </div>
+        </div>
     </div>
-</div>
 
-<div class="card bg-light border-0 mb-4">
-    <div class="card-body">
-        <h6 class="mb-2">Configuración Generada:</h6>
-        <ul class="mb-0">
-            <li><i class="bi bi-check-circle-fill text-success me-1"></i> Archivo <code>.env</code> creado</li>
-            <li><i class="bi bi-check-circle-fill text-success me-1"></i> Base de datos instalada</li>
-            <li><i class="bi bi-check-circle-fill text-success me-1"></i> Roles por defecto creados</li>
-            <li><i class="bi bi-check-circle-fill text-success me-1"></i> Usuario administrador creado</li>
-            <li><i class="bi bi-check-circle-fill text-success me-1"></i> Archivo <code>.installed</code> creado</li>
-        </ul>
+    <div class="d-flex justify-content-between mt-4">
+        <a href="?step=5" class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-arrow-left me-2"></i> Anterior
+        </a>
+        <button type="submit" class="btn btn-primary btn-installer btn-lg">
+            Crear Administrador <i class="bi bi-arrow-right ms-2"></i>
+        </button>
     </div>
-</div>
+</form>
 
-<div class="text-center">
-    <a href="../login.php" class="btn btn-primary btn-lg">
-        <i class="bi bi-box-arrow-in-right me-2"></i> Ir a Iniciar Sesión
-    </a>
-    <a href="../index.php" class="btn btn-outline-secondary btn-lg ms-2">
-        <i class="bi bi-house me-2"></i> Ir al Inicio
-    </a>
-</div>
+<script>
+// Validación de contraseña en tiempo real
+const password = document.getElementById('password');
+const passwordConfirm = document.getElementById('password_confirm');
+const strengthDiv = document.getElementById('password-strength');
+const matchDiv = document.getElementById('password-match');
 
-<div class="text-center mt-4">
-    <small class="text-muted">
-        Gracias por usar ISER Authentication System
-    </small>
-</div>
+password.addEventListener('input', function() {
+    const value = this.value;
+    let strength = 0;
+    let messages = [];
+
+    if (value.length >= 8) strength++;
+    else messages.push('mínimo 8 caracteres');
+
+    if (/[A-Z]/.test(value)) strength++;
+    else messages.push('mayúsculas');
+
+    if (/[a-z]/.test(value)) strength++;
+    else messages.push('minúsculas');
+
+    if (/[0-9]/.test(value)) strength++;
+    else messages.push('números');
+
+    if (/[^A-Za-z0-9]/.test(value)) strength++;
+    else messages.push('caracteres especiales');
+
+    const colors = ['danger', 'danger', 'warning', 'info', 'success', 'success'];
+    const labels = ['Muy débil', 'Débil', 'Regular', 'Buena', 'Fuerte', 'Muy fuerte'];
+
+    strengthDiv.innerHTML = `
+        <div class="progress" style="height: 5px;">
+            <div class="progress-bar bg-${colors[strength]}" style="width: ${strength * 20}%"></div>
+        </div>
+        <small class="text-${colors[strength]}">
+            ${labels[strength]}${messages.length > 0 ? ' - Faltan: ' + messages.join(', ') : ''}
+        </small>
+    `;
+});
+
+passwordConfirm.addEventListener('input', function() {
+    if (this.value && this.value === password.value) {
+        matchDiv.innerHTML = '<small class="text-success"><i class="bi bi-check-circle me-1"></i>Las contraseñas coinciden</small>';
+    } else if (this.value) {
+        matchDiv.innerHTML = '<small class="text-danger"><i class="bi bi-x-circle me-1"></i>Las contraseñas no coinciden</small>';
+    } else {
+        matchDiv.innerHTML = '';
+    }
+});
+</script>
