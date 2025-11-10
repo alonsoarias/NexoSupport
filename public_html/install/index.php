@@ -337,7 +337,7 @@ ENV;
 
 function installDatabase() {
     try {
-        // Usar configuración de sesión en lugar de leer .env
+        // Usar configuración de sesión
         if (!isset($_SESSION['db_config'])) {
             return ['success' => false, 'errors' => ['Configuración de base de datos no encontrada en sesión']];
         }
@@ -349,31 +349,27 @@ function installDatabase() {
         $pdo = new PDO($dsn, $db['db_user'], $db['db_pass'] ?? '');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Leer y ejecutar archivos SQL
-        $sqlFiles = [
-            BASE_DIR . '/database/schema/core.sql',
-            BASE_DIR . '/database/schema/auth.sql',
-            BASE_DIR . '/database/schema/roles.sql',
-            BASE_DIR . '/database/schema/sessions.sql',
-            BASE_DIR . '/database/schema/mfa.sql',
-            BASE_DIR . '/database/schema/logs.sql',
-            BASE_DIR . '/database/schema/reports.sql',
-        ];
+        // Usar SchemaInstaller para instalar desde XML
+        $schemaFile = BASE_DIR . '/database/schema/schema.xml';
 
-        foreach ($sqlFiles as $file) {
-            if (file_exists($file)) {
-                $sql = file_get_contents($file);
-                // Reemplazar prefijo si existe
-                $prefix = $db['db_prefix'] ?? 'iser_';
-                if (!empty($prefix) && $prefix !== 'iser_') {
-                    $sql = str_replace('iser_', $prefix, $sql);
-                }
-                $pdo->exec($sql);
-            }
+        if (!file_exists($schemaFile)) {
+            return ['success' => false, 'errors' => ['Archivo de esquema XML no encontrado']];
         }
+
+        // Importar SchemaInstaller
+        require_once BASE_DIR . '/modules/Core/Database/SchemaInstaller.php';
+
+        $prefix = $db['db_prefix'] ?? '';
+        $installer = new \ISER\Core\Database\SchemaInstaller($pdo, $prefix);
+
+        // Instalar esquema desde XML
+        $installer->installFromXML($schemaFile);
+
+        $_SESSION['created_tables'] = $installer->getCreatedTables();
 
         return ['success' => true];
     } catch (Exception $e) {
+        error_log('Database installation error: ' . $e->getMessage());
         return ['success' => false, 'errors' => [$e->getMessage()]];
     }
 }

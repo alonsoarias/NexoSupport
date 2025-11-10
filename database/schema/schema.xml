@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+    <metadata>
+        <name>ISER Authentication System Database Schema</name>
+        <version>1.0.0</version>
+        <charset>utf8mb4</charset>
+        <collation>utf8mb4_unicode_ci</collation>
+        <engine>InnoDB</engine>
+    </metadata>
+
+    <!-- Core Configuration Table -->
+    <table name="iser_config">
+        <description>System configuration</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="config_key" type="VARCHAR(100)" null="false" unique="true"/>
+            <column name="config_value" type="TEXT"/>
+            <column name="config_type" type="ENUM('string','int','bool','json')" default="string"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="is_public" type="BOOLEAN" default="false"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+            <column name="updated_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_config_key" columns="config_key"/>
+        </indexes>
+        <data>
+            <row>
+                <config_key>app.name</config_key>
+                <config_value>ISER Authentication System</config_value>
+                <config_type>string</config_type>
+                <description>Application name</description>
+                <is_public>1</is_public>
+            </row>
+            <row>
+                <config_key>app.version</config_key>
+                <config_value>1.0.0</config_value>
+                <config_type>string</config_type>
+                <description>Application version</description>
+                <is_public>1</is_public>
+            </row>
+            <row>
+                <config_key>security.password_min_length</config_key>
+                <config_value>8</config_value>
+                <config_type>int</config_type>
+                <description>Minimum password length</description>
+                <is_public>0</is_public>
+            </row>
+            <row>
+                <config_key>security.max_login_attempts</config_key>
+                <config_value>5</config_value>
+                <config_type>int</config_type>
+                <description>Maximum login attempts</description>
+                <is_public>0</is_public>
+            </row>
+            <row>
+                <config_key>security.lockout_duration</config_key>
+                <config_value>900</config_value>
+                <config_type>int</config_type>
+                <description>Lockout duration in seconds</description>
+                <is_public>0</is_public>
+            </row>
+        </data>
+    </table>
+
+    <!-- Users Table -->
+    <table name="iser_users">
+        <description>System users</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="username" type="VARCHAR(50)" null="false" unique="true"/>
+            <column name="email" type="VARCHAR(255)" null="false" unique="true"/>
+            <column name="password" type="VARCHAR(255)" null="false"/>
+            <column name="first_name" type="VARCHAR(100)"/>
+            <column name="last_name" type="VARCHAR(100)"/>
+            <column name="status" type="ENUM('active','inactive','suspended','pending')" default="active"/>
+            <column name="email_verified" type="BOOLEAN" default="false"/>
+            <column name="email_verification_token" type="VARCHAR(64)"/>
+            <column name="email_verification_expires" type="INT UNSIGNED"/>
+            <column name="password_reset_token" type="VARCHAR(64)"/>
+            <column name="password_reset_expires" type="INT UNSIGNED"/>
+            <column name="last_login_at" type="INT UNSIGNED"/>
+            <column name="last_login_ip" type="VARCHAR(45)"/>
+            <column name="failed_login_attempts" type="INT UNSIGNED" default="0"/>
+            <column name="locked_until" type="INT UNSIGNED"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+            <column name="updated_at" type="INT UNSIGNED" null="false"/>
+            <column name="deleted_at" type="INT UNSIGNED"/>
+        </columns>
+        <indexes>
+            <index name="idx_username" columns="username"/>
+            <index name="idx_email" columns="email"/>
+            <index name="idx_status" columns="status"/>
+            <index name="idx_email_verification_token" columns="email_verification_token"/>
+            <index name="idx_password_reset_token" columns="password_reset_token"/>
+        </indexes>
+    </table>
+
+    <!-- User Profiles Table -->
+    <table name="iser_user_profiles">
+        <description>User profile information</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="user_id" type="INT UNSIGNED" null="false"/>
+            <column name="phone" type="VARCHAR(20)"/>
+            <column name="mobile" type="VARCHAR(20)"/>
+            <column name="address" type="TEXT"/>
+            <column name="city" type="VARCHAR(100)"/>
+            <column name="state" type="VARCHAR(100)"/>
+            <column name="country" type="VARCHAR(100)"/>
+            <column name="postal_code" type="VARCHAR(20)"/>
+            <column name="timezone" type="VARCHAR(50)" default="America/Mexico_City"/>
+            <column name="locale" type="VARCHAR(10)" default="es"/>
+            <column name="avatar_url" type="VARCHAR(255)"/>
+            <column name="bio" type="TEXT"/>
+            <column name="metadata" type="JSON"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+            <column name="updated_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_user_id" columns="user_id"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="user_id" references="iser_users(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Roles Table -->
+    <table name="iser_roles">
+        <description>User roles</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="name" type="VARCHAR(50)" null="false" unique="true"/>
+            <column name="slug" type="VARCHAR(50)" null="false" unique="true"/>
+            <column name="description" type="TEXT"/>
+            <column name="level" type="INT UNSIGNED" default="0"/>
+            <column name="is_system" type="BOOLEAN" default="false"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+            <column name="updated_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_slug" columns="slug"/>
+            <index name="idx_level" columns="level"/>
+        </indexes>
+        <data>
+            <row>
+                <name>Administrador</name>
+                <slug>admin</slug>
+                <description>System administrator with full access</description>
+                <level>100</level>
+                <is_system>1</is_system>
+            </row>
+            <row>
+                <name>Moderador</name>
+                <slug>moderator</slug>
+                <description>Moderator with limited permissions</description>
+                <level>50</level>
+                <is_system>1</is_system>
+            </row>
+            <row>
+                <name>Usuario</name>
+                <slug>user</slug>
+                <description>Standard system user</description>
+                <level>10</level>
+                <is_system>1</is_system>
+            </row>
+            <row>
+                <name>Invitado</name>
+                <slug>guest</slug>
+                <description>Guest user with limited access</description>
+                <level>1</level>
+                <is_system>1</is_system>
+            </row>
+        </data>
+    </table>
+
+    <!-- Permissions Table -->
+    <table name="iser_permissions">
+        <description>System permissions</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="name" type="VARCHAR(100)" null="false" unique="true"/>
+            <column name="slug" type="VARCHAR(100)" null="false" unique="true"/>
+            <column name="description" type="TEXT"/>
+            <column name="module" type="VARCHAR(50)"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+            <column name="updated_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_slug" columns="slug"/>
+            <index name="idx_module" columns="module"/>
+        </indexes>
+        <data>
+            <row>
+                <name>Ver usuarios</name>
+                <slug>users.view</slug>
+                <description>View users list</description>
+                <module>users</module>
+            </row>
+            <row>
+                <name>Crear usuarios</name>
+                <slug>users.create</slug>
+                <description>Create new users</description>
+                <module>users</module>
+            </row>
+            <row>
+                <name>Editar usuarios</name>
+                <slug>users.edit</slug>
+                <description>Edit existing users</description>
+                <module>users</module>
+            </row>
+            <row>
+                <name>Eliminar usuarios</name>
+                <slug>users.delete</slug>
+                <description>Delete users</description>
+                <module>users</module>
+            </row>
+            <row>
+                <name>Ver roles</name>
+                <slug>roles.view</slug>
+                <description>View roles list</description>
+                <module>roles</module>
+            </row>
+            <row>
+                <name>Crear roles</name>
+                <slug>roles.create</slug>
+                <description>Create new roles</description>
+                <module>roles</module>
+            </row>
+            <row>
+                <name>Editar roles</name>
+                <slug>roles.edit</slug>
+                <description>Edit existing roles</description>
+                <module>roles</module>
+            </row>
+            <row>
+                <name>Eliminar roles</name>
+                <slug>roles.delete</slug>
+                <description>Delete roles</description>
+                <module>roles</module>
+            </row>
+            <row>
+                <name>Gestionar permisos</name>
+                <slug>permissions.manage</slug>
+                <description>Manage system permissions</description>
+                <module>permissions</module>
+            </row>
+        </data>
+    </table>
+
+    <!-- User Roles Table -->
+    <table name="iser_user_roles">
+        <description>User to roles relationship</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="user_id" type="INT UNSIGNED" null="false"/>
+            <column name="role_id" type="INT UNSIGNED" null="false"/>
+            <column name="assigned_at" type="INT UNSIGNED" null="false"/>
+            <column name="assigned_by" type="INT UNSIGNED"/>
+            <column name="expires_at" type="INT UNSIGNED"/>
+        </columns>
+        <indexes>
+            <index name="unique_user_role" columns="user_id,role_id" unique="true"/>
+            <index name="idx_user_id" columns="user_id"/>
+            <index name="idx_role_id" columns="role_id"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="user_id" references="iser_users(id)" onDelete="CASCADE"/>
+            <foreignKey column="role_id" references="iser_roles(id)" onDelete="CASCADE"/>
+            <foreignKey column="assigned_by" references="iser_users(id)" onDelete="SET NULL"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Role Permissions Table -->
+    <table name="iser_role_permissions">
+        <description>Role to permissions relationship</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="role_id" type="INT UNSIGNED" null="false"/>
+            <column name="permission_id" type="INT UNSIGNED" null="false"/>
+            <column name="granted_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="unique_role_permission" columns="role_id,permission_id" unique="true"/>
+            <index name="idx_role_id" columns="role_id"/>
+            <index name="idx_permission_id" columns="permission_id"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="role_id" references="iser_roles(id)" onDelete="CASCADE"/>
+            <foreignKey column="permission_id" references="iser_permissions(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Sessions Table -->
+    <table name="iser_sessions">
+        <description>User sessions</description>
+        <columns>
+            <column name="id" type="VARCHAR(128)" primary="true"/>
+            <column name="user_id" type="INT UNSIGNED"/>
+            <column name="ip_address" type="VARCHAR(45)"/>
+            <column name="user_agent" type="VARCHAR(255)"/>
+            <column name="payload" type="TEXT"/>
+            <column name="last_activity" type="INT UNSIGNED" null="false"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_user_id" columns="user_id"/>
+            <index name="idx_last_activity" columns="last_activity"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="user_id" references="iser_users(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- JWT Tokens Table -->
+    <table name="iser_jwt_tokens">
+        <description>JWT tokens</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="user_id" type="INT UNSIGNED" null="false"/>
+            <column name="token_id" type="VARCHAR(64)" null="false" unique="true"/>
+            <column name="token_hash" type="VARCHAR(64)" null="false"/>
+            <column name="type" type="ENUM('access','refresh')" default="access"/>
+            <column name="expires_at" type="INT UNSIGNED" null="false"/>
+            <column name="revoked" type="BOOLEAN" default="false"/>
+            <column name="revoked_at" type="INT UNSIGNED"/>
+            <column name="ip_address" type="VARCHAR(45)"/>
+            <column name="user_agent" type="VARCHAR(255)"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_user_id" columns="user_id"/>
+            <index name="idx_token_id" columns="token_id"/>
+            <index name="idx_expires_at" columns="expires_at"/>
+            <index name="idx_revoked" columns="revoked"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="user_id" references="iser_users(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- MFA Table -->
+    <table name="iser_user_mfa">
+        <description>Multi-factor authentication</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="user_id" type="INT UNSIGNED" null="false"/>
+            <column name="method" type="ENUM('totp','sms','email','backup_codes')" null="false"/>
+            <column name="secret" type="VARCHAR(255)"/>
+            <column name="enabled" type="BOOLEAN" default="false"/>
+            <column name="verified" type="BOOLEAN" default="false"/>
+            <column name="backup_codes" type="JSON"/>
+            <column name="phone" type="VARCHAR(20)"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+            <column name="updated_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="unique_user_method" columns="user_id,method" unique="true"/>
+            <index name="idx_user_id" columns="user_id"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="user_id" references="iser_users(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Logs Table -->
+    <table name="iser_logs">
+        <description>System logs</description>
+        <columns>
+            <column name="id" type="BIGINT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="level" type="VARCHAR(20)" null="false"/>
+            <column name="channel" type="VARCHAR(50)" null="false"/>
+            <column name="message" type="TEXT" null="false"/>
+            <column name="context" type="JSON"/>
+            <column name="user_id" type="INT UNSIGNED"/>
+            <column name="ip_address" type="VARCHAR(45)"/>
+            <column name="user_agent" type="VARCHAR(255)"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_level" columns="level"/>
+            <index name="idx_channel" columns="channel"/>
+            <index name="idx_user_id" columns="user_id"/>
+            <index name="idx_created_at" columns="created_at"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="user_id" references="iser_users(id)" onDelete="SET NULL"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Audit Log Table -->
+    <table name="iser_audit_log">
+        <description>Audit trail</description>
+        <columns>
+            <column name="id" type="BIGINT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="user_id" type="INT UNSIGNED"/>
+            <column name="action" type="VARCHAR(100)" null="false"/>
+            <column name="entity_type" type="VARCHAR(100)"/>
+            <column name="entity_id" type="INT UNSIGNED"/>
+            <column name="old_values" type="JSON"/>
+            <column name="new_values" type="JSON"/>
+            <column name="ip_address" type="VARCHAR(45)"/>
+            <column name="user_agent" type="VARCHAR(255)"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_user_id" columns="user_id"/>
+            <index name="idx_action" columns="action"/>
+            <index name="idx_entity" columns="entity_type,entity_id"/>
+            <index name="idx_created_at" columns="created_at"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="user_id" references="iser_users(id)" onDelete="SET NULL"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Report Config Table -->
+    <table name="iser_report_config">
+        <description>Report configuration</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="config_name" type="VARCHAR(100)" null="false" unique="true"/>
+            <column name="config_value" type="TEXT"/>
+            <column name="config_type" type="ENUM('string','int','bool','json')" default="string"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+            <column name="updated_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_config_name" columns="config_name"/>
+        </indexes>
+        <data>
+            <row>
+                <config_name>report.retention_days</config_name>
+                <config_value>90</config_value>
+                <config_type>int</config_type>
+                <description>Log retention days</description>
+            </row>
+            <row>
+                <config_name>report.max_export_rows</config_name>
+                <config_value>10000</config_value>
+                <config_type>int</config_type>
+                <description>Maximum export rows</description>
+            </row>
+            <row>
+                <config_name>report.default_format</config_name>
+                <config_value>pdf</config_value>
+                <config_type>string</config_type>
+                <description>Default report format</description>
+            </row>
+        </data>
+    </table>
+</database>
