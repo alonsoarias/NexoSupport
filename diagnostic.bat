@@ -18,7 +18,7 @@ echo.
 echo Step 3: Setting password to 'Admin.123+'...
 echo.
 
-php tools\test-password.php "Admin.123+"
+php tools\update-admin-password.php "Admin.123+"
 
 echo.
 echo Step 4: Checking error log for recent authentication attempts...
