@@ -62,11 +62,18 @@ if ($reallyInstalled) {
 
 // If POST install, do installation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['install'])) {
+    // Aumentar tiempo de ejecución
+    set_time_limit(300);
+    ini_set('max_execution_time', '300');
+
     echo '<h3 class="mb-4">Instalando Base de Datos...</h3>';
     echo '<div style="font-family: monospace; background: #f8f9fa; padding: 15px; border-radius: 5px;">';
 
     try {
         // Connect
+        echo '<p class="text-info"><i class="bi bi-arrow-right"></i> Conectando a la base de datos...</p>';
+        flush(); ob_flush();
+
         $dsn = "mysql:host={$_SESSION['db_host']};port={$_SESSION['db_port']};dbname={$_SESSION['db_name']}";
         $pdo = new PDO($dsn, $_SESSION['db_user'], $_SESSION['db_pass']);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -74,13 +81,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['install'])) {
         echo '<p class="text-success"><i class="bi bi-check"></i> Conectado a la base de datos</p>';
         flush(); ob_flush();
 
+        // Verificar que el schema.xml existe
+        echo '<p class="text-info"><i class="bi bi-arrow-right"></i> Verificando archivo schema.xml...</p>';
+        flush(); ob_flush();
+
+        if (!file_exists(SCHEMA_FILE)) {
+            throw new Exception("Archivo schema.xml no encontrado en: " . SCHEMA_FILE);
+        }
+        echo '<p class="text-success"><i class="bi bi-check"></i> Schema.xml encontrado</p>';
+        flush(); ob_flush();
+
         // Install schema
+        echo '<p class="text-info"><i class="bi bi-arrow-right"></i> Inicializando SchemaInstaller...</p>';
+        flush(); ob_flush();
+
         $installer = new \ISER\Core\Database\SchemaInstaller($pdo, $_SESSION['db_prefix']);
-        echo '<p class="text-primary"><i class="bi bi-arrow-right"></i> Instalando tablas...</p>';
+
+        echo '<p class="text-primary"><i class="bi bi-arrow-right"></i> Instalando tablas desde XML...</p>';
         flush(); ob_flush();
 
         $installer->installFromXML(SCHEMA_FILE);
+
+        echo '<p class="text-success"><i class="bi bi-check"></i> XML procesado exitosamente</p>';
+        flush(); ob_flush();
+
         $tables = $installer->getCreatedTables();
+        $errors = $installer->getErrors();
 
         echo '<p class="text-success"><i class="bi bi-check"></i> <strong>' . count($tables) . ' tablas creadas</strong></p>';
         echo '<ul>';

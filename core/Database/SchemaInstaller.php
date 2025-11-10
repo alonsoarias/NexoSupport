@@ -51,6 +51,9 @@ class SchemaInstaller
             throw new Exception("Archivo XML no encontrado: {$xmlFile}");
         }
 
+        echo '<p class="text-info small">→ Parseando archivo XML...</p>';
+        flush(); ob_flush();
+
         // Parsear XML
         $this->xmlParser->parseFile($xmlFile);
         $schema = $this->xmlParser->toArray();
@@ -58,6 +61,9 @@ class SchemaInstaller
         if (empty($schema)) {
             throw new Exception("El esquema XML está vacío");
         }
+
+        echo '<p class="text-info small">→ XML parseado, obteniendo metadata...</p>';
+        flush(); ob_flush();
 
         // Obtener metadata
         $metadata = $schema['metadata'] ?? [];
@@ -73,18 +79,36 @@ class SchemaInstaller
             $tables = [$tables];
         }
 
-        foreach ($tables as $tableData) {
+        echo '<p class="text-info small">→ Creando ' . count($tables) . ' tablas...</p>';
+        flush(); ob_flush();
+
+        foreach ($tables as $index => $tableData) {
             try {
+                $tableName = $tableData['name'] ?? 'unknown';
+                echo '<p class="text-info small">→ Creando tabla: ' . htmlspecialchars($this->prefix . $tableName) . '</p>';
+                flush(); ob_flush();
+
                 $this->createTable($tableData, $charset, $collation, $engine);
+
+                echo '<p class="text-success small">✓ Tabla creada: ' . htmlspecialchars($this->prefix . $tableName) . '</p>';
+                flush(); ob_flush();
             } catch (Exception $e) {
                 $this->errors[] = $e->getMessage();
+                echo '<p class="text-danger small">✗ Error en tabla: ' . htmlspecialchars($e->getMessage()) . '</p>';
+                flush(); ob_flush();
                 throw $e;
             }
         }
 
+        echo '<p class="text-info small">→ Insertando datos iniciales...</p>';
+        flush(); ob_flush();
+
         // Insertar datos iniciales
         foreach ($tables as $tableData) {
             if (isset($tableData['data'])) {
+                $tableName = $tableData['name'] ?? 'unknown';
+                echo '<p class="text-info small">→ Insertando datos en: ' . htmlspecialchars($this->prefix . $tableName) . '</p>';
+                flush(); ob_flush();
                 $this->insertInitialData($tableData);
             }
         }
@@ -92,6 +116,8 @@ class SchemaInstaller
         // Asignar permisos al rol admin (si existen las tablas necesarias)
         if (in_array($this->prefix . 'role_permissions', $this->createdTables) &&
             in_array($this->prefix . 'permissions', $this->createdTables)) {
+            echo '<p class="text-info small">→ Asignando permisos al rol Admin...</p>';
+            flush(); ob_flush();
             $this->assignAdminPermissions();
         }
 
