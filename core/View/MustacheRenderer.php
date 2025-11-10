@@ -31,6 +31,13 @@ class MustacheRenderer
     private function __construct(string $viewsPath)
     {
         $this->viewsPath = $viewsPath;
+
+        // Asegurarse de que las funciones helper de Translator estén cargadas
+        // Esto es necesario porque el autoloader de Composer solo carga clases, no funciones
+        if (!function_exists('__')) {
+            require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'I18n' . DIRECTORY_SEPARATOR . 'Translator.php';
+        }
+
         $this->translator = Translator::getInstance();
 
         // Configurar Mustache
@@ -44,8 +51,9 @@ class MustacheRenderer
         ]);
 
         // Establecer datos globales por defecto
+        // No usamos __() aquí para evitar dependencias circulares
         $this->setGlobalData([
-            'app_name' => __('common.app_name'),
+            'app_name' => 'ISER Auth System',
             'locale' => $this->translator->getLocale(),
             'iser_colors' => [
                 'green' => '#1B9E88',

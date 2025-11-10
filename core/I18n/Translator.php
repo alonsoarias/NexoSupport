@@ -36,7 +36,13 @@ class Translator
     {
         if (self::$instance === null) {
             if (empty($translationsPath)) {
-                $translationsPath = dirname(__DIR__, 3) . '/resources/lang';
+                // Usar DIRECTORY_SEPARATOR para compatibilidad entre Windows y Unix
+                $translationsPath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'lang';
+
+                // Normalizar la ruta para Windows
+                if (DIRECTORY_SEPARATOR === '\\') {
+                    $translationsPath = str_replace('/', '\\', $translationsPath);
+                }
             }
             self::$instance = new self($translationsPath);
         }
