@@ -9,27 +9,24 @@
             <a href="/admin/roles/create" class="btn btn-sm btn-primary">
                 <i class="bi bi-plus-circle"></i> Nuevo Rol
             </a>
-            <a href="/admin/users" class="btn btn-sm btn-secondary">
-                <i class="bi bi-people"></i> Usuarios
-            </a>
             <a href="/admin" class="btn btn-sm btn-secondary">
                 <i class="bi bi-arrow-left"></i> Volver
             </a>
         </div>
     </div>
 
-    <!-- Mensajes -->
+    <!-- Mensajes de éxito/error -->
     {{#success_message}}
     <div class="alert alert-success">
         <i class="bi bi-check-circle"></i>
-        <div>{{success_message}}</div>
+        {{success_message}}
     </div>
     {{/success_message}}
 
     {{#error_message}}
     <div class="alert alert-danger">
         <i class="bi bi-exclamation-triangle"></i>
-        <div>{{error_message}}</div>
+        {{error_message}}
     </div>
     {{/error_message}}
 
@@ -42,65 +39,79 @@
             </h3>
         </div>
 
-        <div class="roles-grid">
-            {{#roles}}
-            <div class="role-card {{#is_system_role}}system-role{{/is_system_role}}">
-                <div class="role-header">
-                    <div class="role-title">
-                        <i class="bi bi-shield-fill"></i>
-                        <div>
-                            <h4>{{name}}</h4>
-                            <p class="role-slug">{{slug}}</p>
-                        </div>
-                    </div>
-                    <span class="role-level-badge">Nivel {{level}}</span>
-                </div>
-
-                <div class="role-body">
-                    <p class="role-description">
-                        {{#description}}{{description}}{{/description}}
-                        {{^description}}Sin descripción{{/description}}
-                    </p>
-
-                    <div class="role-stats">
-                        <div class="stat-item">
-                            <i class="bi bi-key"></i>
-                            <span><strong>{{permission_count}}</strong> permisos</span>
-                        </div>
-                    </div>
-
-                    {{#is_system_role}}
-                    <div class="system-badge">
-                        <i class="bi bi-lock-fill"></i> Rol del sistema
-                    </div>
-                    {{/is_system_role}}
-                </div>
-
-                <div class="role-actions">
-                    <form method="POST" action="/admin/roles/edit" style="display:inline;">
-                        <input type="hidden" name="role_id" value="{{role_id}}">
-                        <button type="submit" class="btn btn-sm btn-primary">
-                            <i class="bi bi-pencil"></i> Editar
-                        </button>
-                    </form>
-                    {{^is_system_role}}
-                    <button onclick="deleteRole('{{role_id}}')" class="btn btn-sm btn-danger">
-                        <i class="bi bi-trash"></i> Eliminar
-                    </button>
-                    {{/is_system_role}}
-                </div>
-            </div>
-            {{/roles}}
-
-            {{^roles}}
-            <div class="empty-state">
-                <i class="bi bi-shield-x"></i>
-                <p>No hay roles registrados en el sistema</p>
-                <a href="/admin/roles/create" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Crear primer rol
-                </a>
-            </div>
-            {{/roles}}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Rol</th>
+                        <th>Slug</th>
+                        <th>Nivel</th>
+                        <th>Permisos</th>
+                        <th>Descripción</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#roles}}
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <i class="bi bi-shield-fill"></i>
+                                <strong>{{name}}</strong>
+                            </div>
+                        </td>
+                        <td><code>{{slug}}</code></td>
+                        <td>
+                            <span class="level-badge level-{{level}}">Nivel {{level}}</span>
+                        </td>
+                        <td>
+                            <span class="count-badge-sm">{{permission_count}} permisos</span>
+                        </td>
+                        <td class="text-secondary">
+                            {{#description}}{{description}}{{/description}}
+                            {{^description}}<span class="text-muted">Sin descripción</span>{{/description}}
+                        </td>
+                        <td>
+                            {{#is_system_role}}
+                            <span class="badge badge-info">Sistema</span>
+                            {{/is_system_role}}
+                            {{^is_system_role}}
+                            <span class="badge badge-success">Personalizado</span>
+                            {{/is_system_role}}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <form method="POST" action="/admin/roles/edit" style="display:inline;">
+                                    <input type="hidden" name="role_id" value="{{role_id}}">
+                                    <button type="submit" class="btn-icon" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </form>
+                                {{^is_system_role}}
+                                <button onclick="deleteRole('{{role_id}}')" class="btn-icon btn-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {{/is_system_role}}
+                            </div>
+                        </td>
+                    </tr>
+                    {{/roles}}
+                    {{^roles}}
+                    <tr>
+                        <td colspan="7" class="text-center">
+                            <div class="no-data">
+                                <i class="bi bi-inbox"></i>
+                                <p>No se encontraron roles</p>
+                                <a href="/admin/roles/create" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Crear primer rol
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {{/roles}}
+                </tbody>
+            </table>
         </div>
 
         <!-- Paginación -->
@@ -123,31 +134,24 @@
         {{/show_pagination}}
     </div>
 
-    <!-- Info -->
-    <div class="info-section">
-        <h3><i class="bi bi-info-circle"></i> Información sobre Roles</h3>
-        <div class="info-cards">
-            <div class="info-card">
-                <i class="bi bi-shield-lock"></i>
+    <!-- Links rápidos -->
+    <div class="quick-links">
+        <h3><i class="bi bi-link-45deg"></i> Acceso Rápido</h3>
+        <div class="quick-links-grid">
+            <a href="/admin/users" class="quick-link-card">
+                <i class="bi bi-people"></i>
                 <div>
-                    <strong>Roles del Sistema</strong>
-                    <p>Los roles marcados como "del sistema" no pueden ser eliminados ni modificados completamente.</p>
+                    <strong>Gestión de Usuarios</strong>
+                    <p>Administrar usuarios del sistema</p>
                 </div>
-            </div>
-            <div class="info-card">
-                <i class="bi bi-sort-numeric-down"></i>
+            </a>
+            <a href="/admin/permissions" class="quick-link-card">
+                <i class="bi bi-key"></i>
                 <div>
-                    <strong>Niveles de Rol</strong>
-                    <p>El nivel determina la jerarquía: Admin (100), Moderator (50), User (10), Guest (1).</p>
+                    <strong>Gestión de Permisos</strong>
+                    <p>Administrar permisos por rol</p>
                 </div>
-            </div>
-            <div class="info-card">
-                <i class="bi bi-key-fill"></i>
-                <div>
-                    <strong>Permisos</strong>
-                    <p>Los permisos se asignan a roles, y los usuarios heredan los permisos de sus roles.</p>
-                </div>
-            </div>
+            </a>
         </div>
     </div>
 </div>
@@ -213,7 +217,6 @@
 
 .btn-primary:hover {
     background: #c82333;
-    transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -224,15 +227,6 @@
 
 .btn-secondary:hover {
     background: var(--border-color);
-}
-
-.btn-danger {
-    background: #dc3545;
-    color: white;
-}
-
-.btn-danger:hover {
-    background: #c82333;
 }
 
 /* Alerts */
@@ -303,148 +297,170 @@
     font-weight: 600;
 }
 
-/* Roles Grid */
-.roles-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 20px;
-}
-
-.role-card {
-    background: var(--bg-primary);
-    border-radius: 8px;
-    border: 2px solid var(--border-color);
-    overflow: hidden;
-    transition: all 0.2s;
-}
-
-.role-card:hover {
-    border-color: var(--iser-red);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.role-card.system-role {
-    border-color: var(--iser-blue);
-}
-
-.role-card.system-role:hover {
-    border-color: var(--iser-blue);
-}
-
-.role-header {
-    background: var(--bg-secondary);
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.role-title {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-}
-
-.role-title i {
-    font-size: 2rem;
-    color: var(--iser-red);
-    margin-top: 5px;
-}
-
-.role-title h4 {
-    margin: 0 0 5px 0;
-    color: var(--text-primary);
-    font-size: 1.2rem;
-}
-
-.role-slug {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    font-family: 'Courier New', monospace;
-    background: var(--bg-primary);
-    padding: 2px 6px;
-    border-radius: 3px;
-}
-
-.role-level-badge {
-    background: var(--iser-green);
+.count-badge-sm {
+    background: var(--iser-blue);
     color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
+    padding: 3px 10px;
+    border-radius: 12px;
     font-size: 0.8rem;
     font-weight: 600;
 }
 
-.role-body {
-    padding: 20px;
+/* Table */
+.table-responsive {
+    overflow-x: auto;
 }
 
-.role-description {
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table thead {
+    background: var(--bg-primary);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.data-table th {
+    text-align: left;
+    padding: 15px;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 15px;
     color: var(--text-secondary);
-    margin: 0 0 20px 0;
-    line-height: 1.5;
-    min-height: 48px;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.role-stats {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
+.data-table tbody tr:last-child td {
+    border-bottom: none;
 }
 
-.stat-item {
+.data-table tbody tr:hover {
+    background: var(--bg-primary);
+}
+
+.user-cell {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: var(--text-secondary);
-}
-
-.stat-item i {
-    color: var(--iser-red);
-    font-size: 1.1rem;
-}
-
-.system-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--iser-blue);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.role-actions {
-    padding: 15px 20px;
-    background: var(--bg-secondary);
-    display: flex;
     gap: 10px;
-    border-top: 1px solid var(--border-color);
 }
 
-/* Empty State */
-.empty-state {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px 20px;
+.user-cell i {
+    color: var(--iser-red);
+    font-size: 1.5rem;
+}
+
+.user-cell strong {
+    color: var(--text-primary);
+}
+
+code {
+    background: var(--bg-primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    color: var(--iser-green);
+    font-size: 0.85rem;
+}
+
+.text-secondary {
     color: var(--text-secondary);
 }
 
-.empty-state i {
+/* Level Badge */
+.level-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+}
+
+.level-badge.level-100 {
+    background: #dc3545;
+}
+
+.level-badge.level-50 {
+    background: #ffc107;
+}
+
+.level-badge.level-10 {
+    background: #28a745;
+}
+
+.level-badge {
+    background: var(--iser-blue);
+}
+
+/* Badges */
+.badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+}
+
+.badge-success {
+    background: #28a745;
+}
+
+.badge-info {
+    background: var(--iser-blue);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: var(--bg-secondary);
+    color: var(--iser-red);
+}
+
+.btn-icon.btn-danger:hover {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* No Data */
+.no-data {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.no-data i {
     font-size: 4rem;
     color: var(--text-secondary);
-    margin-bottom: 20px;
     opacity: 0.5;
+    margin-bottom: 20px;
 }
 
-.empty-state p {
+.no-data p {
     font-size: 1.1rem;
+    color: var(--text-secondary);
     margin: 0 0 20px 0;
+}
+
+.text-center {
+    text-align: center;
 }
 
 /* Pagination */
@@ -464,14 +480,14 @@
     font-weight: 500;
 }
 
-/* Info Section */
-.info-section {
+/* Quick Links */
+.quick-links {
     background: var(--bg-secondary);
     border-radius: 12px;
     padding: 30px;
 }
 
-.info-section h3 {
+.quick-links h3 {
     color: var(--text-primary);
     margin: 0 0 20px 0;
     display: flex;
@@ -480,39 +496,45 @@
     font-size: 1.2rem;
 }
 
-.info-cards {
+.quick-links-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
 }
 
-.info-card {
+.quick-link-card {
     background: var(--bg-primary);
     border-radius: 8px;
     padding: 20px;
     display: flex;
     gap: 15px;
-    border-left: 4px solid var(--iser-red);
+    align-items: center;
+    text-decoration: none;
+    border: 2px solid var(--border-color);
+    transition: all 0.2s;
 }
 
-.info-card i {
-    font-size: 2rem;
+.quick-link-card:hover {
+    border-color: var(--iser-red);
+    transform: translateY(-2px);
+}
+
+.quick-link-card i {
+    font-size: 2.5rem;
     color: var(--iser-red);
-    flex-shrink: 0;
 }
 
-.info-card strong {
+.quick-link-card strong {
     display: block;
     color: var(--text-primary);
     margin-bottom: 5px;
     font-size: 1rem;
 }
 
-.info-card p {
+.quick-link-card p {
     color: var(--text-secondary);
     margin: 0;
     font-size: 0.9rem;
-    line-height: 1.5;
 }
 
 /* Responsive */
@@ -523,11 +545,16 @@
         gap: 15px;
     }
 
-    .roles-grid {
-        grid-template-columns: 1fr;
+    .data-table {
+        font-size: 0.85rem;
     }
 
-    .info-cards {
+    .data-table th,
+    .data-table td {
+        padding: 10px;
+    }
+
+    .quick-links-grid {
         grid-template-columns: 1fr;
     }
 }
