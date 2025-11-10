@@ -171,6 +171,11 @@ class RoleController
             return Response::json(['error' => 'Rol no encontrado'], 404);
         }
 
+        // FIX: Asegurar que id sea string para Mustache
+        if (isset($role['id'])) {
+            $role['id'] = (string)$role['id'];
+        }
+
         // Obtener permisos del rol
         $rolePermissions = $this->roleManager->getRolePermissions($id);
         $rolePermissionIds = array_column($rolePermissions, 'id');

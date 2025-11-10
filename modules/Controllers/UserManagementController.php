@@ -209,6 +209,11 @@ class UserManagementController
         error_log('$user["id"] value: ' . var_export($user['id'] ?? 'NOT_SET', true));
         error_log('$user full: ' . json_encode($user));
 
+        // FIX: Asegurar que id sea string para Mustache
+        if (isset($user['id'])) {
+            $user['id'] = (string)$user['id'];
+        }
+
         // Obtener roles del usuario
         $userRoles = $this->userManager->getUserRoles($id);
         $userRoleIds = array_column($userRoles, 'id');

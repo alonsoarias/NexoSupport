@@ -151,6 +151,11 @@ class PermissionController
             return Response::json(['error' => 'Permiso no encontrado'], 404);
         }
 
+        // FIX: Asegurar que id sea string para Mustache
+        if (isset($permission['id'])) {
+            $permission['id'] = (string)$permission['id'];
+        }
+
         // Obtener roles que tienen este permiso
         $roles = $this->permissionManager->getPermissionRoles($id);
 
