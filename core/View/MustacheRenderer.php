@@ -130,7 +130,7 @@ class MustacheRenderer
 
         return [
             // Helper de traducción
-            '__' => function ($text) use ($translator) {
+            '__' => function ($text = '') use ($translator) {
                 if (strpos($text, '|') !== false) {
                     [$key, $params] = explode('|', $text, 2);
                     parse_str($params, $replace);
@@ -140,52 +140,52 @@ class MustacheRenderer
             },
 
             // Helper de fecha
-            'date' => function ($timestamp, $format = 'Y-m-d H:i:s') {
+            'date' => function ($timestamp = null, $format = 'Y-m-d H:i:s') {
                 if (is_numeric($timestamp)) {
                     return date($format, (int)$timestamp);
                 }
-                return $timestamp;
+                return $timestamp ?? '';
             },
 
             // Helper de número formateado
-            'number' => function ($number, $decimals = 2) {
+            'number' => function ($number = 0, $decimals = 2) {
                 return number_format((float)$number, (int)$decimals, '.', ',');
             },
 
             // Helper de porcentaje
-            'percentage' => function ($value) {
+            'percentage' => function ($value = 0) {
                 return number_format((float)$value, 2) . '%';
             },
 
             // Helper de URL
-            'url' => function ($path) {
+            'url' => function ($path = '') {
                 $baseUrl = $this->globalData['base_url'] ?? '';
                 return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
             },
 
             // Helper de asset
-            'asset' => function ($path) {
+            'asset' => function ($path = '') {
                 $baseUrl = $this->globalData['base_url'] ?? '';
                 return rtrim($baseUrl, '/') . '/assets/' . ltrim($path, '/');
             },
 
             // Helper de capitalize
-            'capitalize' => function ($text) {
+            'capitalize' => function ($text = '') {
                 return ucfirst(strtolower($text));
             },
 
             // Helper de uppercase
-            'uppercase' => function ($text) {
+            'uppercase' => function ($text = '') {
                 return strtoupper($text);
             },
 
             // Helper de lowercase
-            'lowercase' => function ($text) {
+            'lowercase' => function ($text = '') {
                 return strtolower($text);
             },
 
             // Helper de JSON encode
-            'json' => function ($data) {
+            'json' => function ($data = null) {
                 return json_encode($data, JSON_UNESCAPED_UNICODE);
             },
         ];
