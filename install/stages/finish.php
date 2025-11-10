@@ -24,8 +24,8 @@ if (!isset($_SESSION['installation_complete'])) {
 
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Hash password
-        $passwordHash = password_hash($_SESSION['admin_password'], PASSWORD_ARGON2ID);
+        // Hash password con bcrypt (cost 12)
+        $passwordHash = password_hash($_SESSION['admin_password'], PASSWORD_BCRYPT, ['cost' => 12]);
         $now = time();
 
         // Insert user
