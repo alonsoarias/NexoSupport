@@ -35,8 +35,8 @@
             <div class="filter-group">
                 <select name="status" class="form-select">
                     <option value="">Todos los estados</option>
-                    <option value="active" {{#filters.status}}{{#eq filters.status "active"}}selected{{/eq}}{{/filters.status}}>Activos</option>
-                    <option value="suspended" {{#filters.status}}{{#eq filters.status "suspended"}}selected{{/eq}}{{/filters.status}}>Suspendidos</option>
+                    <option value="active">Activos</option>
+                    <option value="suspended">Suspendidos</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -591,4 +591,13 @@ function restoreUser(userId) {
         alert('Error al restaurar usuario');
     });
 }
+
+// Mantener filtros seleccionados
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.querySelector('select[name="status"]');
+    const statusValue = '{{filters.status}}';
+    if (statusValue && statusSelect) {
+        statusSelect.value = statusValue;
+    }
+});
 </script>

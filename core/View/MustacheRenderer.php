@@ -188,6 +188,21 @@ class MustacheRenderer
             'json' => function ($data = null) {
                 return json_encode($data, JSON_UNESCAPED_UNICODE);
             },
+
+            // Helper de comparación (eq)
+            'eq' => function ($value1 = '', $value2 = '') {
+                return $value1 == $value2;
+            },
+
+            // Helper de mayor que (gt)
+            'gt' => function ($value1 = 0, $value2 = 0) {
+                return (float)$value1 > (float)$value2;
+            },
+
+            // Helper de menor que (lt)
+            'lt' => function ($value1 = 0, $value2 = 0) {
+                return (float)$value1 < (float)$value2;
+            },
         ];
     }
 
