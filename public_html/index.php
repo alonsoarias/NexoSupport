@@ -1,264 +1,210 @@
 <?php
-
 /**
  * ISER Authentication System - Main Entry Point
- *
- * This is the main entry point for the ISER Authentication System.
- *
- * @package    ISER
- * @category   Core
- * @author     ISER Development Team
- * @copyright  2024 ISER
- * @license    Proprietary
- * @version    1.0.0
- * @since      Phase 1
+ * @package Core
+ * @author ISER Desarrollo
+ * @license Propietario
  */
 
 // Define base directory
-define('ISER_BASE_DIR', dirname(__DIR__));
+define('BASE_DIR', dirname(__DIR__));
+define('INSTALL_LOCK', BASE_DIR . '/.installed');
+define('ENV_FILE', BASE_DIR . '/.env');
 
-// Load Composer autoloader
-require_once ISER_BASE_DIR . '/vendor/autoload.php';
+// Verificar si el sistema está instalado
+if (!file_exists(INSTALL_LOCK)) {
+    // Redirigir al instalador
+    header('Location: install/index.php');
+    exit;
+}
 
-// Import Bootstrap class
-use ISER\Core\Bootstrap;
-use ISER\Core\Utils\Logger;
-use ISER\Core\Utils\Helpers;
-
-// Error handling for production
-set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-    if (Logger::isInitialized()) {
-        Logger::error('PHP Error', [
-            'errno' => $errno,
-            'errstr' => $errstr,
-            'errfile' => $errfile,
-            'errline' => $errline,
-        ]);
-    }
-
-    // Don't execute PHP internal error handler
-    return true;
-});
-
-set_exception_handler(function ($exception) {
-    if (Logger::isInitialized()) {
-        Logger::exception($exception);
-    }
-
+// Verificar que existe el archivo .env
+if (!file_exists(ENV_FILE)) {
     http_response_code(500);
+    die('<h1>Configuration Error</h1><p>El archivo .env no fue encontrado. Por favor, ejecute el instalador.</p>');
+}
 
-    // Check if we should display errors
-    if (defined('APP_DEBUG') && APP_DEBUG) {
-        echo '<h1>Exception</h1>';
-        echo '<pre>' . $exception->getMessage() . '</pre>';
-        echo '<pre>' . $exception->getTraceAsString() . '</pre>';
-    } else {
-        echo '<h1>System Error</h1>';
-        echo '<p>An error occurred. Please contact the administrator.</p>';
-    }
-});
+// Cargar autoloader
+if (!file_exists(BASE_DIR . '/vendor/autoload.php')) {
+    http_response_code(500);
+    die('<h1>Dependency Error</h1><p>Composer dependencies not installed. Run: composer install</p>');
+}
 
+require_once BASE_DIR . '/vendor/autoload.php';
+
+// Iniciar sesión
+session_start();
+
+use ISER\Core\Bootstrap;
+
+// Inicializar la aplicación
 try {
-    // Initialize the system
-    $app = new Bootstrap(ISER_BASE_DIR);
+    $app = new Bootstrap(BASE_DIR);
     $app->init();
+} catch (Exception $e) {
+    error_log('Bootstrap Error: ' . $e->getMessage());
+    http_response_code(500);
+    die('<h1>System Error</h1><p>Failed to initialize the application. Check logs for details.</p>');
+}
 
-    // Get router
-    $router = $app->getRouter();
-
-    // Define routes
-    $router->get('/', function () use ($app) {
-        $systemInfo = $app->getSystemInfo();
-
-        // Basic HTML output for Phase 1
-        $html = <<<HTML
+// Si el usuario está autenticado, redirigir al dashboard
+if (isset($_SESSION['user_id']) && isset($_SESSION['authenticated'])) {
+    header('Location: dashboard.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema ISER - En desarrollo</title>
+    <title>ISER Authentication System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
         }
-
-        .container {
+        .hero-card {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-            width: 100%;
-            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
         }
-
-        h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 32px;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 18px;
-        }
-
-        .status {
-            background: #f0f4ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-
-        .status-item {
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
             display: flex;
-            justify-content: space-between;
-            margin: 8px 0;
-            font-size: 14px;
-        }
-
-        .status-label {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .status-value {
-            color: #666;
-            font-family: 'Courier New', monospace;
-        }
-
-        .success {
-            color: #10b981;
-            font-weight: 600;
-        }
-
-        .links {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e5e5;
-        }
-
-        .link {
-            display: inline-block;
-            background: #667eea;
+            align-items: center;
+            justify-content: center;
             color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            margin: 5px;
-            transition: background 0.3s;
-        }
-
-        .link:hover {
-            background: #5568d3;
-        }
-
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #999;
-            font-size: 12px;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Sistema ISER</h1>
-        <p class="subtitle">Sistema de Autenticación - Fase 1</p>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="hero-card">
+                    <div class="row g-0">
+                        <!-- Left Side - Hero Content -->
+                        <div class="col-md-6 p-5 bg-light">
+                            <div class="mb-5">
+                                <h1 class="display-4 fw-bold mb-3">
+                                    <i class="bi bi-shield-check text-primary"></i>
+                                    ISER Auth
+                                </h1>
+                                <p class="lead text-muted">
+                                    Sistema de Autenticación y Autorización Empresarial
+                                </p>
+                            </div>
 
-        <div class="status">
-            <div class="status-item">
-                <span class="status-label">Estado:</span>
-                <span class="success">✓ En desarrollo</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Versión:</span>
-                <span class="status-value">{$systemInfo['version']}</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Entorno:</span>
-                <span class="status-value">{$systemInfo['environment']}</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">PHP:</span>
-                <span class="status-value">{$systemInfo['php_version']}</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Módulos detectados:</span>
-                <span class="status-value">{$systemInfo['modules_count']}</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Sistema inicializado:</span>
-                <span class="success">✓ Sí</span>
-            </div>
-        </div>
+                            <div class="mb-4">
+                                <div class="d-flex align-items-start mb-3">
+                                    <div class="feature-icon">
+                                        <i class="bi bi-lock-fill"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="fw-bold">Seguridad Robusta</h5>
+                                        <p class="text-muted mb-0">
+                                            Autenticación multifactor, encriptación avanzada y protección contra ataques
+                                        </p>
+                                    </div>
+                                </div>
 
-        <div class="links">
-            <a href="/login.php" class="link">Iniciar sesión</a>
-            <a href="/admin.php" class="link">Administración</a>
-        </div>
+                                <div class="d-flex align-items-start mb-3">
+                                    <div class="feature-icon">
+                                        <i class="bi bi-people-fill"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="fw-bold">Gestión de Usuarios</h5>
+                                        <p class="text-muted mb-0">
+                                            Control completo de usuarios, roles y permisos granulares
+                                        </p>
+                                    </div>
+                                </div>
 
-        <div class="footer">
-            <p>ISER Authentication System &copy; 2024</p>
-            <p>Fase 1: Núcleo del Sistema Completada</p>
+                                <div class="d-flex align-items-start">
+                                    <div class="feature-icon">
+                                        <i class="bi bi-graph-up"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h5 class="fw-bold">Reportes y Auditoría</h5>
+                                        <p class="text-muted mb-0">
+                                            Monitoreo en tiempo real y registros detallados de actividad
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side - Actions -->
+                        <div class="col-md-6 p-5 d-flex flex-column justify-content-center">
+                            <div class="text-center mb-4">
+                                <h3 class="mb-3">Bienvenido</h3>
+                                <p class="text-muted">
+                                    Acceda a su cuenta o cree una nueva
+                                </p>
+                            </div>
+
+                            <div class="d-grid gap-3">
+                                <a href="login.php" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                                    Iniciar Sesión
+                                </a>
+
+                                <a href="register.php" class="btn btn-outline-primary btn-lg">
+                                    <i class="bi bi-person-plus me-2"></i>
+                                    Registrarse
+                                </a>
+
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">
+                                        <a href="forgot-password.php" class="text-decoration-none">
+                                            ¿Olvidó su contraseña?
+                                        </a>
+                                    </small>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="text-center">
+                                <small class="text-muted d-block mb-2">Enlaces Útiles</small>
+                                <div class="d-flex justify-content-center gap-3">
+                                    <a href="api/v1/docs" class="text-decoration-none">
+                                        <i class="bi bi-code-square"></i> API Docs
+                                    </a>
+                                    <a href="report/" class="text-decoration-none">
+                                        <i class="bi bi-graph-up"></i> Reportes
+                                    </a>
+                                    <a href="admin/" class="text-decoration-none">
+                                        <i class="bi bi-gear"></i> Admin
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="text-center mt-4 text-white">
+                    <small>
+                        ISER Authentication System v1.0 &copy; <?= date('Y') ?>
+                    </small>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-HTML;
-
-        return $html;
-    }, 'home');
-
-    // API endpoint for system info (JSON)
-    $router->get('/api/system-info', function () use ($app) {
-        header('Content-Type: application/json');
-        return $app->getSystemInfo();
-    }, 'api.system-info');
-
-    // API health check
-    $router->get('/api/health', function () use ($app) {
-        $database = $app->getDatabase();
-        $dbStatus = $database ? $database->testConnection() : false;
-
-        return [
-            'status' => 'ok',
-            'timestamp' => time(),
-            'database' => $dbStatus ? 'connected' : 'disconnected',
-        ];
-    }, 'api.health');
-
-    // Run the application
-    $app->run();
-
-} catch (\Exception $e) {
-    // Fallback error handling
-    http_response_code(500);
-
-    if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
-        header('Content-Type: application/json');
-        echo json_encode([
-            'error' => true,
-            'message' => 'System initialization failed',
-        ]);
-    } else {
-        echo '<h1>System Error</h1>';
-        echo '<p>Failed to initialize the system. Please check the logs.</p>';
-    }
-
-    exit(1);
-}
