@@ -543,8 +543,12 @@ function processDatabaseConfig(array $data): array
         }
 
         // Create database if not exists
-        $dbName = $pdo->quote($data['db_name']);
-        $pdo->exec("CREATE DATABASE IF NOT EXISTS {$dbName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        // Sanitize database name (alphanumeric, underscore, hyphen only)
+        $dbName = preg_replace('/[^a-zA-Z0-9_-]/', '', $data['db_name']);
+        if (empty($dbName)) {
+            return ['success' => false, 'errors' => ['Nombre de base de datos inválido']];
+        }
+        $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 
         return ['success' => true, 'mysql_version' => $version];
     } catch (PDOException $e) {
