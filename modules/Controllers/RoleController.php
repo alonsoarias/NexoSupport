@@ -29,7 +29,7 @@ class RoleController
         $this->db = $db;
         $this->roleManager = new RoleManager($db);
         $this->permissionManager = new PermissionManager($db);
-        $this->view = new MustacheRenderer(BASE_DIR . '/resources/views');
+        $this->view = MustacheRenderer::getInstance();
     }
 
     /**

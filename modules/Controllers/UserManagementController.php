@@ -32,7 +32,7 @@ class UserManagementController
         $this->userManager = new UserManager($db);
         $this->roleManager = new RoleManager($db);
         $this->permissionManager = new PermissionManager($db);
-        $this->view = new MustacheRenderer(BASE_DIR . '/resources/views');
+        $this->view = MustacheRenderer::getInstance();
     }
 
     /**
