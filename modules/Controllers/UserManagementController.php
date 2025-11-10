@@ -9,30 +9,37 @@ use ISER\Core\Http\Response;
 use ISER\Core\View\MustacheRenderer;
 use ISER\User\UserManager;
 use ISER\Role\RoleManager;
-use ISER\Permission\PermissionManager;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * User Management Controller
+ * UserManagementController - Gestión completa de usuarios (REFACTORIZADO)
  *
- * Gestiona usuarios, roles y permisos del sistema
+ * NUEVO ENFOQUE:
+ * - Usa sesiones para almacenar ID durante edición
+ * - Evita renderizar IDs en campos hidden
+ * - IDs se pasan como user_id (string) para compatibilidad con Mustache
  */
 class UserManagementController
 {
-    private Database $db;
     private UserManager $userManager;
     private RoleManager $roleManager;
-    private PermissionManager $permissionManager;
-    private MustacheRenderer $view;
+    private MustacheRenderer $renderer;
 
-    public function __construct(Database $db)
+    public function __construct(Database $database)
     {
-        $this->db = $db;
-        $this->userManager = new UserManager($db);
-        $this->roleManager = new RoleManager($db);
-        $this->permissionManager = new PermissionManager($db);
-        $this->view = MustacheRenderer::getInstance();
+        $this->userManager = new UserManager($database);
+        $this->roleManager = new RoleManager($database);
+        $this->renderer = MustacheRenderer::getInstance();
+    }
+
+    /**
+     * Renderizar con layout
+     */
+    private function renderWithLayout(string $view, array $data = []): ResponseInterface
+    {
+        $html = $this->renderer->render($view, $data, 'layouts/admin');
+        return Response::html($html);
     }
 
     /**
@@ -64,17 +71,23 @@ class UserManagementController
         $totalUsers = $this->userManager->countUsers($filters);
         $totalPages = (int)ceil($totalUsers / $perPage);
 
-        // Enriquecer usuarios con sus roles
+        // Enriquecer usuarios con roles y flags
         foreach ($users as &$user) {
-            $user['roles'] = $this->userManager->getUserRoles((int)$user['id']);
+            $userId = (int)$user['id'];
+            $user['roles'] = $this->userManager->getUserRoles($userId);
             $user['role_names'] = array_map(fn($r) => $r['name'], $user['roles']);
             $user['created_at_formatted'] = date('d/m/Y H:i', (int)$user['created_at']);
             $user['is_deleted'] = !empty($user['deleted_at']);
-            $user['is_active'] = ($user['status'] ?? 'active') === 'active';
-            $user['is_suspended'] = ($user['status'] ?? 'active') === 'suspended';
+
+            // Normalizar status a minúsculas para comparación
+            $status = strtolower($user['status'] ?? 'active');
+            $user['is_active'] = $status === 'active';
+            $user['is_suspended'] = $status === 'suspended';
+
+            // CRÍTICO: Usar user_id como string para que Mustache lo renderice correctamente
+            $user['user_id'] = (string)$user['id'];
         }
 
-        // Preparar datos para la vista
         $data = [
             'users' => $users,
             'total_users' => $totalUsers,
@@ -87,21 +100,40 @@ class UserManagementController
             'next_page' => $page + 1,
             'filters' => $filters,
             'showing_deleted' => isset($filters['deleted']),
+            'page_title' => 'Gestión de Usuarios',
         ];
+
+        // Mensajes
+        if (isset($queryParams['success'])) {
+            $messages = [
+                'created' => 'Usuario creado correctamente',
+                'updated' => 'Usuario actualizado correctamente',
+                'deleted' => 'Usuario eliminado correctamente',
+                'restored' => 'Usuario restaurado correctamente',
+            ];
+            $data['success_message'] = $messages[$queryParams['success']] ?? null;
+        }
+
+        if (isset($queryParams['error'])) {
+            $errors = [
+                'invalid_id' => 'ID de usuario inválido',
+                'not_found' => 'Usuario no encontrado',
+            ];
+            $data['error_message'] = $errors[$queryParams['error']] ?? 'Error desconocido';
+        }
 
         return $this->renderWithLayout('admin/users/index', $data);
     }
 
     /**
-     * Formulario de creación de usuario
+     * Formulario de creación
      */
     public function create(ServerRequestInterface $request): ResponseInterface
     {
-        // Obtener todos los roles disponibles
-        $roles = $this->roleManager->getRoles(100, 0);
+        $allRoles = $this->roleManager->getRoles(100, 0);
 
         $data = [
-            'roles' => $roles,
+            'all_roles' => $allRoles,
             'page_title' => 'Crear Usuario',
         ];
 
@@ -109,48 +141,21 @@ class UserManagementController
     }
 
     /**
-     * Procesar creación de usuario
+     * Procesar creación
      */
     public function store(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
 
-        // Validar datos requeridos
-        $errors = [];
+        // Validar datos
+        $errors = $this->validateUserData($body);
 
-        if (empty($body['username'])) {
-            $errors[] = 'El nombre de usuario es requerido';
-        } elseif ($this->userManager->usernameExists($body['username'])) {
-            $errors[] = 'El nombre de usuario ya está en uso';
-        }
-
-        if (empty($body['email'])) {
-            $errors[] = 'El email es requerido';
-        } elseif ($this->userManager->emailExists($body['email'])) {
-            $errors[] = 'El email ya está en uso';
-        }
-
-        if (empty($body['password'])) {
-            $errors[] = 'La contraseña es requerida';
-        } elseif (strlen($body['password']) < 8) {
-            $errors[] = 'La contraseña debe tener al menos 8 caracteres';
-        }
-
-        if (empty($body['first_name'])) {
-            $errors[] = 'El nombre es requerido';
-        }
-
-        if (empty($body['last_name'])) {
-            $errors[] = 'El apellido es requerido';
-        }
-
-        // Si hay errores, regresar al formulario
         if (!empty($errors)) {
-            $roles = $this->roleManager->getRoles(100, 0);
+            $allRoles = $this->roleManager->getRoles(100, 0);
             $data = [
                 'errors' => $errors,
-                'roles' => $roles,
                 'form_data' => $body,
+                'all_roles' => $allRoles,
                 'page_title' => 'Crear Usuario',
             ];
             return $this->renderWithLayout('admin/users/create', $data);
@@ -163,64 +168,41 @@ class UserManagementController
             'password' => $body['password'],
             'first_name' => $body['first_name'],
             'last_name' => $body['last_name'],
-            'status' => $body['status'] ?? 'active',
+            'status' => strtoupper($body['status'] ?? 'ACTIVE'),
         ]);
 
-        if ($userId === false) {
-            $errors[] = 'Error al crear el usuario';
-            $roles = $this->roleManager->getRoles(100, 0);
-            $data = [
-                'errors' => $errors,
-                'roles' => $roles,
-                'form_data' => $body,
-                'page_title' => 'Crear Usuario',
-            ];
-            return $this->renderWithLayout('admin/users/create', $data);
-        }
-
-        // Asignar roles si se seleccionaron
-        if (!empty($body['roles']) && is_array($body['roles'])) {
+        // Asignar roles si se proporcionaron
+        if (isset($body['roles']) && is_array($body['roles'])) {
             $currentUserId = $_SESSION['user_id'] ?? null;
             $this->userManager->syncRoles($userId, array_map('intval', $body['roles']), $currentUserId);
         }
 
-        // Redirigir a la lista con mensaje de éxito
         return Response::redirect('/admin/users?success=created');
     }
 
     /**
-     * Formulario de edición de usuario
+     * Formulario de edición - USA SESIÓN PARA ALMACENAR ID
      */
     public function edit(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
-        $id = (int)($body['id'] ?? 0);
+        $userId = (int)($body['user_id'] ?? 0);
 
-        if (!$id) {
-            return Response::json(['error' => 'ID de usuario no proporcionado'], 400);
+        if (!$userId) {
+            return Response::redirect('/admin/users?error=invalid_id');
         }
 
-        $user = $this->userManager->getUserById($id);
+        // GUARDAR ID EN SESIÓN para uso en update()
+        $_SESSION['editing_user_id'] = $userId;
+
+        $user = $this->userManager->getUserById($userId);
         if (!$user) {
-            return Response::json(['error' => 'Usuario no encontrado'], 404);
-        }
-
-        // DEBUG: Verificar contenido de $user
-        error_log('DEBUG UserManagementController::edit()');
-        error_log('ID recibido: ' . $id);
-        error_log('$user type: ' . gettype($user));
-        error_log('$user keys: ' . json_encode(array_keys($user)));
-        error_log('$user["id"] exists: ' . (isset($user['id']) ? 'YES' : 'NO'));
-        error_log('$user["id"] value: ' . var_export($user['id'] ?? 'NOT_SET', true));
-        error_log('$user full: ' . json_encode($user));
-
-        // FIX: Asegurar que id sea string para Mustache
-        if (isset($user['id'])) {
-            $user['id'] = (string)$user['id'];
+            unset($_SESSION['editing_user_id']);
+            return Response::redirect('/admin/users?error=not_found');
         }
 
         // Obtener roles del usuario
-        $userRoles = $this->userManager->getUserRoles($id);
+        $userRoles = $this->userManager->getUserRoles($userId);
         $userRoleIds = array_column($userRoles, 'id');
 
         // Obtener todos los roles disponibles
@@ -231,79 +213,44 @@ class UserManagementController
             $role['is_assigned'] = in_array($role['id'], $userRoleIds);
         }
 
+        // Preparar datos para la vista
         $data = [
             'user' => $user,
             'user_roles' => $userRoles,
             'all_roles' => $allRoles,
-            'page_title' => 'Editar Usuario',
+            'page_title' => 'Editar Usuario: ' . $user['username'],
+            'editing_mode' => true, // Flag para saber que estamos editando
         ];
 
         return $this->renderWithLayout('admin/users/edit', $data);
     }
 
     /**
-     * Procesar actualización de usuario
+     * Procesar actualización - USA ID DE SESIÓN
      */
     public function update(ServerRequestInterface $request): ResponseInterface
     {
-        $body = $request->getParsedBody();
+        // OBTENER ID DESDE SESIÓN
+        $userId = (int)($_SESSION['editing_user_id'] ?? 0);
 
-        // Debug temporal
-        error_log('DEBUG UserManagementController::update()');
-        error_log('$body type: ' . gettype($body));
-        error_log('$body content: ' . json_encode($body));
-        error_log('$_POST: ' . json_encode($_POST));
-
-        $id = (int)($body['id'] ?? 0);
-
-        if (!$id) {
-            // Retornar más info de debug
-            return Response::json([
-                'error' => 'ID de usuario no proporcionado',
-                'debug' => [
-                    'body_type' => gettype($body),
-                    'body' => $body,
-                    'POST' => $_POST,
-                ]
-            ], 400);
+        if (!$userId) {
+            return Response::redirect('/admin/users?error=session_expired');
         }
 
-        $user = $this->userManager->getUserById($id);
+        $body = $request->getParsedBody();
+
+        $user = $this->userManager->getUserById($userId);
         if (!$user) {
-            return Response::json(['error' => 'Usuario no encontrado'], 404);
+            unset($_SESSION['editing_user_id']);
+            return Response::redirect('/admin/users?error=not_found');
         }
 
         // Validar datos
-        $errors = [];
+        $errors = $this->validateUserData($body, $userId);
 
-        if (empty($body['username'])) {
-            $errors[] = 'El nombre de usuario es requerido';
-        } elseif ($this->userManager->usernameExists($body['username'], $id)) {
-            $errors[] = 'El nombre de usuario ya está en uso';
-        }
-
-        if (empty($body['email'])) {
-            $errors[] = 'El email es requerido';
-        } elseif ($this->userManager->emailExists($body['email'], $id)) {
-            $errors[] = 'El email ya está en uso';
-        }
-
-        if (empty($body['first_name'])) {
-            $errors[] = 'El nombre es requerido';
-        }
-
-        if (empty($body['last_name'])) {
-            $errors[] = 'El apellido es requerido';
-        }
-
-        // Validar contraseña si se proporciona
-        if (!empty($body['password']) && strlen($body['password']) < 8) {
-            $errors[] = 'La contraseña debe tener al menos 8 caracteres';
-        }
-
-        // Si hay errores, regresar al formulario
         if (!empty($errors)) {
-            $userRoles = $this->userManager->getUserRoles($id);
+            // Mantener sesión activa y volver al formulario con errores
+            $userRoles = $this->userManager->getUserRoles($userId);
             $userRoleIds = array_column($userRoles, 'id');
             $allRoles = $this->roleManager->getRoles(100, 0);
 
@@ -317,57 +264,43 @@ class UserManagementController
                 'user_roles' => $userRoles,
                 'all_roles' => $allRoles,
                 'page_title' => 'Editar Usuario',
+                'editing_mode' => true,
             ];
             return $this->renderWithLayout('admin/users/edit', $data);
         }
 
-        // Preparar datos para actualización
+        // Preparar datos de actualización
         $updateData = [
             'username' => $body['username'],
             'email' => $body['email'],
             'first_name' => $body['first_name'],
             'last_name' => $body['last_name'],
-            'status' => $body['status'] ?? 'active',
+            'status' => strtoupper($body['status'] ?? 'ACTIVE'),
         ];
 
-        // Agregar contraseña solo si se proporcionó
+        // Solo actualizar password si se proporcionó uno nuevo
         if (!empty($body['password'])) {
             $updateData['password'] = $body['password'];
         }
 
         // Actualizar usuario
-        $success = $this->userManager->update($id, $updateData);
+        $success = $this->userManager->update($userId, $updateData);
 
         if (!$success) {
-            $errors[] = 'Error al actualizar el usuario';
-            $userRoles = $this->userManager->getUserRoles($id);
-            $userRoleIds = array_column($userRoles, 'id');
-            $allRoles = $this->roleManager->getRoles(100, 0);
-
-            foreach ($allRoles as &$role) {
-                $role['is_assigned'] = in_array($role['id'], $userRoleIds);
-            }
-
-            $data = [
-                'errors' => $errors,
-                'user' => array_merge($user, $body),
-                'user_roles' => $userRoles,
-                'all_roles' => $allRoles,
-                'page_title' => 'Editar Usuario',
-            ];
-            return $this->renderWithLayout('admin/users/edit', $data);
+            return Response::json(['error' => 'Error al actualizar usuario'], 500);
         }
 
-        // Sincronizar roles
+        // Actualizar roles
         if (isset($body['roles']) && is_array($body['roles'])) {
             $currentUserId = $_SESSION['user_id'] ?? null;
-            $this->userManager->syncRoles($id, array_map('intval', $body['roles']), $currentUserId);
+            $this->userManager->syncRoles($userId, array_map('intval', $body['roles']), $currentUserId);
         } else {
-            // Si no se enviaron roles, limpiar todos
-            $this->userManager->syncRoles($id, [], null);
+            $this->userManager->syncRoles($userId, [], null);
         }
 
-        // Redirigir con mensaje de éxito
+        // LIMPIAR SESIÓN
+        unset($_SESSION['editing_user_id']);
+
         return Response::redirect('/admin/users?success=updated');
     }
 
@@ -377,24 +310,23 @@ class UserManagementController
     public function delete(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
-        $id = (int)($body['id'] ?? 0);
+        $userId = (int)($body['user_id'] ?? 0);
 
-        if (!$id) {
+        if (!$userId) {
             return Response::json(['error' => 'ID de usuario no proporcionado'], 400);
         }
 
-        $user = $this->userManager->getUserById($id);
+        $user = $this->userManager->getUserById($userId);
         if (!$user) {
             return Response::json(['error' => 'Usuario no encontrado'], 404);
         }
 
         // Evitar que el usuario se elimine a sí mismo
-        if ($id === ($_SESSION['user_id'] ?? 0)) {
+        if ($userId === ($_SESSION['user_id'] ?? 0)) {
             return Response::json(['error' => 'No puedes eliminar tu propia cuenta'], 400);
         }
 
-        // Soft delete
-        $success = $this->userManager->softDelete($id);
+        $success = $this->userManager->softDelete($userId);
 
         if ($success) {
             return Response::json(['success' => true, 'message' => 'Usuario eliminado correctamente']);
@@ -409,18 +341,18 @@ class UserManagementController
     public function restore(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
-        $id = (int)($body['id'] ?? 0);
+        $userId = (int)($body['user_id'] ?? 0);
 
-        if (!$id) {
+        if (!$userId) {
             return Response::json(['error' => 'ID de usuario no proporcionado'], 400);
         }
 
-        $user = $this->userManager->getUserById($id);
+        $user = $this->userManager->getUserById($userId);
         if (!$user) {
             return Response::json(['error' => 'Usuario no encontrado'], 404);
         }
 
-        $success = $this->userManager->restore($id);
+        $success = $this->userManager->restore($userId);
 
         if ($success) {
             return Response::json(['success' => true, 'message' => 'Usuario restaurado correctamente']);
@@ -430,17 +362,49 @@ class UserManagementController
     }
 
     /**
-     * Renderizar vista con layout
+     * Validar datos de usuario
      */
-    private function renderWithLayout(string $template, array $data): ResponseInterface
+    private function validateUserData(array $data, ?int $excludeUserId = null): array
     {
-        // Agregar datos de sesión
-        $data['user'] = [
-            'username' => $_SESSION['username'] ?? 'Usuario',
-            'email' => $_SESSION['email'] ?? '',
-        ];
+        $errors = [];
 
-        $html = $this->view->render($template, $data);
-        return Response::html($html);
+        if (empty($data['username'])) {
+            $errors[] = 'El nombre de usuario es requerido';
+        } elseif ($this->userManager->usernameExists($data['username'], $excludeUserId)) {
+            $errors[] = 'El nombre de usuario ya está en uso';
+        }
+
+        if (empty($data['email'])) {
+            $errors[] = 'El email es requerido';
+        } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'El email no es válido';
+        } elseif ($this->userManager->emailExists($data['email'], $excludeUserId)) {
+            $errors[] = 'El email ya está en uso';
+        }
+
+        if (empty($data['first_name'])) {
+            $errors[] = 'El nombre es requerido';
+        }
+
+        if (empty($data['last_name'])) {
+            $errors[] = 'El apellido es requerido';
+        }
+
+        // Validar password solo si se está creando o si se proporcionó uno nuevo
+        if ($excludeUserId === null) {
+            // Creando nuevo usuario
+            if (empty($data['password'])) {
+                $errors[] = 'La contraseña es requerida';
+            } elseif (strlen($data['password']) < 8) {
+                $errors[] = 'La contraseña debe tener al menos 8 caracteres';
+            }
+        } else {
+            // Editando usuario existente
+            if (!empty($data['password']) && strlen($data['password']) < 8) {
+                $errors[] = 'La contraseña debe tener al menos 8 caracteres';
+            }
+        }
+
+        return $errors;
     }
 }

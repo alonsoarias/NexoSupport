@@ -31,7 +31,7 @@
     <div class="form-section">
         {{#user}}
         <form method="POST" action="/admin/users/update" class="user-form">
-            <input type="hidden" name="id" value="{{id}}">
+            <!-- El ID se maneja en sesión del servidor - no se envía en el formulario -->
             <div class="form-grid">
                 <!-- Información básica -->
                 <div class="form-card">

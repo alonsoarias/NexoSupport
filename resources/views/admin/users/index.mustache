@@ -117,17 +117,17 @@
                             <div class="action-buttons">
                                 {{^is_deleted}}
                                 <form method="POST" action="/admin/users/edit" style="display:inline;">
-                                    <input type="hidden" name="id" value="{{id}}">
+                                    <input type="hidden" name="user_id" value="{{user_id}}">
                                     <button type="submit" class="btn-icon" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </button>
                                 </form>
-                                <button onclick="deleteUser({{id}})" class="btn-icon btn-danger" title="Eliminar">
+                                <button onclick="deleteUser('{{user_id}}')" class="btn-icon btn-danger" title="Eliminar">
                                     <i class="bi bi-trash"></i>
                                 </button>
                                 {{/is_deleted}}
                                 {{#is_deleted}}
-                                <button onclick="restoreUser({{id}})" class="btn-icon btn-success" title="Restaurar">
+                                <button onclick="restoreUser('{{user_id}}')" class="btn-icon btn-success" title="Restaurar">
                                     <i class="bi bi-arrow-counterclockwise"></i>
                                 </button>
                                 {{/is_deleted}}
@@ -549,7 +549,7 @@ function deleteUser(userId) {
     }
 
     const formData = new FormData();
-    formData.append('id', userId);
+    formData.append('user_id', userId);
 
     fetch('/admin/users/delete', {
         method: 'POST',
@@ -575,7 +575,7 @@ function restoreUser(userId) {
     }
 
     const formData = new FormData();
-    formData.append('id', userId);
+    formData.append('user_id', userId);
 
     fetch('/admin/users/restore', {
         method: 'POST',
