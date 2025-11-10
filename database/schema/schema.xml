@@ -9,7 +9,7 @@
     </metadata>
 
     <!-- Core Configuration Table -->
-    <table name="iser_config">
+    <table name="config">
         <description>System configuration</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
@@ -64,7 +64,7 @@
     </table>
 
     <!-- Users Table -->
-    <table name="iser_users">
+    <table name="users">
         <description>System users</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
@@ -97,7 +97,7 @@
     </table>
 
     <!-- User Profiles Table -->
-    <table name="iser_user_profiles">
+    <table name="user_profiles">
         <description>User profile information</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
@@ -121,12 +121,12 @@
             <index name="idx_user_id" columns="user_id"/>
         </indexes>
         <foreignKeys>
-            <foreignKey column="user_id" references="iser_users(id)" onDelete="CASCADE"/>
+            <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
         </foreignKeys>
     </table>
 
     <!-- Roles Table -->
-    <table name="iser_roles">
+    <table name="roles">
         <description>User roles</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
@@ -175,7 +175,7 @@
     </table>
 
     <!-- Permissions Table -->
-    <table name="iser_permissions">
+    <table name="permissions">
         <description>System permissions</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
@@ -249,7 +249,7 @@
     </table>
 
     <!-- User Roles Table -->
-    <table name="iser_user_roles">
+    <table name="user_roles">
         <description>User to roles relationship</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
@@ -265,14 +265,14 @@
             <index name="idx_role_id" columns="role_id"/>
         </indexes>
         <foreignKeys>
-            <foreignKey column="user_id" references="iser_users(id)" onDelete="CASCADE"/>
-            <foreignKey column="role_id" references="iser_roles(id)" onDelete="CASCADE"/>
-            <foreignKey column="assigned_by" references="iser_users(id)" onDelete="SET NULL"/>
+            <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
+            <foreignKey column="role_id" references="roles(id)" onDelete="CASCADE"/>
+            <foreignKey column="assigned_by" references="users(id)" onDelete="SET NULL"/>
         </foreignKeys>
     </table>
 
     <!-- Role Permissions Table -->
-    <table name="iser_role_permissions">
+    <table name="role_permissions">
         <description>Role to permissions relationship</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
@@ -286,13 +286,13 @@
             <index name="idx_permission_id" columns="permission_id"/>
         </indexes>
         <foreignKeys>
-            <foreignKey column="role_id" references="iser_roles(id)" onDelete="CASCADE"/>
-            <foreignKey column="permission_id" references="iser_permissions(id)" onDelete="CASCADE"/>
+            <foreignKey column="role_id" references="roles(id)" onDelete="CASCADE"/>
+            <foreignKey column="permission_id" references="permissions(id)" onDelete="CASCADE"/>
         </foreignKeys>
     </table>
 
     <!-- Sessions Table -->
-    <table name="iser_sessions">
+    <table name="sessions">
         <description>User sessions</description>
         <columns>
             <column name="id" type="VARCHAR(128)" primary="true"/>
@@ -308,12 +308,12 @@
             <index name="idx_last_activity" columns="last_activity"/>
         </indexes>
         <foreignKeys>
-            <foreignKey column="user_id" references="iser_users(id)" onDelete="CASCADE"/>
+            <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
         </foreignKeys>
     </table>
 
     <!-- JWT Tokens Table -->
-    <table name="iser_jwt_tokens">
+    <table name="jwt_tokens">
         <description>JWT tokens</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
@@ -335,12 +335,12 @@
             <index name="idx_revoked" columns="revoked"/>
         </indexes>
         <foreignKeys>
-            <foreignKey column="user_id" references="iser_users(id)" onDelete="CASCADE"/>
+            <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
         </foreignKeys>
     </table>
 
     <!-- MFA Table -->
-    <table name="iser_user_mfa">
+    <table name="user_mfa">
         <description>Multi-factor authentication</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
@@ -359,12 +359,12 @@
             <index name="idx_user_id" columns="user_id"/>
         </indexes>
         <foreignKeys>
-            <foreignKey column="user_id" references="iser_users(id)" onDelete="CASCADE"/>
+            <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
         </foreignKeys>
     </table>
 
     <!-- Logs Table -->
-    <table name="iser_logs">
+    <table name="logs">
         <description>System logs</description>
         <columns>
             <column name="id" type="BIGINT UNSIGNED" autoincrement="true" primary="true"/>
@@ -384,12 +384,12 @@
             <index name="idx_created_at" columns="created_at"/>
         </indexes>
         <foreignKeys>
-            <foreignKey column="user_id" references="iser_users(id)" onDelete="SET NULL"/>
+            <foreignKey column="user_id" references="users(id)" onDelete="SET NULL"/>
         </foreignKeys>
     </table>
 
     <!-- Audit Log Table -->
-    <table name="iser_audit_log">
+    <table name="audit_log">
         <description>Audit trail</description>
         <columns>
             <column name="id" type="BIGINT UNSIGNED" autoincrement="true" primary="true"/>
@@ -410,12 +410,12 @@
             <index name="idx_created_at" columns="created_at"/>
         </indexes>
         <foreignKeys>
-            <foreignKey column="user_id" references="iser_users(id)" onDelete="SET NULL"/>
+            <foreignKey column="user_id" references="users(id)" onDelete="SET NULL"/>
         </foreignKeys>
     </table>
 
     <!-- Report Config Table -->
-    <table name="iser_report_config">
+    <table name="report_config">
         <description>Report configuration</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>

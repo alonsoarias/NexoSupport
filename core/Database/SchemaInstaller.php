@@ -90,8 +90,8 @@ class SchemaInstaller
         }
 
         // Asignar permisos al rol admin (si existen las tablas necesarias)
-        if (in_array($this->prefix . 'iser_role_permissions', $this->createdTables) &&
-            in_array($this->prefix . 'iser_permissions', $this->createdTables)) {
+        if (in_array($this->prefix . 'role_permissions', $this->createdTables) &&
+            in_array($this->prefix . 'permissions', $this->createdTables)) {
             $this->assignAdminPermissions();
         }
 
@@ -317,8 +317,8 @@ class SchemaInstaller
      */
     private function assignAdminPermissions(): void
     {
-        $sql = "INSERT IGNORE INTO `{$this->prefix}iser_role_permissions` (role_id, permission_id, granted_at)
-                SELECT 1, id, UNIX_TIMESTAMP() FROM `{$this->prefix}iser_permissions`";
+        $sql = "INSERT IGNORE INTO `{$this->prefix}role_permissions` (role_id, permission_id, granted_at)
+                SELECT 1, id, UNIX_TIMESTAMP() FROM `{$this->prefix}permissions`";
 
         try {
             $this->pdo->exec($sql);
