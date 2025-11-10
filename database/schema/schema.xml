@@ -8,14 +8,15 @@
         <engine>InnoDB</engine>
     </metadata>
 
-    <!-- Core Configuration Table -->
+    <!-- Core Configuration Table - NORMALIZED -->
     <table name="config">
-        <description>System configuration</description>
+        <description>System configuration (consolidated from config + report_config)</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
             <column name="config_key" type="VARCHAR(100)" null="false" unique="true"/>
             <column name="config_value" type="TEXT"/>
             <column name="config_type" type="ENUM('string','int','bool','json')" default="string"/>
+            <column name="category" type="VARCHAR(50)" default="general"/>
             <column name="description" type="VARCHAR(255)"/>
             <column name="is_public" type="BOOLEAN" default="false"/>
             <column name="created_at" type="INT UNSIGNED" null="false"/>
@@ -23,12 +24,15 @@
         </columns>
         <indexes>
             <index name="idx_config_key" columns="config_key"/>
+            <index name="idx_category" columns="category"/>
         </indexes>
         <data>
+            <!-- General App Settings -->
             <row>
                 <config_key>app.name</config_key>
                 <config_value>ISER Authentication System</config_value>
                 <config_type>string</config_type>
+                <category>app</category>
                 <description>Application name</description>
                 <is_public>1</is_public>
             </row>
@@ -36,13 +40,17 @@
                 <config_key>app.version</config_key>
                 <config_value>1.0.0</config_value>
                 <config_type>string</config_type>
+                <category>app</category>
                 <description>Application version</description>
                 <is_public>1</is_public>
             </row>
+
+            <!-- Security Settings -->
             <row>
                 <config_key>security.password_min_length</config_key>
                 <config_value>8</config_value>
                 <config_type>int</config_type>
+                <category>security</category>
                 <description>Minimum password length</description>
                 <is_public>0</is_public>
             </row>
@@ -50,6 +58,7 @@
                 <config_key>security.max_login_attempts</config_key>
                 <config_value>5</config_value>
                 <config_type>int</config_type>
+                <category>security</category>
                 <description>Maximum login attempts</description>
                 <is_public>0</is_public>
             </row>
@@ -57,15 +66,42 @@
                 <config_key>security.lockout_duration</config_key>
                 <config_value>900</config_value>
                 <config_type>int</config_type>
+                <category>security</category>
                 <description>Lockout duration in seconds</description>
+                <is_public>0</is_public>
+            </row>
+
+            <!-- Report Settings (consolidated from report_config table) -->
+            <row>
+                <config_key>report.retention_days</config_key>
+                <config_value>90</config_value>
+                <config_type>int</config_type>
+                <category>reports</category>
+                <description>Log retention days</description>
+                <is_public>0</is_public>
+            </row>
+            <row>
+                <config_key>report.max_export_rows</config_key>
+                <config_value>10000</config_value>
+                <config_type>int</config_type>
+                <category>reports</category>
+                <description>Maximum export rows</description>
+                <is_public>0</is_public>
+            </row>
+            <row>
+                <config_key>report.default_format</config_key>
+                <config_value>pdf</config_value>
+                <config_type>string</config_type>
+                <category>reports</category>
+                <description>Default report format</description>
                 <is_public>0</is_public>
             </row>
         </data>
     </table>
 
-    <!-- Users Table -->
+    <!-- Users Table - NORMALIZED -->
     <table name="users">
-        <description>System users</description>
+        <description>System users (password reset moved to separate table)</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
             <column name="username" type="VARCHAR(50)" null="false" unique="true"/>
@@ -77,8 +113,6 @@
             <column name="email_verified" type="BOOLEAN" default="false"/>
             <column name="email_verification_token" type="VARCHAR(64)"/>
             <column name="email_verification_expires" type="INT UNSIGNED"/>
-            <column name="password_reset_token" type="VARCHAR(64)"/>
-            <column name="password_reset_expires" type="INT UNSIGNED"/>
             <column name="last_login_at" type="INT UNSIGNED"/>
             <column name="last_login_ip" type="VARCHAR(45)"/>
             <column name="failed_login_attempts" type="INT UNSIGNED" default="0"/>
@@ -92,15 +126,37 @@
             <index name="idx_email" columns="email"/>
             <index name="idx_status" columns="status"/>
             <index name="idx_email_verification_token" columns="email_verification_token"/>
-            <index name="idx_password_reset_token" columns="password_reset_token"/>
+            <index name="idx_deleted_at" columns="deleted_at"/>
         </indexes>
     </table>
 
-    <!-- Login Attempts Table -->
+    <!-- Password Reset Tokens Table - NEW (Normalized from users) -->
+    <table name="password_reset_tokens">
+        <description>Password reset tokens (separated from users for better normalization)</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="user_id" type="INT UNSIGNED" null="false"/>
+            <column name="token" type="VARCHAR(64)" null="false" unique="true"/>
+            <column name="expires_at" type="INT UNSIGNED" null="false"/>
+            <column name="used_at" type="INT UNSIGNED"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_user_id" columns="user_id"/>
+            <index name="idx_token" columns="token"/>
+            <index name="idx_expires_at" columns="expires_at"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Login Attempts Table - NORMALIZED -->
     <table name="login_attempts">
-        <description>Login attempt tracking</description>
+        <description>Login attempt tracking (with optional FK to users)</description>
         <columns>
             <column name="id" type="BIGINT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="user_id" type="INT UNSIGNED"/>
             <column name="username" type="VARCHAR(255)" null="false"/>
             <column name="ip_address" type="VARCHAR(45)" null="false"/>
             <column name="user_agent" type="VARCHAR(255)"/>
@@ -108,19 +164,22 @@
             <column name="attempted_at" type="INT UNSIGNED" null="false"/>
         </columns>
         <indexes>
+            <index name="idx_user_id" columns="user_id"/>
             <index name="idx_username" columns="username"/>
             <index name="idx_ip_address" columns="ip_address"/>
             <index name="idx_attempted_at" columns="attempted_at"/>
             <index name="idx_success" columns="success"/>
         </indexes>
+        <foreignKeys>
+            <foreignKey column="user_id" references="users(id)" onDelete="SET NULL"/>
+        </foreignKeys>
     </table>
 
-    <!-- User Profiles Table -->
+    <!-- User Profiles Table - NORMALIZED (1:1 relationship with users) -->
     <table name="user_profiles">
-        <description>User profile information</description>
+        <description>User profile information (user_id as PK for true 1:1 relationship)</description>
         <columns>
-            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
-            <column name="user_id" type="INT UNSIGNED" null="false"/>
+            <column name="user_id" type="INT UNSIGNED" primary="true"/>
             <column name="phone" type="VARCHAR(20)"/>
             <column name="mobile" type="VARCHAR(20)"/>
             <column name="address" type="TEXT"/>
@@ -128,7 +187,7 @@
             <column name="state" type="VARCHAR(100)"/>
             <column name="country" type="VARCHAR(100)"/>
             <column name="postal_code" type="VARCHAR(20)"/>
-            <column name="timezone" type="VARCHAR(50)" default="America/Mexico_City"/>
+            <column name="timezone" type="VARCHAR(50)" default="America/Bogota"/>
             <column name="locale" type="VARCHAR(10)" default="es"/>
             <column name="avatar_url" type="VARCHAR(255)"/>
             <column name="bio" type="TEXT"/>
@@ -136,9 +195,6 @@
             <column name="created_at" type="INT UNSIGNED" null="false"/>
             <column name="updated_at" type="INT UNSIGNED" null="false"/>
         </columns>
-        <indexes>
-            <index name="idx_user_id" columns="user_id"/>
-        </indexes>
         <foreignKeys>
             <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
         </foreignKeys>
@@ -160,6 +216,7 @@
         <indexes>
             <index name="idx_slug" columns="slug"/>
             <index name="idx_level" columns="level"/>
+            <index name="idx_is_system" columns="is_system"/>
         </indexes>
         <data>
             <row>
@@ -437,6 +494,8 @@
             <index name="unique_user_role" columns="user_id,role_id" unique="true"/>
             <index name="idx_user_id" columns="user_id"/>
             <index name="idx_role_id" columns="role_id"/>
+            <index name="idx_assigned_by" columns="assigned_by"/>
+            <index name="idx_expires_at" columns="expires_at"/>
         </indexes>
         <foreignKeys>
             <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
@@ -531,6 +590,7 @@
         <indexes>
             <index name="unique_user_method" columns="user_id,method" unique="true"/>
             <index name="idx_user_id" columns="user_id"/>
+            <index name="idx_enabled" columns="enabled"/>
         </indexes>
         <foreignKeys>
             <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
@@ -586,42 +646,5 @@
         <foreignKeys>
             <foreignKey column="user_id" references="users(id)" onDelete="SET NULL"/>
         </foreignKeys>
-    </table>
-
-    <!-- Report Config Table -->
-    <table name="report_config">
-        <description>Report configuration</description>
-        <columns>
-            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
-            <column name="config_name" type="VARCHAR(100)" null="false" unique="true"/>
-            <column name="config_value" type="TEXT"/>
-            <column name="config_type" type="ENUM('string','int','bool','json')" default="string"/>
-            <column name="description" type="VARCHAR(255)"/>
-            <column name="created_at" type="INT UNSIGNED" null="false"/>
-            <column name="updated_at" type="INT UNSIGNED" null="false"/>
-        </columns>
-        <indexes>
-            <index name="idx_config_name" columns="config_name"/>
-        </indexes>
-        <data>
-            <row>
-                <config_name>report.retention_days</config_name>
-                <config_value>90</config_value>
-                <config_type>int</config_type>
-                <description>Log retention days</description>
-            </row>
-            <row>
-                <config_name>report.max_export_rows</config_name>
-                <config_value>10000</config_value>
-                <config_type>int</config_type>
-                <description>Maximum export rows</description>
-            </row>
-            <row>
-                <config_name>report.default_format</config_name>
-                <config_value>pdf</config_value>
-                <config_type>string</config_type>
-                <description>Default report format</description>
-            </row>
-        </data>
     </table>
 </database>
