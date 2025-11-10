@@ -337,17 +337,16 @@ ENV;
 
 function installDatabase() {
     try {
-        // Cargar configuración
-        if (!file_exists(ENV_FILE)) {
-            return ['success' => false, 'errors' => ['Archivo .env no encontrado']];
+        // Usar configuración de sesión en lugar de leer .env
+        if (!isset($_SESSION['db_config'])) {
+            return ['success' => false, 'errors' => ['Configuración de base de datos no encontrada en sesión']];
         }
 
-        // Leer .env
-        $env = parse_ini_file(ENV_FILE);
+        $db = $_SESSION['db_config'];
 
         // Conectar a base de datos
-        $dsn = "mysql:host={$env['DB_HOST']};port={$env['DB_PORT']};dbname={$env['DB_DATABASE']}";
-        $pdo = new PDO($dsn, $env['DB_USERNAME'], $env['DB_PASSWORD']);
+        $dsn = "mysql:host={$db['db_host']};port={$db['db_port']};dbname={$db['db_name']}";
+        $pdo = new PDO($dsn, $db['db_user'], $db['db_pass'] ?? '');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Leer y ejecutar archivos SQL
@@ -365,8 +364,9 @@ function installDatabase() {
             if (file_exists($file)) {
                 $sql = file_get_contents($file);
                 // Reemplazar prefijo si existe
-                if (!empty($env['DB_PREFIX'])) {
-                    $sql = str_replace('iser_', $env['DB_PREFIX'], $sql);
+                $prefix = $db['db_prefix'] ?? 'iser_';
+                if (!empty($prefix) && $prefix !== 'iser_') {
+                    $sql = str_replace('iser_', $prefix, $sql);
                 }
                 $pdo->exec($sql);
             }
@@ -402,13 +402,17 @@ function createAdminUser($data) {
     }
 
     try {
-        // Conectar a base de datos
-        $env = parse_ini_file(ENV_FILE);
-        $dsn = "mysql:host={$env['DB_HOST']};port={$env['DB_PORT']};dbname={$env['DB_DATABASE']}";
-        $pdo = new PDO($dsn, $env['DB_USERNAME'], $env['DB_PASSWORD']);
+        // Usar configuración de sesión
+        if (!isset($_SESSION['db_config'])) {
+            return ['success' => false, 'errors' => ['Configuración de base de datos no encontrada']];
+        }
+
+        $db = $_SESSION['db_config'];
+        $dsn = "mysql:host={$db['db_host']};port={$db['db_port']};dbname={$db['db_name']}";
+        $pdo = new PDO($dsn, $db['db_user'], $db['db_pass'] ?? '');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $prefix = $env['DB_PREFIX'] ?? 'iser_';
+        $prefix = $db['db_prefix'] ?? 'iser_';
 
         // Crear usuario administrador
         $passwordHash = password_hash($data['password'], PASSWORD_ARGON2ID);
@@ -438,6 +442,10 @@ function createAdminUser($data) {
             VALUES (?, 1, ?)
         ");
         $stmt->execute([$userId, $now]);
+
+        // Guardar credenciales en sesión para mostrar en paso 6
+        $_SESSION['admin_username'] = $data['username'];
+        $_SESSION['admin_email'] = $data['email'];
 
         // Crear archivo .installed
         file_put_contents(INSTALL_LOCK, date('Y-m-d H:i:s'));
