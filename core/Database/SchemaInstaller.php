@@ -91,8 +91,8 @@ class SchemaInstaller
             echo '<p class="text-info small">→ Convertido a SimpleXML...</p>';
             flush(); ob_flush();
 
-            // Ahora usar la función del XMLParser para convertir a array
-            $schema = $this->xmlParser->simpleXMLToArray($simpleXML);
+            // Convertir SimpleXML a array de forma simple y directa
+            $schema = $this->convertSimpleXMLToArray($simpleXML);
 
             echo '<p class="text-info small">→ XML convertido a array (' . count($schema) . ' elementos)...</p>';
             flush(); ob_flush();
@@ -416,5 +416,71 @@ class SchemaInstaller
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    /**
+     * Convertir SimpleXMLElement a array de forma simple
+     * Optimizado para schema.xml sin recursión profunda
+     *
+     * @param \SimpleXMLElement $xml
+     * @return array
+     */
+    private function convertSimpleXMLToArray(\SimpleXMLElement $xml): array
+    {
+        $array = [];
+
+        // Procesar cada hijo directo
+        foreach ($xml->children() as $childName => $child) {
+            // Convertir el hijo a array
+            $childArray = [];
+
+            // Si tiene atributos, agregarlos
+            $attributes = $child->attributes();
+            if (count($attributes) > 0) {
+                foreach ($attributes as $attrName => $attrValue) {
+                    $childArray[$attrName] = (string)$attrValue;
+                }
+            }
+
+            // Si tiene hijos, procesarlos
+            $hasChildren = false;
+            foreach ($child->children() as $subChildName => $subChild) {
+                $hasChildren = true;
+
+                // Si ya existe este nombre, convertir a array de elementos
+                if (isset($childArray[$subChildName])) {
+                    if (!is_array($childArray[$subChildName]) || !isset($childArray[$subChildName][0])) {
+                        $childArray[$subChildName] = [$childArray[$subChildName]];
+                    }
+                    $childArray[$subChildName][] = $this->convertSimpleXMLToArray($subChild);
+                } else {
+                    $childArray[$subChildName] = $this->convertSimpleXMLToArray($subChild);
+                }
+            }
+
+            // Si no tiene hijos, obtener el texto
+            if (!$hasChildren) {
+                $text = trim((string)$child);
+                if (!empty($text)) {
+                    if (empty($childArray)) {
+                        $childArray = $text;
+                    } else {
+                        $childArray['@value'] = $text;
+                    }
+                }
+            }
+
+            // Si ya existe este nombre de elemento, convertir a array
+            if (isset($array[$childName])) {
+                if (!is_array($array[$childName]) || !isset($array[$childName][0])) {
+                    $array[$childName] = [$array[$childName]];
+                }
+                $array[$childName][] = $childArray;
+            } else {
+                $array[$childName] = $childArray;
+            }
+        }
+
+        return $array;
     }
 }
