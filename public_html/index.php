@@ -147,6 +147,12 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->index($request);
     }, 'admin');
 
+    // Redirección para trailing slash
+    $router->get('/', function ($request) use ($database) {
+        $controller = new AdminController($database);
+        return $controller->index($request);
+    }, 'admin.index');
+
     // Gestión de usuarios
     $router->get('/users', function ($request) use ($database) {
         $controller = new AdminController($database);
