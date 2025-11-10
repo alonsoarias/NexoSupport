@@ -4,7 +4,7 @@
  * @package ISER\Modules\User
  */
 
-namespace ISER\Modules\User;
+namespace ISER\User;
 
 use ISER\Core\Database\Database;
 use ISER\Core\Utils\FileManager;

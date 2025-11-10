@@ -6,7 +6,7 @@
  * @license Propietario
  */
 
-namespace ISER\Modules\Report\Log;
+namespace ISER\Report\Log;
 
 use ISER\Core\Database\Database;
 use Monolog\Logger;

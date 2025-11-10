@@ -7,11 +7,11 @@
  * @license    Proprietary
  */
 
-namespace ISER\Modules\Admin\Tool\Mfa;
+namespace ISER\Admin\Tool\Mfa;
 
 use ISER\Core\Database\Database;
 use ISER\Core\Utils\Logger;
-use ISER\Modules\Admin\Tool\Mfa\Factors\MfaFactorInterface;
+use ISER\Admin\Tool\Mfa\Factors\MfaFactorInterface;
 
 class MfaManager
 {

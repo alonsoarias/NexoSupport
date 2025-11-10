@@ -1,5 +1,5 @@
 <?php
-namespace ISER\Modules\Auth\Manual;
+namespace ISER\Auth\Manual;
 
 use ISER\Core\Session\JWTSession;
 use ISER\Core\Utils\Recaptcha;

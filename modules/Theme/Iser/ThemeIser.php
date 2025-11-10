@@ -6,7 +6,7 @@
  * @license Propietario
  */
 
-namespace ISER\Modules\Theme\Iser;
+namespace ISER\Theme\Iser;
 
 use ISER\Core\Render\MustacheRenderer;
 use ISER\Core\Config\SettingsManager;

@@ -12,10 +12,10 @@
  * @since      Phase 6
  */
 
-namespace ISER\Modules\Admin\Tool\UploadUser;
+namespace ISER\Admin\Tool\UploadUser;
 
 use ISER\Core\Database\Database;
-use ISER\Modules\User\UserManager;
+use ISER\User\UserManager;
 use ISER\Core\Utils\Logger;
 
 class UploadUser

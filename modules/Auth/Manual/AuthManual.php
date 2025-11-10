@@ -3,13 +3,13 @@
  * ISER - Manual Authentication Module
  */
 
-namespace ISER\Modules\Auth\Manual;
+namespace ISER\Auth\Manual;
 
 use ISER\Core\Interfaces\AuthInterface;
 use ISER\Core\Session\JWTSession;
 use ISER\Core\Utils\Helpers;
 use ISER\Core\Utils\Logger;
-use ISER\Modules\User\UserManager;
+use ISER\User\UserManager;
 
 class AuthManual implements AuthInterface
 {

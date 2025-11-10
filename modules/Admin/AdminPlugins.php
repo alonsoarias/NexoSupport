@@ -12,7 +12,7 @@
  * @since      Phase 6
  */
 
-namespace ISER\Modules\Admin;
+namespace ISER\Admin;
 
 use ISER\Core\Database\Database;
 use ISER\Core\Utils\Logger;

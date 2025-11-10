@@ -7,7 +7,7 @@
  * @license    Proprietary
  */
 
-namespace ISER\Modules\Admin\Tool\Mfa\Factors;
+namespace ISER\Admin\Tool\Mfa\Factors;
 
 interface MfaFactorInterface
 {

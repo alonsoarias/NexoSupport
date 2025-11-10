@@ -7,7 +7,7 @@
  * @license    Proprietary
  */
 
-namespace ISER\Modules\Admin\Tool\Mfa;
+namespace ISER\Admin\Tool\Mfa;
 
 use ISER\Core\Database\Database;
 

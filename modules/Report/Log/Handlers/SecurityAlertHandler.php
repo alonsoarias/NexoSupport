@@ -6,9 +6,9 @@
  * @license Propietario
  */
 
-namespace ISER\Modules\Report\Log\Handlers;
+namespace ISER\Report\Log\Handlers;
 
-use ISER\Modules\Report\Log\LogManager;
+use ISER\Report\Log\LogManager;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Level;
 use Monolog\LogRecord;

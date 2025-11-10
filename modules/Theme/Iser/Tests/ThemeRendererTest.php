@@ -4,10 +4,10 @@
  * @package theme_iser
  */
 
-namespace ISER\Modules\Theme\Iser\Tests;
+namespace ISER\Theme\Iser\Tests;
 
 use PHPUnit\Framework\TestCase;
-use ISER\Modules\Theme\Iser\ThemeRenderer;
+use ISER\Theme\Iser\ThemeRenderer;
 
 class ThemeRendererTest extends TestCase
 {

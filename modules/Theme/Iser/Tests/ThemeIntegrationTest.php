@@ -4,13 +4,13 @@
  * @package theme_iser
  */
 
-namespace ISER\Modules\Theme\Iser\Tests;
+namespace ISER\Theme\Iser\Tests;
 
 use PHPUnit\Framework\TestCase;
-use ISER\Modules\Theme\Iser\ThemeIser;
-use ISER\Modules\Theme\Iser\ThemeRenderer;
-use ISER\Modules\Theme\Iser\ThemeAssets;
-use ISER\Modules\Theme\Iser\ThemeLayouts;
+use ISER\Theme\Iser\ThemeIser;
+use ISER\Theme\Iser\ThemeRenderer;
+use ISER\Theme\Iser\ThemeAssets;
+use ISER\Theme\Iser\ThemeLayouts;
 use ISER\Core\Database\Database;
 use ISER\Core\Config\SettingsManager;
 use Monolog\Logger;

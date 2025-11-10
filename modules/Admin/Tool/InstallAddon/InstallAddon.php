@@ -12,10 +12,10 @@
  * @since      Phase 6
  */
 
-namespace ISER\Modules\Admin\Tool\InstallAddon;
+namespace ISER\Admin\Tool\InstallAddon;
 
 use ISER\Core\Database\Database;
-use ISER\Modules\Admin\AdminPlugins;
+use ISER\Admin\AdminPlugins;
 use ISER\Core\Utils\Logger;
 use ZipArchive;
 

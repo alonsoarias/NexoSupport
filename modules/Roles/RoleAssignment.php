@@ -7,7 +7,7 @@
  * @license    Proprietary
  */
 
-namespace ISER\Modules\Roles;
+namespace ISER\Roles;
 
 use ISER\Core\Database\Database;
 use ISER\Core\Utils\Logger;

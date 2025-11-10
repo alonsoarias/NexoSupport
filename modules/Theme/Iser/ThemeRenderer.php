@@ -5,7 +5,7 @@
  * @author ISER Desarrollo
  */
 
-namespace ISER\Modules\Theme\Iser;
+namespace ISER\Theme\Iser;
 
 use ISER\Core\Render\MustacheRenderer;
 

@@ -4,10 +4,10 @@
  * @package theme_iser
  */
 
-namespace ISER\Modules\Theme\Iser\Tests;
+namespace ISER\Theme\Iser\Tests;
 
 use PHPUnit\Framework\TestCase;
-use ISER\Modules\Theme\Iser\ThemeIser;
+use ISER\Theme\Iser\ThemeIser;
 use ISER\Core\Database\Database;
 use ISER\Core\Config\SettingsManager;
 use Monolog\Logger;
