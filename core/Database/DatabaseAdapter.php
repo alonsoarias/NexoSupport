@@ -203,7 +203,18 @@ class DatabaseAdapter
             } elseif ($default === 'CURRENT_TIMESTAMP') {
                 $sql .= $this->isPostgreSQL() ? ' DEFAULT CURRENT_TIMESTAMP' : ' DEFAULT CURRENT_TIMESTAMP';
             } else {
-                $sql .= " DEFAULT " . $this->pdo->quote($default);
+                // Convertir valores booleanos a números para TINYINT/INTEGER/BOOLEAN
+                $defaultLower = strtolower(trim($default));
+                if (in_array($defaultLower, ['true', 'false'])) {
+                    // Booleanos: true -> 1, false -> 0
+                    $sql .= " DEFAULT " . ($defaultLower === 'true' ? '1' : '0');
+                } elseif (is_numeric($default)) {
+                    // Números: no citar
+                    $sql .= " DEFAULT " . $default;
+                } else {
+                    // Strings: citar con comillas
+                    $sql .= " DEFAULT " . $this->pdo->quote($default);
+                }
             }
         }
 
