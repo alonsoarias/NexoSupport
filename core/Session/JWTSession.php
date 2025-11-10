@@ -20,6 +20,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Firebase\JWT\ExpiredException;
 use ISER\Core\Utils\Logger;
+use ISER\Core\Database\Database;
 use RuntimeException;
 
 /**
@@ -55,16 +56,23 @@ class JWTSession
     private ?object $currentToken = null;
 
     /**
+     * Database instance (optional, for role enrichment)
+     */
+    private ?Database $db = null;
+
+    /**
      * Constructor
      *
      * @param array $config JWT configuration
+     * @param Database|null $db Database instance (optional, for Phase 4 role enrichment)
      */
-    public function __construct(array $config)
+    public function __construct(array $config, ?Database $db = null)
     {
         $this->secret = $config['secret'] ?? throw new RuntimeException('JWT secret is required');
         $this->algorithm = $config['algorithm'] ?? 'HS256';
         $this->expiration = $config['expiration'] ?? 3600;
         $this->refreshExpiration = $config['refresh_expiration'] ?? 604800;
+        $this->db = $db;
     }
 
     /**
@@ -130,21 +138,71 @@ class JWTSession
      * Generate access and refresh tokens
      *
      * @param array $userData User data
+     * @param bool $enrichRoles Automatically fetch roles from database (Phase 4)
      * @return array Array with 'access_token' and 'refresh_token'
      */
-    public function generateTokenPair(array $userData): array
+    public function generateTokenPair(array $userData, bool $enrichRoles = true): array
     {
+        $userId = $userData['id'] ?? $userData['user_id'];
+
+        // Phase 4: Enrich with roles from database if enabled
+        $roles = $userData['roles'] ?? [];
+        $roleIds = $userData['role_ids'] ?? [];
+
+        if ($enrichRoles && $this->db && $userId) {
+            $enrichedRoles = $this->getUserRolesFromDb($userId);
+            $roles = $enrichedRoles['roles'];
+            $roleIds = $enrichedRoles['role_ids'];
+        }
+
         $payload = [
-            'user_id' => $userData['id'] ?? $userData['user_id'],
+            'user_id' => $userId,
             'username' => $userData['username'] ?? null,
             'email' => $userData['email'] ?? null,
-            'roles' => $userData['roles'] ?? [],
+            'roles' => $roles,
+            'role_ids' => $roleIds,
         ];
 
         return [
             'access_token' => $this->generate($payload, false),
             'refresh_token' => $this->generate($payload, true),
             'expires_in' => $this->expiration,
+        ];
+    }
+
+    /**
+     * Get user roles from database (Phase 4)
+     *
+     * @param int $userId User ID
+     * @return array Array with 'roles' and 'role_ids'
+     */
+    private function getUserRolesFromDb(int $userId): array
+    {
+        if (!$this->db) {
+            return ['roles' => [], 'role_ids' => []];
+        }
+
+        $sql = "SELECT r.id, r.shortname, r.name
+                FROM {$this->db->table('roles')} r
+                JOIN {$this->db->table('role_assignments')} ra ON r.id = ra.roleid
+                WHERE ra.userid = :userid
+                AND (ra.timestart = 0 OR ra.timestart <= :now1)
+                AND (ra.timeend = 0 OR ra.timeend >= :now2)
+                ORDER BY r.sortorder ASC";
+
+        $now = time();
+        $userRoles = $this->db->getConnection()->fetchAll($sql, [
+            ':userid' => $userId,
+            ':now1' => $now,
+            ':now2' => $now
+        ]);
+
+        $roles = array_column($userRoles, 'shortname');
+        $roleIds = array_column($userRoles, 'id');
+
+        return [
+            'roles' => $roles,
+            'role_ids' => array_map('intval', $roleIds)
         ];
     }
 
@@ -238,7 +296,7 @@ class JWTSession
     /**
      * Get user roles from current token
      *
-     * @return array User roles
+     * @return array User role shortnames
      */
     public function getRoles(): array
     {
@@ -246,14 +304,35 @@ class JWTSession
     }
 
     /**
+     * Get user role IDs from current token (Phase 4)
+     *
+     * @return array User role IDs
+     */
+    public function getRoleIds(): array
+    {
+        return $this->currentToken->role_ids ?? [];
+    }
+
+    /**
      * Check if current token has role
      *
-     * @param string $role Role name
+     * @param string $role Role shortname
      * @return bool True if has role
      */
     public function hasRole(string $role): bool
     {
         return in_array($role, $this->getRoles());
+    }
+
+    /**
+     * Check if current token has role by ID (Phase 4)
+     *
+     * @param int $roleId Role ID
+     * @return bool True if has role
+     */
+    public function hasRoleId(int $roleId): bool
+    {
+        return in_array($roleId, $this->getRoleIds());
     }
 
     /**
@@ -383,6 +462,7 @@ class JWTSession
             'username' => $this->currentToken->username ?? null,
             'email' => $this->currentToken->email ?? null,
             'roles' => $this->currentToken->roles ?? [],
+            'role_ids' => $this->currentToken->role_ids ?? [],
         ];
     }
 

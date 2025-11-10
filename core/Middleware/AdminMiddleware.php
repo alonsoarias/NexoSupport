@@ -10,17 +10,27 @@ use ISER\Core\Session\JWTSession;
 use ISER\Core\Utils\Helpers;
 use ISER\Core\Utils\Logger;
 use ISER\Modules\User\UserManager;
+use ISER\Modules\Roles\PermissionManager;
+use ISER\Modules\Roles\RoleAssignment;
 
 class AdminMiddleware
 {
     private JWTSession $jwt;
     private UserManager $userManager;
+    private PermissionManager $permissionManager;
+    private RoleAssignment $roleAssignment;
     private ?array $currentUser = null;
 
-    public function __construct(JWTSession $jwt, UserManager $userManager)
-    {
+    public function __construct(
+        JWTSession $jwt,
+        UserManager $userManager,
+        PermissionManager $permissionManager,
+        RoleAssignment $roleAssignment
+    ) {
         $this->jwt = $jwt;
         $this->userManager = $userManager;
+        $this->permissionManager = $permissionManager;
+        $this->roleAssignment = $roleAssignment;
     }
 
     /**
@@ -70,9 +80,8 @@ class AdminMiddleware
             return false;
         }
 
-        // For Phase 3: Basic admin check
-        // TODO: In Phase 4, implement proper role-based access control
-        if (!$this->isAdmin($user)) {
+        // Phase 4: RBAC-based admin check using PermissionManager
+        if (!$this->isAdmin($userId)) {
             Logger::security('Non-admin user attempted admin access', [
                 'userid' => $userId,
                 'username' => $user['username'],
@@ -99,25 +108,13 @@ class AdminMiddleware
     }
 
     /**
-     * Check if user has admin role (basic implementation for Phase 3)
-     * TODO: Replace with proper role system in Phase 4
+     * Check if user has admin privileges (Phase 4: RBAC)
+     * Uses PermissionManager to check for site:config capability
      */
-    private function isAdmin(array $user): bool
+    private function isAdmin(int $userId): bool
     {
-        // For Phase 3: Consider username 'admin' as admin
-        // In Phase 4, this will be replaced with proper role checking
-        if ($user['username'] === 'admin') {
-            return true;
-        }
-
-        // Check if user has admin role field (if it exists)
-        if (isset($user['role']) && $user['role'] === 'admin') {
-            return true;
-        }
-
-        // Check if user is in admins table (future implementation)
-        // For now, return false for non-admin users
-        return false;
+        // Admin capability: moodle/site:config (highest level permission)
+        return $this->permissionManager->isAdmin($userId);
     }
 
     /**
@@ -255,17 +252,23 @@ HTML;
     }
 
     /**
-     * Check specific permission (for future use with role system)
-     * TODO: Implement in Phase 4 with proper permission system
+     * Check specific capability (Phase 4: RBAC)
+     * Uses PermissionManager to verify capability
+     *
+     * @param string $capability Capability name (e.g., 'moodle/user:create')
+     * @param int $contextId Context ID (default: system context)
      */
-    public function can(string $permission): bool
+    public function can(string $capability, int $contextId = 1): bool
     {
-        if (!$this->currentUser) {
+        if (!$this->currentUser || !isset($this->currentUser['id'])) {
             return false;
         }
 
-        // For Phase 3, admin users can do everything
-        return $this->isAdmin($this->currentUser);
+        return $this->permissionManager->hasCapability(
+            $this->currentUser['id'],
+            $capability,
+            $contextId
+        );
     }
 
     /**
@@ -273,7 +276,23 @@ HTML;
      */
     public function canManageUsers(): bool
     {
-        return $this->can('manage_users');
+        return $this->can('moodle/user:update');
+    }
+
+    /**
+     * Check if user can create users
+     */
+    public function canCreateUsers(): bool
+    {
+        return $this->can('moodle/user:create');
+    }
+
+    /**
+     * Check if user can delete users
+     */
+    public function canDeleteUsers(): bool
+    {
+        return $this->can('moodle/user:delete');
     }
 
     /**
@@ -281,7 +300,7 @@ HTML;
      */
     public function canViewLogs(): bool
     {
-        return $this->can('view_logs');
+        return $this->can('moodle/site:viewlogs');
     }
 
     /**
@@ -289,6 +308,42 @@ HTML;
      */
     public function canManageSettings(): bool
     {
-        return $this->can('manage_settings');
+        return $this->can('moodle/site:config');
+    }
+
+    /**
+     * Check if user can manage roles
+     */
+    public function canManageRoles(): bool
+    {
+        return $this->can('moodle/role:manage');
+    }
+
+    /**
+     * Get user roles
+     */
+    public function getUserRoles(int $contextId = 1): array
+    {
+        if (!$this->currentUser || !isset($this->currentUser['id'])) {
+            return [];
+        }
+
+        return $this->roleAssignment->getUserRoles($this->currentUser['id'], $contextId);
+    }
+
+    /**
+     * Check if user has specific role by shortname
+     */
+    public function hasRole(string $roleShortname, int $contextId = 1): bool
+    {
+        if (!$this->currentUser || !isset($this->currentUser['id'])) {
+            return false;
+        }
+
+        return $this->roleAssignment->userHasRoleByShortname(
+            $this->currentUser['id'],
+            $roleShortname,
+            $contextId
+        );
     }
 }
