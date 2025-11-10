@@ -200,6 +200,15 @@ class UserManagementController
             return Response::json(['error' => 'Usuario no encontrado'], 404);
         }
 
+        // DEBUG: Verificar contenido de $user
+        error_log('DEBUG UserManagementController::edit()');
+        error_log('ID recibido: ' . $id);
+        error_log('$user type: ' . gettype($user));
+        error_log('$user keys: ' . json_encode(array_keys($user)));
+        error_log('$user["id"] exists: ' . (isset($user['id']) ? 'YES' : 'NO'));
+        error_log('$user["id"] value: ' . var_export($user['id'] ?? 'NOT_SET', true));
+        error_log('$user full: ' . json_encode($user));
+
         // Obtener roles del usuario
         $userRoles = $this->userManager->getUserRoles($id);
         $userRoleIds = array_column($userRoles, 'id');
