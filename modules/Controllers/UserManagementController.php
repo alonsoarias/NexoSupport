@@ -228,10 +228,25 @@ class UserManagementController
     public function update(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
+
+        // Debug temporal
+        error_log('DEBUG UserManagementController::update()');
+        error_log('$body type: ' . gettype($body));
+        error_log('$body content: ' . json_encode($body));
+        error_log('$_POST: ' . json_encode($_POST));
+
         $id = (int)($body['id'] ?? 0);
 
         if (!$id) {
-            return Response::json(['error' => 'ID de usuario no proporcionado'], 400);
+            // Retornar más info de debug
+            return Response::json([
+                'error' => 'ID de usuario no proporcionado',
+                'debug' => [
+                    'body_type' => gettype($body),
+                    'body' => $body,
+                    'POST' => $_POST,
+                ]
+            ], 400);
         }
 
         $user = $this->userManager->getUserById($id);
