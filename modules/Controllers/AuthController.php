@@ -106,9 +106,10 @@ class AuthController
 
         error_log("[LOGIN] Usuario encontrado - ID: {$user['id']}, Username: {$user['username']}, Email: {$user['email']}");
 
-        // Verificar que el usuario esté activo
-        if (($user['status'] ?? 'active') !== 'active') {
-            error_log("[LOGIN ERROR] Usuario inactivo - Status: " . ($user['status'] ?? 'N/A'));
+        // Verificar que el usuario esté activo (comparación case-insensitive)
+        $userStatus = strtolower($user['status'] ?? 'active');
+        if ($userStatus !== 'active') {
+            error_log("[LOGIN ERROR] Usuario inactivo - Status: {$user['status']}");
             $_SESSION['login_error'] = 'Usuario inactivo o suspendido';
             return Response::redirect('/login');
         }
