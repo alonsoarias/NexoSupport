@@ -408,11 +408,12 @@ function deleteRole(roleId) {
         return;
     }
 
-    fetch(`/admin/roles/${roleId}/delete`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-        }
+    const formData = new FormData();
+    formData.append('id', roleId);
+
+    fetch('/admin/roles/delete', {
+        method: 'POST',
+        body: formData
     })
     .then(response => response.json())
     .then(data => {

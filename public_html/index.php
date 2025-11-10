@@ -193,20 +193,20 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->edit($request);
     }, 'admin.users.edit');
 
-    // Procesar actualización
-    $router->post('/users/{id}/update', function ($request) use ($database) {
+    // Procesar actualización (ID viene en el body del formulario)
+    $router->post('/users/update', function ($request) use ($database) {
         $controller = new UserManagementController($database);
         return $controller->update($request);
     }, 'admin.users.update');
 
-    // Eliminar usuario (soft delete)
-    $router->delete('/users/{id}/delete', function ($request) use ($database) {
+    // Eliminar usuario (soft delete) (ID viene en el body)
+    $router->post('/users/delete', function ($request) use ($database) {
         $controller = new UserManagementController($database);
         return $controller->delete($request);
     }, 'admin.users.delete');
 
-    // Restaurar usuario eliminado
-    $router->post('/users/{id}/restore', function ($request) use ($database) {
+    // Restaurar usuario eliminado (ID viene en el body)
+    $router->post('/users/restore', function ($request) use ($database) {
         $controller = new UserManagementController($database);
         return $controller->restore($request);
     }, 'admin.users.restore');
@@ -236,14 +236,14 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->edit($request);
     }, 'admin.roles.edit');
 
-    // Procesar actualización
-    $router->post('/roles/{id}/update', function ($request) use ($database) {
+    // Procesar actualización (ID viene en el body del formulario)
+    $router->post('/roles/update', function ($request) use ($database) {
         $controller = new RoleController($database);
         return $controller->update($request);
     }, 'admin.roles.update');
 
-    // Eliminar rol
-    $router->delete('/roles/{id}/delete', function ($request) use ($database) {
+    // Eliminar rol (ID viene en el body)
+    $router->post('/roles/delete', function ($request) use ($database) {
         $controller = new RoleController($database);
         return $controller->delete($request);
     }, 'admin.roles.delete');
@@ -273,14 +273,14 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->edit($request);
     }, 'admin.permissions.edit');
 
-    // Procesar actualización
-    $router->post('/permissions/{id}/update', function ($request) use ($database) {
+    // Procesar actualización (ID viene en el body del formulario)
+    $router->post('/permissions/update', function ($request) use ($database) {
         $controller = new PermissionController($database);
         return $controller->update($request);
     }, 'admin.permissions.update');
 
-    // Eliminar permiso
-    $router->delete('/permissions/{id}/delete', function ($request) use ($database) {
+    // Eliminar permiso (ID viene en el body)
+    $router->post('/permissions/delete', function ($request) use ($database) {
         $controller = new PermissionController($database);
         return $controller->delete($request);
     }, 'admin.permissions.delete');

@@ -105,9 +105,12 @@ function deletePermission(permId) {
     if (!confirm('¿Estás seguro de que deseas eliminar este permiso?\n\nNOTA: No se puede eliminar si está asignado a roles.')) {
         return;
     }
-    fetch(`/admin/permissions/${permId}/delete`, {
-        method: 'DELETE',
-        headers: {'Content-Type': 'application/json'}
+    const formData = new FormData();
+    formData.append('id', permId);
+
+    fetch('/admin/permissions/delete', {
+        method: 'POST',
+        body: formData
     })
     .then(r => r.json())
     .then(data => {

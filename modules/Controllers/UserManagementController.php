@@ -227,8 +227,12 @@ class UserManagementController
      */
     public function update(ServerRequestInterface $request): ResponseInterface
     {
-        $id = (int)$request->getAttribute('id');
         $body = $request->getParsedBody();
+        $id = (int)($body['id'] ?? 0);
+
+        if (!$id) {
+            return Response::json(['error' => 'ID de usuario no proporcionado'], 400);
+        }
 
         $user = $this->userManager->getUserById($id);
         if (!$user) {
@@ -338,7 +342,12 @@ class UserManagementController
      */
     public function delete(ServerRequestInterface $request): ResponseInterface
     {
-        $id = (int)$request->getAttribute('id');
+        $body = $request->getParsedBody();
+        $id = (int)($body['id'] ?? 0);
+
+        if (!$id) {
+            return Response::json(['error' => 'ID de usuario no proporcionado'], 400);
+        }
 
         $user = $this->userManager->getUserById($id);
         if (!$user) {
@@ -365,7 +374,12 @@ class UserManagementController
      */
     public function restore(ServerRequestInterface $request): ResponseInterface
     {
-        $id = (int)$request->getAttribute('id');
+        $body = $request->getParsedBody();
+        $id = (int)($body['id'] ?? 0);
+
+        if (!$id) {
+            return Response::json(['error' => 'ID de usuario no proporcionado'], 400);
+        }
 
         $user = $this->userManager->getUserById($id);
         if (!$user) {

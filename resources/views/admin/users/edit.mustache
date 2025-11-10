@@ -30,7 +30,8 @@
     <!-- Formulario -->
     <div class="form-section">
         {{#user}}
-        <form method="POST" action="/admin/users/{{id}}/update" class="user-form">
+        <form method="POST" action="/admin/users/update" class="user-form">
+            <input type="hidden" name="id" value="{{id}}">
             <div class="form-grid">
                 <!-- Información básica -->
                 <div class="form-card">
