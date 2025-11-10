@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="{{theme_mode}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{{page_title}}}{{#page_title}} - {{/page_title}}{{site_name}}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{{favicon_url}}}">
+
+    <!-- CSS Assets -->
+    {{#css_files}}
+    <link rel="stylesheet" href="{{{.}}}">
+    {{/css_files}}
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+
+    <!-- Login CSS -->
+    <style>
+        :root {
+            --iser-primary: {{colors.primary}};
+            --iser-secondary: {{colors.secondary}};
+            --font-heading: 'Montserrat', sans-serif;
+            --font-body: 'Open Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--iser-primary) 0%, var(--iser-secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            max-width: 450px;
+            width: 100%;
+            padding: 0 1rem;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--iser-primary) 0%, var(--iser-secondary) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .login-header img {
+            max-height: 60px;
+            margin-bottom: 1rem;
+        }
+
+        .login-body {
+            padding: 2rem;
+        }
+
+        .login-footer {
+            background-color: #f8f9fa;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="theme-iser layout-login {{body_classes}}">
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Header -->
+            <div class="login-header">
+                <img src="{{{logo_url}}}" alt="{{site_name}}" class="mb-3">
+                <h4 class="mb-0 fw-bold">{{page_title}}</h4>
+            </div>
+
+            <!-- Body -->
+            <div class="login-body">
+                {{#alerts}}
+                {{> partials/alerts}}
+                {{/alerts}}
+
+                {{{content}}}
+            </div>
+
+            <!-- Footer -->
+            <div class="login-footer">
+                <p class="text-muted small mb-0">
+                    &copy; {{current_year}} {{site_name}}
+                </p>
+            </div>
+        </div>
+
+        <!-- Links adicionales -->
+        {{#show_additional_links}}
+        <div class="text-center mt-3">
+            <a href="/" class="text-white text-decoration-none">
+                <i class="fas fa-arrow-left me-1"></i>
+                Volver al inicio
+            </a>
+        </div>
+        {{/show_additional_links}}
+    </div>
+
+    <!-- JavaScript Assets -->
+    {{#js_files}}
+    <script src="{{{url}}}" {{#defer}}defer{{/defer}}></script>
+    {{/js_files}}
+
+    <script>
+        window.ISER_THEME = {
+            baseUrl: '{{{base_url}}}',
+            themeUrl: '{{{theme_url}}}',
+            themeMode: '{{theme_mode}}',
+            csrfToken: '{{{csrf_token}}}'
+        };
+    </script>
+</body>
+</html>

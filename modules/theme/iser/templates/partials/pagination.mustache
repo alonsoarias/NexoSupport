@@ -1,0 +1,56 @@
+{{#pagination}}
+<nav aria-label="Paginación" class="mt-4">
+    <ul class="pagination justify-content-center">
+        <!-- Botón Anterior -->
+        <li class="page-item {{^has_previous}}disabled{{/has_previous}}">
+            <a class="page-link" href="{{#has_previous}}{{previous_url}}{{/has_previous}}{{^has_previous}}#{{/has_previous}}" aria-label="Anterior">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+
+        <!-- Primera página -->
+        {{#show_first}}
+        <li class="page-item">
+            <a class="page-link" href="{{first_url}}">1</a>
+        </li>
+        {{#show_first_ellipsis}}
+        <li class="page-item disabled">
+            <span class="page-link">...</span>
+        </li>
+        {{/show_first_ellipsis}}
+        {{/show_first}}
+
+        <!-- Páginas -->
+        {{#pages}}
+        <li class="page-item {{#is_current}}active{{/is_current}}">
+            <a class="page-link" href="{{url}}">{{number}}</a>
+        </li>
+        {{/pages}}
+
+        <!-- Última página -->
+        {{#show_last}}
+        {{#show_last_ellipsis}}
+        <li class="page-item disabled">
+            <span class="page-link">...</span>
+        </li>
+        {{/show_last_ellipsis}}
+        <li class="page-item">
+            <a class="page-link" href="{{last_url}}">{{total_pages}}</a>
+        </li>
+        {{/show_last}}
+
+        <!-- Botón Siguiente -->
+        <li class="page-item {{^has_next}}disabled{{/has_next}}">
+            <a class="page-link" href="{{#has_next}}{{next_url}}{{/has_next}}{{^has_next}}#{{/has_next}}" aria-label="Siguiente">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+
+    {{#show_info}}
+    <div class="text-center text-muted small mt-2">
+        Mostrando {{from}} a {{to}} de {{total}} resultados
+    </div>
+    {{/show_info}}
+</nav>
+{{/pagination}}

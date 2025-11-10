@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="{{theme_mode}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{{page_title}}}{{#page_title}} - {{/page_title}}{{site_name}}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{{favicon_url}}}">
+
+    <!-- CSS Assets -->
+    {{#css_files}}
+    <link rel="stylesheet" href="{{{.}}}">
+    {{/css_files}}
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+
+    <style>
+        :root {
+            --iser-primary: {{colors.primary}};
+            --iser-secondary: {{colors.secondary}};
+            --font-heading: 'Montserrat', sans-serif;
+            --font-body: 'Open Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+        }
+    </style>
+</head>
+<body class="theme-iser layout-fullwidth {{body_classes}}">
+    <!-- Header -->
+    {{> partials/header}}
+
+    <!-- Navigation -->
+    {{> partials/navbar}}
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        <div class="container-fluid px-0">
+            {{#alerts}}
+            <div class="container-fluid px-4 pt-3">
+                {{> partials/alerts}}
+            </div>
+            {{/alerts}}
+
+            {{{content}}}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    {{> partials/footer}}
+
+    <!-- JavaScript Assets -->
+    {{#js_files}}
+    <script src="{{{url}}}" {{#defer}}defer{{/defer}}></script>
+    {{/js_files}}
+
+    <script>
+        window.ISER_THEME = {
+            baseUrl: '{{{base_url}}}',
+            themeUrl: '{{{theme_url}}}',
+            themeMode: '{{theme_mode}}',
+            user: {{{user_json}}},
+            csrfToken: '{{{csrf_token}}}'
+        };
+    </script>
+</body>
+</html>

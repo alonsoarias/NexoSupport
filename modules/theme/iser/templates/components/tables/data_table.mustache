@@ -1,0 +1,73 @@
+<div class="table-responsive">
+    <table class="table table-hover data-table {{#striped}}table-striped{{/striped}} {{#bordered}}table-bordered{{/bordered}}">
+        {{#caption}}
+        <caption>{{caption}}</caption>
+        {{/caption}}
+
+        <thead class="{{#thead_class}}{{thead_class}}{{/thead_class}}{{^thead_class}}table-light{{/thead_class}}">
+            <tr>
+                {{#columns}}
+                <th scope="col" class="{{#sortable}}sortable{{/sortable}} {{class}}" {{#width}}style="width: {{width}}"{{/width}} {{#sortable}}data-sort-by="{{field}}"{{/sortable}}>
+                    {{label}}
+                    {{#sortable}}
+                    <i class="fas fa-sort ms-1 text-muted"></i>
+                    {{/sortable}}
+                </th>
+                {{/columns}}
+                {{#actions}}
+                <th scope="col" class="text-center" style="width: 120px;">Acciones</th>
+                {{/actions}}
+            </tr>
+        </thead>
+
+        <tbody>
+            {{#rows}}
+            <tr {{#row_class}}class="{{row_class}}"{{/row_class}} {{#row_id}}data-id="{{row_id}}"{{/row_id}}>
+                {{#cells}}
+                <td {{#cell_class}}class="{{cell_class}}"{{/cell_class}}>
+                    {{{value}}}
+                </td>
+                {{/cells}}
+                {{#actions}}
+                <td class="text-center">
+                    <div class="btn-group btn-group-sm" role="group">
+                        {{#actions}}
+                        <button type="button" class="btn btn-{{type}}" data-action="{{action}}" data-id="{{id}}" title="{{title}}">
+                            <i class="{{icon}}"></i>
+                        </button>
+                        {{/actions}}
+                    </div>
+                </td>
+                {{/actions}}
+            </tr>
+            {{/rows}}
+
+            {{^rows}}
+            <tr>
+                <td colspan="{{colspan}}" class="text-center text-muted py-4">
+                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                    <p class="mb-0">{{empty_message}}</p>
+                </td>
+            </tr>
+            {{/rows}}
+        </tbody>
+
+        {{#show_footer}}
+        <tfoot class="table-light">
+            <tr>
+                {{#footer_cells}}
+                <td {{#colspan}}colspan="{{colspan}}"{{/colspan}} {{#class}}class="{{class}}"{{/class}}>
+                    {{{value}}}
+                </td>
+                {{/footer_cells}}
+            </tr>
+        </tfoot>
+        {{/show_footer}}
+    </table>
+</div>
+
+{{#pagination}}
+<div class="mt-3">
+    {{> partials/pagination}}
+</div>
+{{/pagination}}

@@ -1,0 +1,53 @@
+<div class="mb-3">
+    <label for="{{name}}" class="form-label">
+        {{label}}
+        {{#required}}<span class="text-danger">*</span>{{/required}}
+    </label>
+
+    <div class="input-group {{#size}}input-group-{{size}}{{/size}}">
+        {{#prepend}}
+        <span class="input-group-text">
+            {{#prepend_icon}}<i class="{{prepend_icon}}"></i>{{/prepend_icon}}
+            {{#prepend_text}}{{prepend_text}}{{/prepend_text}}
+        </span>
+        {{/prepend}}
+
+        <input
+            type="{{type}}"
+            class="form-control {{#class}}{{class}}{{/class}}"
+            id="{{name}}"
+            name="{{name}}"
+            value="{{value}}"
+            {{#placeholder}}placeholder="{{placeholder}}"{{/placeholder}}
+            {{#required}}required{{/required}}
+            {{#readonly}}readonly{{/readonly}}
+            {{#disabled}}disabled{{/disabled}}
+            {{#min}}min="{{min}}"{{/min}}
+            {{#max}}max="{{max}}"{{/max}}
+            {{#pattern}}pattern="{{pattern}}"{{/pattern}}
+            {{#autocomplete}}autocomplete="{{autocomplete}}"{{/autocomplete}}
+        >
+
+        {{#append}}
+        <span class="input-group-text">
+            {{#append_icon}}<i class="{{append_icon}}"></i>{{/append_icon}}
+            {{#append_text}}{{append_text}}{{/append_text}}
+        </span>
+        {{/append}}
+
+        {{#append_button}}
+        <button class="btn btn-{{append_button_type}}" type="{{append_button_action_type}}" {{#append_button_action}}data-action="{{append_button_action}}"{{/append_button_action}}>
+            {{#append_button_icon}}<i class="{{append_button_icon}}"></i>{{/append_button_icon}}
+            {{append_button_text}}
+        </button>
+        {{/append_button}}
+    </div>
+
+    {{#help}}
+    <div class="form-text">{{help}}</div>
+    {{/help}}
+
+    {{#error}}
+    <div class="invalid-feedback d-block">{{error}}</div>
+    {{/error}}
+</div>

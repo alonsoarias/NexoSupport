@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="{{theme_mode}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{{page_title}}}{{#page_title}} - {{/page_title}}{{site_name}}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{{favicon_url}}}">
+
+    <!-- Meta Tags -->
+    <meta name="description" content="{{{site_description}}}">
+    <meta name="author" content="ISER">
+    <meta name="robots" content="index, follow">
+
+    <!-- CSS Assets -->
+    {{#css_files}}
+    <link rel="stylesheet" href="{{{.}}}">
+    {{/css_files}}
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Inline CSS Variables -->
+    <style>
+        :root {
+            --iser-primary: {{colors.primary}};
+            --iser-secondary: {{colors.secondary}};
+            --iser-success: {{colors.success}};
+            --iser-danger: {{colors.danger}};
+            --iser-warning: {{colors.warning}};
+            --iser-info: {{colors.info}};
+            --iser-light: {{colors.light}};
+            --iser-dark: {{colors.dark}};
+            --font-heading: 'Montserrat', sans-serif;
+            --font-body: 'Open Sans', sans-serif;
+        }
+    </style>
+</head>
+<body class="theme-iser {{body_classes}}">
+    <!-- Skip to main content -->
+    <a href="#main-content" class="visually-hidden-focusable">Saltar al contenido principal</a>
+
+    <!-- Header -->
+    {{> partials/header}}
+
+    <!-- Navigation -->
+    {{> partials/navbar}}
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        {{#breadcrumbs}}
+        <div class="container-fluid">
+            {{> partials/breadcrumb}}
+        </div>
+        {{/breadcrumbs}}
+
+        {{#alerts}}
+        <div class="container-fluid">
+            {{> partials/alerts}}
+        </div>
+        {{/alerts}}
+
+        <div class="{{#layout.container_fluid}}container-fluid{{/layout.container_fluid}}{{^layout.container_fluid}}container{{/layout.container_fluid}}">
+            <div class="row">
+                {{#has_sidebar}}
+                <aside class="col-md-3 col-lg-2 sidebar bg-light border-end">
+                    {{> partials/sidebar}}
+                </aside>
+                <div class="col-md-9 col-lg-10 main-content-area py-4">
+                    {{{content}}}
+                </div>
+                {{/has_sidebar}}
+
+                {{^has_sidebar}}
+                <div class="col-12 main-content-area py-4">
+                    {{{content}}}
+                </div>
+                {{/has_sidebar}}
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    {{> partials/footer}}
+
+    <!-- Modals -->
+    {{> partials/modals}}
+
+    <!-- JavaScript Assets -->
+    {{#js_files}}
+    <script src="{{{url}}}" {{#defer}}defer{{/defer}}></script>
+    {{/js_files}}
+
+    <!-- Inline JavaScript -->
+    <script>
+        // Variables globales del tema
+        window.ISER_THEME = {
+            baseUrl: '{{{base_url}}}',
+            themeUrl: '{{{theme_url}}}',
+            themeMode: '{{theme_mode}}',
+            user: {{{user_json}}},
+            csrfToken: '{{{csrf_token}}}'
+        };
+    </script>
+</body>
+</html>

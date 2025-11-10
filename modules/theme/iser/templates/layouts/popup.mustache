@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="{{theme_mode}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{{page_title}}}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{{favicon_url}}}">
+
+    <!-- CSS Assets -->
+    {{#css_files}}
+    <link rel="stylesheet" href="{{{.}}}">
+    {{/css_files}}
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+
+    <style>
+        :root {
+            --iser-primary: {{colors.primary}};
+            --iser-secondary: {{colors.secondary}};
+            --font-body: 'Open Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            padding: 1.5rem;
+        }
+
+        .popup-header {
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .popup-footer {
+            border-top: 1px solid #dee2e6;
+            padding-top: 1rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body class="theme-iser layout-popup {{body_classes}}">
+    {{#page_title}}
+    <div class="popup-header">
+        <h3 class="mb-0">{{page_title}}</h3>
+    </div>
+    {{/page_title}}
+
+    {{#alerts}}
+    {{> partials/alerts}}
+    {{/alerts}}
+
+    <div class="popup-content">
+        {{{content}}}
+    </div>
+
+    {{#show_close_button}}
+    <div class="popup-footer text-center">
+        <button type="button" class="btn btn-secondary" onclick="window.close()">
+            Cerrar
+        </button>
+    </div>
+    {{/show_close_button}}
+
+    <!-- JavaScript Assets -->
+    {{#js_files}}
+    <script src="{{{url}}}"></script>
+    {{/js_files}}
+
+    <script>
+        window.ISER_THEME = {
+            baseUrl: '{{{base_url}}}',
+            themeUrl: '{{{theme_url}}}',
+            csrfToken: '{{{csrf_token}}}'
+        };
+    </script>
+</body>
+</html>

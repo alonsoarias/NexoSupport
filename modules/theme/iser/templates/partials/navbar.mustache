@@ -1,0 +1,36 @@
+<nav class="navbar navbar-expand-lg navbar-iser shadow-sm">
+    <div class="container-fluid">
+        <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav me-auto">
+                {{#sections}}
+                <li class="nav-item {{#subsections}}dropdown{{/subsections}}">
+                    {{#subsections}}
+                    <a class="nav-link dropdown-toggle {{#is_active}}active{{/is_active}}" href="#" id="navbarDropdown{{name}}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{#icon}}<i class="{{icon}} me-1"></i>{{/icon}}
+                        {{title}}
+                        {{#badge}}<span class="badge bg-light text-dark ms-1">{{badge}}</span>{{/badge}}
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown{{name}}">
+                        {{#subsections}}
+                        <li><a class="dropdown-item {{#is_active}}active{{/is_active}}" href="{{url}}">{{title}}</a></li>
+                        {{/subsections}}
+                    </ul>
+                    {{/subsections}}
+
+                    {{^subsections}}
+                    <a class="nav-link {{#is_active}}active{{/is_active}}" href="{{url}}">
+                        {{#icon}}<i class="{{icon}} me-1"></i>{{/icon}}
+                        {{title}}
+                        {{#badge}}<span class="badge bg-light text-dark ms-1">{{badge}}</span>{{/badge}}
+                    </a>
+                    {{/subsections}}
+                </li>
+                {{/sections}}
+            </ul>
+        </div>
+    </div>
+</nav>

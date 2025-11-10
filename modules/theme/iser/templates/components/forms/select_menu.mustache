@@ -1,0 +1,44 @@
+<div class="mb-3">
+    <label for="{{name}}" class="form-label">
+        {{label}}
+        {{#required}}<span class="text-danger">*</span>{{/required}}
+    </label>
+
+    <select
+        class="form-select {{#class}}{{class}}{{/class}}"
+        id="{{name}}"
+        name="{{name}}"
+        {{#required}}required{{/required}}
+        {{#disabled}}disabled{{/disabled}}
+        {{#multiple}}multiple{{/multiple}}
+        {{#size}}size="{{size}}"{{/size}}
+    >
+        {{#placeholder}}
+        <option value="">{{placeholder}}</option>
+        {{/placeholder}}
+
+        {{#options}}
+        <option value="{{value}}" {{#selected}}selected{{/selected}} {{#disabled}}disabled{{/disabled}}>
+            {{text}}
+        </option>
+        {{/options}}
+
+        {{#optgroups}}
+        <optgroup label="{{label}}">
+            {{#options}}
+            <option value="{{value}}" {{#selected}}selected{{/selected}}>
+                {{text}}
+            </option>
+            {{/options}}
+        </optgroup>
+        {{/optgroups}}
+    </select>
+
+    {{#help}}
+    <div class="form-text">{{help}}</div>
+    {{/help}}
+
+    {{#error}}
+    <div class="invalid-feedback d-block">{{error}}</div>
+    {{/error}}
+</div>

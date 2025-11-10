@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="{{theme_mode}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{{page_title}}}{{#page_title}} - {{/page_title}}Panel de Administración - {{site_name}}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{{favicon_url}}}">
+
+    <!-- CSS Assets -->
+    {{#css_files}}
+    <link rel="stylesheet" href="{{{.}}}">
+    {{/css_files}}
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Admin CSS -->
+    <style>
+        :root {
+            --iser-primary: {{colors.primary}};
+            --iser-secondary: {{colors.secondary}};
+            --iser-success: {{colors.success}};
+            --iser-danger: {{colors.danger}};
+            --iser-warning: {{colors.warning}};
+            --iser-info: {{colors.info}};
+            --iser-light: {{colors.light}};
+            --iser-dark: {{colors.dark}};
+            --font-heading: 'Montserrat', sans-serif;
+            --font-body: 'Open Sans', sans-serif;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            font-family: var(--font-body);
+        }
+
+        .admin-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(135deg, var(--iser-primary) 0%, var(--iser-secondary) 100%);
+            color: white;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .admin-sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .admin-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            transition: margin-left 0.3s ease;
+        }
+
+        .admin-content.expanded {
+            margin-left: 0;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-nav .nav-link {
+            color: rgba(255,255,255,0.9);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .sidebar-nav .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .sidebar-nav .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: 500;
+        }
+
+        .sidebar-nav .nav-link i {
+            width: 20px;
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .admin-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="theme-iser layout-admin {{body_classes}}">
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <a href="/admin" class="text-white text-decoration-none">
+                <h4 class="mb-0 fw-bold">
+                    <i class="fas fa-tools me-2"></i>
+                    Admin Panel
+                </h4>
+            </a>
+        </div>
+
+        <nav class="sidebar-nav nav flex-column mt-3">
+            {{#sections}}
+            <div class="nav-item">
+                {{#subsections}}
+                <a class="nav-link {{#is_active}}active{{/is_active}}" data-bs-toggle="collapse" href="#collapse{{name}}" role="button">
+                    <i class="{{icon}}"></i>
+                    <span>{{title}}</span>
+                    {{#badge}}<span class="badge bg-light text-dark ms-auto">{{badge}}</span>{{/badge}}
+                    <i class="fas fa-chevron-down ms-auto small"></i>
+                </a>
+                <div class="collapse {{#is_active}}show{{/is_active}}" id="collapse{{name}}">
+                    <nav class="nav flex-column ms-3">
+                        {{#subsections}}
+                        <a class="nav-link {{#is_active}}active{{/is_active}}" href="{{url}}">{{title}}</a>
+                        {{/subsections}}
+                    </nav>
+                </div>
+                {{/subsections}}
+
+                {{^subsections}}
+                <a class="nav-link {{#is_active}}active{{/is_active}}" href="{{url}}">
+                    <i class="{{icon}}"></i>
+                    <span>{{title}}</span>
+                    {{#badge}}<span class="badge bg-light text-dark ms-auto">{{badge}}</span>{{/badge}}
+                </a>
+                {{/subsections}}
+            </div>
+            {{/sections}}
+
+            <!-- Volver al sitio -->
+            <div class="mt-auto border-top border-light pt-3">
+                <a class="nav-link" href="/">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Volver al Sitio</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Admin Content -->
+    <div class="admin-content">
+        <!-- Top Bar -->
+        <header class="bg-white border-bottom shadow-sm sticky-top">
+            <div class="container-fluid py-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-link sidebar-toggle me-3" aria-label="Toggle sidebar">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="h4 mb-0">{{page_title}}</h1>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-link theme-toggle" title="Cambiar tema">
+                            <i class="fas fa-moon"></i>
+                        </button>
+
+                        <div class="dropdown">
+                            <button class="btn btn-link d-flex align-items-center" type="button" id="adminUserDropdown" data-bs-toggle="dropdown">
+                                <img src="{{user.avatar}}" alt="{{user.name}}" class="rounded-circle me-2" width="32" height="32">
+                                <span>{{user.name}}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminUserDropdown">
+                                <li><a class="dropdown-item" href="/profile">Mi Perfil</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="/logout">Cerrar Sesión</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="p-4">
+            {{#breadcrumbs}}
+            {{> partials/breadcrumb}}
+            {{/breadcrumbs}}
+
+            {{#alerts}}
+            {{> partials/alerts}}
+            {{/alerts}}
+
+            {{{content}}}
+        </main>
+    </div>
+
+    <!-- JavaScript Assets -->
+    {{#js_files}}
+    <script src="{{{url}}}" {{#defer}}defer{{/defer}}></script>
+    {{/js_files}}
+
+    <script>
+        window.ISER_THEME = {
+            baseUrl: '{{{base_url}}}',
+            themeUrl: '{{{theme_url}}}',
+            themeMode: '{{theme_mode}}',
+            user: {{{user_json}}},
+            csrfToken: '{{{csrf_token}}}'
+        };
+    </script>
+</body>
+</html>
