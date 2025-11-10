@@ -17,10 +17,25 @@ function tablesExist($pdo, $prefix) {
 $reallyInstalled = false;
 if (isset($_SESSION['db_installed']) && $_SESSION['db_installed']) {
     try {
-        $dsn = "mysql:host={$_SESSION['db_host']};port={$_SESSION['db_port']};dbname={$_SESSION['db_name']}";
-        $pdo = new PDO($dsn, $_SESSION['db_user'], $_SESSION['db_pass']);
+        $driver = $_SESSION['db_driver'] ?? 'mysql';
+
+        // Construir DSN según el driver
+        if ($driver === 'sqlite') {
+            $dsn = "sqlite:" . BASE_DIR . '/' . $_SESSION['db_name'];
+            $pdo = new PDO($dsn);
+        } else {
+            $config = [
+                'host' => $_SESSION['db_host'],
+                'port' => $_SESSION['db_port'],
+                'database' => $_SESSION['db_name']
+            ];
+            $dsn = \ISER\Core\Database\DatabaseDriverDetector::buildDSN($driver, $config);
+            $pdo = new PDO($dsn, $_SESSION['db_user'], $_SESSION['db_pass']);
+        }
+
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $reallyInstalled = tablesExist($pdo, $_SESSION['db_prefix']);
+        $adapter = new \ISER\Core\Database\DatabaseAdapter($pdo);
+        $reallyInstalled = $adapter->tableExists($_SESSION['db_prefix'] . 'users');
     } catch (Exception $e) {
         $reallyInstalled = false;
     }
@@ -74,11 +89,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['install'])) {
         echo '<p class="text-info"><i class="bi bi-arrow-right"></i> Conectando a la base de datos...</p>';
         flush(); ob_flush();
 
-        $dsn = "mysql:host={$_SESSION['db_host']};port={$_SESSION['db_port']};dbname={$_SESSION['db_name']}";
-        $pdo = new PDO($dsn, $_SESSION['db_user'], $_SESSION['db_pass']);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $driver = $_SESSION['db_driver'] ?? 'mysql';
 
-        echo '<p class="text-success"><i class="bi bi-check"></i> Conectado a la base de datos</p>';
+        // Construir DSN según el driver
+        if ($driver === 'sqlite') {
+            $dsn = "sqlite:" . BASE_DIR . '/' . $_SESSION['db_name'];
+            $pdo = new PDO($dsn);
+            echo '<p class="text-success"><i class="bi bi-check"></i> Conectado a SQLite: ' . htmlspecialchars($_SESSION['db_name']) . '</p>';
+        } else {
+            $config = [
+                'host' => $_SESSION['db_host'],
+                'port' => $_SESSION['db_port'],
+                'database' => $_SESSION['db_name']
+            ];
+            $dsn = \ISER\Core\Database\DatabaseDriverDetector::buildDSN($driver, $config);
+            $pdo = new PDO($dsn, $_SESSION['db_user'], $_SESSION['db_pass']);
+
+            $driverInfo = \ISER\Core\Database\DatabaseDriverDetector::getDriverInfo($driver);
+            echo '<p class="text-success"><i class="bi bi-check"></i> Conectado a ' . htmlspecialchars($driverInfo['name'] ?? $driver) . '</p>';
+        }
+
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         flush(); ob_flush();
 
         // Verificar que el schema.xml existe

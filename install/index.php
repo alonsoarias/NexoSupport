@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['next'])) {
 
         case STAGE_DATABASE:
             // Save database config
+            $_SESSION['db_driver'] = trim($_POST['db_driver'] ?? 'mysql');
             $_SESSION['db_host'] = trim($_POST['db_host'] ?? 'localhost');
             $_SESSION['db_port'] = (int)trim($_POST['db_port'] ?? 3306);
             $_SESSION['db_name'] = trim($_POST['db_name'] ?? '');
@@ -72,15 +73,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['next'])) {
 
             // Validate connection
             try {
-                $dsn = "mysql:host={$_SESSION['db_host']};port={$_SESSION['db_port']}";
-                $pdo = new PDO($dsn, $_SESSION['db_user'], $_SESSION['db_pass']);
+                $driver = $_SESSION['db_driver'];
+
+                // Construir DSN según el driver
+                if ($driver === 'sqlite') {
+                    // SQLite: conectar directamente al archivo
+                    $dsn = "sqlite:" . BASE_DIR . '/' . $_SESSION['db_name'];
+                    $pdo = new PDO($dsn);
+                } else {
+                    // MySQL/PostgreSQL: conectar al servidor sin especificar BD
+                    $config = [
+                        'host' => $_SESSION['db_host'],
+                        'port' => $_SESSION['db_port'],
+                        'database' => ''
+                    ];
+                    $dsn = \ISER\Core\Database\DatabaseDriverDetector::buildDSN($driver, $config);
+                    $pdo = new PDO($dsn, $_SESSION['db_user'], $_SESSION['db_pass']);
+                }
+
                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-                // Create database
-                $dbName = preg_replace('/[^a-zA-Z0-9_-]/', '', $_SESSION['db_name']);
-                $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                // Crear base de datos (no necesario para SQLite)
+                if ($driver !== 'sqlite') {
+                    $adapter = new \ISER\Core\Database\DatabaseAdapter($pdo);
+                    $dbName = preg_replace('/[^a-zA-Z0-9_-]/', '', $_SESSION['db_name']);
+                    $adapter->createDatabase($dbName);
+                }
+
             } catch (PDOException $e) {
                 $errors[] = "Error de conexión: " . $e->getMessage();
+                $stage--; // Stay on this stage
+            } catch (Exception $e) {
+                $errors[] = "Error: " . $e->getMessage();
                 $stage--; // Stay on this stage
             }
             break;

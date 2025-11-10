@@ -20,6 +20,7 @@ use Exception;
 class SchemaInstaller
 {
     private PDO $pdo;
+    private DatabaseAdapter $adapter;
     private XMLParser $xmlParser;
     private string $prefix = '';
     private array $createdTables = [];
@@ -34,6 +35,7 @@ class SchemaInstaller
     public function __construct(PDO $pdo, string $prefix = '')
     {
         $this->pdo = $pdo;
+        $this->adapter = new DatabaseAdapter($pdo);
         $this->prefix = $prefix;
         $this->xmlParser = new XMLParser();
     }
@@ -225,10 +227,8 @@ class SchemaInstaller
         echo '<p class="text-info small" style="margin-left: 20px;">  → Construyendo SQL CREATE TABLE...</p>';
         flush(); ob_flush();
 
-        // Construir SQL CREATE TABLE
-        $sql = "CREATE TABLE IF NOT EXISTS `{$tableName}` (\n";
-
-        $columnDefinitions = [];
+        // Preparar columnas para el adapter
+        $adapterColumns = [];
         $primaryKeys = [];
 
         echo '<p class="text-info small" style="margin-left: 20px;">  → Procesando definiciones de columnas...</p>';
@@ -238,27 +238,39 @@ class SchemaInstaller
             echo '<p class="text-info small" style="margin-left: 30px;">    → Columna ' . ($index + 1) . ': ' . ($column['name'] ?? 'unknown') . '</p>';
             flush(); ob_flush();
 
-            $colDef = $this->buildColumnDefinition($column);
-            $columnDefinitions[] = $colDef;
+            // Convertir columna al formato del adapter
+            $adapterColumn = $this->convertColumnToAdapterFormat($column);
+            $adapterColumns[] = $adapterColumn;
 
             if (isset($column['primary']) && $column['primary'] === 'true') {
                 $primaryKeys[] = $column['name'];
             }
         }
 
-        echo '<p class="text-info small" style="margin-left: 20px;">  → Uniendo definiciones...</p>';
+        echo '<p class="text-info small" style="margin-left: 20px;">  → Generando SQL con DatabaseAdapter...</p>';
         flush(); ob_flush();
 
-        $sql .= implode(",\n", $columnDefinitions);
+        // Usar DatabaseAdapter para construir el SQL (maneja diferencias entre MySQL/PostgreSQL/SQLite)
+        $sql = $this->adapter->buildCreateTableSQL(
+            $tableName,
+            $adapterColumns,
+            $engine,
+            $charset,
+            $collation
+        );
 
-        // Agregar primary key
-        if (!empty($primaryKeys)) {
-            $sql .= ",\n PRIMARY KEY (" . implode(',', array_map(function($k) {
-                return "`{$k}`";
-            }, $primaryKeys)) . ")";
+        // Agregar primary key si no está en columnas (ej: múltiples columnas)
+        if (!empty($primaryKeys) && count($primaryKeys) > 1) {
+            // El adapter no maneja PKs compuestas automáticamente, agregarlas manualmente
+            $pkList = implode(', ', array_map([$this->adapter, 'quoteIdentifier'], $primaryKeys));
+            $sql = rtrim($sql, ';');
+            if ($this->adapter->isMySQL()) {
+                $sql = str_replace("\n)", ",\n  PRIMARY KEY ({$pkList})\n)", $sql);
+            } else {
+                $sql = str_replace("\n)", ",\n  PRIMARY KEY ({$pkList})\n)", $sql);
+            }
+            $sql .= ';';
         }
-
-        $sql .= "\n) ENGINE={$engine} DEFAULT CHARSET={$charset} COLLATE={$collation};";
 
         echo '<p class="text-info small" style="margin-left: 20px;">  → Ejecutando CREATE TABLE...</p>';
         flush(); ob_flush();
@@ -298,7 +310,49 @@ class SchemaInstaller
     }
 
     /**
-     * Construir definición de columna SQL
+     * Convertir columna XML al formato del DatabaseAdapter
+     *
+     * @param array $column Columna en formato XML
+     * @return array Columna en formato del adapter
+     */
+    private function convertColumnToAdapterFormat(array $column): array
+    {
+        $adapterColumn = [
+            'name' => $column['name'],
+            'type' => $column['type'] ?? 'VARCHAR',
+        ];
+
+        // Longitud (si está en el tipo como VARCHAR(255))
+        if (preg_match('/^(\w+)\((\d+)\)/', $adapterColumn['type'], $matches)) {
+            $adapterColumn['type'] = $matches[1];
+            $adapterColumn['length'] = (int) $matches[2];
+        }
+
+        // NULL / NOT NULL
+        if (isset($column['null'])) {
+            $adapterColumn['null'] = $column['null'] === 'true';
+        }
+
+        // DEFAULT
+        if (isset($column['default']) && $column['default'] !== '') {
+            $adapterColumn['default'] = $column['default'];
+        }
+
+        // AUTO_INCREMENT / SERIAL
+        if (isset($column['autoincrement']) && $column['autoincrement'] === 'true') {
+            $adapterColumn['auto_increment'] = true;
+        }
+
+        // COMMENT (solo MySQL)
+        if (isset($column['comment'])) {
+            $adapterColumn['comment'] = $column['comment'];
+        }
+
+        return $adapterColumn;
+    }
+
+    /**
+     * Construir definición de columna SQL (legacy - mantener por compatibilidad)
      *
      * @param array $column Datos de la columna
      * @return string Definición SQL
@@ -350,14 +404,22 @@ class SchemaInstaller
 
         foreach ($indexes as $index) {
             $indexName = $index['name'];
-            $columns = explode(',', $index['columns']);
-            $unique = isset($index['unique']) && $index['unique'] === 'true' ? 'UNIQUE' : '';
+            $columns = array_map('trim', explode(',', $index['columns']));
+            $type = 'INDEX';
 
-            $columnList = implode(',', array_map(function($col) {
-                return "`" . trim($col) . "`";
-            }, $columns));
+            if (isset($index['unique']) && $index['unique'] === 'true') {
+                $type = 'UNIQUE';
+            } elseif (isset($index['primary']) && $index['primary'] === 'true') {
+                $type = 'PRIMARY';
+            }
 
-            $sql = "CREATE {$unique} INDEX `{$indexName}` ON `{$tableName}` ({$columnList});";
+            $indexData = [
+                'name' => $indexName,
+                'columns' => $columns,
+                'type' => $type
+            ];
+
+            $sql = $this->adapter->buildIndexSQL($tableName, $indexData);
 
             try {
                 $this->pdo->exec($sql);
@@ -384,18 +446,28 @@ class SchemaInstaller
             $column = $fk['column'];
             $references = $fk['references'];
             $onDelete = $fk['onDelete'] ?? 'RESTRICT';
+            $onUpdate = $fk['onUpdate'] ?? 'RESTRICT';
 
-            // Agregar prefijo a la tabla referenciada
-            $references = preg_replace_callback('/^(\w+)\(/', function($matches) {
-                return $this->prefix . $matches[1] . '(';
-            }, $references);
+            // Parsear referencias: tabla(columna)
+            if (preg_match('/^(\w+)\((\w+)\)$/', $references, $matches)) {
+                $refTable = $this->prefix . $matches[1];
+                $refColumn = $matches[2];
+            } else {
+                continue; // Skip si el formato no es válido
+            }
 
             $constraintName = "fk_{$tableName}_{$column}";
-            $sql = "ALTER TABLE `{$tableName}`
-                    ADD CONSTRAINT `{$constraintName}`
-                    FOREIGN KEY (`{$column}`)
-                    REFERENCES {$references}
-                    ON DELETE {$onDelete};";
+
+            $fkData = [
+                'name' => $constraintName,
+                'column' => $column,
+                'references_table' => $refTable,
+                'references_column' => $refColumn,
+                'on_delete' => $onDelete,
+                'on_update' => $onUpdate
+            ];
+
+            $sql = $this->adapter->buildForeignKeySQL($tableName, $fkData);
 
             try {
                 $this->pdo->exec($sql);
