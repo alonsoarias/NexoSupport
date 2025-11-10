@@ -80,6 +80,7 @@ class UserManagementController
             'total_users' => $totalUsers,
             'current_page' => $page,
             'total_pages' => $totalPages,
+            'show_pagination' => $totalPages > 1,
             'has_previous' => $page > 1,
             'has_next' => $page < $totalPages,
             'previous_page' => $page - 1,

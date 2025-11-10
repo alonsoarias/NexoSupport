@@ -67,6 +67,7 @@ class RoleController
             'total_roles' => $totalRoles,
             'current_page' => $page,
             'total_pages' => $totalPages,
+            'show_pagination' => $totalPages > 1,
             'has_previous' => $page > 1,
             'has_next' => $page < $totalPages,
             'previous_page' => $page - 1,

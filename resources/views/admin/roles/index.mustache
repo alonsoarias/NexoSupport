@@ -80,8 +80,7 @@
         </div>
 
         <!-- Paginación -->
-        {{#total_pages}}
-        {{#gt total_pages 1}}
+        {{#show_pagination}}
         <div class="pagination">
             {{#has_previous}}
             <a href="/admin/roles?page={{previous_page}}" class="btn btn-sm btn-secondary">
@@ -97,8 +96,7 @@
             </a>
             {{/has_next}}
         </div>
-        {{/gt}}
-        {{/total_pages}}
+        {{/show_pagination}}
     </div>
 
     <!-- Info -->
