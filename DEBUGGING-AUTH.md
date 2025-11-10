@@ -1,7 +1,28 @@
 # Authentication Debugging Guide
 
+## CRITICAL: Missing Table Fix Required
+
+**⚠️ IMPORTANT: You must run the database migration first!**
+
+The `login_attempts` table is missing from your database, which causes authentication to crash.
+
+### Run This First:
+
+```bash
+cd C:\MAMP\htdocs\NexoSupport
+php database\migrations\run-migration.php
+```
+
+**OR** import the SQL file manually via phpMyAdmin:
+- File: `database/migrations/001_create_login_attempts_table.sql`
+- See: `database/migrations/README.md` for detailed instructions
+
+After running the migration, continue with the debugging steps below.
+
+---
+
 ## Current Issue
-Login fails with `auth.invalid_credentials` error.
+Login fails with `auth.invalid_credentials` error or database table errors.
 
 ## Debugging Steps Added
 

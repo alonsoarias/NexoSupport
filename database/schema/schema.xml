@@ -96,6 +96,25 @@
         </indexes>
     </table>
 
+    <!-- Login Attempts Table -->
+    <table name="login_attempts">
+        <description>Login attempt tracking</description>
+        <columns>
+            <column name="id" type="BIGINT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="username" type="VARCHAR(255)" null="false"/>
+            <column name="ip_address" type="VARCHAR(45)" null="false"/>
+            <column name="user_agent" type="VARCHAR(255)"/>
+            <column name="success" type="BOOLEAN" default="false" null="false"/>
+            <column name="attempted_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_username" columns="username"/>
+            <index name="idx_ip_address" columns="ip_address"/>
+            <index name="idx_attempted_at" columns="attempted_at"/>
+            <index name="idx_success" columns="success"/>
+        </indexes>
+    </table>
+
     <!-- User Profiles Table -->
     <table name="user_profiles">
         <description>User profile information</description>
