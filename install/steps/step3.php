@@ -18,7 +18,7 @@ $schemaData = null;
 $parseError = null;
 
 try {
-    $xmlParser = new XMLParser();
+    $xmlParser = new \ISER\Core\Utils\XMLParser();
     $xmlParser->parseFile($schemaFile);
     $schemaData = $xmlParser->toArray();
 } catch (Exception $e) {
