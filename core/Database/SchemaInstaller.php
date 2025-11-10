@@ -25,19 +25,35 @@ class SchemaInstaller
     private string $prefix = '';
     private array $createdTables = [];
     private array $errors = [];
+    private bool $silent = false;
 
     /**
      * Constructor
      *
      * @param PDO $pdo Conexión PDO
      * @param string $prefix Prefijo de tablas
+     * @param bool $silent Modo silencioso (sin output HTML)
      */
-    public function __construct(PDO $pdo, string $prefix = '')
+    public function __construct(PDO $pdo, string $prefix = '', bool $silent = false)
     {
         $this->pdo = $pdo;
         $this->adapter = new DatabaseAdapter($pdo);
         $this->prefix = $prefix;
         $this->xmlParser = new XMLParser();
+        $this->silent = $silent;
+    }
+
+    /**
+     * Imprimir mensaje solo si no está en modo silencioso
+     */
+    private function log(string $message): void
+    {
+        if (!$this->silent) {
+            $this->log($message);
+            if (ob_get_level() > 0) {
+                ob_flush();
+            }
+        }
     }
 
     /**
@@ -53,16 +69,14 @@ class SchemaInstaller
             throw new Exception("Archivo XML no encontrado: {$xmlFile}");
         }
 
-        echo '<p class="text-info small">→ Parseando archivo XML...</p>';
-        flush(); ob_flush();
+        $this->log('<p class="text-info small">→ Parseando archivo XML...</p>');
 
         // Parsear XML directamente con DOMDocument (evita problemas del XMLParser)
         try {
             set_time_limit(60); // 60 segundos solo para parsing
 
             $xmlContent = file_get_contents($xmlFile);
-            echo '<p class="text-info small">→ Archivo leído (' . strlen($xmlContent) . ' bytes)...</p>';
-            flush(); ob_flush();
+            $this->log('<p class="text-info small">→ Archivo leído (' . strlen($xmlContent) . ' bytes)...</p>');
 
             // Usar DOMDocument
             $dom = new \DOMDocument('1.0', 'UTF-8');
@@ -81,7 +95,7 @@ class SchemaInstaller
             libxml_clear_errors();
             libxml_use_internal_errors(false);
 
-            echo '<p class="text-info small">→ DOM cargado exitosamente...</p>';
+            $this->log('<p class="text-info small">→ DOM cargado exitosamente...</p>');
             flush(); ob_flush();
 
             // Convertir DOM a SimpleXML y luego a array (método más confiable)
@@ -90,18 +104,16 @@ class SchemaInstaller
                 throw new Exception("Error al convertir DOM a SimpleXML");
             }
 
-            echo '<p class="text-info small">→ Convertido a SimpleXML...</p>';
+            $this->log('<p class="text-info small">→ Convertido a SimpleXML...</p>');
             flush(); ob_flush();
 
             // Convertir SimpleXML a array de forma simple y directa
             $schema = $this->convertSimpleXMLToArray($simpleXML);
 
-            echo '<p class="text-info small">→ XML convertido a array (' . count($schema) . ' elementos)...</p>';
-            flush(); ob_flush();
+            $this->log('<p class="text-info small">→ XML convertido a array (' . count($schema) . ' elementos)...</p>');
 
         } catch (Exception $e) {
-            echo '<p class="text-danger small">✗ Error parseando XML: ' . htmlspecialchars($e->getMessage()) . '</p>';
-            flush(); ob_flush();
+            $this->log('<p class="text-danger small">✗ Error parseando XML: ' . htmlspecialchars($e->getMessage()) . '</p>');
             throw $e;
         }
 
@@ -109,7 +121,7 @@ class SchemaInstaller
             throw new Exception("El esquema XML está vacío");
         }
 
-        echo '<p class="text-info small">→ XML parseado, obteniendo metadata...</p>';
+        $this->log('<p class="text-info small">→ XML parseado, obteniendo metadata...</p>');
         flush(); ob_flush();
 
         // Obtener metadata
@@ -126,29 +138,26 @@ class SchemaInstaller
             $tables = [$tables];
         }
 
-        echo '<p class="text-info small">→ Creando ' . count($tables) . ' tablas...</p>';
-        flush(); ob_flush();
+        $this->log('<p class="text-info small">→ Creando ' . count($tables) . ' tablas...</p>');
 
         foreach ($tables as $index => $tableData) {
             try {
                 $tableName = $tableData['name'] ?? 'unknown';
-                echo '<p class="text-info small">→ Creando tabla: ' . htmlspecialchars($this->prefix . $tableName) . '</p>';
-                flush(); ob_flush();
+                $this->log('<p class="text-info small">→ Creando tabla: ' . htmlspecialchars($this->prefix . $tableName) . '</p>');
 
                 // DEBUG: Mostrar estructura de tableData
-                echo '<pre class="small" style="background: #fff3cd; padding: 10px; margin: 10px 20px; border-radius: 5px;">';
-                echo 'DEBUG tableData estructura:' . "\n";
-                echo 'Keys: ' . implode(', ', array_keys($tableData)) . "\n";
-                echo 'Name: ' . ($tableData['name'] ?? 'N/A') . "\n";
-                echo 'Has columns: ' . (isset($tableData['columns']) ? 'YES' : 'NO') . "\n";
+                $this->log('<pre class="small" style="background: #fff3cd; padding: 10px; margin: 10px 20px; border-radius: 5px;">');
+                $this->log('DEBUG tableData estructura:' . "\n");
+                $this->log('Keys: ' . implode(', ', array_keys($tableData)) . "\n");
+                $this->log('Name: ' . ($tableData['name'] ?? 'N/A') . "\n");
+                $this->log('Has columns: ' . (isset($tableData['columns']) ? 'YES' : 'NO') . "\n");
                 if (isset($tableData['columns'])) {
-                    echo 'Columns keys: ' . implode(', ', array_keys($tableData['columns'])) . "\n";
-                    echo 'Has column array: ' . (isset($tableData['columns']['column']) ? 'YES' : 'NO') . "\n";
+                    $this->log('Columns keys: ' . implode(', ', array_keys($tableData['columns'])) . "\n");
+                    $this->log('Has column array: ' . (isset($tableData['columns']['column']) ? 'YES' : 'NO') . "\n");
                 }
-                echo '</pre>';
-                flush(); ob_flush();
+                $this->log('</pre>');
 
-                echo '<p class="text-warning small">→ Llamando a createTable()...</p>';
+                $this->log('<p class="text-warning small">→ Llamando a createTable()...</p>');
                 flush(); ob_flush();
 
                 set_time_limit(30); // 30 segundos por tabla
@@ -156,31 +165,27 @@ class SchemaInstaller
                 try {
                     $this->createTable($tableData, $charset, $collation, $engine);
                 } catch (\Throwable $e) {
-                    echo '<p class="text-danger small">✗ Exception capturada: ' . htmlspecialchars($e->getMessage()) . '</p>';
-                    echo '<p class="text-danger small">✗ Trace: ' . htmlspecialchars($e->getTraceAsString()) . '</p>';
-                    flush(); ob_flush();
+                    $this->log('<p class="text-danger small">✗ Exception capturada: ' . htmlspecialchars($e->getMessage()) . '</p>');
+                    $this->log('<p class="text-danger small">✗ Trace: ' . htmlspecialchars($e->getTraceAsString()) . '</p>');
                     throw $e;
                 }
 
-                echo '<p class="text-success small">✓ Tabla creada: ' . htmlspecialchars($this->prefix . $tableName) . '</p>';
-                flush(); ob_flush();
+                $this->log('<p class="text-success small">✓ Tabla creada: ' . htmlspecialchars($this->prefix . $tableName) . '</p>');
             } catch (Exception $e) {
                 $this->errors[] = $e->getMessage();
-                echo '<p class="text-danger small">✗ Error en tabla: ' . htmlspecialchars($e->getMessage()) . '</p>';
-                flush(); ob_flush();
+                $this->log('<p class="text-danger small">✗ Error en tabla: ' . htmlspecialchars($e->getMessage()) . '</p>');
                 throw $e;
             }
         }
 
-        echo '<p class="text-info small">→ Insertando datos iniciales...</p>';
+        $this->log('<p class="text-info small">→ Insertando datos iniciales...</p>');
         flush(); ob_flush();
 
         // Insertar datos iniciales
         foreach ($tables as $tableData) {
             if (isset($tableData['data'])) {
                 $tableName = $tableData['name'] ?? 'unknown';
-                echo '<p class="text-info small">→ Insertando datos en: ' . htmlspecialchars($this->prefix . $tableName) . '</p>';
-                flush(); ob_flush();
+                $this->log('<p class="text-info small">→ Insertando datos en: ' . htmlspecialchars($this->prefix . $tableName) . '</p>');
                 $this->insertInitialData($tableData);
             }
         }
@@ -188,7 +193,7 @@ class SchemaInstaller
         // Asignar permisos al rol admin (si existen las tablas necesarias)
         if (in_array($this->prefix . 'role_permissions', $this->createdTables) &&
             in_array($this->prefix . 'permissions', $this->createdTables)) {
-            echo '<p class="text-info small">→ Asignando permisos al rol Admin...</p>';
+            $this->log('<p class="text-info small">→ Asignando permisos al rol Admin...</p>');
             flush(); ob_flush();
             $this->assignAdminPermissions();
         }
@@ -206,37 +211,35 @@ class SchemaInstaller
      */
     private function createTable(array $tableData, string $charset, string $collation, string $engine): void
     {
-        echo '<p class="text-info small" style="margin-left: 20px;">  → Obteniendo nombre de tabla...</p>';
+        $this->log('<p class="text-info small" style="margin-left: 20px;">  → Obteniendo nombre de tabla...</p>');
         flush(); ob_flush();
 
         $tableName = $this->prefix . $tableData['name'];
 
-        echo '<p class="text-info small" style="margin-left: 20px;">  → Obteniendo columnas...</p>';
+        $this->log('<p class="text-info small" style="margin-left: 20px;">  → Obteniendo columnas...</p>');
         flush(); ob_flush();
 
         $columns = $tableData['columns']['column'] ?? [];
 
-        echo '<p class="text-info small" style="margin-left: 20px;">  → Encontradas ' . (is_array($columns) ? count($columns) : 0) . ' columnas...</p>';
-        flush(); ob_flush();
+        $this->log('<p class="text-info small" style="margin-left: 20px;">  → Encontradas ' . (is_array($columns) ? count($columns) : 0) . ' columnas...</p>');
 
         // Normalizar si solo hay una columna
         if (isset($columns['@attributes']) || isset($columns['name'])) {
             $columns = [$columns];
         }
 
-        echo '<p class="text-info small" style="margin-left: 20px;">  → Construyendo SQL CREATE TABLE...</p>';
+        $this->log('<p class="text-info small" style="margin-left: 20px;">  → Construyendo SQL CREATE TABLE...</p>');
         flush(); ob_flush();
 
         // Preparar columnas para el adapter
         $adapterColumns = [];
         $primaryKeys = [];
 
-        echo '<p class="text-info small" style="margin-left: 20px;">  → Procesando definiciones de columnas...</p>';
+        $this->log('<p class="text-info small" style="margin-left: 20px;">  → Procesando definiciones de columnas...</p>');
         flush(); ob_flush();
 
         foreach ($columns as $index => $column) {
-            echo '<p class="text-info small" style="margin-left: 30px;">    → Columna ' . ($index + 1) . ': ' . ($column['name'] ?? 'unknown') . '</p>';
-            flush(); ob_flush();
+            $this->log('<p class="text-info small" style="margin-left: 30px;">    → Columna ' . ($index + 1) . ': ' . ($column['name'] ?? 'unknown') . '</p>');
 
             // Convertir columna al formato del adapter
             $adapterColumn = $this->convertColumnToAdapterFormat($column);
@@ -247,7 +250,7 @@ class SchemaInstaller
             }
         }
 
-        echo '<p class="text-info small" style="margin-left: 20px;">  → Generando SQL con DatabaseAdapter...</p>';
+        $this->log('<p class="text-info small" style="margin-left: 20px;">  → Generando SQL con DatabaseAdapter...</p>');
         flush(); ob_flush();
 
         // Usar DatabaseAdapter para construir el SQL (maneja diferencias entre MySQL/PostgreSQL/SQLite)
@@ -272,24 +275,23 @@ class SchemaInstaller
             $sql .= ';';
         }
 
-        echo '<p class="text-info small" style="margin-left: 20px;">  → Ejecutando CREATE TABLE...</p>';
+        $this->log('<p class="text-info small" style="margin-left: 20px;">  → Ejecutando CREATE TABLE...</p>');
         flush(); ob_flush();
 
         // Ejecutar CREATE TABLE
         try {
             $this->pdo->exec($sql);
-            echo '<p class="text-success small" style="margin-left: 20px;">  ✓ CREATE TABLE ejecutado</p>';
+            $this->log('<p class="text-success small" style="margin-left: 20px;">  ✓ CREATE TABLE ejecutado</p>');
             flush(); ob_flush();
         } catch (Exception $e) {
-            echo '<p class="text-danger small" style="margin-left: 20px;">  ✗ Error SQL: ' . htmlspecialchars($e->getMessage()) . '</p>';
-            echo '<p class="text-danger small" style="margin-left: 20px;">  SQL: ' . htmlspecialchars(substr($sql, 0, 500)) . '...</p>';
-            flush(); ob_flush();
+            $this->log('<p class="text-danger small" style="margin-left: 20px;">  ✗ Error SQL: ' . htmlspecialchars($e->getMessage()) . '</p>');
+            $this->log('<p class="text-danger small" style="margin-left: 20px;">  SQL: ' . htmlspecialchars(substr($sql, 0, 500)) . '...</p>');
             throw $e;
         }
 
         $this->createdTables[] = $tableName;
 
-        echo '<p class="text-info small" style="margin-left: 20px;">  → Creando índices...</p>';
+        $this->log('<p class="text-info small" style="margin-left: 20px;">  → Creando índices...</p>');
         flush(); ob_flush();
 
         // Crear índices
@@ -297,7 +299,7 @@ class SchemaInstaller
             $this->createIndexes($tableName, $tableData['indexes']['index']);
         }
 
-        echo '<p class="text-info small" style="margin-left: 20px;">  → Creando foreign keys...</p>';
+        $this->log('<p class="text-info small" style="margin-left: 20px;">  → Creando foreign keys...</p>');
         flush(); ob_flush();
 
         // Crear foreign keys
@@ -305,7 +307,7 @@ class SchemaInstaller
             $this->createForeignKeys($tableName, $tableData['foreignKeys']['foreignKey']);
         }
 
-        echo '<p class="text-success small" style="margin-left: 20px;">  ✓ Tabla completada</p>';
+        $this->log('<p class="text-success small" style="margin-left: 20px;">  ✓ Tabla completada</p>');
         flush(); ob_flush();
     }
 

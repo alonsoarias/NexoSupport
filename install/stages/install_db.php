@@ -113,8 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_install'])) {
             throw new Exception("Archivo schema.xml no encontrado");
         }
 
-        // Install schema (captura todo el output HTML)
-        $installer = new \ISER\Core\Database\SchemaInstaller($pdo, $_SESSION['db_prefix']);
+        // Install schema en modo silencioso (sin output HTML)
+        $installer = new \ISER\Core\Database\SchemaInstaller($pdo, $_SESSION['db_prefix'], true);
         $installer->installFromXML(SCHEMA_FILE);
 
         $tables = $installer->getCreatedTables();
