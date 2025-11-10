@@ -38,7 +38,8 @@ class MustacheRenderer
             'loader' => new Mustache_Loader_FilesystemLoader($viewsPath),
             'partials_loader' => new Mustache_Loader_FilesystemLoader($viewsPath),
             'escape' => function ($value) {
-                return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+                // Convertir a string antes de escapar (soporta int, float, bool, etc.)
+                return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
             },
             'helpers' => $this->getHelpers(),
         ]);
