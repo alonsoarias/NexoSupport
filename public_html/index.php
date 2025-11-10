@@ -63,17 +63,9 @@ function checkInstallation(): bool {
 
 // Verificar instalación
 if (!checkInstallation()) {
-    // No instalado: redirigir al instalador
-    $installUrl = '/install/index.php';
-
-    // Si estamos en subdirectorio, ajustar URL
-    $scriptName = $_SERVER['SCRIPT_NAME'];
-    if (strpos($scriptName, '/public_html/') !== false) {
-        $baseUrl = str_replace('/public_html/index.php', '', $scriptName);
-        $installUrl = $baseUrl . '/install/index.php';
-    }
-
-    header('Location: ' . $installUrl);
+    // No instalado: redirigir al instalador wrapper
+    // El instalador está en public_html/install.php (accesible vía web)
+    header('Location: /install.php');
     exit;
 }
 

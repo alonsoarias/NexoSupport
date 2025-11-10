@@ -136,14 +136,14 @@ ENV;
     <i class="bi bi-exclamation-triangle"></i>
     <strong>Importante - Seguridad:</strong>
     <ul class="mb-0 mt-2">
-        <li>Elimine o restrinja el acceso al directorio <code>/install/</code></li>
+        <li>Elimine el archivo <code>public_html/install.php</code> para mayor seguridad</li>
         <li>El archivo <code>.env</code> debe tener permisos restrictivos (600)</li>
-        <li>Agregue <code>.env</code> a su <code>.gitignore</code> si usa control de versiones</li>
+        <li>Asegúrese de que <code>.env</code> esté en su <code>.gitignore</code></li>
     </ul>
 </div>
 
 <div class="text-center mt-4">
-    <a href="../" class="btn btn-primary btn-lg">
+    <a href="/" class="btn btn-primary btn-lg">
         <i class="bi bi-house"></i> Ir al Sistema
     </a>
 </div>

@@ -70,10 +70,10 @@ if (isAlreadyInstalled() && !isset($_GET['reinstall'])) {
                             <p class="text-muted">NexoSupport ya está instalado y configurado.</p>
                             <hr>
                             <div class="d-grid gap-2">
-                                <a href="../" class="btn btn-primary">
+                                <a href="/" class="btn btn-primary">
                                     <i class="bi bi-house"></i> Ir al Sistema
                                 </a>
-                                <a href="?reinstall=1" class="btn btn-outline-danger">
+                                <a href="/install.php?reinstall=1" class="btn btn-outline-danger">
                                     <i class="bi bi-exclamation-triangle"></i> Reinstalar (Peligroso)
                                 </a>
                             </div>
