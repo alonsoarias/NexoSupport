@@ -438,4 +438,30 @@ class ReportLog
             $params
         );
     }
+
+    /**
+     * Obtener configuración de reportes
+     */
+    public function getReportConfig(string $configName): mixed
+    {
+        $result = $this->db->query(
+            "SELECT config_value, config_type FROM iser_report_config
+             WHERE config_name = :name",
+            ['name' => $configName]
+        );
+
+        if (empty($result)) {
+            return null;
+        }
+
+        $value = $result[0]['config_value'];
+        $type = $result[0]['config_type'];
+
+        return match($type) {
+            'int' => (int)$value,
+            'bool' => (bool)$value,
+            'json' => json_decode($value, true),
+            default => $value
+        };
+    }
 }
