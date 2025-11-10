@@ -110,12 +110,23 @@ class Router
      */
     public function addRoute(string $method, string $path, callable|array $handler, ?string $name = null): self
     {
-        // Normalizar path
-        $path = '/' . ltrim($path, '/');
+        // Normalizar path: eliminar slashes al inicio y fin
+        $path = trim($path, '/');
 
-        // Aplicar basePath si existe (para grupos)
-        $fullPath = $this->basePath . $path;
-        $fullPath = '/' . ltrim($fullPath, '/');
+        // Construir fullPath correctamente
+        if ($this->basePath !== '' && $path !== '') {
+            // Grupo con path: /admin + users = /admin/users
+            $fullPath = $this->basePath . '/' . $path;
+        } elseif ($this->basePath !== '') {
+            // Grupo sin path: /admin + '' = /admin
+            $fullPath = $this->basePath;
+        } elseif ($path !== '') {
+            // Sin grupo con path: '' + login = /login
+            $fullPath = '/' . $path;
+        } else {
+            // Sin grupo sin path: '' + '' = /
+            $fullPath = '/';
+        }
 
         // Crear patrón regex
         $pattern = $this->pathToPattern($fullPath);
