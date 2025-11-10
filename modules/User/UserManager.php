@@ -49,18 +49,12 @@ class UserManager
 
     public function getUserByUsername(string $username): array|false
     {
-        error_log("[UserManager::getUserByUsername] Looking for username: '{$username}'");
-        $result = $this->db->selectOne('users', ['username' => $username]);
-        error_log("[UserManager::getUserByUsername] Result: " . ($result ? "found ID {$result['id']}" : "not found"));
-        return $result;
+        return $this->db->selectOne('users', ['username' => $username]);
     }
 
     public function getUserByEmail(string $email): array|false
     {
-        error_log("[UserManager::getUserByEmail] Looking for email: '{$email}'");
-        $result = $this->db->selectOne('users', ['email' => $email]);
-        error_log("[UserManager::getUserByEmail] Result: " . ($result ? "found ID {$result['id']}" : "not found"));
-        return $result;
+        return $this->db->selectOne('users', ['email' => $email]);
     }
 
     public function update(int $id, array $data): bool
@@ -290,53 +284,5 @@ class UserManager
 
         $result = $this->db->getConnection()->fetchOne($sql, $params);
         return ($result['count'] ?? 0) > 0;
-    }
-
-    public function recordLoginAttempt(string $username, bool $success, string $ip): void
-    {
-        $this->db->insert('login_attempts', [
-            'username' => $username,
-            'ip_address' => $ip,
-            'user_agent' => Helpers::getUserAgent(),
-            'success' => $success ? 1 : 0,
-            'attempted_at' => time(),
-        ]);
-    }
-
-    public function getFailedAttempts(string $username, int $timeWindow = 900): int
-    {
-        $since = time() - $timeWindow;
-        $sql = "SELECT COUNT(*) as count FROM {$this->db->table('login_attempts')}
-                WHERE username = :username AND success = 0 AND attempted_at > :since";
-        $result = $this->db->getConnection()->fetchOne($sql, [
-            ':username' => $username,
-            ':since' => $since
-        ]);
-        return (int)($result['count'] ?? 0);
-    }
-
-    public function lockAccount(string $username, int $duration = 900): bool
-    {
-        $user = $this->getUserByUsername($username);
-        if (!$user) return false;
-
-        return $this->update($user['id'], [
-            'locked_until' => time() + $duration,
-            'failed_login_attempts' => $this->getFailedAttempts($username)
-        ]);
-    }
-
-    public function isAccountLocked(string $username): bool
-    {
-        $user = $this->getUserByUsername($username);
-        if (!$user) return false;
-        return ($user['locked_until'] ?? 0) > time();
-    }
-
-    public function resetFailedAttempts(string $username): bool
-    {
-        $user = $this->getUserByUsername($username);
-        if (!$user) return false;
-        return $this->update($user['id'], ['failed_login_attempts' => 0, 'locked_until' => 0]);
     }
 }
