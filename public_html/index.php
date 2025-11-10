@@ -87,6 +87,7 @@ use ISER\Core\Http\Request;
 use ISER\Core\Http\Response;
 use ISER\Controllers\HomeController;
 use ISER\Controllers\AuthController;
+use ISER\Controllers\AdminController;
 
 // Inicializar la aplicación
 try {
@@ -139,37 +140,36 @@ $router->get('/dashboard', function ($request) use ($database) {
 }, 'dashboard');
 
 // ===== RUTAS DE ADMINISTRACIÓN =====
-$router->group('/admin', function (Router $router) {
-    // Incluir archivos de admin (ahora en app/)
-    $router->get('', function ($request) {
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-            return Response::redirect('/login');
-        }
-        ob_start();
-        require BASE_DIR . '/app/Admin/admin.php';
-        $content = ob_get_clean();
-        return Response::html($content);
+$router->group('/admin', function (Router $router) use ($database) {
+    // Panel principal de administración
+    $router->get('', function ($request) use ($database) {
+        $controller = new AdminController($database);
+        return $controller->index($request);
     }, 'admin');
 
-    $router->get('/plugins', function ($request) {
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-            return Response::redirect('/login');
-        }
-        ob_start();
-        require BASE_DIR . '/app/Admin/plugins.php';
-        $content = ob_get_clean();
-        return Response::html($content);
-    }, 'admin.plugins');
+    // Gestión de usuarios
+    $router->get('/users', function ($request) use ($database) {
+        $controller = new AdminController($database);
+        return $controller->users($request);
+    }, 'admin.users');
 
-    $router->get('/settings', function ($request) {
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-            return Response::redirect('/login');
-        }
-        ob_start();
-        require BASE_DIR . '/app/Admin/settings.php';
-        $content = ob_get_clean();
-        return Response::html($content);
+    // Configuración del sistema
+    $router->get('/settings', function ($request) use ($database) {
+        $controller = new AdminController($database);
+        return $controller->settings($request);
     }, 'admin.settings');
+
+    // Reportes del sistema
+    $router->get('/reports', function ($request) use ($database) {
+        $controller = new AdminController($database);
+        return $controller->reports($request);
+    }, 'admin.reports');
+
+    // Seguridad del sistema
+    $router->get('/security', function ($request) use ($database) {
+        $controller = new AdminController($database);
+        return $controller->security($request);
+    }, 'admin.security');
 });
 
 // ===== RUTAS DE REPORTES =====
