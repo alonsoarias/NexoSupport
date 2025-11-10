@@ -1,0 +1,80 @@
+<!-- Crear Rol -->
+<div class="admin-container">
+    <div class="admin-header">
+        <div>
+            <h2>{{page_title}}</h2>
+            <p class="text-muted">Crear nuevo rol en el sistema</p>
+        </div>
+        <div class="user-actions">
+            <a href="/admin/roles" class="btn btn-sm btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    {{#errors}}
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle"></i>
+        <div><strong>Errores:</strong><ul>{{#errors}}<li>{{.}}</li>{{/errors}}</ul></div>
+    </div>
+    {{/errors}}
+
+    <div class="form-section">
+        <form method="POST" action="/admin/roles/store" class="role-form">
+            <div class="form-card">
+                <h3><i class="bi bi-shield"></i> Información del Rol</h3>
+                <div class="form-group">
+                    <label for="name">Nombre *</label>
+                    <input type="text" id="name" name="name" class="form-input" value="{{form_data.name}}" required>
+                </div>
+                <div class="form-group">
+                    <label for="slug">Slug *</label>
+                    <input type="text" id="slug" name="slug" class="form-input" value="{{form_data.slug}}" required>
+                    <small class="form-help">Identificador único (ej: moderator, editor)</small>
+                </div>
+                <div class="form-group">
+                    <label for="level">Nivel *</label>
+                    <input type="number" id="level" name="level" class="form-input" value="{{form_data.level}}" min="1" max="100" required>
+                    <small class="form-help">1-100 (Admin=100, Moderator=50, User=10, Guest=1)</small>
+                </div>
+                <div class="form-group">
+                    <label for="description">Descripción</label>
+                    <textarea id="description" name="description" class="form-textarea" rows="3">{{form_data.description}}</textarea>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <h3><i class="bi bi-key"></i> Permisos Asignados</h3>
+                <p class="text-muted">Selecciona los permisos que tendrá este rol</p>
+                {{#permissions_grouped}}
+                <div class="permission-module">
+                    <h4>{{@key}}</h4>
+                    <div class="permissions-grid">
+                        {{#.}}
+                        <label class="permission-checkbox">
+                            <input type="checkbox" name="permissions[]" value="{{id}}">
+                            <div class="permission-info">
+                                <strong>{{name}}</strong>
+                                <small>{{description}}</small>
+                            </div>
+                        </label>
+                        {{/.}}
+                    </div>
+                </div>
+                {{/permissions_grouped}}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Crear Rol
+                </button>
+                <a href="/admin/roles" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+<style>
+.admin-container{padding:20px 0;max-width:1200px;margin:0 auto}.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid var(--border-color)}.admin-header h2{color:var(--text-primary);margin:0 0 5px 0}.text-muted{color:var(--text-secondary);margin:0}.user-actions{display:flex;gap:10px}.btn-sm{padding:8px 16px;font-size:.875rem}.btn-secondary{background:var(--bg-secondary);color:var(--text-primary)}.btn-secondary:hover{background:var(--border-color)}.alert{padding:15px 20px;border-radius:8px;margin-bottom:20px}.alert-danger{background:#f8d7da;color:#721c24;border-left:4px solid #dc3545}.alert ul{margin:10px 0 0 20px}.form-section{background:var(--bg-secondary);border-radius:12px;padding:30px}.form-card{background:var(--bg-primary);border-radius:8px;padding:25px;margin-bottom:20px}.form-card h3{color:var(--text-primary);margin:0 0 20px 0;display:flex;align-items:center;gap:10px;font-size:1.1rem}.form-card h3 i{color:var(--iser-red)}.form-group{margin-bottom:20px}.form-group label{display:block;margin-bottom:8px;color:var(--text-primary);font-weight:500}.form-input,.form-select,.form-textarea{width:100%;padding:10px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);font-size:.95rem}.form-help{display:block;margin-top:5px;color:var(--text-secondary);font-size:.85rem}.permission-module{margin-bottom:25px}.permission-module h4{color:var(--text-primary);margin:0 0 15px 0;padding-bottom:10px;border-bottom:2px solid var(--border-color);text-transform:capitalize}.permissions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}.permission-checkbox{display:flex;gap:10px;padding:12px;background:var(--bg-secondary);border-radius:6px;cursor:pointer;border:2px solid var(--border-color)}.permission-checkbox:hover{border-color:var(--iser-red)}.permission-checkbox input[type=checkbox]{margin-top:3px;width:18px;height:18px}.permission-info strong{display:block;color:var(--text-primary);margin-bottom:3px}.permission-info small{color:var(--text-secondary);font-size:.8rem}.form-actions{display:flex;gap:15px;padding-top:20px;border-top:1px solid var(--border-color)}.btn{padding:12px 24px;border:none;border-radius:6px;font-size:1rem;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .2s}.btn-primary{background:var(--iser-red);color:#fff}.btn-primary:hover{background:#c82333}.btn-secondary{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color)}.btn-secondary:hover{background:var(--border-color)}
+</style>

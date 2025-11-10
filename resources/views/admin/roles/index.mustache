@@ -1,0 +1,432 @@
+<!-- Gestión de Roles -->
+<div class="admin-container">
+    <div class="admin-header">
+        <div>
+            <h2>Gestión de Roles</h2>
+            <p class="text-muted">Administra roles y permisos del sistema</p>
+        </div>
+        <div class="user-actions">
+            <a href="/admin/roles/create" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-circle"></i> Nuevo Rol
+            </a>
+            <a href="/admin/users" class="btn btn-sm btn-secondary">
+                <i class="bi bi-people"></i> Usuarios
+            </a>
+            <a href="/admin" class="btn btn-sm btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabla de roles -->
+    <div class="table-section">
+        <div class="table-header">
+            <h3>
+                <i class="bi bi-shield-check"></i> Roles del Sistema
+                <span class="count-badge">{{total_roles}} total</span>
+            </h3>
+        </div>
+
+        <div class="roles-grid">
+            {{#roles}}
+            <div class="role-card {{#is_system_role}}system-role{{/is_system_role}}">
+                <div class="role-header">
+                    <div class="role-title">
+                        <i class="bi bi-shield-fill"></i>
+                        <div>
+                            <h4>{{name}}</h4>
+                            <p class="role-slug">{{slug}}</p>
+                        </div>
+                    </div>
+                    <span class="role-level-badge">Nivel {{level}}</span>
+                </div>
+
+                <div class="role-body">
+                    <p class="role-description">
+                        {{#description}}{{description}}{{/description}}
+                        {{^description}}Sin descripción{{/description}}
+                    </p>
+
+                    <div class="role-stats">
+                        <div class="stat-item">
+                            <i class="bi bi-people"></i>
+                            <span><strong>{{user_count}}</strong> usuarios</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-key"></i>
+                            <span><strong>{{permission_count}}</strong> permisos</span>
+                        </div>
+                    </div>
+
+                    {{#is_system_role}}
+                    <div class="system-badge">
+                        <i class="bi bi-lock-fill"></i> Rol del sistema
+                    </div>
+                    {{/is_system_role}}
+                </div>
+
+                <div class="role-actions">
+                    <a href="/admin/roles/{{id}}/edit" class="btn btn-sm btn-primary">
+                        <i class="bi bi-pencil"></i> Editar
+                    </a>
+                    {{^is_system_role}}
+                    <button onclick="deleteRole({{id}})" class="btn btn-sm btn-danger">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                    {{/is_system_role}}
+                </div>
+            </div>
+            {{/roles}}
+        </div>
+
+        <!-- Paginación -->
+        {{#total_pages}}
+        {{#gt total_pages 1}}
+        <div class="pagination">
+            {{#has_previous}}
+            <a href="/admin/roles?page={{previous_page}}" class="btn btn-sm btn-secondary">
+                <i class="bi bi-chevron-left"></i> Anterior
+            </a>
+            {{/has_previous}}
+
+            <span class="page-info">Página {{current_page}} de {{total_pages}}</span>
+
+            {{#has_next}}
+            <a href="/admin/roles?page={{next_page}}" class="btn btn-sm btn-secondary">
+                Siguiente <i class="bi bi-chevron-right"></i>
+            </a>
+            {{/has_next}}
+        </div>
+        {{/gt}}
+        {{/total_pages}}
+    </div>
+
+    <!-- Info -->
+    <div class="info-section">
+        <h3><i class="bi bi-info-circle"></i> Información sobre Roles</h3>
+        <div class="info-cards">
+            <div class="info-card">
+                <i class="bi bi-shield-lock"></i>
+                <div>
+                    <strong>Roles del Sistema</strong>
+                    <p>Los roles marcados como "del sistema" no pueden ser eliminados ni modificados completamente.</p>
+                </div>
+            </div>
+            <div class="info-card">
+                <i class="bi bi-sort-numeric-down"></i>
+                <div>
+                    <strong>Niveles de Rol</strong>
+                    <p>El nivel determina la jerarquía: Admin (100), Moderator (50), User (10), Guest (1).</p>
+                </div>
+            </div>
+            <div class="info-card">
+                <i class="bi bi-key-fill"></i>
+                <div>
+                    <strong>Permisos</strong>
+                    <p>Los permisos se asignan a roles, y los usuarios heredan los permisos de sus roles.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-container {
+    padding: 20px 0;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.admin-header h2 {
+    color: var(--text-primary);
+    margin: 0 0 5px 0;
+}
+
+.text-muted {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.user-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+}
+
+.btn-primary {
+    background: var(--iser-red);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #c82333;
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--border-color);
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+/* Table Section */
+.table-section {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.table-header {
+    margin-bottom: 25px;
+}
+
+.table-header h3 {
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.count-badge {
+    background: var(--iser-green);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Roles Grid */
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.role-card {
+    background: var(--bg-primary);
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+    overflow: hidden;
+    transition: all 0.2s;
+}
+
+.role-card:hover {
+    border-color: var(--iser-red);
+    transform: translateY(-2px);
+}
+
+.role-card.system-role {
+    border-color: var(--iser-blue);
+}
+
+.role-header {
+    background: var(--bg-secondary);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.role-title {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.role-title i {
+    font-size: 2rem;
+    color: var(--iser-red);
+    margin-top: 5px;
+}
+
+.role-title h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+}
+
+.role-slug {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-family: 'Courier New', monospace;
+}
+
+.role-level-badge {
+    background: var(--iser-green);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.role-body {
+    padding: 20px;
+}
+
+.role-description {
+    color: var(--text-secondary);
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+    min-height: 48px;
+}
+
+.role-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+}
+
+.stat-item i {
+    color: var(--iser-red);
+    font-size: 1.1rem;
+}
+
+.system-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--iser-blue);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.role-actions {
+    padding: 15px 20px;
+    background: var(--bg-secondary);
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.page-info {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Info Section */
+.info-section {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 30px;
+}
+
+.info-section h3 {
+    color: var(--text-primary);
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.info-card {
+    background: var(--bg-primary);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    border-left: 4px solid var(--iser-red);
+}
+
+.info-card i {
+    font-size: 2rem;
+    color: var(--iser-red);
+    flex-shrink: 0;
+}
+
+.info-card strong {
+    display: block;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.info-card p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+</style>
+
+<script>
+function deleteRole(roleId) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este rol?\n\nNOTA: No se puede eliminar si tiene usuarios asignados.')) {
+        return;
+    }
+
+    fetch(`/admin/roles/${roleId}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || 'Error al eliminar rol');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al eliminar rol');
+    });
+}
+</script>

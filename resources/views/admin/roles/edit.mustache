@@ -1,0 +1,94 @@
+<!-- Editar Rol -->
+<div class="admin-container">
+    <div class="admin-header">
+        <div>
+            <h2>{{page_title}}</h2>
+            <p class="text-muted">Editando: <strong>{{role.name}}</strong></p>
+        </div>
+        <div class="user-actions">
+            <a href="/admin/roles" class="btn btn-sm btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    {{#errors}}
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle"></i>
+        <div><strong>Errores:</strong><ul>{{#errors}}<li>{{.}}</li>{{/errors}}</ul></div>
+    </div>
+    {{/errors}}
+
+    {{#is_system_role}}
+    <div class="alert alert-warning">
+        <i class="bi bi-shield-lock"></i>
+        <div><strong>Rol del Sistema:</strong> Este es un rol del sistema. Solo se pueden modificar permisos y descripción.</div>
+    </div>
+    {{/is_system_role}}
+
+    <div class="form-section">
+        <form method="POST" action="/admin/roles/{{role.id}}/update" class="role-form">
+            <div class="form-card">
+                <h3><i class="bi bi-shield"></i> Información del Rol</h3>
+                <div class="form-group">
+                    <label for="name">Nombre *</label>
+                    <input type="text" id="name" name="name" class="form-input" value="{{role.name}}" required {{#is_system_role}}readonly{{/is_system_role}}>
+                </div>
+                <div class="form-group">
+                    <label for="slug">Slug</label>
+                    <input type="text" id="slug" name="slug" class="form-input" value="{{role.slug}}" readonly disabled>
+                    <small class="form-help">El slug no se puede modificar</small>
+                </div>
+                <div class="form-group">
+                    <label for="level">Nivel *</label>
+                    <input type="number" id="level" name="level" class="form-input" value="{{role.level}}" min="1" max="100" required {{#is_system_role}}readonly{{/is_system_role}}>
+                </div>
+                <div class="form-group">
+                    <label for="description">Descripción</label>
+                    <textarea id="description" name="description" class="form-textarea" rows="3">{{role.description}}</textarea>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <h3><i class="bi bi-key"></i> Permisos Asignados</h3>
+                <div class="current-permissions">
+                    <strong>Permisos actuales:</strong>
+                    {{#role_permissions}}
+                    <span class="perm-badge">{{name}}</span>
+                    {{/role_permissions}}
+                    {{^role_permissions}}
+                    <span class="text-muted">Sin permisos asignados</span>
+                    {{/role_permissions}}
+                </div>
+                {{#permissions_grouped}}
+                <div class="permission-module">
+                    <h4>{{@key}}</h4>
+                    <div class="permissions-grid">
+                        {{#.}}
+                        <label class="permission-checkbox">
+                            <input type="checkbox" name="permissions[]" value="{{id}}" {{#is_assigned}}checked{{/is_assigned}}>
+                            <div class="permission-info">
+                                <strong>{{name}}</strong>
+                                <small>{{description}}</small>
+                            </div>
+                        </label>
+                        {{/.}}
+                    </div>
+                </div>
+                {{/permissions_grouped}}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Guardar Cambios
+                </button>
+                <a href="/admin/roles" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+<style>
+.admin-container{padding:20px 0;max-width:1200px;margin:0 auto}.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid var(--border-color)}.admin-header h2{color:var(--text-primary);margin:0 0 5px 0}.text-muted{color:var(--text-secondary);margin:0}.user-actions{display:flex;gap:10px}.btn-sm{padding:8px 16px;font-size:.875rem}.btn-secondary{background:var(--bg-secondary);color:var(--text-primary)}.btn-secondary:hover{background:var(--border-color)}.alert{padding:15px 20px;border-radius:8px;margin-bottom:20px;display:flex;gap:10px}.alert-danger{background:#f8d7da;color:#721c24;border-left:4px solid #dc3545}.alert-warning{background:#fff3cd;color:#856404;border-left:4px solid #ffc107}.alert ul{margin:10px 0 0 20px}.form-section{background:var(--bg-secondary);border-radius:12px;padding:30px}.form-card{background:var(--bg-primary);border-radius:8px;padding:25px;margin-bottom:20px}.form-card h3{color:var(--text-primary);margin:0 0 20px 0;display:flex;align-items:center;gap:10px}.form-group{margin-bottom:20px}.form-group label{display:block;margin-bottom:8px;color:var(--text-primary);font-weight:500}.form-input,.form-textarea{width:100%;padding:10px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary)}.form-help{display:block;margin-top:5px;color:var(--text-secondary);font-size:.85rem}.current-permissions{padding:15px;background:var(--bg-secondary);border-radius:6px;margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap}.perm-badge{background:var(--iser-green);color:#fff;padding:4px 10px;border-radius:4px;font-size:.85rem}.permission-module{margin-bottom:25px}.permission-module h4{color:var(--text-primary);margin:0 0 15px 0;padding-bottom:10px;border-bottom:2px solid var(--border-color);text-transform:capitalize}.permissions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}.permission-checkbox{display:flex;gap:10px;padding:12px;background:var(--bg-secondary);border-radius:6px;cursor:pointer;border:2px solid var(--border-color)}.permission-checkbox:hover{border-color:var(--iser-red)}.permission-checkbox input[type=checkbox]{margin-top:3px;width:18px;height:18px}.permission-info strong{display:block;color:var(--text-primary)}.permission-info small{color:var(--text-secondary);font-size:.8rem}.form-actions{display:flex;gap:15px;padding-top:20px;border-top:1px solid var(--border-color)}.btn{padding:12px 24px;border:none;border-radius:6px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}.btn-primary{background:var(--iser-red);color:#fff}.btn-primary:hover{background:#c82333}.btn-secondary{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color)}.btn-secondary:hover{background:var(--border-color)}
+</style>

@@ -88,6 +88,9 @@ use ISER\Core\Http\Response;
 use ISER\Controllers\HomeController;
 use ISER\Controllers\AuthController;
 use ISER\Controllers\AdminController;
+use ISER\Controllers\UserManagementController;
+use ISER\Controllers\RoleController;
+use ISER\Controllers\PermissionController;
 
 // Inicializar la aplicación
 try {
@@ -147,12 +150,6 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->index($request);
     }, 'admin');
 
-    // Gestión de usuarios
-    $router->get('/users', function ($request) use ($database) {
-        $controller = new AdminController($database);
-        return $controller->users($request);
-    }, 'admin.users');
-
     // Configuración del sistema
     $router->get('/settings', function ($request) use ($database) {
         $controller = new AdminController($database);
@@ -170,6 +167,123 @@ $router->group('/admin', function (Router $router) use ($database) {
         $controller = new AdminController($database);
         return $controller->security($request);
     }, 'admin.security');
+
+    // ===== GESTIÓN DE USUARIOS =====
+    // Lista de usuarios
+    $router->get('/users', function ($request) use ($database) {
+        $controller = new UserManagementController($database);
+        return $controller->index($request);
+    }, 'admin.users.index');
+
+    // Formulario de creación
+    $router->get('/users/create', function ($request) use ($database) {
+        $controller = new UserManagementController($database);
+        return $controller->create($request);
+    }, 'admin.users.create');
+
+    // Procesar creación
+    $router->post('/users/store', function ($request) use ($database) {
+        $controller = new UserManagementController($database);
+        return $controller->store($request);
+    }, 'admin.users.store');
+
+    // Formulario de edición
+    $router->get('/users/{id}/edit', function ($request) use ($database) {
+        $controller = new UserManagementController($database);
+        return $controller->edit($request);
+    }, 'admin.users.edit');
+
+    // Procesar actualización
+    $router->post('/users/{id}/update', function ($request) use ($database) {
+        $controller = new UserManagementController($database);
+        return $controller->update($request);
+    }, 'admin.users.update');
+
+    // Eliminar usuario (soft delete)
+    $router->delete('/users/{id}/delete', function ($request) use ($database) {
+        $controller = new UserManagementController($database);
+        return $controller->delete($request);
+    }, 'admin.users.delete');
+
+    // Restaurar usuario eliminado
+    $router->post('/users/{id}/restore', function ($request) use ($database) {
+        $controller = new UserManagementController($database);
+        return $controller->restore($request);
+    }, 'admin.users.restore');
+
+    // ===== GESTIÓN DE ROLES =====
+    // Lista de roles
+    $router->get('/roles', function ($request) use ($database) {
+        $controller = new RoleController($database);
+        return $controller->index($request);
+    }, 'admin.roles.index');
+
+    // Formulario de creación
+    $router->get('/roles/create', function ($request) use ($database) {
+        $controller = new RoleController($database);
+        return $controller->create($request);
+    }, 'admin.roles.create');
+
+    // Procesar creación
+    $router->post('/roles/store', function ($request) use ($database) {
+        $controller = new RoleController($database);
+        return $controller->store($request);
+    }, 'admin.roles.store');
+
+    // Formulario de edición
+    $router->get('/roles/{id}/edit', function ($request) use ($database) {
+        $controller = new RoleController($database);
+        return $controller->edit($request);
+    }, 'admin.roles.edit');
+
+    // Procesar actualización
+    $router->post('/roles/{id}/update', function ($request) use ($database) {
+        $controller = new RoleController($database);
+        return $controller->update($request);
+    }, 'admin.roles.update');
+
+    // Eliminar rol
+    $router->delete('/roles/{id}/delete', function ($request) use ($database) {
+        $controller = new RoleController($database);
+        return $controller->delete($request);
+    }, 'admin.roles.delete');
+
+    // ===== GESTIÓN DE PERMISOS =====
+    // Lista de permisos
+    $router->get('/permissions', function ($request) use ($database) {
+        $controller = new PermissionController($database);
+        return $controller->index($request);
+    }, 'admin.permissions.index');
+
+    // Formulario de creación
+    $router->get('/permissions/create', function ($request) use ($database) {
+        $controller = new PermissionController($database);
+        return $controller->create($request);
+    }, 'admin.permissions.create');
+
+    // Procesar creación
+    $router->post('/permissions/store', function ($request) use ($database) {
+        $controller = new PermissionController($database);
+        return $controller->store($request);
+    }, 'admin.permissions.store');
+
+    // Formulario de edición
+    $router->get('/permissions/{id}/edit', function ($request) use ($database) {
+        $controller = new PermissionController($database);
+        return $controller->edit($request);
+    }, 'admin.permissions.edit');
+
+    // Procesar actualización
+    $router->post('/permissions/{id}/update', function ($request) use ($database) {
+        $controller = new PermissionController($database);
+        return $controller->update($request);
+    }, 'admin.permissions.update');
+
+    // Eliminar permiso
+    $router->delete('/permissions/{id}/delete', function ($request) use ($database) {
+        $controller = new PermissionController($database);
+        return $controller->delete($request);
+    }, 'admin.permissions.delete');
 });
 
 // ===== RUTAS DE REPORTES =====

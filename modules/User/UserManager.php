@@ -285,4 +285,87 @@ class UserManager
         $result = $this->db->getConnection()->fetchOne($sql, $params);
         return ($result['count'] ?? 0) > 0;
     }
+
+    /**
+     * Obtener roles de un usuario
+     */
+    public function getUserRoles(int $userId): array
+    {
+        $sql = "SELECT r.* FROM {$this->db->table('roles')} r
+                INNER JOIN {$this->db->table('user_roles')} ur ON r.id = ur.role_id
+                WHERE ur.user_id = :user_id
+                ORDER BY r.level DESC";
+
+        return $this->db->getConnection()->fetchAll($sql, [':user_id' => $userId]);
+    }
+
+    /**
+     * Asignar rol a usuario
+     */
+    public function assignRole(int $userId, int $roleId, ?int $assignedBy = null): bool
+    {
+        $sql = "INSERT IGNORE INTO {$this->db->table('user_roles')}
+                (user_id, role_id, assigned_at, assigned_by)
+                VALUES (:user_id, :role_id, :assigned_at, :assigned_by)";
+
+        $this->db->getConnection()->execute($sql, [
+            ':user_id' => $userId,
+            ':role_id' => $roleId,
+            ':assigned_at' => time(),
+            ':assigned_by' => $assignedBy
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Remover rol de usuario
+     */
+    public function removeRole(int $userId, int $roleId): bool
+    {
+        $sql = "DELETE FROM {$this->db->table('user_roles')}
+                WHERE user_id = :user_id AND role_id = :role_id";
+
+        $this->db->getConnection()->execute($sql, [
+            ':user_id' => $userId,
+            ':role_id' => $roleId
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Sincronizar roles de usuario (reemplaza todos los roles)
+     */
+    public function syncRoles(int $userId, array $roleIds, ?int $assignedBy = null): bool
+    {
+        // Eliminar roles actuales
+        $sql = "DELETE FROM {$this->db->table('user_roles')} WHERE user_id = :user_id";
+        $this->db->getConnection()->execute($sql, [':user_id' => $userId]);
+
+        // Agregar nuevos roles
+        foreach ($roleIds as $roleId) {
+            $this->assignRole($userId, (int)$roleId, $assignedBy);
+        }
+
+        return true;
+    }
+
+    /**
+     * Verificar si usuario tiene un rol específico
+     */
+    public function hasRole(int $userId, string $roleSlug): bool
+    {
+        $sql = "SELECT COUNT(*) as count
+                FROM {$this->db->table('user_roles')} ur
+                INNER JOIN {$this->db->table('roles')} r ON ur.role_id = r.id
+                WHERE ur.user_id = :user_id AND r.slug = :slug";
+
+        $result = $this->db->getConnection()->fetchOne($sql, [
+            ':user_id' => $userId,
+            ':slug' => $roleSlug
+        ]);
+
+        return ((int)($result['count'] ?? 0)) > 0;
+    }
 }
