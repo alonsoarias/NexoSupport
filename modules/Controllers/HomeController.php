@@ -119,8 +119,7 @@ class HomeController
         // Obtener información del usuario actual
         $currentUser = $this->userManager->getUserById((int)$_SESSION['user_id']);
         $fullName = $currentUser
-            ? trim(($currentUser['first_name'] ?? $currentUser['firstname'] ?? '') . ' ' .
-                   ($currentUser['last_name'] ?? $currentUser['lastname'] ?? ''))
+            ? trim(($currentUser['first_name'] ?? '') . ' ' . ($currentUser['last_name'] ?? ''))
             : ($_SESSION['username'] ?? 'Usuario');
 
         $data = [

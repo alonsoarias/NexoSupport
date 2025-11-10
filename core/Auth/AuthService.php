@@ -69,13 +69,13 @@ class AuthService
             return false;
         }
 
-        // Check if user is active
-        if (($user['status'] ?? 'active') !== 'active') {
+        // Check if user is deleted
+        if (!empty($user['deleted_at'])) {
             return false;
         }
 
-        // Check if user is deleted or suspended (compatibility with old schema)
-        if (($user['deleted'] ?? 0) == 1 || ($user['suspended'] ?? 0) == 1) {
+        // Check if user status is active
+        if (($user['status'] ?? 'active') !== 'active') {
             return false;
         }
 
@@ -100,8 +100,8 @@ class AuthService
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'] ?? '';
-        $_SESSION['first_name'] = $user['first_name'] ?? $user['firstname'] ?? '';
-        $_SESSION['last_name'] = $user['last_name'] ?? $user['lastname'] ?? '';
+        $_SESSION['first_name'] = $user['first_name'] ?? '';
+        $_SESSION['last_name'] = $user['last_name'] ?? '';
         $_SESSION['authenticated'] = true;
         $_SESSION['login_time'] = time();
     }

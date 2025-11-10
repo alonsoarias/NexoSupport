@@ -20,7 +20,7 @@ class UserManager
 
     public function create(array $data): int|false
     {
-        $required = ['username', 'email', 'password', 'firstname', 'lastname'];
+        $required = ['username', 'email', 'password', 'first_name', 'last_name'];
         foreach ($required as $field) {
             if (empty($data[$field])) return false;
         }
@@ -32,13 +32,13 @@ class UserManager
             'username' => $data['username'],
             'email' => $data['email'],
             'password' => Helpers::hashPassword($data['password']),
-            'firstname' => $data['firstname'],
-            'lastname' => $data['lastname'],
-            'status' => $data['status'] ?? 1,
-            'failed_attempts' => 0,
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'status' => $data['status'] ?? 'active',
+            'failed_login_attempts' => 0,
             'locked_until' => 0,
-            'timecreated' => $now,
-            'timemodified' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
     }
 
@@ -59,7 +59,7 @@ class UserManager
 
     public function update(int $id, array $data): bool
     {
-        $data['timemodified'] = time();
+        $data['updated_at'] = time();
         if (isset($data['password'])) {
             $data['password'] = Helpers::hashPassword($data['password']);
         }
@@ -76,7 +76,7 @@ class UserManager
      */
     public function softDelete(int $id): bool
     {
-        return $this->update($id, ['deleted' => 1]);
+        return $this->update($id, ['deleted_at' => time()]);
     }
 
     /**
@@ -84,7 +84,7 @@ class UserManager
      */
     public function restore(int $id): bool
     {
-        return $this->update($id, ['deleted' => 0]);
+        return $this->update($id, ['deleted_at' => null]);
     }
 
     /**
@@ -93,7 +93,7 @@ class UserManager
     public function isDeleted(int $id): bool
     {
         $user = $this->getUserById($id);
-        return $user && ($user['deleted'] ?? 0) == 1;
+        return $user && !empty($user['deleted_at']);
     }
 
     /**
@@ -101,7 +101,7 @@ class UserManager
      */
     public function suspend(int $id): bool
     {
-        return $this->update($id, ['suspended' => 1]);
+        return $this->update($id, ['status' => 'suspended']);
     }
 
     /**
@@ -109,7 +109,7 @@ class UserManager
      */
     public function unsuspend(int $id): bool
     {
-        return $this->update($id, ['suspended' => 0]);
+        return $this->update($id, ['status' => 'active']);
     }
 
     /**
@@ -118,7 +118,7 @@ class UserManager
     public function isSuspended(int $id): bool
     {
         $user = $this->getUserById($id);
-        return $user && ($user['suspended'] ?? 0) == 1;
+        return $user && ($user['status'] ?? 'active') === 'suspended';
     }
 
     /**
@@ -127,8 +127,8 @@ class UserManager
     public function updateLastLogin(int $id, string $ip): bool
     {
         return $this->update($id, [
-            'lastlogin' => time(),
-            'lastip' => $ip
+            'last_login_at' => time(),
+            'last_login_ip' => $ip
         ]);
     }
 
@@ -147,25 +147,23 @@ class UserManager
         }
 
         if (isset($filters['deleted'])) {
-            $sql .= " AND deleted = :deleted";
-            $params[':deleted'] = $filters['deleted'];
+            if ($filters['deleted']) {
+                $sql .= " AND deleted_at IS NOT NULL";
+            } else {
+                $sql .= " AND deleted_at IS NULL";
+            }
         } else {
             // By default, exclude deleted users
-            $sql .= " AND deleted = 0";
-        }
-
-        if (isset($filters['suspended'])) {
-            $sql .= " AND suspended = :suspended";
-            $params[':suspended'] = $filters['suspended'];
+            $sql .= " AND deleted_at IS NULL";
         }
 
         if (isset($filters['search'])) {
             $sql .= " AND (username LIKE :search OR email LIKE :search
-                     OR firstname LIKE :search OR lastname LIKE :search)";
+                     OR first_name LIKE :search OR last_name LIKE :search)";
             $params[':search'] = '%' . $filters['search'] . '%';
         }
 
-        $sql .= " ORDER BY timecreated DESC LIMIT :limit OFFSET :offset";
+        $sql .= " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
 
         return $this->db->getConnection()->fetchAll($sql, array_merge($params, [
             ':limit' => $limit,
@@ -188,20 +186,18 @@ class UserManager
         }
 
         if (isset($filters['deleted'])) {
-            $sql .= " AND deleted = :deleted";
-            $params[':deleted'] = $filters['deleted'];
+            if ($filters['deleted']) {
+                $sql .= " AND deleted_at IS NOT NULL";
+            } else {
+                $sql .= " AND deleted_at IS NULL";
+            }
         } else {
-            $sql .= " AND deleted = 0";
-        }
-
-        if (isset($filters['suspended'])) {
-            $sql .= " AND suspended = :suspended";
-            $params[':suspended'] = $filters['suspended'];
+            $sql .= " AND deleted_at IS NULL";
         }
 
         if (isset($filters['search'])) {
             $sql .= " AND (username LIKE :search OR email LIKE :search
-                     OR firstname LIKE :search OR lastname LIKE :search)";
+                     OR first_name LIKE :search OR last_name LIKE :search)";
             $params[':search'] = '%' . $filters['search'] . '%';
         }
 
@@ -216,7 +212,7 @@ class UserManager
     {
         if (empty($userIds)) return 0;
 
-        $data['timemodified'] = time();
+        $data['updated_at'] = time();
         $updated = 0;
 
         foreach ($userIds as $userId) {
@@ -233,7 +229,7 @@ class UserManager
      */
     public function bulkSoftDelete(array $userIds): int
     {
-        return $this->bulkUpdate($userIds, ['deleted' => 1]);
+        return $this->bulkUpdate($userIds, ['deleted_at' => time()]);
     }
 
     /**
@@ -241,7 +237,7 @@ class UserManager
      */
     public function bulkSuspend(array $userIds): int
     {
-        return $this->bulkUpdate($userIds, ['suspended' => 1]);
+        return $this->bulkUpdate($userIds, ['status' => 'suspended']);
     }
 
     /**
@@ -251,7 +247,7 @@ class UserManager
     {
         $user = $this->getUserById($id);
         if (!$user) return '';
-        return trim($user['firstname'] . ' ' . $user['lastname']);
+        return trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
     }
 
     /**
@@ -320,7 +316,7 @@ class UserManager
 
         return $this->update($user['id'], [
             'locked_until' => time() + $duration,
-            'failed_attempts' => $this->getFailedAttempts($username)
+            'failed_login_attempts' => $this->getFailedAttempts($username)
         ]);
     }
 
@@ -328,13 +324,13 @@ class UserManager
     {
         $user = $this->getUserByUsername($username);
         if (!$user) return false;
-        return $user['locked_until'] > time();
+        return ($user['locked_until'] ?? 0) > time();
     }
 
     public function resetFailedAttempts(string $username): bool
     {
         $user = $this->getUserByUsername($username);
         if (!$user) return false;
-        return $this->update($user['id'], ['failed_attempts' => 0, 'locked_until' => 0]);
+        return $this->update($user['id'], ['failed_login_attempts' => 0, 'locked_until' => 0]);
     }
 }
