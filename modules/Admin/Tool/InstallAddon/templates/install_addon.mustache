@@ -1,0 +1,151 @@
+<div class="settings-section">
+    <h3><i class="bi bi-cloud-download"></i> Instalar Addon/Plugin</h3>
+
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i>
+        <strong>Información:</strong> Los addons deben estar en formato ZIP y contener un archivo version.php con los metadatos del plugin.
+    </div>
+
+    <!-- Upload Form -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-upload"></i> Subir Paquete ZIP</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="/admin/tool/installaddon/index.php" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="install">
+
+                <div class="mb-3">
+                    <label for="addon_file" class="form-label">Archivo ZIP del Addon</label>
+                    <input type="file" class="form-control" id="addon_file" name="addon_file" accept=".zip" required>
+                    <div class="form-text">Tamaño máximo: 50MB</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-cloud-download"></i> Instalar Addon
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Installation Result -->
+    {{#install_result}}
+    <div class="card {{#success}}border-success{{/success}}{{^success}}border-danger{{/success}}">
+        <div class="card-header {{#success}}bg-success text-white{{/success}}{{^success}}bg-danger text-white{{/success}}">
+            <h5 class="mb-0">
+                <i class="bi {{#success}}bi-check-circle{{/success}}{{^success}}bi-x-circle{{/success}}"></i>
+                Resultado de la Instalación
+            </h5>
+        </div>
+        <div class="card-body">
+            {{#success}}
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i>
+                <strong>Instalación exitosa!</strong>
+                <ul class="mb-0">
+                    <li>Plugin: <strong>{{plugin.name}}</strong></li>
+                    <li>Componente: <code>{{plugin.plugin}}</code></li>
+                    <li>Versión: <code>{{plugin.version}}</code></li>
+                </ul>
+            </div>
+            <a href="/admin/plugins.php" class="btn btn-success">
+                <i class="bi bi-plugin"></i> Ver Plugins
+            </a>
+            {{/success}}
+
+            {{^success}}
+            <div class="alert alert-danger">
+                <h6><i class="bi bi-exclamation-triangle"></i> Errores:</h6>
+                <ul class="mb-0">
+                    {{#errors}}
+                    <li>{{.}}</li>
+                    {{/errors}}
+                </ul>
+            </div>
+            {{/success}}
+        </div>
+    </div>
+    {{/install_result}}
+</div>
+
+<!-- Installed Plugins -->
+<div class="settings-section">
+    <h4><i class="bi bi-plugin"></i> Plugins Instalados</h4>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-hover">
+            <thead>
+                <tr>
+                    <th>Plugin</th>
+                    <th>Versión</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#installed_plugins}}
+                <tr>
+                    <td>
+                        <strong>{{name}}</strong><br>
+                        <small class="text-muted">{{plugin}}</small>
+                    </td>
+                    <td><span class="badge bg-light text-dark">v{{version}}</span></td>
+                    <td>
+                        {{#enabled}}
+                        <span class="badge bg-success">Habilitado</span>
+                        {{/enabled}}
+                        {{^enabled}}
+                        <span class="badge bg-secondary">Deshabilitado</span>
+                        {{/enabled}}
+                        {{#is_core}}
+                        <span class="badge bg-primary">Core</span>
+                        {{/is_core}}
+                    </td>
+                    <td>
+                        {{^is_core}}
+                        <form method="POST" action="/admin/tool/installaddon/index.php" style="display: inline;" onsubmit="return confirm('¿Estás seguro de desinstalar este plugin?');">
+                            <input type="hidden" name="action" value="uninstall">
+                            <input type="hidden" name="plugin" value="{{plugin}}">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i> Desinstalar
+                            </button>
+                        </form>
+                        {{/is_core}}
+                        {{#is_core}}
+                        <span class="text-muted">—</span>
+                        {{/is_core}}
+                    </td>
+                </tr>
+                {{/installed_plugins}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Requirements -->
+<div class="settings-section">
+    <h4><i class="bi bi-list-check"></i> Requisitos del Paquete</h4>
+
+    <p>Para que un addon se instale correctamente, debe cumplir con la siguiente estructura:</p>
+
+    <pre class="bg-light p-3 rounded"><code>addon-name/
+├── version.php         (Requerido: metadatos del plugin)
+├── classes/
+│   └── *.php          (Clases PHP del plugin)
+├── templates/
+│   └── *.mustache     (Plantillas Mustache)
+├── db/
+│   ├── install.php    (Opcional: instalación de BD)
+│   └── uninstall.php  (Opcional: desinstalación de BD)
+└── README.md          (Opcional: documentación)</code></pre>
+
+    <p><strong>Contenido de version.php:</strong></p>
+    <pre class="bg-light p-3 rounded"><code>&lt;?php
+$plugin = [
+    'component' => 'plugin_name',
+    'name' => 'Plugin Name',
+    'version' => '1.0.0',
+    'requires' => '6.0.0',  // Versión mínima de ISER
+    'dependencies' => [],    // Plugins requeridos
+];</code></pre>
+</div>
