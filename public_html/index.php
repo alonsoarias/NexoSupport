@@ -105,17 +105,38 @@ try {
         . '</pre>');
 }
 
+// Obtener instancia de Database para inyección de dependencias
+$database = $app->getDatabase();
+
 // Crear router
 $router = new Router();
 
 // ===== RUTAS PÚBLICAS =====
-$router->get('/', [HomeController::class, 'index'], 'home');
-$router->get('/login', [AuthController::class, 'showLogin'], 'login');
-$router->post('/login', [AuthController::class, 'processLogin'], 'login.process');
-$router->get('/logout', [AuthController::class, 'logout'], 'logout');
+$router->get('/', function ($request) use ($database) {
+    $controller = new HomeController($database);
+    return $controller->index($request);
+}, 'home');
+
+$router->get('/login', function ($request) use ($database) {
+    $controller = new AuthController($database);
+    return $controller->showLogin($request);
+}, 'login');
+
+$router->post('/login', function ($request) use ($database) {
+    $controller = new AuthController($database);
+    return $controller->processLogin($request);
+}, 'login.process');
+
+$router->get('/logout', function ($request) use ($database) {
+    $controller = new AuthController($database);
+    return $controller->logout($request);
+}, 'logout');
 
 // ===== RUTAS PROTEGIDAS =====
-$router->get('/dashboard', [HomeController::class, 'dashboard'], 'dashboard');
+$router->get('/dashboard', function ($request) use ($database) {
+    $controller = new HomeController($database);
+    return $controller->dashboard($request);
+}, 'dashboard');
 
 // ===== RUTAS DE ADMINISTRACIÓN =====
 $router->group('/admin', function (Router $router) {

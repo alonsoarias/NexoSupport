@@ -8,6 +8,8 @@ use ISER\Core\View\MustacheRenderer;
 use ISER\Core\I18n\Translator;
 use ISER\Core\Http\Response;
 use ISER\Core\Http\Request;
+use ISER\Core\Auth\AuthService;
+use ISER\Core\Database\Database;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -23,14 +25,16 @@ class AuthController
 {
     private MustacheRenderer $renderer;
     private Translator $translator;
+    private AuthService $authService;
 
     /**
      * Constructor
      */
-    public function __construct()
+    public function __construct(Database $db)
     {
         $this->renderer = MustacheRenderer::getInstance();
         $this->translator = Translator::getInstance();
+        $this->authService = new AuthService($db);
     }
 
     /**
@@ -75,18 +79,25 @@ class AuthController
 
         // Validación básica
         if (empty($username) || empty($password)) {
-            $_SESSION['login_error'] = 'Usuario y contraseña son requeridos';
+            $_SESSION['login_error'] = $this->translator->translate('auth.credentials_required');
             return Response::redirect('/login');
         }
 
-        // TODO: Implementar lógica real de autenticación contra base de datos
-        // Por ahora, solo validación básica para demo
+        // Obtener IP del cliente
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 
-        // Autenticación exitosa (temporal)
-        $_SESSION['user_id'] = 1;
-        $_SESSION['username'] = $username;
-        $_SESSION['authenticated'] = true;
+        // Autenticar usuario
+        $user = $this->authService->authenticate($username, $password, $ipAddress);
 
+        if (!$user) {
+            $_SESSION['login_error'] = $this->translator->translate('auth.invalid_credentials');
+            return Response::redirect('/login');
+        }
+
+        // Crear sesión
+        $this->authService->createSession($user);
+
+        // Redirigir al dashboard
         return Response::redirect('/dashboard');
     }
 
@@ -98,7 +109,7 @@ class AuthController
      */
     public function logout(ServerRequestInterface $request): ResponseInterface
     {
-        session_destroy();
+        $this->authService->destroySession();
         return Response::redirect('/');
     }
 }
