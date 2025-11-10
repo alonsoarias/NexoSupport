@@ -7,6 +7,9 @@
  * @license    Proprietary
  */
 
+// Include security check
+require_once __DIR__ . '/security-check.php';
+
 define('ISER_BASE_DIR', dirname(__DIR__, 2));
 
 require_once ISER_BASE_DIR . '/vendor/autoload.php';

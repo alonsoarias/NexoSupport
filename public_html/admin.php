@@ -14,8 +14,23 @@
  * @since      Phase 1
  */
 
+// Prevent direct access - Only accessible through router
+if (!defined('BASE_DIR')) {
+    http_response_code(403);
+    die('<h1>403 Forbidden</h1><p>Direct access to this file is not allowed.</p>');
+}
+
 // Define base directory
-define('ISER_BASE_DIR', dirname(__DIR__));
+if (!defined('ISER_BASE_DIR')) {
+    define('ISER_BASE_DIR', dirname(__DIR__));
+}
+
+// Session check - ensure user is authenticated
+session_start();
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
+    header('Location: /login');
+    exit;
+}
 
 // Load Composer autoloader
 require_once ISER_BASE_DIR . '/vendor/autoload.php';
@@ -26,9 +41,6 @@ use ISER\Core\Utils\Helpers;
 // Initialize the system
 $app = new Bootstrap(ISER_BASE_DIR);
 $app->init();
-
-// TODO: Phase 2 - Implement proper authentication check
-// For now, just show a placeholder page
 
 $systemInfo = $app->getSystemInfo();
 ?>

@@ -17,8 +17,18 @@
 
     # Prevent access to sensitive files
     RewriteRule ^\.env$ - [F,L]
+    RewriteRule ^\.env\. - [F,L]
     RewriteRule ^config\.php$ - [F,L]
+    RewriteRule ^config-dist\.php$ - [F,L]
     RewriteRule ^composer\.(json|lock)$ - [F,L]
+    RewriteRule ^package(-lock)?\.json$ - [F,L]
+
+    # Prevent access to backup and temporary files
+    RewriteRule \.(bak|backup|old|tmp|temp|swp|swo)$ - [F,L]
+    RewriteRule ~$ - [F,L]
+
+    # Protect installation files (only accessible via install.php wrapper)
+    RewriteRule ^test-connection\.php$ - [F,L]
 
     # Allow direct access to existing files and directories
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -76,9 +86,31 @@ AddDefaultCharset UTF-8
 </IfModule>
 
 # File type restrictions
-<FilesMatch "\.(md|sql|log|sh|yml|yaml)$">
+<FilesMatch "\.(md|sql|log|sh|yml|yaml|ini|xml|dist)$">
     Order allow,deny
     Deny from all
+</FilesMatch>
+
+# Protect configuration files
+<FilesMatch "^(config|bootstrap|autoload).*\.php$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Protect composer files
+<FilesMatch "^composer\.(json|lock)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
 </FilesMatch>
 
 # Cache static resources
