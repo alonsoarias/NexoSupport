@@ -500,56 +500,77 @@ class SchemaInstaller
 
         // Procesar cada hijo directo
         foreach ($xml->children() as $childName => $child) {
-            // Convertir el hijo a array
-            $childArray = [];
-
-            // Si tiene atributos, agregarlos
-            $attributes = $child->attributes();
-            if (count($attributes) > 0) {
-                foreach ($attributes as $attrName => $attrValue) {
-                    $childArray[$attrName] = (string)$attrValue;
-                }
-            }
-
-            // Si tiene hijos, procesarlos
-            $hasChildren = false;
-            foreach ($child->children() as $subChildName => $subChild) {
-                $hasChildren = true;
-
-                // Si ya existe este nombre, convertir a array de elementos
-                if (isset($childArray[$subChildName])) {
-                    if (!is_array($childArray[$subChildName]) || !isset($childArray[$subChildName][0])) {
-                        $childArray[$subChildName] = [$childArray[$subChildName]];
-                    }
-                    $childArray[$subChildName][] = $this->convertSimpleXMLToArray($subChild);
-                } else {
-                    $childArray[$subChildName] = $this->convertSimpleXMLToArray($subChild);
-                }
-            }
-
-            // Si no tiene hijos, obtener el texto
-            if (!$hasChildren) {
-                $text = trim((string)$child);
-                if (!empty($text)) {
-                    if (empty($childArray)) {
-                        $childArray = $text;
-                    } else {
-                        $childArray['@value'] = $text;
-                    }
-                }
-            }
+            $childData = $this->convertElementToValue($child);
 
             // Si ya existe este nombre de elemento, convertir a array
             if (isset($array[$childName])) {
                 if (!is_array($array[$childName]) || !isset($array[$childName][0])) {
                     $array[$childName] = [$array[$childName]];
                 }
-                $array[$childName][] = $childArray;
+                $array[$childName][] = $childData;
             } else {
-                $array[$childName] = $childArray;
+                $array[$childName] = $childData;
             }
         }
 
         return $array;
+    }
+
+    /**
+     * Convertir un elemento XML a su valor apropiado (string o array)
+     *
+     * @param \SimpleXMLElement $element
+     * @return mixed
+     */
+    private function convertElementToValue(\SimpleXMLElement $element)
+    {
+        $hasChildren = false;
+        $hasAttributes = count($element->attributes()) > 0;
+
+        // Verificar si tiene hijos
+        foreach ($element->children() as $child) {
+            $hasChildren = true;
+            break;
+        }
+
+        // Si no tiene hijos ni atributos, devolver solo el texto
+        if (!$hasChildren && !$hasAttributes) {
+            return trim((string)$element);
+        }
+
+        // Si tiene hijos o atributos, construir array
+        $result = [];
+
+        // Agregar atributos si existen
+        if ($hasAttributes) {
+            foreach ($element->attributes() as $attrName => $attrValue) {
+                $result[$attrName] = (string)$attrValue;
+            }
+        }
+
+        // Procesar hijos
+        if ($hasChildren) {
+            foreach ($element->children() as $childName => $child) {
+                $childData = $this->convertElementToValue($child);
+
+                // Si ya existe, convertir a array de elementos
+                if (isset($result[$childName])) {
+                    if (!is_array($result[$childName]) || !isset($result[$childName][0])) {
+                        $result[$childName] = [$result[$childName]];
+                    }
+                    $result[$childName][] = $childData;
+                } else {
+                    $result[$childName] = $childData;
+                }
+            }
+        }
+
+        // Si solo tiene atributos y texto, agregar el texto
+        $text = trim((string)$element);
+        if (!$hasChildren && $hasAttributes && !empty($text)) {
+            $result['@value'] = $text;
+        }
+
+        return $result;
     }
 }
