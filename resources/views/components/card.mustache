@@ -1,0 +1,35 @@
+<div class="card fade-in">
+    <div class="card-header">
+        <div class="card-title">{{title}}</div>
+        {{#percentage}}
+        <div class="card-percentage">{{#percentage}}{{percentage}}{{/percentage}}%</div>
+        {{/percentage}}
+    </div>
+
+    {{#description}}
+    <div class="card-description">
+        <strong>{{description}}</strong>
+    </div>
+    {{/description}}
+
+    {{#metrics}}
+    <div class="metrics-grid">
+        {{#.}}
+        <div class="metric">
+            <span class="metric-label">{{label}}:</span>
+            <span class="metric-value">{{value}}</span>
+        </div>
+        {{/.}}
+    </div>
+    {{/metrics}}
+
+    {{#progress_value}}
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-fill" data-width="{{progress_value}}">
+                {{progress_value}}%
+            </div>
+        </div>
+    </div>
+    {{/progress_value}}
+</div>

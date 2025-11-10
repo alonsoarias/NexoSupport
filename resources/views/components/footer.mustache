@@ -2,8 +2,8 @@
 <div class="iser-footer-stripe"></div>
 <div class="iser-footer">
     <p><strong>Instituto Superior de Educación Rural - ISER</strong></p>
-    <p>www.iser.edu.co | Vigilado Mineducación</p>
-    <?php if (isset($footerExtra)): ?>
-        <p><?= htmlspecialchars($footerExtra) ?></p>
-    <?php endif; ?>
+    <p>www.iser.edu.co | {{#__}}common.vigilado_mineducacion{{/__}}</p>
+    {{#footer_extra}}
+    <p>{{footer_extra}}</p>
+    {{/footer_extra}}
 </div>

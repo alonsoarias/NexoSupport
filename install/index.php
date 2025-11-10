@@ -10,13 +10,13 @@ session_start();
 
 // Define base directory
 define('INSTALL_DIR', __DIR__);
-define('BASE_DIR', dirname(__DIR__, 2));
+define('BASE_DIR', dirname(__DIR__));
 define('ENV_FILE', BASE_DIR . '/.env');
 define('INSTALL_LOCK', BASE_DIR . '/.installed');
 
 // Verificar si ya está instalado
 if (file_exists(INSTALL_LOCK) && !isset($_GET['reinstall'])) {
-    header('Location: ../index.php');
+    header('Location: /');
     exit('Sistema ya instalado. Si necesita reinstalar, elimine el archivo .installed');
 }
 

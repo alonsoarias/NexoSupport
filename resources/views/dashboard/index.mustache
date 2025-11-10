@@ -1,0 +1,175 @@
+<!-- Dashboard -->
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2>Panel de Control</h2>
+        <div class="user-info">
+            <span>Bienvenido, {{username}}</span>
+            <a href="/logout" class="btn btn-sm">
+                <i class="bi bi-box-arrow-right"></i>
+                Cerrar Sesión
+            </a>
+        </div>
+    </div>
+
+    <!-- Tarjetas de información -->
+    <div class="cards-grid">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Usuarios del Sistema</div>
+            </div>
+            <div class="card-body">
+                <div class="metric-value">150</div>
+                <div class="metric-label">Usuarios Activos</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Sesiones</div>
+            </div>
+            <div class="card-body">
+                <div class="metric-value">45</div>
+                <div class="metric-label">Sesiones Hoy</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Rendimiento</div>
+            </div>
+            <div class="card-body">
+                <div class="metric-value">98.5%</div>
+                <div class="metric-label">Tasa de Éxito</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Disponibilidad</div>
+            </div>
+            <div class="card-body">
+                <div class="metric-value">99.9%</div>
+                <div class="metric-label">Uptime</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menú de acciones -->
+    <div class="actions-section">
+        <h3>Acciones Rápidas</h3>
+        <div class="actions-grid">
+            <a href="/admin" class="action-btn">
+                <i class="bi bi-gear"></i>
+                <span>Administración</span>
+            </a>
+            <a href="/admin/plugins" class="action-btn">
+                <i class="bi bi-plugin"></i>
+                <span>Plugins</span>
+            </a>
+            <a href="/report" class="action-btn">
+                <i class="bi bi-file-text"></i>
+                <span>Reportes</span>
+            </a>
+            <a href="/admin/settings" class="action-btn">
+                <i class="bi bi-sliders"></i>
+                <span>Configuración</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-container {
+    padding: 20px 0;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.dashboard-header h2 {
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.card-body {
+    padding: 20px;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--iser-green);
+    margin-bottom: 10px;
+}
+
+.metric-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.actions-section {
+    margin-top: 40px;
+}
+
+.actions-section h3 {
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 25px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background: var(--iser-green);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(27, 158, 136, 0.3);
+}
+
+.action-btn i {
+    font-size: 2rem;
+}
+
+.action-btn span {
+    font-weight: 500;
+}
+</style>

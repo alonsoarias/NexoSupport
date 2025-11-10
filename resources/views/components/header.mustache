@@ -12,8 +12,8 @@
         </div>
     </div>
     <div class="iser-header-info">
-        <h1><?= htmlspecialchars($headerTitle ?? 'Dashboard de Resultados') ?></h1>
-        <p><?= htmlspecialchars($headerSubtitle ?? 'Sistema de Gestión') ?></p>
-        <p class="vigilado">Vigilado Mineducación</p>
+        <h1>{{#header_title}}{{header_title}}{{/header_title}}{{^header_title}}{{#__}}common.dashboard{{/__}}{{/header_title}}</h1>
+        <p>{{#header_subtitle}}{{header_subtitle}}{{/header_subtitle}}{{^header_subtitle}}Sistema de Gestión{{/header_subtitle}}</p>
+        <p class="vigilado">{{#__}}common.vigilado_mineducacion{{/__}}</p>
     </div>
 </div>
