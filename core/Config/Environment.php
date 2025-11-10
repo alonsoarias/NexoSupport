@@ -331,8 +331,8 @@ class Environment
         }
 
         // Session settings (basic configuration, JWT will handle sessions)
-        // Only set if headers haven't been sent (avoids warnings in testing)
-        if (!headers_sent()) {
+        // Only set if headers haven't been sent and session is not already active
+        if (!headers_sent() && session_status() !== PHP_SESSION_ACTIVE) {
             ini_set('session.use_strict_mode', '1');
             ini_set('session.cookie_httponly', '1');
             ini_set('session.use_only_cookies', '1');
