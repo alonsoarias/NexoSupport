@@ -18,6 +18,21 @@
         </div>
     </div>
 
+    <!-- Mensajes -->
+    {{#success_message}}
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i>
+        <div>{{success_message}}</div>
+    </div>
+    {{/success_message}}
+
+    {{#error_message}}
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle"></i>
+        <div>{{error_message}}</div>
+    </div>
+    {{/error_message}}
+
     <!-- Tabla de roles -->
     <div class="table-section">
         <div class="table-header">
@@ -49,10 +64,6 @@
 
                     <div class="role-stats">
                         <div class="stat-item">
-                            <i class="bi bi-people"></i>
-                            <span><strong>{{user_count}}</strong> usuarios</span>
-                        </div>
-                        <div class="stat-item">
                             <i class="bi bi-key"></i>
                             <span><strong>{{permission_count}}</strong> permisos</span>
                         </div>
@@ -78,6 +89,16 @@
                     </button>
                     {{/is_system_role}}
                 </div>
+            </div>
+            {{/roles}}
+
+            {{^roles}}
+            <div class="empty-state">
+                <i class="bi bi-shield-x"></i>
+                <p>No hay roles registrados en el sistema</p>
+                <a href="/admin/roles/create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Crear primer rol
+                </a>
             </div>
             {{/roles}}
         </div>
@@ -132,12 +153,14 @@
 </div>
 
 <style>
+/* Container */
 .admin-container {
     padding: 20px 0;
     max-width: 1400px;
     margin: 0 auto;
 }
 
+/* Header */
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -150,16 +173,32 @@
 .admin-header h2 {
     color: var(--text-primary);
     margin: 0 0 5px 0;
+    font-size: 1.8rem;
 }
 
 .text-muted {
     color: var(--text-secondary);
     margin: 0;
+    font-size: 0.95rem;
 }
 
 .user-actions {
     display: flex;
     gap: 10px;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
 }
 
 .btn-sm {
@@ -174,11 +213,13 @@
 
 .btn-primary:hover {
     background: #c82333;
+    transform: translateY(-1px);
 }
 
 .btn-secondary {
     background: var(--bg-secondary);
     color: var(--text-primary);
+    border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover {
@@ -192,6 +233,44 @@
 
 .btn-danger:hover {
     background: #c82333;
+}
+
+/* Alerts */
+.alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
+.alert i {
+    font-size: 1.5rem;
 }
 
 /* Table Section */
@@ -212,6 +291,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size: 1.3rem;
 }
 
 .count-badge {
@@ -241,9 +321,14 @@
 .role-card:hover {
     border-color: var(--iser-red);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .role-card.system-role {
+    border-color: var(--iser-blue);
+}
+
+.role-card.system-role:hover {
     border-color: var(--iser-blue);
 }
 
@@ -279,6 +364,9 @@
     color: var(--text-secondary);
     font-size: 0.85rem;
     font-family: 'Courier New', monospace;
+    background: var(--bg-primary);
+    padding: 2px 6px;
+    border-radius: 3px;
 }
 
 .role-level-badge {
@@ -339,6 +427,26 @@
     border-top: 1px solid var(--border-color);
 }
 
+/* Empty State */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    margin: 0 0 20px 0;
+}
+
 /* Pagination */
 .pagination {
     display: flex;
@@ -353,6 +461,7 @@
 .page-info {
     color: var(--text-secondary);
     font-size: 0.9rem;
+    font-weight: 500;
 }
 
 /* Info Section */
@@ -368,6 +477,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size: 1.2rem;
 }
 
 .info-cards {
@@ -395,6 +505,7 @@
     display: block;
     color: var(--text-primary);
     margin-bottom: 5px;
+    font-size: 1rem;
 }
 
 .info-card p {
@@ -402,6 +513,23 @@
     margin: 0;
     font-size: 0.9rem;
     line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .roles-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .info-cards {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 
