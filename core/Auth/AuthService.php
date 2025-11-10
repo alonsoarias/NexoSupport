@@ -39,31 +39,47 @@ class AuthService
      */
     public function authenticate(string $usernameOrEmail, string $password, string $ipAddress): array|false
     {
+        error_log("[AuthService] Attempting authentication for: {$usernameOrEmail}");
+
         // Check if account is locked
         if ($this->userManager->isAccountLocked($usernameOrEmail)) {
+            error_log("[AuthService] Account is locked: {$usernameOrEmail}");
             return false;
         }
 
         // Try to find user by username or email
         $user = $this->userManager->getUserByUsername($usernameOrEmail);
+        error_log("[AuthService] getUserByUsername result: " . ($user ? "found user ID {$user['id']}" : "not found"));
+
         if (!$user) {
             $user = $this->userManager->getUserByEmail($usernameOrEmail);
+            error_log("[AuthService] getUserByEmail result: " . ($user ? "found user ID {$user['id']}" : "not found"));
         }
 
         // User not found
         if (!$user) {
+            error_log("[AuthService] User not found: {$usernameOrEmail}");
             $this->userManager->recordLoginAttempt($usernameOrEmail, false, $ipAddress);
             return false;
         }
 
+        error_log("[AuthService] User found - ID: {$user['id']}, Username: {$user['username']}, Status: " . ($user['status'] ?? 'N/A'));
+        error_log("[AuthService] Password hash from DB: " . substr($user['password'], 0, 20) . "...");
+
         // Verify password
-        if (!Helpers::verifyPassword($password, $user['password'])) {
+        $passwordMatch = Helpers::verifyPassword($password, $user['password']);
+        error_log("[AuthService] Password verification: " . ($passwordMatch ? "SUCCESS" : "FAILED"));
+
+        if (!$passwordMatch) {
+            error_log("[AuthService] Password mismatch for user: {$usernameOrEmail}");
             $this->userManager->recordLoginAttempt($usernameOrEmail, false, $ipAddress);
 
             // Check if we need to lock the account
             $failedAttempts = $this->userManager->getFailedAttempts($usernameOrEmail);
+            error_log("[AuthService] Failed attempts: {$failedAttempts}");
             if ($failedAttempts >= 5) {
                 $this->userManager->lockAccount($usernameOrEmail);
+                error_log("[AuthService] Account locked after 5 failed attempts");
             }
 
             return false;
@@ -71,15 +87,18 @@ class AuthService
 
         // Check if user is deleted
         if (!empty($user['deleted_at'])) {
+            error_log("[AuthService] User is deleted: {$usernameOrEmail}");
             return false;
         }
 
         // Check if user status is active
         if (($user['status'] ?? 'active') !== 'active') {
+            error_log("[AuthService] User status is not active: " . ($user['status'] ?? 'N/A'));
             return false;
         }
 
         // Authentication successful
+        error_log("[AuthService] Authentication SUCCESSFUL for user: {$usernameOrEmail}");
         $this->userManager->recordLoginAttempt($usernameOrEmail, true, $ipAddress);
         $this->userManager->resetFailedAttempts($usernameOrEmail);
         $this->userManager->updateLastLogin((int)$user['id'], $ipAddress);

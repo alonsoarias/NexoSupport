@@ -140,13 +140,13 @@ $router->get('/dashboard', function ($request) use ($database) {
 
 // ===== RUTAS DE ADMINISTRACIÓN =====
 $router->group('/admin', function (Router $router) {
-    // Incluir archivos de admin existentes temporalmente
+    // Incluir archivos de admin (ahora en app/)
     $router->get('', function ($request) {
         if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
             return Response::redirect('/login');
         }
         ob_start();
-        require BASE_DIR . '/public_html/admin.php';
+        require BASE_DIR . '/app/Admin/admin.php';
         $content = ob_get_clean();
         return Response::html($content);
     }, 'admin');
@@ -156,7 +156,7 @@ $router->group('/admin', function (Router $router) {
             return Response::redirect('/login');
         }
         ob_start();
-        require BASE_DIR . '/public_html/admin/plugins.php';
+        require BASE_DIR . '/app/Admin/plugins.php';
         $content = ob_get_clean();
         return Response::html($content);
     }, 'admin.plugins');
@@ -166,7 +166,7 @@ $router->group('/admin', function (Router $router) {
             return Response::redirect('/login');
         }
         ob_start();
-        require BASE_DIR . '/public_html/admin/settings.php';
+        require BASE_DIR . '/app/Admin/settings.php';
         $content = ob_get_clean();
         return Response::html($content);
     }, 'admin.settings');
@@ -178,7 +178,7 @@ $router->get('/report', function ($request) {
         return Response::redirect('/login');
     }
     ob_start();
-    require BASE_DIR . '/public_html/report/index.php';
+    require BASE_DIR . '/app/Report/index.php';
     $content = ob_get_clean();
     return Response::html($content);
 }, 'report');
@@ -186,7 +186,7 @@ $router->get('/report', function ($request) {
 // ===== RUTAS DE THEME =====
 $router->get('/theme', function ($request) {
     ob_start();
-    require BASE_DIR . '/public_html/theme/index.php';
+    require BASE_DIR . '/app/Theme/index.php';
     $content = ob_get_clean();
     return Response::html($content);
 }, 'theme');

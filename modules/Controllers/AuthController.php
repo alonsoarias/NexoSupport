@@ -72,30 +72,42 @@ class AuthController
      */
     public function processLogin(ServerRequestInterface $request): ResponseInterface
     {
+        error_log("[AuthController] Processing login request");
+
         // Obtener datos del POST
         $body = $request->getParsedBody();
         $username = $body['username'] ?? '';
         $password = $body['password'] ?? '';
 
+        error_log("[AuthController] Username: {$username}, Password length: " . strlen($password));
+        error_log("[AuthController] POST data: " . json_encode(array_keys($body)));
+
         // Validación básica
         if (empty($username) || empty($password)) {
+            error_log("[AuthController] Empty credentials");
             $_SESSION['login_error'] = $this->translator->translate('auth.credentials_required');
             return Response::redirect('/login');
         }
 
         // Obtener IP del cliente
         $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        error_log("[AuthController] Client IP: {$ipAddress}");
 
         // Autenticar usuario
         $user = $this->authService->authenticate($username, $password, $ipAddress);
 
         if (!$user) {
+            error_log("[AuthController] Authentication FAILED for username: {$username}");
             $_SESSION['login_error'] = $this->translator->translate('auth.invalid_credentials');
             return Response::redirect('/login');
         }
 
+        error_log("[AuthController] Authentication SUCCESS, creating session");
+
         // Crear sesión
         $this->authService->createSession($user);
+
+        error_log("[AuthController] Session created, redirecting to dashboard");
 
         // Redirigir al dashboard
         return Response::redirect('/dashboard');
