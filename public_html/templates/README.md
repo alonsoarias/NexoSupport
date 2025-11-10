@@ -21,7 +21,7 @@ templates/
 │   ├── footer.php            # Footer con franja de colores
 │   └── stats.php             # Grid de estadísticas
 ├── pages/
-│   └── dashboard-example.php # Ejemplo de dashboard completo
+│   └── (coloque aquí sus páginas personalizadas)
 ├── TemplateRenderer.php      # Clase helper para renderizar
 └── README.md                 # Esta documentación
 ```
@@ -136,15 +136,49 @@ $stats = [
 - `calculatePercentage(obtained, max)`: Calcular porcentaje
 - `showNotification(message, type, duration)`: Mostrar notificación
 
-## Ejemplo Completo
+## Ejemplo de Uso Completo
 
-Ver `templates/pages/dashboard-example.php` para un ejemplo completo de dashboard con:
-- Header corporativo
-- Stats cards
-- Cards de competencias con métricas
-- Barras de progreso
-- Gráficos de barras y líneas
-- Footer institucional
+```php
+<?php
+require_once 'templates/TemplateRenderer.php';
+TemplateRenderer::init(__DIR__ . '/templates');
+
+// Crear contenido de la página
+ob_start();
+?>
+<h2 class="section-title">Mi Dashboard</h2>
+
+<div class="stats-grid">
+    <?php
+    echo TemplateRenderer::card([
+        'title' => 'Competencia 1',
+        'percentage' => 95.5,
+        'description' => 'Matemáticas',
+        'metrics' => [
+            ['label' => 'Total', 'value' => '100']
+        ],
+        'progressValue' => 95.5
+    ]);
+    ?>
+</div>
+
+<?= TemplateRenderer::chartContainer('myChart', 'Mi Gráfico') ?>
+
+<script>
+createBarChart('myChart', ['A', 'B', 'C'], [10, 20, 30]);
+</script>
+
+<?php
+$content = ob_get_clean();
+
+// Renderizar página completa
+echo TemplateRenderer::render('', [
+    'pageTitle' => 'Mi Dashboard',
+    'headerTitle' => 'Dashboard',
+    'content' => $content,
+    'includeCharts' => true
+]);
+```
 
 ## Personalización
 

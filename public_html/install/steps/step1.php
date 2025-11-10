@@ -57,6 +57,30 @@ $requirements = [
         'required' => false,
         'current' => extension_loaded('gd') ? 'Instalado' : 'No instalado',
         'status' => extension_loaded('gd')
+    ],
+    'dom' => [
+        'name' => 'DOM Extension (para XML parser)',
+        'required' => true,
+        'current' => extension_loaded('dom') ? 'Instalado' : 'No instalado',
+        'status' => extension_loaded('dom')
+    ],
+    'simplexml' => [
+        'name' => 'SimpleXML Extension (para XML parser)',
+        'required' => true,
+        'current' => extension_loaded('simplexml') ? 'Instalado' : 'No instalado',
+        'status' => extension_loaded('simplexml')
+    ],
+    'xml' => [
+        'name' => 'XML Extension',
+        'required' => true,
+        'current' => extension_loaded('xml') ? 'Instalado' : 'No instalado',
+        'status' => extension_loaded('xml')
+    ],
+    'libxml' => [
+        'name' => 'LibXML Extension',
+        'required' => true,
+        'current' => extension_loaded('libxml') ? 'Instalado' : 'No instalado',
+        'status' => extension_loaded('libxml')
     ]
 ];
 

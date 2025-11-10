@@ -49,6 +49,9 @@ public_html/uploads/*
 *.sql
 *.sql.gz
 
+# Exception: Allow SQL schema files
+!database/schema/*.sql
+
 # Session files
 var/sessions/*
 !var/sessions/.gitkeep
