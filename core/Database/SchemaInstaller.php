@@ -259,14 +259,14 @@ class SchemaInstaller
             $collation
         );
 
-        // Agregar primary key si no está en columnas (ej: múltiples columnas)
-        if (!empty($primaryKeys) && count($primaryKeys) > 1) {
-            // El adapter no maneja PKs compuestas automáticamente, agregarlas manualmente
+        // Agregar primary key explícitamente
+        // En MySQL, AUTO_INCREMENT requiere que la columna sea PRIMARY KEY
+        if (!empty($primaryKeys)) {
             $pkList = implode(', ', array_map([$this->adapter, 'quoteIdentifier'], $primaryKeys));
             $sql = rtrim($sql, ';');
-            if ($this->adapter->isMySQL()) {
-                $sql = str_replace("\n)", ",\n  PRIMARY KEY ({$pkList})\n)", $sql);
-            } else {
+
+            // Agregar PRIMARY KEY constraint
+            if ($this->adapter->isMySQL() || $this->adapter->isPostgreSQL() || $this->adapter->isSQLite()) {
                 $sql = str_replace("\n)", ",\n  PRIMARY KEY ({$pkList})\n)", $sql);
             }
             $sql .= ';';
