@@ -72,15 +72,22 @@ class AuthController
      */
     public function processLogin(ServerRequestInterface $request): ResponseInterface
     {
-        error_log("[AuthController] Processing login request");
+        error_log("[AuthController] ======== LOGIN REQUEST START ========");
+        error_log("[AuthController] Request method: " . $request->getMethod());
+        error_log("[AuthController] Request URI: " . $request->getUri());
 
         // Obtener datos del POST
         $body = $request->getParsedBody();
+        error_log("[AuthController] Parsed body is_array: " . (is_array($body) ? 'yes' : 'no'));
+        error_log("[AuthController] Parsed body count: " . (is_array($body) ? count($body) : '0'));
+
         $username = $body['username'] ?? '';
         $password = $body['password'] ?? '';
 
-        error_log("[AuthController] Username: {$username}, Password length: " . strlen($password));
-        error_log("[AuthController] POST data: " . json_encode(array_keys($body)));
+        error_log("[AuthController] Username: '{$username}'");
+        error_log("[AuthController] Password present: " . (empty($password) ? 'NO' : 'YES'));
+        error_log("[AuthController] Password length: " . strlen($password));
+        error_log("[AuthController] POST data keys: " . json_encode(array_keys($body)));
 
         // Validación básica
         if (empty($username) || empty($password)) {

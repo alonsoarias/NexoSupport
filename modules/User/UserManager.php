@@ -49,12 +49,18 @@ class UserManager
 
     public function getUserByUsername(string $username): array|false
     {
-        return $this->db->selectOne('users', ['username' => $username]);
+        error_log("[UserManager::getUserByUsername] Looking for username: '{$username}'");
+        $result = $this->db->selectOne('users', ['username' => $username]);
+        error_log("[UserManager::getUserByUsername] Result: " . ($result ? "found ID {$result['id']}" : "not found"));
+        return $result;
     }
 
     public function getUserByEmail(string $email): array|false
     {
-        return $this->db->selectOne('users', ['email' => $email]);
+        error_log("[UserManager::getUserByEmail] Looking for email: '{$email}'");
+        $result = $this->db->selectOne('users', ['email' => $email]);
+        error_log("[UserManager::getUserByEmail] Result: " . ($result ? "found ID {$result['id']}" : "not found"));
+        return $result;
     }
 
     public function update(int $id, array $data): bool

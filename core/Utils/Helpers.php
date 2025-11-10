@@ -88,7 +88,16 @@ class Helpers
      */
     public static function verifyPassword(string $password, string $hash): bool
     {
-        return password_verify($password, $hash);
+        // Get hash algorithm info for debugging
+        $hashInfo = password_get_info($hash);
+        error_log("[Helpers::verifyPassword] Hash algorithm: " . ($hashInfo['algoName'] ?? 'unknown'));
+        error_log("[Helpers::verifyPassword] Hash (first 30 chars): " . substr($hash, 0, 30));
+        error_log("[Helpers::verifyPassword] Password length: " . strlen($password));
+
+        $result = password_verify($password, $hash);
+        error_log("[Helpers::verifyPassword] Verification result: " . ($result ? "SUCCESS" : "FAILED"));
+
+        return $result;
     }
 
     /**
