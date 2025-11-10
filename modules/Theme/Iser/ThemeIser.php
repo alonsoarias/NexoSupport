@@ -305,7 +305,7 @@ class ThemeIser
     private function getThemeUrl(): string
     {
         $baseUrl = $_ENV['APP_URL'] ?? '';
-        return rtrim($baseUrl, '/') . '/modules/theme/iser';
+        return rtrim($baseUrl, '/') . '/theme/iser';
     }
 
     /**

@@ -312,7 +312,7 @@ class ThemeAssets
         }
 
         $baseUrl = $_ENV['APP_URL'] ?? '';
-        $themeUrl = rtrim($baseUrl, '/') . '/modules/theme/iser/assets';
+        $themeUrl = rtrim($baseUrl, '/') . '/theme/iser';
 
         return "{$themeUrl}/{$type}/{$file}";
     }
