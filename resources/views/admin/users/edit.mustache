@@ -73,8 +73,8 @@
                     <div class="form-group">
                         <label for="status">Estado</label>
                         <select id="status" name="status" class="form-select">
-                            <option value="active" {{#eq user.status "active"}}selected{{/eq}}>Activo</option>
-                            <option value="suspended" {{#eq user.status "suspended"}}selected{{/eq}}>Suspendido</option>
+                            <option value="active">Activo</option>
+                            <option value="suspended">Suspendido</option>
                         </select>
                     </div>
                 </div>
@@ -440,3 +440,14 @@
     background: var(--border-color);
 }
 </style>
+
+<script>
+// Establecer valor actual de status
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.getElementById('status');
+    const statusValue = '{{user.status}}';
+    if (statusValue && statusSelect) {
+        statusSelect.value = statusValue;
+    }
+});
+</script>

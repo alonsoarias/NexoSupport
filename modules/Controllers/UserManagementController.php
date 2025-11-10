@@ -70,6 +70,8 @@ class UserManagementController
             $user['role_names'] = array_map(fn($r) => $r['name'], $user['roles']);
             $user['created_at_formatted'] = date('d/m/Y H:i', (int)$user['created_at']);
             $user['is_deleted'] = !empty($user['deleted_at']);
+            $user['is_active'] = ($user['status'] ?? 'active') === 'active';
+            $user['is_suspended'] = ($user['status'] ?? 'active') === 'suspended';
         }
 
         // Preparar datos para la vista

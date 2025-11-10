@@ -104,12 +104,12 @@
                             <span class="badge badge-danger">Eliminado</span>
                             {{/is_deleted}}
                             {{^is_deleted}}
-                                {{#eq status "active"}}
+                                {{#is_active}}
                                 <span class="badge badge-success">Activo</span>
-                                {{/eq}}
-                                {{#eq status "suspended"}}
+                                {{/is_active}}
+                                {{#is_suspended}}
                                 <span class="badge badge-warning">Suspendido</span>
-                                {{/eq}}
+                                {{/is_suspended}}
                             {{/is_deleted}}
                         </td>
                         <td>{{created_at_formatted}}</td>
