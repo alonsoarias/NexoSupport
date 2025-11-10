@@ -86,7 +86,7 @@
                 <p class="text-muted">Selecciona los roles que tendrá este usuario</p>
 
                 <div class="roles-grid">
-                    {{#roles}}
+                    {{#all_roles}}
                     <label class="role-checkbox">
                         <input type="checkbox" name="roles[]" value="{{id}}">
                         <div class="role-info">
@@ -95,7 +95,10 @@
                             <span class="role-level">Nivel: {{level}}</span>
                         </div>
                     </label>
-                    {{/roles}}
+                    {{/all_roles}}
+                    {{^all_roles}}
+                    <p class="text-muted">No hay roles disponibles en el sistema.</p>
+                    {{/all_roles}}
                 </div>
             </div>
 
