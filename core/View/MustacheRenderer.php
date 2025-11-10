@@ -62,7 +62,13 @@ class MustacheRenderer
     {
         if (self::$instance === null) {
             if ($viewsPath === null) {
-                $viewsPath = dirname(__DIR__, 3) . '/resources/views';
+                // Usar DIRECTORY_SEPARATOR para compatibilidad entre Windows y Unix
+                $viewsPath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'views';
+
+                // Normalizar la ruta para Windows
+                if (DIRECTORY_SEPARATOR === '\\') {
+                    $viewsPath = str_replace('/', '\\', $viewsPath);
+                }
             }
             self::$instance = new self($viewsPath);
         }
