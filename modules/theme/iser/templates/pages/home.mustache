@@ -1,0 +1,110 @@
+<div class="hero-section bg-gradient-primary text-white py-5 mb-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-3">Bienvenido a {{site_name}}</h1>
+        <p class="lead mb-4">{{site_description}}</p>
+        {{^user.authenticated}}
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="/login" class="btn btn-light btn-lg">
+                <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+            </a>
+            <a href="/register" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-user-plus me-2"></i>Registrarse
+            </a>
+        </div>
+        {{/user.authenticated}}
+    </div>
+</div>
+
+<div class="container">
+    <!-- Características -->
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-book fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Cursos</h5>
+                    <p class="card-text">Accede a una amplia variedad de cursos diseñados para tu desarrollo profesional.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-users fa-3x text-success"></i>
+                    </div>
+                    <h5 class="card-title">Comunidad</h5>
+                    <p class="card-text">Conecta con otros estudiantes y profesores en nuestra plataforma colaborativa.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-certificate fa-3x text-warning"></i>
+                    </div>
+                    <h5 class="card-title">Certificados</h5>
+                    <p class="card-text">Obtén certificados reconocidos al completar tus cursos exitosamente.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    {{#stats}}
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">Nuestros Números</h2>
+            <p class="text-muted">Creciendo cada día</p>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="text-center">
+                <h3 class="display-4 fw-bold text-primary mb-0">{{stats.users}}</h3>
+                <p class="text-muted">Usuarios</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="text-center">
+                <h3 class="display-4 fw-bold text-success mb-0">{{stats.courses}}</h3>
+                <p class="text-muted">Cursos</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="text-center">
+                <h3 class="display-4 fw-bold text-warning mb-0">{{stats.certificates}}</h3>
+                <p class="text-muted">Certificados</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="text-center">
+                <h3 class="display-4 fw-bold text-info mb-0">{{stats.active}}</h3>
+                <p class="text-muted">Activos Hoy</p>
+            </div>
+        </div>
+    </div>
+    {{/stats}}
+
+    <!-- CTA -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body text-center py-5">
+                    <h3 class="fw-bold mb-3">¿Listo para comenzar?</h3>
+                    <p class="lead mb-4">Únete a miles de estudiantes que ya están aprendiendo con nosotros.</p>
+                    <a href="/register" class="btn btn-primary btn-lg">
+                        <i class="fas fa-rocket me-2"></i>Comenzar Ahora
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
