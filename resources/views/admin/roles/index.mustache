@@ -66,9 +66,12 @@
                 </div>
 
                 <div class="role-actions">
-                    <a href="/admin/roles/{{id}}/edit" class="btn btn-sm btn-primary">
-                        <i class="bi bi-pencil"></i> Editar
-                    </a>
+                    <form method="POST" action="/admin/roles/edit" style="display:inline;">
+                        <input type="hidden" name="id" value="{{id}}">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil"></i> Editar
+                        </button>
+                    </form>
                     {{^is_system_role}}
                     <button onclick="deleteRole({{id}})" class="btn btn-sm btn-danger">
                         <i class="bi bi-trash"></i> Eliminar

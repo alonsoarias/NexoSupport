@@ -116,9 +116,12 @@
                         <td>
                             <div class="action-buttons">
                                 {{^is_deleted}}
-                                <a href="/admin/users/{{id}}/edit" class="btn-icon" title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
+                                <form method="POST" action="/admin/users/edit" style="display:inline;">
+                                    <input type="hidden" name="id" value="{{id}}">
+                                    <button type="submit" class="btn-icon" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </form>
                                 <button onclick="deleteUser({{id}})" class="btn-icon btn-danger" title="Eliminar">
                                     <i class="bi bi-trash"></i>
                                 </button>

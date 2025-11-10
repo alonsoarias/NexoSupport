@@ -164,7 +164,12 @@ class RoleController
      */
     public function edit(ServerRequestInterface $request): ResponseInterface
     {
-        $id = (int)$request->getAttribute('id');
+        $body = $request->getParsedBody();
+        $id = (int)($body['id'] ?? 0);
+
+        if (!$id) {
+            return Response::json(['error' => 'ID de rol no proporcionado'], 400);
+        }
 
         $role = $this->roleManager->getRoleById($id);
         if (!$role) {

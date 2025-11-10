@@ -187,8 +187,8 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->store($request);
     }, 'admin.users.store');
 
-    // Formulario de edición
-    $router->get('/users/{id}/edit', function ($request) use ($database) {
+    // Formulario de edición (POST para no exponer ID en URL)
+    $router->post('/users/edit', function ($request) use ($database) {
         $controller = new UserManagementController($database);
         return $controller->edit($request);
     }, 'admin.users.edit');
@@ -230,8 +230,8 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->store($request);
     }, 'admin.roles.store');
 
-    // Formulario de edición
-    $router->get('/roles/{id}/edit', function ($request) use ($database) {
+    // Formulario de edición (POST para no exponer ID en URL)
+    $router->post('/roles/edit', function ($request) use ($database) {
         $controller = new RoleController($database);
         return $controller->edit($request);
     }, 'admin.roles.edit');
@@ -267,8 +267,8 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->store($request);
     }, 'admin.permissions.store');
 
-    // Formulario de edición
-    $router->get('/permissions/{id}/edit', function ($request) use ($database) {
+    // Formulario de edición (POST para no exponer ID en URL)
+    $router->post('/permissions/edit', function ($request) use ($database) {
         $controller = new PermissionController($database);
         return $controller->edit($request);
     }, 'admin.permissions.edit');

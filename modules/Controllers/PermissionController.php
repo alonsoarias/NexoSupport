@@ -144,7 +144,12 @@ class PermissionController
      */
     public function edit(ServerRequestInterface $request): ResponseInterface
     {
-        $id = (int)$request->getAttribute('id');
+        $body = $request->getParsedBody();
+        $id = (int)($body['id'] ?? 0);
+
+        if (!$id) {
+            return Response::json(['error' => 'ID de permiso no proporcionado'], 400);
+        }
 
         $permission = $this->permissionManager->getPermissionById($id);
         if (!$permission) {
