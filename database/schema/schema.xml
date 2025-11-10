@@ -210,59 +210,214 @@
             <index name="idx_module" columns="module"/>
         </indexes>
         <data>
+            <!-- Permisos granulares: Usuarios -->
             <row>
-                <name>Ver usuarios</name>
+                <name>Ver Usuarios</name>
                 <slug>users.view</slug>
-                <description>View users list</description>
+                <description>Permite ver la lista de usuarios del sistema</description>
                 <module>users</module>
             </row>
             <row>
-                <name>Crear usuarios</name>
+                <name>Crear Usuarios</name>
                 <slug>users.create</slug>
-                <description>Create new users</description>
+                <description>Permite crear nuevos usuarios en el sistema</description>
                 <module>users</module>
             </row>
             <row>
-                <name>Editar usuarios</name>
-                <slug>users.edit</slug>
-                <description>Edit existing users</description>
+                <name>Editar Usuarios</name>
+                <slug>users.update</slug>
+                <description>Permite editar información de usuarios existentes</description>
                 <module>users</module>
             </row>
             <row>
-                <name>Eliminar usuarios</name>
+                <name>Eliminar Usuarios</name>
                 <slug>users.delete</slug>
-                <description>Delete users</description>
+                <description>Permite eliminar usuarios del sistema (soft delete)</description>
                 <module>users</module>
             </row>
             <row>
-                <name>Ver roles</name>
+                <name>Restaurar Usuarios</name>
+                <slug>users.restore</slug>
+                <description>Permite restaurar usuarios eliminados</description>
+                <module>users</module>
+            </row>
+            <row>
+                <name>Asignar Roles a Usuarios</name>
+                <slug>users.assign_roles</slug>
+                <description>Permite asignar o quitar roles de los usuarios</description>
+                <module>users</module>
+            </row>
+            <row>
+                <name>Ver Perfil de Usuario</name>
+                <slug>users.view_profile</slug>
+                <description>Permite ver el perfil detallado de usuarios</description>
+                <module>users</module>
+            </row>
+
+            <!-- Permisos granulares: Roles -->
+            <row>
+                <name>Ver Roles</name>
                 <slug>roles.view</slug>
-                <description>View roles list</description>
+                <description>Permite ver la lista de roles del sistema</description>
                 <module>roles</module>
             </row>
             <row>
-                <name>Crear roles</name>
+                <name>Crear Roles</name>
                 <slug>roles.create</slug>
-                <description>Create new roles</description>
+                <description>Permite crear nuevos roles en el sistema</description>
                 <module>roles</module>
             </row>
             <row>
-                <name>Editar roles</name>
-                <slug>roles.edit</slug>
-                <description>Edit existing roles</description>
+                <name>Editar Roles</name>
+                <slug>roles.update</slug>
+                <description>Permite editar roles existentes</description>
                 <module>roles</module>
             </row>
             <row>
-                <name>Eliminar roles</name>
+                <name>Eliminar Roles</name>
                 <slug>roles.delete</slug>
-                <description>Delete roles</description>
+                <description>Permite eliminar roles del sistema</description>
                 <module>roles</module>
             </row>
             <row>
-                <name>Gestionar permisos</name>
-                <slug>permissions.manage</slug>
-                <description>Manage system permissions</description>
+                <name>Asignar Permisos a Roles</name>
+                <slug>roles.assign_permissions</slug>
+                <description>Permite asignar o quitar permisos de los roles</description>
+                <module>roles</module>
+            </row>
+
+            <!-- Permisos granulares: Permisos -->
+            <row>
+                <name>Ver Permisos</name>
+                <slug>permissions.view</slug>
+                <description>Permite ver la lista de permisos del sistema</description>
                 <module>permissions</module>
+            </row>
+            <row>
+                <name>Crear Permisos</name>
+                <slug>permissions.create</slug>
+                <description>Permite crear nuevos permisos en el sistema</description>
+                <module>permissions</module>
+            </row>
+            <row>
+                <name>Editar Permisos</name>
+                <slug>permissions.update</slug>
+                <description>Permite editar permisos existentes</description>
+                <module>permissions</module>
+            </row>
+            <row>
+                <name>Eliminar Permisos</name>
+                <slug>permissions.delete</slug>
+                <description>Permite eliminar permisos del sistema</description>
+                <module>permissions</module>
+            </row>
+
+            <!-- Permisos granulares: Dashboard -->
+            <row>
+                <name>Ver Dashboard</name>
+                <slug>dashboard.view</slug>
+                <description>Permite acceder al panel de administración</description>
+                <module>dashboard</module>
+            </row>
+            <row>
+                <name>Ver Estadísticas</name>
+                <slug>dashboard.stats</slug>
+                <description>Permite ver estadísticas del sistema</description>
+                <module>dashboard</module>
+            </row>
+            <row>
+                <name>Ver Gráficas</name>
+                <slug>dashboard.charts</slug>
+                <description>Permite ver gráficas y reportes visuales</description>
+                <module>dashboard</module>
+            </row>
+
+            <!-- Permisos granulares: Configuración -->
+            <row>
+                <name>Ver Configuración</name>
+                <slug>settings.view</slug>
+                <description>Permite ver la configuración del sistema</description>
+                <module>settings</module>
+            </row>
+            <row>
+                <name>Editar Configuración</name>
+                <slug>settings.update</slug>
+                <description>Permite modificar la configuración del sistema</description>
+                <module>settings</module>
+            </row>
+            <row>
+                <name>Gestionar Configuración Crítica</name>
+                <slug>settings.critical</slug>
+                <description>Permite modificar configuraciones críticas del sistema</description>
+                <module>settings</module>
+            </row>
+
+            <!-- Permisos granulares: Logs -->
+            <row>
+                <name>Ver Logs</name>
+                <slug>logs.view</slug>
+                <description>Permite ver los registros de actividad del sistema</description>
+                <module>logs</module>
+            </row>
+            <row>
+                <name>Eliminar Logs</name>
+                <slug>logs.delete</slug>
+                <description>Permite eliminar registros de actividad</description>
+                <module>logs</module>
+            </row>
+            <row>
+                <name>Exportar Logs</name>
+                <slug>logs.export</slug>
+                <description>Permite exportar registros de actividad</description>
+                <module>logs</module>
+            </row>
+
+            <!-- Permisos granulares: Auditoría -->
+            <row>
+                <name>Ver Auditoría</name>
+                <slug>audit.view</slug>
+                <description>Permite ver la pista de auditoría del sistema</description>
+                <module>audit</module>
+            </row>
+            <row>
+                <name>Exportar Auditoría</name>
+                <slug>audit.export</slug>
+                <description>Permite exportar registros de auditoría</description>
+                <module>audit</module>
+            </row>
+
+            <!-- Permisos granulares: Reportes -->
+            <row>
+                <name>Ver Reportes</name>
+                <slug>reports.view</slug>
+                <description>Permite ver reportes del sistema</description>
+                <module>reports</module>
+            </row>
+            <row>
+                <name>Generar Reportes</name>
+                <slug>reports.generate</slug>
+                <description>Permite generar nuevos reportes</description>
+                <module>reports</module>
+            </row>
+            <row>
+                <name>Exportar Reportes</name>
+                <slug>reports.export</slug>
+                <description>Permite exportar reportes en diferentes formatos</description>
+                <module>reports</module>
+            </row>
+
+            <!-- Permisos granulares: Sesiones -->
+            <row>
+                <name>Ver Sesiones</name>
+                <slug>sessions.view</slug>
+                <description>Permite ver sesiones activas del sistema</description>
+                <module>sessions</module>
+            </row>
+            <row>
+                <name>Cerrar Sesiones</name>
+                <slug>sessions.terminate</slug>
+                <description>Permite cerrar sesiones de otros usuarios</description>
+                <module>sessions</module>
             </row>
         </data>
     </table>
