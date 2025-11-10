@@ -133,6 +133,19 @@ class SchemaInstaller
                 echo '<p class="text-info small">→ Creando tabla: ' . htmlspecialchars($this->prefix . $tableName) . '</p>';
                 flush(); ob_flush();
 
+                // DEBUG: Mostrar estructura de tableData
+                echo '<pre class="small" style="background: #fff3cd; padding: 10px; margin: 10px 20px; border-radius: 5px;">';
+                echo 'DEBUG tableData estructura:' . "\n";
+                echo 'Keys: ' . implode(', ', array_keys($tableData)) . "\n";
+                echo 'Name: ' . ($tableData['name'] ?? 'N/A') . "\n";
+                echo 'Has columns: ' . (isset($tableData['columns']) ? 'YES' : 'NO') . "\n";
+                if (isset($tableData['columns'])) {
+                    echo 'Columns keys: ' . implode(', ', array_keys($tableData['columns'])) . "\n";
+                    echo 'Has column array: ' . (isset($tableData['columns']['column']) ? 'YES' : 'NO') . "\n";
+                }
+                echo '</pre>';
+                flush(); ob_flush();
+
                 $this->createTable($tableData, $charset, $collation, $engine);
 
                 echo '<p class="text-success small">✓ Tabla creada: ' . htmlspecialchars($this->prefix . $tableName) . '</p>';
