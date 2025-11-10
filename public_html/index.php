@@ -13,20 +13,68 @@ declare(strict_types=1);
 
 // Define base directory
 define('BASE_DIR', dirname(__DIR__));
-define('INSTALL_LOCK', BASE_DIR . '/.installed');
 define('ENV_FILE', BASE_DIR . '/.env');
 
-// Verificar si el sistema está instalado
-if (!file_exists(INSTALL_LOCK)) {
-    // Redirigir al instalador
-    header('Location: /install.php');
-    exit;
+/**
+ * Verificación de instalación (al estilo Moodle/WordPress)
+ *
+ * Sistema de 3 niveles:
+ * 1. Verificar que existe .env
+ * 2. Verificar que .env contiene INSTALLED=true
+ * 3. Verificar que la BD está accesible
+ */
+function checkInstallation(): bool {
+    // Nivel 1: Verificar que existe .env
+    if (!file_exists(ENV_FILE)) {
+        return false;
+    }
+
+    // Nivel 2: Verificar que .env contiene INSTALLED=true
+    $envContent = file_get_contents(ENV_FILE);
+    if ($envContent === false) {
+        return false;
+    }
+
+    // Parsear .env y buscar INSTALLED=true
+    $lines = explode("\n", $envContent);
+    $installed = false;
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (empty($line) || $line[0] === '#') {
+            continue;
+        }
+        if (strpos($line, 'INSTALLED=') === 0) {
+            $value = trim(str_replace('INSTALLED=', '', $line));
+            $installed = ($value === 'true');
+            break;
+        }
+    }
+
+    if (!$installed) {
+        return false;
+    }
+
+    // Nivel 3: Verificar acceso a BD (básico)
+    // No verificamos aquí la BD para no ralentizar cada request
+    // Si .env existe y tiene INSTALLED=true, asumimos instalación completa
+
+    return true;
 }
 
-// Verificar que existe el archivo .env
-if (!file_exists(ENV_FILE)) {
-    http_response_code(500);
-    die('<h1>Configuration Error</h1><p>El archivo .env no fue encontrado. Por favor, ejecute el instalador.</p>');
+// Verificar instalación
+if (!checkInstallation()) {
+    // No instalado: redirigir al instalador
+    $installUrl = '/install/index.php';
+
+    // Si estamos en subdirectorio, ajustar URL
+    $scriptName = $_SERVER['SCRIPT_NAME'];
+    if (strpos($scriptName, '/public_html/') !== false) {
+        $baseUrl = str_replace('/public_html/index.php', '', $scriptName);
+        $installUrl = $baseUrl . '/install/index.php';
+    }
+
+    header('Location: ' . $installUrl);
+    exit;
 }
 
 // Cargar autoloader

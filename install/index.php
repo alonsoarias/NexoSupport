@@ -15,13 +15,80 @@ session_start();
 define('INSTALL_DIR', __DIR__);
 define('BASE_DIR', dirname(__DIR__));
 define('ENV_FILE', BASE_DIR . '/.env');
-define('INSTALL_LOCK', BASE_DIR . '/.installed');
 define('SCHEMA_FILE', BASE_DIR . '/database/schema/schema.xml');
 
+/**
+ * Verificar si el sistema ya está instalado
+ * Usa el mismo mecanismo que public_html/index.php
+ */
+function isAlreadyInstalled(): bool {
+    if (!file_exists(ENV_FILE)) {
+        return false;
+    }
+
+    $envContent = file_get_contents(ENV_FILE);
+    if ($envContent === false) {
+        return false;
+    }
+
+    // Buscar INSTALLED=true en .env
+    $lines = explode("\n", $envContent);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (empty($line) || $line[0] === '#') {
+            continue;
+        }
+        if (strpos($line, 'INSTALLED=') === 0) {
+            $value = trim(str_replace('INSTALLED=', '', $line));
+            return ($value === 'true');
+        }
+    }
+
+    return false;
+}
+
 // Check if already installed
-if (file_exists(INSTALL_LOCK) && !isset($_GET['reinstall'])) {
-    header('Location: /');
-    exit('Sistema ya instalado.');
+if (isAlreadyInstalled() && !isset($_GET['reinstall'])) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Ya Instalado</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    </head>
+    <body class="bg-light">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card shadow">
+                        <div class="card-body text-center p-5">
+                            <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                            <h2 class="mt-3">Sistema Ya Instalado</h2>
+                            <p class="text-muted">NexoSupport ya está instalado y configurado.</p>
+                            <hr>
+                            <div class="d-grid gap-2">
+                                <a href="../" class="btn btn-primary">
+                                    <i class="bi bi-house"></i> Ir al Sistema
+                                </a>
+                                <a href="?reinstall=1" class="btn btn-outline-danger">
+                                    <i class="bi bi-exclamation-triangle"></i> Reinstalar (Peligroso)
+                                </a>
+                            </div>
+                            <small class="text-muted d-block mt-3">
+                                La reinstalación eliminará todos los datos existentes.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
 }
 
 // Load Composer autoloader
