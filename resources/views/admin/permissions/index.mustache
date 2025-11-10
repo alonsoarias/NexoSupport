@@ -79,12 +79,12 @@
                             <td>
                                 <div class="action-buttons">
                                     <form method="POST" action="/admin/permissions/edit" style="display:inline;">
-                                        <input type="hidden" name="id" value="{{id}}">
+                                        <input type="hidden" name="permission_id" value="{{permission_id}}">
                                         <button type="submit" class="btn-icon" title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </button>
                                     </form>
-                                    <button onclick="deletePermission({{id}})" class="btn-icon btn-danger" title="Eliminar">
+                                    <button onclick="deletePermission('{{permission_id}}')" class="btn-icon btn-danger" title="Eliminar">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
@@ -109,7 +109,7 @@ function deletePermission(permId) {
         return;
     }
     const formData = new FormData();
-    formData.append('id', permId);
+    formData.append('permission_id', permId);
 
     fetch('/admin/permissions/delete', {
         method: 'POST',

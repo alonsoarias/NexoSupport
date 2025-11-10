@@ -22,7 +22,7 @@
     <div class="form-section">
         {{#permission}}
         <form method="POST" action="/admin/permissions/update" class="perm-form">
-            <input type="hidden" name="id" value="{{id}}">
+            <!-- El ID se maneja en sesión del servidor - sin campos hidden -->
             <div class="form-card">
                 <h3><i class="bi bi-key"></i> Información del Permiso</h3>
                 <div class="form-group">

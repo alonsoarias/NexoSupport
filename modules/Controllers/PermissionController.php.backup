@@ -13,33 +13,23 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * PermissionController - Gestión completa de permisos (REFACTORIZADO)
+ * Permission Controller
  *
- * PATRÓN DE SESIONES:
- * - Usa sesiones para almacenar ID durante edición
- * - IDs se pasan como permission_id (string) para compatibilidad con Mustache
- * - Sin exposición de IDs en URLs ni campos hidden
+ * Gestiona permisos del sistema
  */
 class PermissionController
 {
+    private Database $db;
     private PermissionManager $permissionManager;
     private RoleManager $roleManager;
-    private MustacheRenderer $renderer;
+    private MustacheRenderer $view;
 
     public function __construct(Database $db)
     {
+        $this->db = $db;
         $this->permissionManager = new PermissionManager($db);
         $this->roleManager = new RoleManager($db);
-        $this->renderer = MustacheRenderer::getInstance();
-    }
-
-    /**
-     * Renderizar con layout
-     */
-    private function renderWithLayout(string $view, array $data = []): ResponseInterface
-    {
-        $html = $this->renderer->render($view, $data, 'layouts/base');
-        return Response::html($html);
+        $this->view = MustacheRenderer::getInstance();
     }
 
     /**
@@ -47,23 +37,17 @@ class PermissionController
      */
     public function index(ServerRequestInterface $request): ResponseInterface
     {
-        $queryParams = $request->getQueryParams();
-
         // Obtener permisos agrupados por módulo
         $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
 
         // Enriquecer cada permiso con información de roles
         foreach ($permissionsGrouped as $module => &$permissions) {
             foreach ($permissions as &$permission) {
-                $permissionId = (int)$permission['id'];
-                $roles = $this->permissionManager->getPermissionRoles($permissionId);
+                $roles = $this->permissionManager->getPermissionRoles((int)$permission['id']);
                 $permission['roles'] = $roles;
                 $permission['role_count'] = count($roles);
                 $permission['role_names'] = array_map(fn($r) => $r['name'], $roles);
                 $permission['created_at_formatted'] = date('d/m/Y H:i', (int)$permission['created_at']);
-
-                // CRÍTICO: Usar permission_id como string para Mustache
-                $permission['permission_id'] = (string)$permission['id'];
             }
         }
 
@@ -74,35 +58,17 @@ class PermissionController
             'permissions_grouped' => $permissionsGrouped,
             'modules' => $modules,
             'total_permissions' => $this->permissionManager->countPermissions(),
-            'page_title' => 'Gestión de Permisos',
         ];
-
-        // Mensajes
-        if (isset($queryParams['success'])) {
-            $messages = [
-                'created' => 'Permiso creado correctamente',
-                'updated' => 'Permiso actualizado correctamente',
-                'deleted' => 'Permiso eliminado correctamente',
-            ];
-            $data['success_message'] = $messages[$queryParams['success']] ?? null;
-        }
-
-        if (isset($queryParams['error'])) {
-            $errors = [
-                'invalid_id' => 'ID de permiso inválido',
-                'not_found' => 'Permiso no encontrado',
-            ];
-            $data['error_message'] = $errors[$queryParams['error']] ?? 'Error desconocido';
-        }
 
         return $this->renderWithLayout('admin/permissions/index', $data);
     }
 
     /**
-     * Formulario de creación
+     * Formulario de creación de permiso
      */
     public function create(ServerRequestInterface $request): ResponseInterface
     {
+        // Obtener módulos existentes
         $modules = $this->permissionManager->getModules();
 
         $data = [
@@ -114,21 +80,36 @@ class PermissionController
     }
 
     /**
-     * Procesar creación
+     * Procesar creación de permiso
      */
     public function store(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
 
         // Validar datos
-        $errors = $this->validatePermissionData($body);
+        $errors = [];
 
+        if (empty($body['name'])) {
+            $errors[] = 'El nombre del permiso es requerido';
+        }
+
+        if (empty($body['slug'])) {
+            $errors[] = 'El slug es requerido';
+        } elseif ($this->permissionManager->getPermissionBySlug($body['slug'])) {
+            $errors[] = 'El slug ya está en uso';
+        }
+
+        if (empty($body['module'])) {
+            $errors[] = 'El módulo es requerido';
+        }
+
+        // Si hay errores, regresar al formulario
         if (!empty($errors)) {
             $modules = $this->permissionManager->getModules();
             $data = [
                 'errors' => $errors,
-                'form_data' => $body,
                 'modules' => $modules,
+                'form_data' => $body,
                 'page_title' => 'Crear Permiso',
             ];
             return $this->renderWithLayout('admin/permissions/create', $data);
@@ -147,39 +128,41 @@ class PermissionController
             $modules = $this->permissionManager->getModules();
             $data = [
                 'errors' => $errors,
-                'form_data' => $body,
                 'modules' => $modules,
+                'form_data' => $body,
                 'page_title' => 'Crear Permiso',
             ];
             return $this->renderWithLayout('admin/permissions/create', $data);
         }
 
+        // Redirigir con mensaje de éxito
         return Response::redirect('/admin/permissions?success=created');
     }
 
     /**
-     * Formulario de edición - USA SESIÓN
+     * Formulario de edición de permiso
      */
     public function edit(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
-        $permissionId = (int)($body['permission_id'] ?? 0);
+        $id = (int)($body['id'] ?? 0);
 
-        if (!$permissionId) {
-            return Response::redirect('/admin/permissions?error=invalid_id');
+        if (!$id) {
+            return Response::json(['error' => 'ID de permiso no proporcionado'], 400);
         }
 
-        // GUARDAR ID EN SESIÓN
-        $_SESSION['editing_permission_id'] = $permissionId;
-
-        $permission = $this->permissionManager->getPermissionById($permissionId);
+        $permission = $this->permissionManager->getPermissionById($id);
         if (!$permission) {
-            unset($_SESSION['editing_permission_id']);
-            return Response::redirect('/admin/permissions?error=not_found');
+            return Response::json(['error' => 'Permiso no encontrado'], 404);
+        }
+
+        // FIX: Asegurar que id sea string para Mustache
+        if (isset($permission['id'])) {
+            $permission['id'] = (string)$permission['id'];
         }
 
         // Obtener roles que tienen este permiso
-        $roles = $this->permissionManager->getPermissionRoles($permissionId);
+        $roles = $this->permissionManager->getPermissionRoles($id);
 
         // Obtener módulos existentes
         $modules = $this->permissionManager->getModules();
@@ -188,38 +171,43 @@ class PermissionController
             'permission' => $permission,
             'permission_roles' => $roles,
             'modules' => $modules,
-            'page_title' => 'Editar Permiso: ' . $permission['name'],
-            'editing_mode' => true,
+            'page_title' => 'Editar Permiso',
         ];
 
         return $this->renderWithLayout('admin/permissions/edit', $data);
     }
 
     /**
-     * Procesar actualización - USA ID DE SESIÓN
+     * Procesar actualización de permiso
      */
     public function update(ServerRequestInterface $request): ResponseInterface
     {
-        // OBTENER ID DESDE SESIÓN
-        $permissionId = (int)($_SESSION['editing_permission_id'] ?? 0);
+        $body = $request->getParsedBody();
+        $id = (int)($body['id'] ?? 0);
 
-        if (!$permissionId) {
-            return Response::redirect('/admin/permissions?error=session_expired');
+        if (!$id) {
+            return Response::json(['error' => 'ID de permiso no proporcionado'], 400);
         }
 
-        $body = $request->getParsedBody();
-
-        $permission = $this->permissionManager->getPermissionById($permissionId);
+        $permission = $this->permissionManager->getPermissionById($id);
         if (!$permission) {
-            unset($_SESSION['editing_permission_id']);
-            return Response::redirect('/admin/permissions?error=not_found');
+            return Response::json(['error' => 'Permiso no encontrado'], 404);
         }
 
         // Validar datos
-        $errors = $this->validatePermissionData($body, $permissionId);
+        $errors = [];
 
+        if (empty($body['name'])) {
+            $errors[] = 'El nombre del permiso es requerido';
+        }
+
+        if (empty($body['module'])) {
+            $errors[] = 'El módulo es requerido';
+        }
+
+        // Si hay errores, regresar al formulario
         if (!empty($errors)) {
-            $roles = $this->permissionManager->getPermissionRoles($permissionId);
+            $roles = $this->permissionManager->getPermissionRoles($id);
             $modules = $this->permissionManager->getModules();
 
             $data = [
@@ -228,13 +216,12 @@ class PermissionController
                 'permission_roles' => $roles,
                 'modules' => $modules,
                 'page_title' => 'Editar Permiso',
-                'editing_mode' => true,
             ];
             return $this->renderWithLayout('admin/permissions/edit', $data);
         }
 
         // Actualizar permiso (no se puede cambiar el slug)
-        $success = $this->permissionManager->update($permissionId, [
+        $success = $this->permissionManager->update($id, [
             'name' => $body['name'],
             'description' => $body['description'] ?? '',
             'module' => $body['module'],
@@ -242,7 +229,7 @@ class PermissionController
 
         if (!$success) {
             $errors[] = 'Error al actualizar el permiso';
-            $roles = $this->permissionManager->getPermissionRoles($permissionId);
+            $roles = $this->permissionManager->getPermissionRoles($id);
             $modules = $this->permissionManager->getModules();
 
             $data = [
@@ -251,14 +238,11 @@ class PermissionController
                 'permission_roles' => $roles,
                 'modules' => $modules,
                 'page_title' => 'Editar Permiso',
-                'editing_mode' => true,
             ];
             return $this->renderWithLayout('admin/permissions/edit', $data);
         }
 
-        // LIMPIAR SESIÓN
-        unset($_SESSION['editing_permission_id']);
-
+        // Redirigir con mensaje de éxito
         return Response::redirect('/admin/permissions?success=updated');
     }
 
@@ -268,26 +252,28 @@ class PermissionController
     public function delete(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
-        $permissionId = (int)($body['permission_id'] ?? 0);
+        $id = (int)($body['id'] ?? 0);
 
-        if (!$permissionId) {
+        if (!$id) {
             return Response::json(['error' => 'ID de permiso no proporcionado'], 400);
         }
 
-        $permission = $this->permissionManager->getPermissionById($permissionId);
+        $permission = $this->permissionManager->getPermissionById($id);
         if (!$permission) {
             return Response::json(['error' => 'Permiso no encontrado'], 404);
         }
 
         // Verificar si hay roles asignados
-        $roles = $this->permissionManager->getPermissionRoles($permissionId);
+        $roles = $this->permissionManager->getPermissionRoles($id);
         if (!empty($roles)) {
             return Response::json([
-                'error' => 'No se puede eliminar el permiso porque está asignado a ' . count($roles) . ' rol(es)',
+                'error' => 'No se puede eliminar el permiso porque está asignado a roles',
+                'role_count' => count($roles)
             ], 400);
         }
 
-        $success = $this->permissionManager->delete($permissionId);
+        // Eliminar permiso
+        $success = $this->permissionManager->delete($id);
 
         if ($success) {
             return Response::json(['success' => true, 'message' => 'Permiso eliminado correctamente']);
@@ -297,29 +283,17 @@ class PermissionController
     }
 
     /**
-     * Validar datos de permiso
+     * Renderizar vista con layout
      */
-    private function validatePermissionData(array $data, ?int $excludePermissionId = null): array
+    private function renderWithLayout(string $template, array $data): ResponseInterface
     {
-        $errors = [];
+        // Agregar datos de sesión
+        $data['user'] = [
+            'username' => $_SESSION['username'] ?? 'Usuario',
+            'email' => $_SESSION['email'] ?? '',
+        ];
 
-        if (empty($data['name'])) {
-            $errors[] = 'El nombre del permiso es requerido';
-        }
-
-        if (empty($data['module'])) {
-            $errors[] = 'El módulo es requerido';
-        }
-
-        // Solo validar slug al crear (no al editar)
-        if ($excludePermissionId === null) {
-            if (empty($data['slug'])) {
-                $errors[] = 'El slug es requerido';
-            } elseif ($this->permissionManager->getPermissionBySlug($data['slug'])) {
-                $errors[] = 'El slug ya está en uso';
-            }
-        }
-
-        return $errors;
+        $html = $this->view->render($template, $data);
+        return Response::html($html);
     }
 }
