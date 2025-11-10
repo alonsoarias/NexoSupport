@@ -284,7 +284,8 @@ class Router
         $result = null;
 
         if (is_callable($handler)) {
-            $result = $handler($request, ...$params);
+            // Pasar solo valores sin claves para evitar parámetros nombrados en PHP 8+
+            $result = $handler($request, ...array_values($params));
         } elseif (is_array($handler) && count($handler) === 2) {
             [$class, $method] = $handler;
 
@@ -296,7 +297,8 @@ class Router
                 throw new \Exception("Method {$method} does not exist in controller");
             }
 
-            $result = $class->$method($request, ...$params);
+            // Pasar solo valores sin claves para evitar parámetros nombrados en PHP 8+
+            $result = $class->$method($request, ...array_values($params));
         } else {
             throw new \Exception("Invalid handler");
         }
