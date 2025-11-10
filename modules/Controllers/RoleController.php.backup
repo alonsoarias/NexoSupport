@@ -13,33 +13,23 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * RoleController - Gestión completa de roles (REFACTORIZADO)
+ * Role Controller
  *
- * PATRÓN DE SESIONES:
- * - Usa sesiones para almacenar ID durante edición
- * - IDs se pasan como role_id (string) para compatibilidad con Mustache
- * - Sin exposición de IDs en URLs ni campos hidden
+ * Gestiona roles y sus permisos
  */
 class RoleController
 {
+    private Database $db;
     private RoleManager $roleManager;
     private PermissionManager $permissionManager;
-    private MustacheRenderer $renderer;
+    private MustacheRenderer $view;
 
     public function __construct(Database $db)
     {
+        $this->db = $db;
         $this->roleManager = new RoleManager($db);
         $this->permissionManager = new PermissionManager($db);
-        $this->renderer = MustacheRenderer::getInstance();
-    }
-
-    /**
-     * Renderizar con layout
-     */
-    private function renderWithLayout(string $view, array $data = []): ResponseInterface
-    {
-        $html = $this->renderer->render($view, $data, 'layouts/base');
-        return Response::html($html);
+        $this->view = MustacheRenderer::getInstance();
     }
 
     /**
@@ -54,20 +44,22 @@ class RoleController
         $perPage = 20;
         $offset = ($page - 1) * $perPage;
 
+        // Filtros
+        $filters = [];
+
         // Obtener roles
-        $roles = $this->roleManager->getRoles($perPage, $offset);
-        $totalRoles = $this->roleManager->countRoles();
+        $roles = $this->roleManager->getRoles($perPage, $offset, $filters);
+        $totalRoles = $this->roleManager->countRoles($filters);
         $totalPages = (int)ceil($totalRoles / $perPage);
 
-        // Enriquecer roles con permisos y flags
+        // Enriquecer roles con contadores
         foreach ($roles as &$role) {
-            $roleId = (int)$role['id'];
-            $role['permissions'] = $this->roleManager->getRolePermissions($roleId);
+            $role['users'] = $this->roleManager->getRoleUsers((int)$role['id']);
+            $role['user_count'] = count($role['users']);
+            $role['permissions'] = $this->roleManager->getRolePermissions((int)$role['id']);
             $role['permission_count'] = count($role['permissions']);
+            $role['created_at_formatted'] = date('d/m/Y H:i', (int)$role['created_at']);
             $role['is_system_role'] = !empty($role['is_system']);
-
-            // CRÍTICO: Usar role_id como string para Mustache
-            $role['role_id'] = (string)$role['id'];
         }
 
         $data = [
@@ -80,36 +72,17 @@ class RoleController
             'has_next' => $page < $totalPages,
             'previous_page' => $page - 1,
             'next_page' => $page + 1,
-            'page_title' => 'Gestión de Roles',
         ];
-
-        // Mensajes
-        if (isset($queryParams['success'])) {
-            $messages = [
-                'created' => 'Rol creado correctamente',
-                'updated' => 'Rol actualizado correctamente',
-                'deleted' => 'Rol eliminado correctamente',
-            ];
-            $data['success_message'] = $messages[$queryParams['success']] ?? null;
-        }
-
-        if (isset($queryParams['error'])) {
-            $errors = [
-                'invalid_id' => 'ID de rol inválido',
-                'not_found' => 'Rol no encontrado',
-                'system_role' => 'No se pueden modificar roles del sistema',
-            ];
-            $data['error_message'] = $errors[$queryParams['error']] ?? 'Error desconocido';
-        }
 
         return $this->renderWithLayout('admin/roles/index', $data);
     }
 
     /**
-     * Formulario de creación
+     * Formulario de creación de rol
      */
     public function create(ServerRequestInterface $request): ResponseInterface
     {
+        // Obtener todos los permisos agrupados por módulo
         $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
 
         $data = [
@@ -121,21 +94,36 @@ class RoleController
     }
 
     /**
-     * Procesar creación
+     * Procesar creación de rol
      */
     public function store(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
 
         // Validar datos
-        $errors = $this->validateRoleData($body);
+        $errors = [];
 
+        if (empty($body['name'])) {
+            $errors[] = 'El nombre del rol es requerido';
+        }
+
+        if (empty($body['slug'])) {
+            $errors[] = 'El slug es requerido';
+        } elseif ($this->roleManager->getRoleBySlug($body['slug'])) {
+            $errors[] = 'El slug ya está en uso';
+        }
+
+        if (empty($body['level']) || !is_numeric($body['level'])) {
+            $errors[] = 'El nivel es requerido y debe ser numérico';
+        }
+
+        // Si hay errores, regresar al formulario
         if (!empty($errors)) {
             $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
             $data = [
                 'errors' => $errors,
-                'form_data' => $body,
                 'permissions_grouped' => $permissionsGrouped,
+                'form_data' => $body,
                 'page_title' => 'Crear Rol',
             ];
             return $this->renderWithLayout('admin/roles/create', $data);
@@ -144,42 +132,57 @@ class RoleController
         // Crear rol
         $roleId = $this->roleManager->create([
             'name' => $body['name'],
-            'slug' => $this->generateSlug($body['name']),
+            'slug' => $body['slug'],
             'description' => $body['description'] ?? '',
-            'level' => (int)($body['level'] ?? 50),
+            'level' => (int)$body['level'],
+            'is_system' => 0,
         ]);
 
-        // Asignar permisos si se proporcionaron
-        if (isset($body['permissions']) && is_array($body['permissions'])) {
+        if ($roleId === 0) {
+            $errors[] = 'Error al crear el rol';
+            $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
+            $data = [
+                'errors' => $errors,
+                'permissions_grouped' => $permissionsGrouped,
+                'form_data' => $body,
+                'page_title' => 'Crear Rol',
+            ];
+            return $this->renderWithLayout('admin/roles/create', $data);
+        }
+
+        // Asignar permisos si se seleccionaron
+        if (!empty($body['permissions']) && is_array($body['permissions'])) {
             $this->roleManager->syncPermissions($roleId, array_map('intval', $body['permissions']));
         }
 
+        // Redirigir con mensaje de éxito
         return Response::redirect('/admin/roles?success=created');
     }
 
     /**
-     * Formulario de edición - USA SESIÓN
+     * Formulario de edición de rol
      */
     public function edit(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
-        $roleId = (int)($body['role_id'] ?? 0);
+        $id = (int)($body['id'] ?? 0);
 
-        if (!$roleId) {
-            return Response::redirect('/admin/roles?error=invalid_id');
+        if (!$id) {
+            return Response::json(['error' => 'ID de rol no proporcionado'], 400);
         }
 
-        // GUARDAR ID EN SESIÓN
-        $_SESSION['editing_role_id'] = $roleId;
-
-        $role = $this->roleManager->getRoleById($roleId);
+        $role = $this->roleManager->getRoleById($id);
         if (!$role) {
-            unset($_SESSION['editing_role_id']);
-            return Response::redirect('/admin/roles?error=not_found');
+            return Response::json(['error' => 'Rol no encontrado'], 404);
+        }
+
+        // FIX: Asegurar que id sea string para Mustache
+        if (isset($role['id'])) {
+            $role['id'] = (string)$role['id'];
         }
 
         // Obtener permisos del rol
-        $rolePermissions = $this->roleManager->getRolePermissions($roleId);
+        $rolePermissions = $this->roleManager->getRolePermissions($id);
         $rolePermissionIds = array_column($rolePermissions, 'id');
 
         // Obtener todos los permisos agrupados
@@ -197,41 +200,48 @@ class RoleController
             'role_permissions' => $rolePermissions,
             'permissions_grouped' => $permissionsGrouped,
             'is_system_role' => !empty($role['is_system']),
-            'page_title' => 'Editar Rol: ' . $role['name'],
-            'editing_mode' => true,
+            'page_title' => 'Editar Rol',
         ];
 
         return $this->renderWithLayout('admin/roles/edit', $data);
     }
 
     /**
-     * Procesar actualización - USA ID DE SESIÓN
+     * Procesar actualización de rol
      */
     public function update(ServerRequestInterface $request): ResponseInterface
     {
-        // OBTENER ID DESDE SESIÓN
-        $roleId = (int)($_SESSION['editing_role_id'] ?? 0);
-
-        if (!$roleId) {
-            return Response::redirect('/admin/roles?error=session_expired');
-        }
-
         $body = $request->getParsedBody();
+        $id = (int)($body['id'] ?? 0);
 
-        $role = $this->roleManager->getRoleById($roleId);
-        if (!$role) {
-            unset($_SESSION['editing_role_id']);
-            return Response::redirect('/admin/roles?error=not_found');
+        if (!$id) {
+            return Response::json(['error' => 'ID de rol no proporcionado'], 400);
         }
 
-        // No permitir editar roles del sistema (excepto permisos)
-        $isSystemRole = !empty($role['is_system']);
+        $role = $this->roleManager->getRoleById($id);
+        if (!$role) {
+            return Response::json(['error' => 'Rol no encontrado'], 404);
+        }
+
+        // No permitir editar roles del sistema
+        if (!empty($role['is_system'])) {
+            return Response::json(['error' => 'No se pueden editar roles del sistema'], 400);
+        }
 
         // Validar datos
-        $errors = $this->validateRoleData($body, $roleId, $isSystemRole);
+        $errors = [];
 
+        if (empty($body['name'])) {
+            $errors[] = 'El nombre del rol es requerido';
+        }
+
+        if (empty($body['level']) || !is_numeric($body['level'])) {
+            $errors[] = 'El nivel es requerido y debe ser numérico';
+        }
+
+        // Si hay errores, regresar al formulario
         if (!empty($errors)) {
-            $rolePermissions = $this->roleManager->getRolePermissions($roleId);
+            $rolePermissions = $this->roleManager->getRolePermissions($id);
             $rolePermissionIds = array_column($rolePermissions, 'id');
             $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
 
@@ -246,38 +256,51 @@ class RoleController
                 'role' => array_merge($role, $body),
                 'role_permissions' => $rolePermissions,
                 'permissions_grouped' => $permissionsGrouped,
-                'is_system_role' => $isSystemRole,
+                'is_system_role' => false,
                 'page_title' => 'Editar Rol',
-                'editing_mode' => true,
             ];
             return $this->renderWithLayout('admin/roles/edit', $data);
         }
 
-        // Preparar datos de actualización
-        if (!$isSystemRole) {
-            $updateData = [
-                'name' => $body['name'],
-                'description' => $body['description'] ?? '',
-                'level' => (int)($body['level'] ?? 50),
+        // Actualizar rol
+        $success = $this->roleManager->update($id, [
+            'name' => $body['name'],
+            'description' => $body['description'] ?? '',
+            'level' => (int)$body['level'],
+        ]);
+
+        if (!$success) {
+            $errors[] = 'Error al actualizar el rol';
+            $rolePermissions = $this->roleManager->getRolePermissions($id);
+            $rolePermissionIds = array_column($rolePermissions, 'id');
+            $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
+
+            foreach ($permissionsGrouped as $module => &$permissions) {
+                foreach ($permissions as &$permission) {
+                    $permission['is_assigned'] = in_array($permission['id'], $rolePermissionIds);
+                }
+            }
+
+            $data = [
+                'errors' => $errors,
+                'role' => array_merge($role, $body),
+                'role_permissions' => $rolePermissions,
+                'permissions_grouped' => $permissionsGrouped,
+                'is_system_role' => false,
+                'page_title' => 'Editar Rol',
             ];
-            $this->roleManager->update($roleId, $updateData);
-        } else {
-            // Para roles del sistema, solo actualizar descripción
-            $this->roleManager->update($roleId, [
-                'description' => $body['description'] ?? '',
-            ]);
+            return $this->renderWithLayout('admin/roles/edit', $data);
         }
 
-        // Actualizar permisos (permitido para todos los roles)
+        // Sincronizar permisos
         if (isset($body['permissions']) && is_array($body['permissions'])) {
-            $this->roleManager->syncPermissions($roleId, array_map('intval', $body['permissions']));
+            $this->roleManager->syncPermissions($id, array_map('intval', $body['permissions']));
         } else {
-            $this->roleManager->syncPermissions($roleId, []);
+            // Si no se enviaron permisos, limpiar todos
+            $this->roleManager->syncPermissions($id, []);
         }
 
-        // LIMPIAR SESIÓN
-        unset($_SESSION['editing_role_id']);
-
+        // Redirigir con mensaje de éxito
         return Response::redirect('/admin/roles?success=updated');
     }
 
@@ -287,13 +310,13 @@ class RoleController
     public function delete(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();
-        $roleId = (int)($body['role_id'] ?? 0);
+        $id = (int)($body['id'] ?? 0);
 
-        if (!$roleId) {
+        if (!$id) {
             return Response::json(['error' => 'ID de rol no proporcionado'], 400);
         }
 
-        $role = $this->roleManager->getRoleById($roleId);
+        $role = $this->roleManager->getRoleById($id);
         if (!$role) {
             return Response::json(['error' => 'Rol no encontrado'], 404);
         }
@@ -304,14 +327,16 @@ class RoleController
         }
 
         // Verificar si hay usuarios asignados
-        $users = $this->roleManager->getRoleUsers($roleId);
+        $users = $this->roleManager->getRoleUsers($id);
         if (!empty($users)) {
             return Response::json([
-                'error' => 'No se puede eliminar el rol porque tiene ' . count($users) . ' usuario(s) asignado(s)',
+                'error' => 'No se puede eliminar el rol porque tiene usuarios asignados',
+                'user_count' => count($users)
             ], 400);
         }
 
-        $success = $this->roleManager->delete($roleId);
+        // Eliminar rol
+        $success = $this->roleManager->delete($id);
 
         if ($success) {
             return Response::json(['success' => true, 'message' => 'Rol eliminado correctamente']);
@@ -321,39 +346,17 @@ class RoleController
     }
 
     /**
-     * Validar datos de rol
+     * Renderizar vista con layout
      */
-    private function validateRoleData(array $data, ?int $excludeRoleId = null, bool $isSystemRole = false): array
+    private function renderWithLayout(string $template, array $data): ResponseInterface
     {
-        $errors = [];
+        // Agregar datos de sesión
+        $data['user'] = [
+            'username' => $_SESSION['username'] ?? 'Usuario',
+            'email' => $_SESSION['email'] ?? '',
+        ];
 
-        // Roles del sistema solo permiten cambiar descripción
-        if ($isSystemRole) {
-            return $errors;
-        }
-
-        if (empty($data['name'])) {
-            $errors[] = 'El nombre del rol es requerido';
-        }
-
-        if (isset($data['level'])) {
-            $level = (int)$data['level'];
-            if ($level < 1 || $level > 100) {
-                $errors[] = 'El nivel debe estar entre 1 y 100';
-            }
-        }
-
-        return $errors;
-    }
-
-    /**
-     * Generar slug desde nombre
-     */
-    private function generateSlug(string $name): string
-    {
-        $slug = strtolower($name);
-        $slug = preg_replace('/[^a-z0-9]+/', '_', $slug);
-        $slug = trim($slug, '_');
-        return $slug;
+        $html = $this->view->render($template, $data);
+        return Response::html($html);
     }
 }
