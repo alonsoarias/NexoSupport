@@ -54,9 +54,32 @@ class SchemaInstaller
         echo '<p class="text-info small">→ Parseando archivo XML...</p>';
         flush(); ob_flush();
 
-        // Parsear XML
-        $this->xmlParser->parseFile($xmlFile);
-        $schema = $this->xmlParser->toArray();
+        // Parsear XML directamente con SimpleXML (más confiable)
+        try {
+            $xmlContent = file_get_contents($xmlFile);
+            echo '<p class="text-info small">→ Archivo leído (' . strlen($xmlContent) . ' bytes)...</p>';
+            flush(); ob_flush();
+
+            $xml = simplexml_load_string($xmlContent, 'SimpleXMLElement', LIBXML_NONET | LIBXML_NOBLANKS);
+            if ($xml === false) {
+                $errors = libxml_get_errors();
+                throw new Exception("Error al parsear XML: " . print_r($errors, true));
+            }
+
+            echo '<p class="text-info small">→ SimpleXML cargado exitosamente...</p>';
+            flush(); ob_flush();
+
+            // Convertir SimpleXML a array
+            $schema = json_decode(json_encode($xml), true);
+
+            echo '<p class="text-info small">→ XML convertido a array...</p>';
+            flush(); ob_flush();
+
+        } catch (Exception $e) {
+            echo '<p class="text-danger small">✗ Error parseando XML: ' . htmlspecialchars($e->getMessage()) . '</p>';
+            flush(); ob_flush();
+            throw $e;
+        }
 
         if (empty($schema)) {
             throw new Exception("El esquema XML está vacío");
