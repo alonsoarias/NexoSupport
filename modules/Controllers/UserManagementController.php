@@ -38,7 +38,7 @@ class UserManagementController
      */
     private function renderWithLayout(string $view, array $data = []): ResponseInterface
     {
-        $html = $this->renderer->render($view, $data, 'layouts/admin');
+        $html = $this->renderer->render($view, $data, 'layouts/base');
         return Response::html($html);
     }
 
