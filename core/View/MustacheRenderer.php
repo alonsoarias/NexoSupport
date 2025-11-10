@@ -31,13 +31,6 @@ class MustacheRenderer
     private function __construct(string $viewsPath)
     {
         $this->viewsPath = $viewsPath;
-
-        // Asegurarse de que las funciones helper de Translator estén cargadas
-        // Esto es necesario porque el autoloader de Composer solo carga clases, no funciones
-        if (!function_exists('__')) {
-            require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'I18n' . DIRECTORY_SEPARATOR . 'Translator.php';
-        }
-
         $this->translator = Translator::getInstance();
 
         // Configurar Mustache
@@ -131,15 +124,18 @@ class MustacheRenderer
      */
     private function getHelpers(): array
     {
+        // Capturar referencia al traductor para usar en closures
+        $translator = $this->translator;
+
         return [
             // Helper de traducción
-            '__' => function ($text) {
+            '__' => function ($text) use ($translator) {
                 if (strpos($text, '|') !== false) {
                     [$key, $params] = explode('|', $text, 2);
                     parse_str($params, $replace);
-                    return \__($key, $replace);
+                    return $translator->translate($key, $replace);
                 }
-                return \__($text);
+                return $translator->translate($text);
             },
 
             // Helper de fecha
@@ -210,7 +206,7 @@ class MustacheRenderer
         $this->translator->setLocale($locale);
         $this->setGlobalData([
             'locale' => $locale,
-            'app_name' => \__('common.app_name'),
+            'app_name' => $this->translator->translate('common.app_name'),
         ]);
     }
 
