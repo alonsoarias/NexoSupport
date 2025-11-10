@@ -77,12 +77,16 @@ if ($reallyInstalled) {
 
 // Handle AJAX progress request
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_install'])) {
-    header('Content-Type: application/json');
-
     // Aumentar tiempo de ejecución
     set_time_limit(300);
     ini_set('max_execution_time', '300');
 
+    // Limpiar cualquier output previo y capturar todo
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+
+    // Iniciar nuevo buffer
     ob_start();
 
     try {
@@ -109,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_install'])) {
             throw new Exception("Archivo schema.xml no encontrado");
         }
 
-        // Install schema
+        // Install schema (captura todo el output HTML)
         $installer = new \ISER\Core\Database\SchemaInstaller($pdo, $_SESSION['db_prefix']);
         $installer->installFromXML(SCHEMA_FILE);
 
@@ -118,8 +122,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_install'])) {
 
         $_SESSION['db_installed'] = true;
 
+        // Limpiar todo el output capturado
         ob_end_clean();
 
+        // Enviar headers y JSON limpio
+        header('Content-Type: application/json');
         echo json_encode([
             'success' => true,
             'tables' => count($tables),
@@ -129,10 +136,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_install'])) {
         exit;
 
     } catch (Exception $e) {
+        // Limpiar output capturado
         ob_end_clean();
+
+        // Enviar error como JSON
+        header('Content-Type: application/json');
         echo json_encode([
             'success' => false,
-            'error' => $e->getMessage()
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
         ]);
         exit;
     }
