@@ -110,19 +110,26 @@ class Router
      */
     public function addRoute(string $method, string $path, callable|array $handler, ?string $name = null): self
     {
+        // Normalizar path
         $path = '/' . ltrim($path, '/');
-        $pattern = $this->pathToPattern($path);
+
+        // Aplicar basePath si existe (para grupos)
+        $fullPath = $this->basePath . $path;
+        $fullPath = '/' . ltrim($fullPath, '/');
+
+        // Crear patrón regex
+        $pattern = $this->pathToPattern($fullPath);
 
         $this->routes[] = [
             'method' => strtoupper($method),
-            'path' => $path,
+            'path' => $fullPath,
             'pattern' => $pattern,
             'handler' => $handler,
             'name' => $name,
         ];
 
         if ($name !== null) {
-            $this->namedRoutes[$name] = $path;
+            $this->namedRoutes[$name] = $fullPath;
         }
 
         return $this;
@@ -166,7 +173,11 @@ class Router
             $uri = substr($uri, strlen($this->basePath));
         }
 
+        // Normalizar URI: remover trailing slash excepto para raíz
         $uri = '/' . ltrim($uri, '/');
+        if ($uri !== '/' && str_ends_with($uri, '/')) {
+            $uri = rtrim($uri, '/');
+        }
 
         // Buscar ruta coincidente
         foreach ($this->routes as $route) {
