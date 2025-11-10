@@ -8,7 +8,7 @@ namespace ISER\Core\I18n;
  * Translator - Sistema de Internacionalización
  *
  * Maneja traducciones y localización del sistema
- * Compatible con archivos JSON y PHP
+ * Compatible con archivos PHP que retornan arrays
  *
  * @package ISER\Core\I18n
  * @author ISER Desarrollo
@@ -83,16 +83,6 @@ class Translator
 
         if (!is_dir($localePath)) {
             return;
-        }
-
-        // Cargar archivos JSON
-        $files = glob($localePath . '/*.json');
-        foreach ($files as $file) {
-            $key = basename($file, '.json');
-            $data = json_decode(file_get_contents($file), true);
-            if ($data) {
-                $this->translations[$locale][$key] = $data;
-            }
         }
 
         // Cargar archivos PHP

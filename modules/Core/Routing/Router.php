@@ -1,12 +1,22 @@
 <?php
-/**
- * Router - Sistema de enrutamiento PSR-4
- *
- * @package ISER\Core\Routing
- */
+
+declare(strict_types=1);
 
 namespace ISER\Core\Routing;
 
+use ISER\Core\Http\Request;
+use ISER\Core\Http\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
+/**
+ * Router - Sistema de enrutamiento PSR-7
+ *
+ * Router que implementa PSR-7 HTTP Message Interface
+ * Cumple con PSR-1, PSR-4 y PSR-12
+ *
+ * @package ISER\Core\Routing
+ */
 class Router
 {
     private array $routes = [];
@@ -17,7 +27,7 @@ class Router
     /**
      * Constructor
      *
-     * @param string $basePath Base path for the router (e.g., '/public_html')
+     * @param string $basePath Base path for the router
      */
     public function __construct(string $basePath = '')
     {
@@ -32,7 +42,7 @@ class Router
      * @param string|null $name Nombre opcional de la ruta
      * @return self
      */
-    public function get(string $path, $handler, ?string $name = null): self
+    public function get(string $path, callable|array $handler, ?string $name = null): self
     {
         return $this->addRoute('GET', $path, $handler, $name);
     }
@@ -45,9 +55,48 @@ class Router
      * @param string|null $name Nombre opcional
      * @return self
      */
-    public function post(string $path, $handler, ?string $name = null): self
+    public function post(string $path, callable|array $handler, ?string $name = null): self
     {
         return $this->addRoute('POST', $path, $handler, $name);
+    }
+
+    /**
+     * Registrar ruta PUT
+     *
+     * @param string $path Ruta
+     * @param callable|array $handler Handler
+     * @param string|null $name Nombre opcional
+     * @return self
+     */
+    public function put(string $path, callable|array $handler, ?string $name = null): self
+    {
+        return $this->addRoute('PUT', $path, $handler, $name);
+    }
+
+    /**
+     * Registrar ruta DELETE
+     *
+     * @param string $path Ruta
+     * @param callable|array $handler Handler
+     * @param string|null $name Nombre opcional
+     * @return self
+     */
+    public function delete(string $path, callable|array $handler, ?string $name = null): self
+    {
+        return $this->addRoute('DELETE', $path, $handler, $name);
+    }
+
+    /**
+     * Registrar ruta PATCH
+     *
+     * @param string $path Ruta
+     * @param callable|array $handler Handler
+     * @param string|null $name Nombre opcional
+     * @return self
+     */
+    public function patch(string $path, callable|array $handler, ?string $name = null): self
+    {
+        return $this->addRoute('PATCH', $path, $handler, $name);
     }
 
     /**
@@ -59,7 +108,7 @@ class Router
      * @param string|null $name Nombre opcional
      * @return self
      */
-    public function addRoute(string $method, string $path, $handler, ?string $name = null): self
+    public function addRoute(string $method, string $path, callable|array $handler, ?string $name = null): self
     {
         $path = '/' . ltrim($path, '/');
         $pattern = $this->pathToPattern($path);
@@ -69,7 +118,7 @@ class Router
             'path' => $path,
             'pattern' => $pattern,
             'handler' => $handler,
-            'name' => $name
+            'name' => $name,
         ];
 
         if ($name !== null) {
@@ -84,6 +133,7 @@ class Router
      *
      * @param string $prefix Prefijo para el grupo
      * @param callable $callback Callback que recibe el router
+     * @return void
      */
     public function group(string $prefix, callable $callback): void
     {
@@ -96,23 +146,23 @@ class Router
     }
 
     /**
-     * Ejecutar el router
+     * Ejecutar el router con PSR-7
      *
-     * @return mixed Resultado del handler
+     * @param ServerRequestInterface|null $request Request PSR-7 (null para crear desde globales)
+     * @return ResponseInterface Response PSR-7
      * @throws \Exception Si no se encuentra la ruta
      */
-    public function dispatch()
+    public function dispatch(?ServerRequestInterface $request = null): ResponseInterface
     {
-        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        $uri = $_SERVER['REQUEST_URI'] ?? '/';
-
-        // Remover query string
-        if (false !== $pos = strpos($uri, '?')) {
-            $uri = substr($uri, 0, $pos);
+        if ($request === null) {
+            $request = Request::createFromGlobals();
         }
 
+        $method = $request->getMethod();
+        $uri = $request->getUri()->getPath();
+
         // Remover base path si existe
-        if ($this->basePath !== '' && strpos($uri, $this->basePath) === 0) {
+        if ($this->basePath !== '' && str_starts_with($uri, $this->basePath)) {
             $uri = substr($uri, strlen($this->basePath));
         }
 
@@ -130,13 +180,18 @@ class Router
                 // Extraer parámetros
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
 
-                return $this->executeHandler($route['handler'], $params);
+                // Agregar parámetros al request
+                foreach ($params as $key => $value) {
+                    $request = $request->withAttribute($key, $value);
+                }
+
+                // Ejecutar handler
+                return $this->executeHandler($route['handler'], $request, $params);
             }
         }
 
         // No se encontró ruta
-        http_response_code(404);
-        throw new \Exception("Ruta no encontrada: {$method} {$uri}");
+        throw new RouteNotFoundException("Route not found: {$method} {$uri}");
     }
 
     /**
@@ -150,14 +205,14 @@ class Router
     public function url(string $name, array $params = []): string
     {
         if (!isset($this->namedRoutes[$name])) {
-            throw new \Exception("Ruta con nombre '{$name}' no encontrada");
+            throw new \Exception("Route with name '{$name}' not found");
         }
 
         $path = $this->namedRoutes[$name];
 
         // Reemplazar parámetros
         foreach ($params as $key => $value) {
-            $path = str_replace('{' . $key . '}', $value, $path);
+            $path = str_replace('{' . $key . '}', (string)$value, $path);
         }
 
         return $this->basePath . $path;
@@ -191,29 +246,61 @@ class Router
     }
 
     /**
-     * Ejecutar handler
+     * Ejecutar handler con PSR-7
      *
      * @param callable|array $handler Handler a ejecutar
+     * @param ServerRequestInterface $request Request PSR-7
      * @param array $params Parámetros extraídos de la URL
-     * @return mixed Resultado del handler
+     * @return ResponseInterface Response PSR-7
+     * @throws \Exception Si el handler es inválido
      */
-    private function executeHandler($handler, array $params = [])
-    {
-        if (is_callable($handler)) {
-            return call_user_func_array($handler, $params);
-        }
+    private function executeHandler(
+        callable|array $handler,
+        ServerRequestInterface $request,
+        array $params = []
+    ): ResponseInterface {
+        $result = null;
 
-        if (is_array($handler) && count($handler) === 2) {
+        if (is_callable($handler)) {
+            $result = $handler($request, ...$params);
+        } elseif (is_array($handler) && count($handler) === 2) {
             [$class, $method] = $handler;
 
             if (is_string($class)) {
                 $class = new $class();
             }
 
-            return call_user_func_array([$class, $method], $params);
+            if (!method_exists($class, $method)) {
+                throw new \Exception("Method {$method} does not exist in controller");
+            }
+
+            $result = $class->$method($request, ...$params);
+        } else {
+            throw new \Exception("Invalid handler");
         }
 
-        throw new \Exception("Handler inválido");
+        // Si el resultado es una ResponseInterface, devolverlo
+        if ($result instanceof ResponseInterface) {
+            return $result;
+        }
+
+        // Si es un string, convertir a Response HTML
+        if (is_string($result)) {
+            return Response::html($result);
+        }
+
+        // Si es un array u objeto, convertir a JSON
+        if (is_array($result) || is_object($result)) {
+            return Response::json($result);
+        }
+
+        // Si es null o void, devolver respuesta vacía
+        if ($result === null) {
+            return new Response();
+        }
+
+        // Último recurso: convertir a string
+        return Response::html((string)$result);
     }
 
     /**
@@ -221,12 +308,11 @@ class Router
      *
      * @param string $url URL de destino
      * @param int $code Código HTTP (301, 302, etc.)
+     * @return ResponseInterface
      */
-    public static function redirect(string $url, int $code = 302): void
+    public static function redirect(string $url, int $code = 302): ResponseInterface
     {
-        http_response_code($code);
-        header("Location: {$url}");
-        exit;
+        return Response::redirect($url, $code);
     }
 
     /**
@@ -234,12 +320,10 @@ class Router
      *
      * @param mixed $data Datos a enviar
      * @param int $code Código HTTP
+     * @return ResponseInterface
      */
-    public static function json($data, int $code = 200): void
+    public static function json(mixed $data, int $code = 200): ResponseInterface
     {
-        http_response_code($code);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        exit;
+        return Response::json($data, $code);
     }
 }

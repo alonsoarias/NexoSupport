@@ -1,20 +1,31 @@
 <?php
-/**
- * Home Controller
- *
- * @package ISER\Controllers
- */
+
+declare(strict_types=1);
 
 namespace ISER\Controllers;
 
 use ISER\Core\View\MustacheRenderer;
 use ISER\Core\I18n\Translator;
+use ISER\Core\Http\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
+/**
+ * Home Controller
+ *
+ * Controlador para página principal y dashboard
+ * Cumple con PSR-1, PSR-4, PSR-7 y PSR-12
+ *
+ * @package ISER\Controllers
+ */
 class HomeController
 {
     private MustacheRenderer $renderer;
     private Translator $translator;
 
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->renderer = MustacheRenderer::getInstance();
@@ -23,13 +34,15 @@ class HomeController
 
     /**
      * Landing page
+     *
+     * @param ServerRequestInterface $request PSR-7 Request
+     * @return ResponseInterface PSR-7 Response
      */
-    public function index(): void
+    public function index(ServerRequestInterface $request): ResponseInterface
     {
         // Si el usuario está autenticado, redirigir al dashboard
         if (isset($_SESSION['user_id']) && isset($_SESSION['authenticated'])) {
-            header('Location: /dashboard');
-            exit;
+            return Response::redirect('/dashboard');
         }
 
         // Datos para la vista
@@ -66,22 +79,24 @@ class HomeController
 
             // Links de acción
             'login_url' => '/login',
-            'admin_url' => '/admin'
+            'admin_url' => '/admin',
         ];
 
-        // Template inline para landing page (temporalmente hasta migración completa)
-        echo $this->renderer->render('home/index', $data);
+        $html = $this->renderer->render('home/index', $data);
+        return Response::html($html);
     }
 
     /**
      * Dashboard principal
+     *
+     * @param ServerRequestInterface $request PSR-7 Request
+     * @return ResponseInterface PSR-7 Response
      */
-    public function dashboard(): void
+    public function dashboard(ServerRequestInterface $request): ResponseInterface
     {
         // Verificar autenticación
         if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-            header('Location: /login');
-            exit;
+            return Response::redirect('/login');
         }
 
         $data = [
@@ -89,16 +104,18 @@ class HomeController
             'page_title' => $this->translator->translate('common.dashboard'),
             'header_title' => $this->translator->translate('common.dashboard'),
             'show_stats' => true,
+            'username' => $_SESSION['username'] ?? 'Usuario',
 
             // Estadísticas del sistema
             'stats' => [
                 ['label' => 'Usuarios Activos', 'value' => '150'],
                 ['label' => 'Sesiones Hoy', 'value' => '45'],
                 ['label' => 'Tasa de Éxito', 'value' => '98.5%'],
-                ['label' => 'Uptime', 'value' => '99.9%']
-            ]
+                ['label' => 'Uptime', 'value' => '99.9%'],
+            ],
         ];
 
-        echo $this->renderer->render('dashboard/index', $data);
+        $html = $this->renderer->render('dashboard/index', $data);
+        return Response::html($html);
     }
 }

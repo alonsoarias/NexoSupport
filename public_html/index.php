@@ -1,7 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * ISER Authentication System - Front Controller
- * Single entry point for all requests
+ * Single entry point for all requests (PSR-7 compliant)
  *
  * @package Core
  * @author ISER Desarrollo
@@ -39,6 +42,9 @@ session_start();
 
 use ISER\Core\Bootstrap;
 use ISER\Core\Routing\Router;
+use ISER\Core\Routing\RouteNotFoundException;
+use ISER\Core\Http\Request;
+use ISER\Core\Http\Response;
 use ISER\Controllers\HomeController;
 use ISER\Controllers\AuthController;
 
@@ -67,62 +73,73 @@ $router->get('/dashboard', [HomeController::class, 'dashboard'], 'dashboard');
 // ===== RUTAS DE ADMINISTRACIÓN =====
 $router->group('/admin', function (Router $router) {
     // Incluir archivos de admin existentes temporalmente
-    $router->get('', function () {
+    $router->get('', function ($request) {
         if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-            header('Location: /login');
-            exit;
+            return Response::redirect('/login');
         }
+        ob_start();
         require BASE_DIR . '/public_html/admin.php';
+        $content = ob_get_clean();
+        return Response::html($content);
     }, 'admin');
 
-    $router->get('/plugins', function () {
+    $router->get('/plugins', function ($request) {
         if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-            header('Location: /login');
-            exit;
+            return Response::redirect('/login');
         }
+        ob_start();
         require BASE_DIR . '/public_html/admin/plugins.php';
+        $content = ob_get_clean();
+        return Response::html($content);
     }, 'admin.plugins');
 
-    $router->get('/settings', function () {
+    $router->get('/settings', function ($request) {
         if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-            header('Location: /login');
-            exit;
+            return Response::redirect('/login');
         }
+        ob_start();
         require BASE_DIR . '/public_html/admin/settings.php';
+        $content = ob_get_clean();
+        return Response::html($content);
     }, 'admin.settings');
 });
 
 // ===== RUTAS DE REPORTES =====
-$router->get('/report', function () {
+$router->get('/report', function ($request) {
     if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-        header('Location: /login');
-        exit;
+        return Response::redirect('/login');
     }
+    ob_start();
     require BASE_DIR . '/public_html/report/index.php';
+    $content = ob_get_clean();
+    return Response::html($content);
 }, 'report');
 
 // ===== RUTAS DE THEME =====
-$router->get('/theme', function () {
+$router->get('/theme', function ($request) {
+    ob_start();
     require BASE_DIR . '/public_html/theme/index.php';
+    $content = ob_get_clean();
+    return Response::html($content);
 }, 'theme');
 
 // ===== RUTAS API =====
 $router->group('/api', function (Router $router) {
     // API routes aquí
-    $router->get('/status', function () {
-        Router::json(['status' => 'ok', 'timestamp' => time()]);
+    $router->get('/status', function ($request) {
+        return Response::json(['status' => 'ok', 'timestamp' => time()]);
     }, 'api.status');
 });
 
-// Ejecutar el router
+// Ejecutar el router con PSR-7
 try {
-    $router->dispatch();
-} catch (Exception $e) {
-    error_log('Router Error: ' . $e->getMessage());
-
+    $request = Request::createFromGlobals();
+    $response = $router->dispatch($request);
+    $response->send();
+} catch (RouteNotFoundException $e) {
     // Página 404
-    http_response_code(404);
-    echo '<!DOCTYPE html>
+    error_log('Route not found: ' . $e->getMessage());
+    $html = '<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -139,4 +156,26 @@ try {
     </div>
 </body>
 </html>';
+    Response::html($html, 404)->send();
+} catch (Exception $e) {
+    // Error 500
+    error_log('Server Error: ' . $e->getMessage());
+    $html = '<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Error del Servidor</title>
+    <link rel="stylesheet" href="/assets/css/iser-theme.css">
+</head>
+<body>
+    <div class="container" style="text-align: center; padding: 100px 20px;">
+        <h1 style="color: var(--iser-red); font-size: 4rem;">500</h1>
+        <h2>Error del Servidor</h2>
+        <p style="color: var(--text-secondary); margin: 20px 0;">Ocurrió un error inesperado.</p>
+        <a href="/" class="btn btn-primary">Volver al inicio</a>
+    </div>
+</body>
+</html>';
+    Response::html($html, 500)->send();
 }
