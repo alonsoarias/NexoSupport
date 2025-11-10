@@ -1,0 +1,176 @@
+<div class="row mb-4">
+    <!-- User Stats -->
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center mb-3">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{stats.users.total}}</div>
+                    <div class="stat-label">Total Usuarios</div>
+                </div>
+            </div>
+            <div class="small text-muted">
+                <i class="bi bi-person-check text-success"></i> {{stats.users.active}} activos
+                <span class="ms-2"><i class="bi bi-person-x text-warning"></i> {{stats.users.suspended}} suspendidos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Stats -->
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center mb-3">
+                <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
+                    <i class="bi bi-door-open"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{stats.auth.logins_today}}</div>
+                    <div class="stat-label">Logins Hoy</div>
+                </div>
+            </div>
+            <div class="small text-muted">
+                <i class="bi bi-check-circle text-success"></i> {{stats.auth.total_logins}} total
+                {{#stats.auth.failed_today}}
+                <span class="ms-2"><i class="bi bi-x-circle text-danger"></i> {{stats.auth.failed_today}} fallos</span>
+                {{/stats.auth.failed_today}}
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Stats -->
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center mb-3">
+                <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{stats.roles.total_roles}}</div>
+                    <div class="stat-label">Roles</div>
+                </div>
+            </div>
+            <div class="small text-muted">
+                <i class="bi bi-people"></i> {{stats.roles.total_assignments}} asignaciones
+            </div>
+        </div>
+    </div>
+
+    <!-- MFA Stats -->
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center mb-3">
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{stats.mfa.enabled_users}}</div>
+                    <div class="stat-label">MFA Activo</div>
+                </div>
+            </div>
+            <div class="small text-muted">
+                {{#stats.mfa.mfa_enabled}}
+                <i class="bi bi-check-circle text-success"></i> MFA habilitado
+                {{/stats.mfa.mfa_enabled}}
+                {{^stats.mfa.mfa_enabled}}
+                <i class="bi bi-x-circle text-danger"></i> MFA deshabilitado
+                {{/stats.mfa.mfa_enabled}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- System Information -->
+    <div class="col-md-6 mb-4">
+        <div class="settings-section">
+            <h3><i class="bi bi-info-circle"></i> Información del Sistema</h3>
+            <table class="table table-sm">
+                <tbody>
+                    <tr>
+                        <td><strong>Versión ISER:</strong></td>
+                        <td>{{system_info.iser_version}}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PHP:</strong></td>
+                        <td>{{system_info.php_version}}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Base de Datos:</strong></td>
+                        <td>{{system_info.database.type}} {{system_info.database.version}}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Servidor:</strong></td>
+                        <td>{{system_info.server}}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Zona Horaria:</strong></td>
+                        <td>{{system_info.settings.timezone}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-md-6 mb-4">
+        <div class="settings-section">
+            <h3><i class="bi bi-activity"></i> Actividad Reciente</h3>
+            {{#recent_activity}}
+            <div class="d-flex mb-3 pb-3 border-bottom">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-dot text-primary" style="font-size: 24px;"></i>
+                </div>
+                <div class="flex-grow-1 ms-2">
+                    <strong>{{username}}</strong> - {{action}}
+                    <div class="small text-muted">
+                        {{component}} - {{timecreated_formatted}}
+                    </div>
+                </div>
+            </div>
+            {{/recent_activity}}
+            {{^recent_activity}}
+            <p class="text-muted text-center py-4">
+                <i class="bi bi-inbox"></i><br>
+                No hay actividad reciente
+            </p>
+            {{/recent_activity}}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Quick Actions -->
+    <div class="col-md-12">
+        <div class="settings-section">
+            <h3><i class="bi bi-lightning"></i> Acciones Rápidas</h3>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <a href="/admin/user.php" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-person-plus"></i><br>
+                        Crear Usuario
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="/admin/roles/manage.php" class="btn btn-outline-success w-100">
+                        <i class="bi bi-shield-plus"></i><br>
+                        Gestionar Roles
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="/admin/settings.php" class="btn btn-outline-info w-100">
+                        <i class="bi bi-gear"></i><br>
+                        Configuración
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="/admin/reports.php" class="btn btn-outline-warning w-100">
+                        <i class="bi bi-graph-up"></i><br>
+                        Ver Reportes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

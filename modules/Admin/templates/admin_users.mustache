@@ -1,0 +1,139 @@
+<div class="settings-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0"><i class="bi bi-people"></i> Gestión de Usuarios</h3>
+        <div>
+            <a href="/admin/tool/uploaduser/index.php" class="btn btn-outline-primary">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Importar CSV
+            </a>
+            <a href="/admin/user.php?action=create" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Nuevo Usuario
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <form method="GET" action="/admin/user.php" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <input type="text" class="form-control" name="search" placeholder="Buscar usuario..." value="{{search}}">
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="status">
+                <option value="">Todos los estados</option>
+                <option value="1" {{#filter_active}}selected{{/filter_active}}>Activos</option>
+                <option value="0" {{#filter_inactive}}selected{{/filter_inactive}}>Inactivos</option>
+                <option value="suspended" {{#filter_suspended}}selected{{/filter_suspended}}>Suspendidos</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="role">
+                <option value="">Todos los roles</option>
+                {{#roles}}
+                <option value="{{id}}" {{#is_selected}}selected{{/is_selected}}>{{name}}</option>
+                {{/roles}}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+        </div>
+    </form>
+
+    <!-- Users Table -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th>Estado</th>
+                    <th>Último Acceso</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#users}}
+                <tr>
+                    <td>
+                        <strong>{{username}}</strong><br>
+                        <small class="text-muted">{{firstname}} {{lastname}}</small>
+                    </td>
+                    <td>{{email}}</td>
+                    <td>
+                        {{#user_roles}}
+                        <span class="badge bg-info">{{shortname}}</span>
+                        {{/user_roles}}
+                    </td>
+                    <td>
+                        {{#status}}
+                        <span class="badge bg-success">Activo</span>
+                        {{/status}}
+                        {{^status}}
+                        <span class="badge bg-secondary">Inactivo</span>
+                        {{/status}}
+                        {{#suspended}}
+                        <span class="badge bg-warning">Suspendido</span>
+                        {{/suspended}}
+                    </td>
+                    <td>
+                        {{#lastlogin}}
+                        <small>{{lastlogin_formatted}}</small>
+                        {{/lastlogin}}
+                        {{^lastlogin}}
+                        <small class="text-muted">Nunca</small>
+                        {{/lastlogin}}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="/admin/user.php?action=edit&id={{id}}" class="btn btn-outline-primary" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="/admin/user.php?action=roles&id={{id}}" class="btn btn-outline-info" title="Roles">
+                                <i class="bi bi-shield"></i>
+                            </a>
+                            {{^suspended}}
+                            <button type="button" class="btn btn-outline-warning" data-action="suspend" data-user-id="{{id}}" title="Suspender">
+                                <i class="bi bi-pause-circle"></i>
+                            </button>
+                            {{/suspended}}
+                            {{#suspended}}
+                            <button type="button" class="btn btn-outline-success" data-action="unsuspend" data-user-id="{{id}}" title="Activar">
+                                <i class="bi bi-play-circle"></i>
+                            </button>
+                            {{/suspended}}
+                        </div>
+                    </td>
+                </tr>
+                {{/users}}
+                {{^users}}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox"></i><br>
+                        No se encontraron usuarios
+                    </td>
+                </tr>
+                {{/users}}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {{#pagination}}
+    <nav>
+        <ul class="pagination justify-content-center">
+            <li class="page-item {{^has_previous}}disabled{{/has_previous}}">
+                <a class="page-link" href="?page={{previous_page}}">Anterior</a>
+            </li>
+            {{#pages}}
+            <li class="page-item {{#is_current}}active{{/is_current}}">
+                <a class="page-link" href="?page={{number}}">{{number}}</a>
+            </li>
+            {{/pages}}
+            <li class="page-item {{^has_next}}disabled{{/has_next}}">
+                <a class="page-link" href="?page={{next_page}}">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+    {{/pagination}}
+</div>
