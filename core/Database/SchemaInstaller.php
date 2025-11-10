@@ -179,13 +179,26 @@ class SchemaInstaller
      */
     private function createTable(array $tableData, string $charset, string $collation, string $engine): void
     {
+        echo '<p class="text-info small" style="margin-left: 20px;">  → Obteniendo nombre de tabla...</p>';
+        flush(); ob_flush();
+
         $tableName = $this->prefix . $tableData['name'];
+
+        echo '<p class="text-info small" style="margin-left: 20px;">  → Obteniendo columnas...</p>';
+        flush(); ob_flush();
+
         $columns = $tableData['columns']['column'] ?? [];
+
+        echo '<p class="text-info small" style="margin-left: 20px;">  → Encontradas ' . (is_array($columns) ? count($columns) : 0) . ' columnas...</p>';
+        flush(); ob_flush();
 
         // Normalizar si solo hay una columna
         if (isset($columns['@attributes']) || isset($columns['name'])) {
             $columns = [$columns];
         }
+
+        echo '<p class="text-info small" style="margin-left: 20px;">  → Construyendo SQL CREATE TABLE...</p>';
+        flush(); ob_flush();
 
         // Construir SQL CREATE TABLE
         $sql = "CREATE TABLE IF NOT EXISTS `{$tableName}` (\n";
@@ -193,7 +206,13 @@ class SchemaInstaller
         $columnDefinitions = [];
         $primaryKeys = [];
 
-        foreach ($columns as $column) {
+        echo '<p class="text-info small" style="margin-left: 20px;">  → Procesando definiciones de columnas...</p>';
+        flush(); ob_flush();
+
+        foreach ($columns as $index => $column) {
+            echo '<p class="text-info small" style="margin-left: 30px;">    → Columna ' . ($index + 1) . ': ' . ($column['name'] ?? 'unknown') . '</p>';
+            flush(); ob_flush();
+
             $colDef = $this->buildColumnDefinition($column);
             $columnDefinitions[] = $colDef;
 
@@ -201,6 +220,9 @@ class SchemaInstaller
                 $primaryKeys[] = $column['name'];
             }
         }
+
+        echo '<p class="text-info small" style="margin-left: 20px;">  → Uniendo definiciones...</p>';
+        flush(); ob_flush();
 
         $sql .= implode(",\n", $columnDefinitions);
 
@@ -213,19 +235,41 @@ class SchemaInstaller
 
         $sql .= "\n) ENGINE={$engine} DEFAULT CHARSET={$charset} COLLATE={$collation};";
 
+        echo '<p class="text-info small" style="margin-left: 20px;">  → Ejecutando CREATE TABLE...</p>';
+        flush(); ob_flush();
+
         // Ejecutar CREATE TABLE
-        $this->pdo->exec($sql);
+        try {
+            $this->pdo->exec($sql);
+            echo '<p class="text-success small" style="margin-left: 20px;">  ✓ CREATE TABLE ejecutado</p>';
+            flush(); ob_flush();
+        } catch (Exception $e) {
+            echo '<p class="text-danger small" style="margin-left: 20px;">  ✗ Error SQL: ' . htmlspecialchars($e->getMessage()) . '</p>';
+            echo '<p class="text-danger small" style="margin-left: 20px;">  SQL: ' . htmlspecialchars(substr($sql, 0, 500)) . '...</p>';
+            flush(); ob_flush();
+            throw $e;
+        }
+
         $this->createdTables[] = $tableName;
+
+        echo '<p class="text-info small" style="margin-left: 20px;">  → Creando índices...</p>';
+        flush(); ob_flush();
 
         // Crear índices
         if (isset($tableData['indexes']['index'])) {
             $this->createIndexes($tableName, $tableData['indexes']['index']);
         }
 
+        echo '<p class="text-info small" style="margin-left: 20px;">  → Creando foreign keys...</p>';
+        flush(); ob_flush();
+
         // Crear foreign keys
         if (isset($tableData['foreignKeys']['foreignKey'])) {
             $this->createForeignKeys($tableName, $tableData['foreignKeys']['foreignKey']);
         }
+
+        echo '<p class="text-success small" style="margin-left: 20px;">  ✓ Tabla completada</p>';
+        flush(); ob_flush();
     }
 
     /**
