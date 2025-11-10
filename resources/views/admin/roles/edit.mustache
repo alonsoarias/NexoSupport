@@ -3,7 +3,7 @@
     <div class="admin-header">
         <div>
             <h2>{{page_title}}</h2>
-            <p class="text-muted">Editando: <strong>{{role.name}}</strong></p>
+            <p class="text-muted">Editando: {{#role}}<strong>{{name}}</strong>{{/role}}</p>
         </div>
         <div class="user-actions">
             <a href="/admin/roles" class="btn btn-sm btn-secondary">
@@ -27,25 +27,26 @@
     {{/is_system_role}}
 
     <div class="form-section">
-        <form method="POST" action="/admin/roles/{{role.id}}/update" class="role-form">
+        {{#role}}
+        <form method="POST" action="/admin/roles/{{id}}/update" class="role-form">
             <div class="form-card">
                 <h3><i class="bi bi-shield"></i> Información del Rol</h3>
                 <div class="form-group">
                     <label for="name">Nombre *</label>
-                    <input type="text" id="name" name="name" class="form-input" value="{{role.name}}" required {{#is_system_role}}readonly{{/is_system_role}}>
+                    <input type="text" id="name" name="name" class="form-input" value="{{name}}" required {{#is_system_role}}readonly{{/is_system_role}}>
                 </div>
                 <div class="form-group">
                     <label for="slug">Slug</label>
-                    <input type="text" id="slug" name="slug" class="form-input" value="{{role.slug}}" readonly disabled>
+                    <input type="text" id="slug" name="slug" class="form-input" value="{{slug}}" readonly disabled>
                     <small class="form-help">El slug no se puede modificar</small>
                 </div>
                 <div class="form-group">
                     <label for="level">Nivel *</label>
-                    <input type="number" id="level" name="level" class="form-input" value="{{role.level}}" min="1" max="100" required {{#is_system_role}}readonly{{/is_system_role}}>
+                    <input type="number" id="level" name="level" class="form-input" value="{{level}}" min="1" max="100" required {{#is_system_role}}readonly{{/is_system_role}}>
                 </div>
                 <div class="form-group">
                     <label for="description">Descripción</label>
-                    <textarea id="description" name="description" class="form-textarea" rows="3">{{role.description}}</textarea>
+                    <textarea id="description" name="description" class="form-textarea" rows="3">{{description}}</textarea>
                 </div>
             </div>
 
@@ -87,6 +88,7 @@
                 </a>
             </div>
         </form>
+        {{/role}}
     </div>
 </div>
 <style>

@@ -3,7 +3,7 @@
     <div class="admin-header">
         <div>
             <h2>{{page_title}}</h2>
-            <p class="text-muted">Editando: <strong>{{permission.name}}</strong></p>
+            <p class="text-muted">Editando: {{#permission}}<strong>{{name}}</strong>{{/permission}}</p>
         </div>
         <div class="user-actions">
             <a href="/admin/permissions" class="btn btn-sm btn-secondary">
@@ -20,28 +20,29 @@
     {{/errors}}
 
     <div class="form-section">
-        <form method="POST" action="/admin/permissions/{{permission.id}}/update" class="perm-form">
+        {{#permission}}
+        <form method="POST" action="/admin/permissions/{{id}}/update" class="perm-form">
             <div class="form-card">
                 <h3><i class="bi bi-key"></i> Información del Permiso</h3>
                 <div class="form-group">
                     <label for="name">Nombre *</label>
-                    <input type="text" id="name" name="name" class="form-input" value="{{permission.name}}" required>
+                    <input type="text" id="name" name="name" class="form-input" value="{{name}}" required>
                 </div>
                 <div class="form-group">
                     <label for="slug">Slug</label>
-                    <input type="text" id="slug" name="slug" class="form-input" value="{{permission.slug}}" readonly disabled>
+                    <input type="text" id="slug" name="slug" class="form-input" value="{{slug}}" readonly disabled>
                     <small class="form-help">El slug no se puede modificar</small>
                 </div>
                 <div class="form-group">
                     <label for="module">Módulo *</label>
-                    <input type="text" id="module" name="module" class="form-input" value="{{permission.module}}" list="modules-list" required>
+                    <input type="text" id="module" name="module" class="form-input" value="{{module}}" list="modules-list" required>
                     <datalist id="modules-list">
                         {{#modules}}<option value="{{.}}">{{/modules}}
                     </datalist>
                 </div>
                 <div class="form-group">
                     <label for="description">Descripción</label>
-                    <textarea id="description" name="description" class="form-textarea" rows="3">{{permission.description}}</textarea>
+                    <textarea id="description" name="description" class="form-textarea" rows="3">{{description}}</textarea>
                 </div>
             </div>
 
@@ -71,6 +72,7 @@
                 </a>
             </div>
         </form>
+        {{/permission}}
     </div>
 </div>
 <style>
