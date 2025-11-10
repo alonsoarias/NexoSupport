@@ -146,7 +146,19 @@ class SchemaInstaller
                 echo '</pre>';
                 flush(); ob_flush();
 
-                $this->createTable($tableData, $charset, $collation, $engine);
+                echo '<p class="text-warning small">→ Llamando a createTable()...</p>';
+                flush(); ob_flush();
+
+                set_time_limit(30); // 30 segundos por tabla
+
+                try {
+                    $this->createTable($tableData, $charset, $collation, $engine);
+                } catch (\Throwable $e) {
+                    echo '<p class="text-danger small">✗ Exception capturada: ' . htmlspecialchars($e->getMessage()) . '</p>';
+                    echo '<p class="text-danger small">✗ Trace: ' . htmlspecialchars($e->getTraceAsString()) . '</p>';
+                    flush(); ob_flush();
+                    throw $e;
+                }
 
                 echo '<p class="text-success small">✓ Tabla creada: ' . htmlspecialchars($this->prefix . $tableName) . '</p>';
                 flush(); ob_flush();
