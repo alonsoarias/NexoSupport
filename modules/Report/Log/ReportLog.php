@@ -326,12 +326,13 @@ class ReportLog
 
     /**
      * Limpiar logs antiguos según configuración
+     * ACTUALIZADO: Usa tabla config consolidada con category='reports'
      */
     public function cleanupOldLogs(): int
     {
         $config = $this->db->query(
-            "SELECT config_value FROM iser_report_config
-             WHERE config_name = 'log_retention_days'"
+            "SELECT config_value FROM iser_config
+             WHERE config_key = 'report.retention_days' AND category = 'reports'"
         );
 
         if (empty($config)) {
@@ -397,17 +398,17 @@ class ReportLog
         ]);
 
         // Registrar en tabla de intentos de login
+        // ACTUALIZADO: Usa schema normalizado con user_id opcional y attempted_at
         $this->db->execute(
             "INSERT INTO iser_login_attempts
-             (username, ip_address, user_agent, success, failure_reason, userid, timecreated)
-             VALUES (:username, :ip, :ua, :success, :reason, :userid, :time)",
+             (user_id, username, ip_address, user_agent, success, attempted_at)
+             VALUES (:user_id, :username, :ip, :ua, :success, :time)",
             [
+                'user_id' => $success ? $userId : null,
                 'username' => $_POST['username'] ?? 'unknown',
                 'ip' => $this->getClientIp(),
                 'ua' => $_SERVER['HTTP_USER_AGENT'] ?? null,
                 'success' => $success ? 1 : 0,
-                'reason' => $failureReason,
-                'userid' => $success ? $userId : null,
                 'time' => time()
             ]
         );
@@ -415,10 +416,11 @@ class ReportLog
 
     /**
      * Obtener intentos de login fallidos recientes
+     * ACTUALIZADO: Usa schema normalizado con attempted_at
      */
     public function getFailedLoginAttempts(?string $ipAddress = null, ?string $username = null, int $hours = 24): array
     {
-        $where = ['success = 0', 'timecreated > :cutoff'];
+        $where = ['success = 0', 'attempted_at > :cutoff'];
         $params = ['cutoff' => time() - ($hours * 3600)];
 
         if ($ipAddress) {
@@ -434,20 +436,21 @@ class ReportLog
         return $this->db->query(
             "SELECT * FROM iser_login_attempts
              WHERE " . implode(' AND ', $where) . "
-             ORDER BY timecreated DESC",
+             ORDER BY attempted_at DESC",
             $params
         );
     }
 
     /**
      * Obtener configuración de reportes
+     * ACTUALIZADO: Usa tabla config consolidada con category='reports'
      */
-    public function getReportConfig(string $configName): mixed
+    public function getReportConfig(string $configKey): mixed
     {
         $result = $this->db->query(
-            "SELECT config_value, config_type FROM iser_report_config
-             WHERE config_name = :name",
-            ['name' => $configName]
+            "SELECT config_value, config_type FROM iser_config
+             WHERE config_key = :key AND category = 'reports'",
+            ['key' => $configKey]
         );
 
         if (empty($result)) {

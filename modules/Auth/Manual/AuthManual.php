@@ -10,17 +10,28 @@ use ISER\Core\Session\JWTSession;
 use ISER\Core\Utils\Helpers;
 use ISER\Core\Utils\Logger;
 use ISER\User\UserManager;
+use ISER\Auth\PasswordResetTokenManager;
+use ISER\Core\Utils\Mailer;
+use PDO;
 
 class AuthManual implements AuthInterface
 {
     private UserManager $userManager;
     private JWTSession $jwtSession;
+    private ?PasswordResetTokenManager $resetTokenManager = null;
+    private ?Mailer $mailer = null;
     private ?array $currentUser = null;
 
-    public function __construct(UserManager $userManager, JWTSession $jwtSession)
-    {
+    public function __construct(
+        UserManager $userManager,
+        JWTSession $jwtSession,
+        ?PasswordResetTokenManager $resetTokenManager = null,
+        ?Mailer $mailer = null
+    ) {
         $this->userManager = $userManager;
         $this->jwtSession = $jwtSession;
+        $this->resetTokenManager = $resetTokenManager;
+        $this->mailer = $mailer;
     }
 
     public function authenticate(array $credentials): array|false
@@ -184,16 +195,134 @@ class AuthManual implements AuthInterface
         return $this->userManager->update($userId, ['password' => $newPassword]);
     }
 
+    /**
+     * Solicitar reseteo de contraseña
+     * ACTUALIZADO: Usa nueva tabla password_reset_tokens normalizada
+     *
+     * @param string $email Email del usuario
+     * @return string|false Token generado o false si falla
+     */
     public function resetPassword(string $email): string|false
     {
-        // TODO: Implement in Phase 3
-        return false;
+        if (!$this->resetTokenManager) {
+            Logger::error('PasswordResetTokenManager not initialized');
+            return false;
+        }
+
+        // Buscar usuario por email
+        $user = $this->userManager->getUserByEmail($email);
+        if (!$user) {
+            Logger::warning('Password reset requested for non-existent email', ['email' => $email]);
+            // No revelar si el email existe o no (seguridad)
+            return 'pending';
+        }
+
+        // Verificar que el usuario esté activo
+        if ($user['status'] !== 'active') {
+            Logger::warning('Password reset requested for inactive user', ['email' => $email]);
+            return false;
+        }
+
+        // Verificar rate limit (prevenir abuso)
+        if (!$this->resetTokenManager->checkResetRateLimit($user['id'])) {
+            Logger::security('Password reset rate limit exceeded', [
+                'user_id' => $user['id'],
+                'email' => $email
+            ]);
+            return false;
+        }
+
+        // Generar token (expira en 1 hora)
+        $token = $this->resetTokenManager->createToken($user['id'], 3600);
+
+        // Enviar email si el mailer está disponible
+        if ($this->mailer) {
+            $resetUrl = $_ENV['APP_URL'] . '/auth/reset-password?token=' . $token;
+            $this->mailer->sendPasswordResetEmail($user['email'], $token, $resetUrl);
+        }
+
+        Logger::info('Password reset token generated', [
+            'user_id' => $user['id'],
+            'email' => $email
+        ]);
+
+        return $token;
     }
 
+    /**
+     * Verificar token de reseteo de contraseña
+     * ACTUALIZADO: Usa nueva tabla password_reset_tokens normalizada
+     *
+     * @param string $token Token a verificar
+     * @return array|false Datos del usuario si el token es válido
+     */
     public function verifyResetToken(string $token): array|false
     {
-        // TODO: Implement in Phase 3
-        return false;
+        if (!$this->resetTokenManager) {
+            Logger::error('PasswordResetTokenManager not initialized');
+            return false;
+        }
+
+        // Validar token
+        $tokenData = $this->resetTokenManager->validateToken($token);
+        if (!$tokenData) {
+            Logger::warning('Invalid or expired password reset token', ['token' => substr($token, 0, 10) . '...']);
+            return false;
+        }
+
+        // Obtener usuario
+        $user = $this->resetTokenManager->getUserByToken($token);
+        if (!$user) {
+            Logger::error('User not found for valid token', ['token' => substr($token, 0, 10) . '...']);
+            return false;
+        }
+
+        unset($user['password']);
+        return $user;
+    }
+
+    /**
+     * Completar reseteo de contraseña con token
+     * ACTUALIZADO: Usa nueva tabla password_reset_tokens normalizada
+     *
+     * @param string $token Token de reseteo
+     * @param string $newPassword Nueva contraseña
+     * @return bool True si se actualizó correctamente
+     */
+    public function completePasswordReset(string $token, string $newPassword): bool
+    {
+        if (!$this->resetTokenManager) {
+            Logger::error('PasswordResetTokenManager not initialized');
+            return false;
+        }
+
+        // Verificar token
+        $user = $this->verifyResetToken($token);
+        if (!$user) {
+            return false;
+        }
+
+        // Actualizar contraseña
+        $success = $this->userManager->update($user['id'], [
+            'password' => $newPassword
+        ]);
+
+        if ($success) {
+            // Marcar token como usado
+            $this->resetTokenManager->markAsUsed($token);
+
+            Logger::info('Password reset completed', [
+                'user_id' => $user['id'],
+                'email' => $user['email']
+            ]);
+
+            // Opcional: enviar notificación por email
+            if ($this->mailer) {
+                $this->mailer->sendPasswordChangedNotification($user['email']);
+            }
+        }
+
+        return $success;
     }
 
     public function usernameExists(string $username): bool

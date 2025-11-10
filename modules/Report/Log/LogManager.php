@@ -34,10 +34,11 @@ class LogManager
         $oneHourAgo = $now - 3600;
 
         // Detectar múltiples intentos de login fallidos
+        // ACTUALIZADO: Usa schema normalizado con attempted_at
         $failedLogins = $this->db->query(
             "SELECT ip_address, username, COUNT(*) as attempts
              FROM iser_login_attempts
-             WHERE success = 0 AND timecreated > :time
+             WHERE success = 0 AND attempted_at > :time
              GROUP BY ip_address, username
              HAVING attempts >= 5
              ORDER BY attempts DESC",
@@ -461,10 +462,11 @@ class LogManager
         );
 
         // Intentos de login fallidos
+        // ACTUALIZADO: Usa schema normalizado con user_id y attempted_at
         $failed = $this->db->query(
             "SELECT COUNT(*) as count FROM iser_login_attempts
-             WHERE userid = :userid AND success = 0 AND timecreated > :cutoff",
-            ['userid' => $userId, 'cutoff' => $cutoff]
+             WHERE user_id = :user_id AND success = 0 AND attempted_at > :cutoff",
+            ['user_id' => $userId, 'cutoff' => $cutoff]
         );
         $summary['failed_logins'] = $failed[0]['count'] ?? 0;
 
@@ -481,13 +483,14 @@ class LogManager
 
     /**
      * Obtener configuración de reportes
+     * ACTUALIZADO: Usa tabla config consolidada con category='reports'
      */
-    public function getReportConfig(string $configName): mixed
+    public function getReportConfig(string $configKey): mixed
     {
         $result = $this->db->query(
-            "SELECT config_value, config_type FROM iser_report_config
-             WHERE config_name = :name",
-            ['name' => $configName]
+            "SELECT config_value, config_type FROM iser_config
+             WHERE config_key = :key AND category = 'reports'",
+            ['key' => $configKey]
         );
 
         if (empty($result)) {
@@ -507,8 +510,9 @@ class LogManager
 
     /**
      * Actualizar configuración de reportes
+     * ACTUALIZADO: Usa tabla config consolidada con category='reports'
      */
-    public function updateReportConfig(string $configName, mixed $value, string $type = 'string'): bool
+    public function updateReportConfig(string $configKey, mixed $value, string $type = 'string'): bool
     {
         if ($type === 'json') {
             $value = json_encode($value);
@@ -518,17 +522,19 @@ class LogManager
             $value = (string)$value;
         }
 
+        $now = time();
+
         return $this->db->execute(
-            "UPDATE iser_report_config
+            "UPDATE iser_config
              SET config_value = :value,
                  config_type = :type,
-                 timemodified = :time
-             WHERE config_name = :name",
+                 updated_at = :time
+             WHERE config_key = :key AND category = 'reports'",
             [
                 'value' => $value,
                 'type' => $type,
-                'time' => time(),
-                'name' => $configName
+                'time' => $now,
+                'key' => $configKey
             ]
         ) > 0;
     }
