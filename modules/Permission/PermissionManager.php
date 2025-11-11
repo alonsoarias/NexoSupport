@@ -145,7 +145,7 @@ class PermissionManager
         $sql = "SELECT r.* FROM {$this->db->table('roles')} r
                 INNER JOIN {$this->db->table('role_permissions')} rp ON r.id = rp.role_id
                 WHERE rp.permission_id = :permission_id
-                ORDER BY r.level DESC";
+                ORDER BY r.name ASC";
 
         return $this->db->getConnection()->fetchAll($sql, [':permission_id' => $permissionId]);
     }

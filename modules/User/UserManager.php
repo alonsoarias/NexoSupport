@@ -294,7 +294,7 @@ class UserManager
         $sql = "SELECT r.* FROM {$this->db->table('roles')} r
                 INNER JOIN {$this->db->table('user_roles')} ur ON r.id = ur.role_id
                 WHERE ur.user_id = :user_id
-                ORDER BY r.level DESC";
+                ORDER BY r.name ASC";
 
         return $this->db->getConnection()->fetchAll($sql, [':user_id' => $userId]);
     }
