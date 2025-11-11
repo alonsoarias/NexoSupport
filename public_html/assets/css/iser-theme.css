@@ -5,15 +5,21 @@
 
 :root {
     /* Colores Corporativos ISER */
-    --iser-green: #1B9E88;
+    --iser-green: #1B9E88;          /* Verde turquesa principal */
     --iser-green-light: #2AC9B0;
     --iser-green-dark: #157562;
+    --iser-admin-green: #1a472a;    /* Verde oscuro para admin/navegación */
+    --iser-admin-green-light: #2d5a3d;
+    --iser-admin-green-dark: #0f2a19;
     --iser-yellow: #F4C430;
     --iser-yellow-light: #FFD65C;
     --iser-yellow-dark: #D4A820;
     --iser-red: #EB4335;
     --iser-red-light: #FF5D4F;
     --iser-red-dark: #C42E21;
+    --iser-blue: #17a2b8;
+    --iser-blue-light: #3ab7cc;
+    --iser-blue-dark: #128293;
 
     /* Colores de texto */
     --text-primary: #242424;
