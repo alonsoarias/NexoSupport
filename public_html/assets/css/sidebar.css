@@ -1,0 +1,185 @@
+/**
+ * Sidebar CSS - NexoSupport
+ * Sidebar navigation styles
+ */
+
+/* ========================================
+   SIDEBAR
+======================================== */
+
+.sidebar {
+    position: fixed;
+    top: 60px; /* Below topbar */
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: transform 0.3s ease;
+    z-index: 900;
+}
+
+/* Scrollbar Styling */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+.sidebar-nav {
+    padding: 1rem 0;
+}
+
+/* ========================================
+   NAV SECTIONS
+======================================== */
+
+.nav-section {
+    margin-bottom: 1.5rem;
+}
+
+.nav-section-title {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+}
+
+.nav-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    margin: 0.25rem 0.75rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: #374151;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    background: #f3f4f6;
+    color: #1a472a;
+}
+
+.nav-link.active {
+    background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+    color: #fff;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(26, 71, 42, 0.2);
+}
+
+.nav-link i {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+.nav-link span {
+    flex: 1;
+}
+
+.nav-badge {
+    background: #e5e7eb;
+    color: #374151;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+}
+
+.nav-link.active .nav-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+/* Bottom Section (Profile, Logout) */
+.nav-section-bottom {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* ========================================
+   SIDEBAR OVERLAY (Mobile)
+======================================== */
+
+.sidebar-overlay {
+    display: none; /* Show on mobile when sidebar is open */
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 899;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* ========================================
+   COLLAPSED STATE
+======================================== */
+
+body.sidebar-collapsed .sidebar {
+    transform: translateX(-260px);
+}
+
+body.sidebar-collapsed .main-content {
+    margin-left: 0;
+}
+
+/* ========================================
+   HOVER EFFECTS
+======================================== */
+
+.nav-link:hover i {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+.nav-link.active i {
+    animation: iconPulse 0.5s ease;
+}
+
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+}

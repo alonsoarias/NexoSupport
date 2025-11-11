@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
+use ISER\Controllers\Traits\NavigationTrait;
 use ISER\Core\View\MustacheRenderer;
 use ISER\Core\I18n\Translator;
 use ISER\Core\Http\Response;
@@ -22,6 +23,8 @@ use Psr\Http\Message\ResponseInterface;
  */
 class HomeController
 {
+    use NavigationTrait;
+
     private MustacheRenderer $renderer;
     private Translator $translator;
     private Database $db;
@@ -36,6 +39,15 @@ class HomeController
         $this->translator = Translator::getInstance();
         $this->db = $db;
         $this->userManager = new UserManager($db);
+    }
+
+    /**
+     * Renderizar con layout
+     */
+    private function renderWithLayout(string $view, array $data = [], string $layout = 'layouts/app'): ResponseInterface
+    {
+        $html = $this->renderer->render($view, $data, $layout);
+        return Response::html($html);
     }
 
     /**
@@ -139,8 +151,10 @@ class HomeController
             ],
         ];
 
-        $html = $this->renderer->render('dashboard/index', $data);
-        return Response::html($html);
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/dashboard');
+
+        return $this->renderWithLayout('dashboard/index', $data);
     }
 
     /**

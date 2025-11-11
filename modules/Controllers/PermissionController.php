@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
+use ISER\Controllers\Traits\NavigationTrait;
 use ISER\Core\Database\Database;
 use ISER\Core\Http\Response;
 use ISER\Core\View\MustacheRenderer;
@@ -22,6 +23,8 @@ use Psr\Http\Message\ResponseInterface;
  */
 class PermissionController
 {
+    use NavigationTrait;
+
     private PermissionManager $permissionManager;
     private RoleManager $roleManager;
     private MustacheRenderer $renderer;
@@ -36,9 +39,9 @@ class PermissionController
     /**
      * Renderizar con layout
      */
-    private function renderWithLayout(string $view, array $data = []): ResponseInterface
+    private function renderWithLayout(string $view, array $data = [], string $layout = 'layouts/app'): ResponseInterface
     {
-        $html = $this->renderer->render($view, $data, 'layouts/base');
+        $html = $this->renderer->render($view, $data, $layout);
         return Response::html($html);
     }
 
@@ -106,6 +109,9 @@ class PermissionController
             $data['error_message'] = $errors[$queryParams['error']] ?? 'Error desconocido';
         }
 
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/permissions');
+
         return $this->renderWithLayout('admin/permissions/index', $data);
     }
 
@@ -120,6 +126,9 @@ class PermissionController
             'modules' => $modules,
             'page_title' => 'Crear Permiso',
         ];
+
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/permissions/create');
 
         return $this->renderWithLayout('admin/permissions/create', $data);
     }
@@ -202,6 +211,9 @@ class PermissionController
             'page_title' => 'Editar Permiso: ' . $permission['name'],
             'editing_mode' => true,
         ];
+
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/permissions/edit');
 
         return $this->renderWithLayout('admin/permissions/edit', $data);
     }

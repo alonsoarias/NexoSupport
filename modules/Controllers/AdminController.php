@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
+use ISER\Controllers\Traits\NavigationTrait;
 use ISER\Core\View\MustacheRenderer;
 use ISER\Core\I18n\Translator;
 use ISER\Core\Http\Response;
@@ -20,6 +21,8 @@ use Psr\Http\Message\ResponseInterface;
  */
 class AdminController
 {
+    use NavigationTrait;
+
     private MustacheRenderer $renderer;
     private Translator $translator;
     private Database $db;
@@ -31,6 +34,15 @@ class AdminController
         $this->translator = Translator::getInstance();
         $this->db = $db;
         $this->userManager = new UserManager($db);
+    }
+
+    /**
+     * Renderizar con layout
+     */
+    private function renderWithLayout(string $view, array $data = [], string $layout = 'layouts/app'): ResponseInterface
+    {
+        $html = $this->renderer->render($view, $data, $layout);
+        return Response::html($html);
     }
 
     /**
@@ -75,8 +87,10 @@ class AdminController
             ],
         ];
 
-        $html = $this->renderer->render('admin/index', $data);
-        return Response::html($html);
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin');
+
+        return $this->renderWithLayout('admin/index', $data);
     }
 
     /**
@@ -144,8 +158,10 @@ class AdminController
             'config' => $config,
         ];
 
-        $html = $this->renderer->render('admin/settings', $data);
-        return Response::html($html);
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/settings');
+
+        return $this->renderWithLayout('admin/settings', $data);
     }
 
     /**
@@ -171,8 +187,10 @@ class AdminController
             'top_ips' => $topIPs,
         ];
 
-        $html = $this->renderer->render('admin/reports', $data);
-        return Response::html($html);
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/reports');
+
+        return $this->renderWithLayout('admin/reports', $data);
     }
 
     /**
@@ -198,8 +216,10 @@ class AdminController
             'locked_accounts' => $lockedAccounts,
         ];
 
-        $html = $this->renderer->render('admin/security', $data);
-        return Response::html($html);
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/security');
+
+        return $this->renderWithLayout('admin/security', $data);
     }
 
     /**

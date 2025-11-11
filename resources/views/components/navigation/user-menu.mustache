@@ -1,0 +1,62 @@
+<div class="user-menu">
+    <button class="user-menu-toggle" id="userMenuToggle" aria-label="User Menu">
+        <div class="user-avatar">
+            {{#navigation.user.avatar}}
+            <img src="{{navigation.user.avatar}}" alt="{{navigation.user.name}}">
+            {{/navigation.user.avatar}}
+            {{^navigation.user.avatar}}
+            <i class="bi bi-person-circle"></i>
+            {{/navigation.user.avatar}}
+        </div>
+        <div class="user-info">
+            <span class="user-name">{{navigation.user.name}}</span>
+            <span class="user-role">{{navigation.user.role_name}}</span>
+        </div>
+        <i class="bi bi-chevron-down dropdown-icon"></i>
+    </button>
+
+    <div class="user-menu-dropdown" id="userMenuDropdown">
+        <div class="user-menu-header">
+            <div class="user-avatar-large">
+                {{#navigation.user.avatar}}
+                <img src="{{navigation.user.avatar}}" alt="{{navigation.user.name}}">
+                {{/navigation.user.avatar}}
+                {{^navigation.user.avatar}}
+                <i class="bi bi-person-circle"></i>
+                {{/navigation.user.avatar}}
+            </div>
+            <div class="user-details">
+                <strong>{{navigation.user.name}}</strong>
+                <small>{{navigation.user.email}}</small>
+            </div>
+        </div>
+
+        <div class="user-menu-divider"></div>
+
+        <ul class="user-menu-items">
+            <li>
+                <a href="/profile" class="user-menu-item">
+                    <i class="bi bi-person"></i>
+                    <span>Mi Perfil</span>
+                </a>
+            </li>
+            <li>
+                <a href="/settings" class="user-menu-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Configuración</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="user-menu-divider"></div>
+
+        <ul class="user-menu-items">
+            <li>
+                <a href="/logout" class="user-menu-item user-menu-logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

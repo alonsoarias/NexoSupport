@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
+use ISER\Controllers\Traits\NavigationTrait;
 use ISER\Core\Database\Database;
 use ISER\Core\Http\Response;
 use ISER\Core\View\MustacheRenderer;
@@ -22,6 +23,8 @@ use Psr\Http\Message\ResponseInterface;
  */
 class RoleController
 {
+    use NavigationTrait;
+
     private RoleManager $roleManager;
     private PermissionManager $permissionManager;
     private MustacheRenderer $renderer;
@@ -36,9 +39,9 @@ class RoleController
     /**
      * Renderizar con layout
      */
-    private function renderWithLayout(string $view, array $data = []): ResponseInterface
+    private function renderWithLayout(string $view, array $data = [], string $layout = 'layouts/app'): ResponseInterface
     {
-        $html = $this->renderer->render($view, $data, 'layouts/base');
+        $html = $this->renderer->render($view, $data, $layout);
         return Response::html($html);
     }
 
@@ -102,6 +105,9 @@ class RoleController
             $data['error_message'] = $errors[$queryParams['error']] ?? 'Error desconocido';
         }
 
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/roles');
+
         return $this->renderWithLayout('admin/roles/index', $data);
     }
 
@@ -142,6 +148,9 @@ class RoleController
             'permissions_grouped' => $permissionsForMustache,
             'page_title' => 'Crear Rol',
         ];
+
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/roles/create');
 
         return $this->renderWithLayout('admin/roles/create', $data);
     }
@@ -220,6 +229,9 @@ class RoleController
             'page_title' => 'Editar Rol: ' . $role['name'],
             'editing_mode' => true,
         ];
+
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/roles/edit');
 
         return $this->renderWithLayout('admin/roles/edit', $data);
     }

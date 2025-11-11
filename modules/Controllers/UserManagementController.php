@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
+use ISER\Controllers\Traits\NavigationTrait;
 use ISER\Core\Database\Database;
 use ISER\Core\Http\Response;
 use ISER\Core\View\MustacheRenderer;
@@ -22,6 +23,8 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class UserManagementController
 {
+    use NavigationTrait;
+
     private UserManager $userManager;
     private RoleManager $roleManager;
     private MustacheRenderer $renderer;
@@ -36,9 +39,9 @@ class UserManagementController
     /**
      * Renderizar con layout
      */
-    private function renderWithLayout(string $view, array $data = []): ResponseInterface
+    private function renderWithLayout(string $view, array $data = [], string $layout = 'layouts/app'): ResponseInterface
     {
-        $html = $this->renderer->render($view, $data, 'layouts/base');
+        $html = $this->renderer->render($view, $data, $layout);
         return Response::html($html);
     }
 
@@ -122,6 +125,9 @@ class UserManagementController
             $data['error_message'] = $errors[$queryParams['error']] ?? 'Error desconocido';
         }
 
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/users');
+
         return $this->renderWithLayout('admin/users/index', $data);
     }
 
@@ -136,6 +142,9 @@ class UserManagementController
             'all_roles' => $allRoles,
             'page_title' => 'Crear Usuario',
         ];
+
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/users/create');
 
         return $this->renderWithLayout('admin/users/create', $data);
     }
@@ -221,6 +230,9 @@ class UserManagementController
             'page_title' => 'Editar Usuario: ' . $user['username'],
             'editing_mode' => true, // Flag para saber que estamos editando
         ];
+
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/admin/users/edit');
 
         return $this->renderWithLayout('admin/users/edit', $data);
     }
