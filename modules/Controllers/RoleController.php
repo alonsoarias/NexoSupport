@@ -106,14 +106,40 @@ class RoleController
     }
 
     /**
+     * Transformar permisos agrupados para Mustache
+     * Mustache no puede iterar sobre arrays asociativos correctamente
+     */
+    private function transformPermissionsForMustache(array $permissionsGrouped, array $assignedPermissionIds = []): array
+    {
+        $result = [];
+        foreach ($permissionsGrouped as $module => $permissions) {
+            foreach ($permissions as &$permission) {
+                $permission['permission_id'] = (string)$permission['id'];
+                if (!empty($assignedPermissionIds)) {
+                    $permission['is_assigned'] = in_array($permission['id'], $assignedPermissionIds);
+                }
+            }
+
+            $result[] = [
+                'module_name' => $module,
+                'module_name_capitalized' => ucfirst($module),
+                'permissions' => $permissions,
+                'permission_count' => count($permissions),
+            ];
+        }
+        return $result;
+    }
+
+    /**
      * Formulario de creación
      */
     public function create(ServerRequestInterface $request): ResponseInterface
     {
         $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
+        $permissionsForMustache = $this->transformPermissionsForMustache($permissionsGrouped);
 
         $data = [
-            'permissions_grouped' => $permissionsGrouped,
+            'permissions_grouped' => $permissionsForMustache,
             'page_title' => 'Crear Rol',
         ];
 
@@ -132,10 +158,11 @@ class RoleController
 
         if (!empty($errors)) {
             $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
+            $permissionsForMustache = $this->transformPermissionsForMustache($permissionsGrouped);
             $data = [
                 'errors' => $errors,
                 'form_data' => $body,
-                'permissions_grouped' => $permissionsGrouped,
+                'permissions_grouped' => $permissionsForMustache,
                 'page_title' => 'Crear Rol',
             ];
             return $this->renderWithLayout('admin/roles/create', $data);
@@ -146,7 +173,6 @@ class RoleController
             'name' => $body['name'],
             'slug' => $this->generateSlug($body['name']),
             'description' => $body['description'] ?? '',
-            'level' => (int)($body['level'] ?? 50),
         ]);
 
         // Asignar permisos si se proporcionaron
@@ -182,20 +208,14 @@ class RoleController
         $rolePermissions = $this->roleManager->getRolePermissions($roleId);
         $rolePermissionIds = array_column($rolePermissions, 'id');
 
-        // Obtener todos los permisos agrupados
+        // Obtener todos los permisos agrupados y transformar para Mustache
         $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
-
-        // Marcar permisos asignados
-        foreach ($permissionsGrouped as $module => &$permissions) {
-            foreach ($permissions as &$permission) {
-                $permission['is_assigned'] = in_array($permission['id'], $rolePermissionIds);
-            }
-        }
+        $permissionsForMustache = $this->transformPermissionsForMustache($permissionsGrouped, $rolePermissionIds);
 
         $data = [
             'role' => $role,
             'role_permissions' => $rolePermissions,
-            'permissions_grouped' => $permissionsGrouped,
+            'permissions_grouped' => $permissionsForMustache,
             'is_system_role' => !empty($role['is_system']),
             'page_title' => 'Editar Rol: ' . $role['name'],
             'editing_mode' => true,
@@ -234,18 +254,13 @@ class RoleController
             $rolePermissions = $this->roleManager->getRolePermissions($roleId);
             $rolePermissionIds = array_column($rolePermissions, 'id');
             $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
-
-            foreach ($permissionsGrouped as $module => &$permissions) {
-                foreach ($permissions as &$permission) {
-                    $permission['is_assigned'] = in_array($permission['id'], $rolePermissionIds);
-                }
-            }
+            $permissionsForMustache = $this->transformPermissionsForMustache($permissionsGrouped, $rolePermissionIds);
 
             $data = [
                 'errors' => $errors,
                 'role' => array_merge($role, $body),
                 'role_permissions' => $rolePermissions,
-                'permissions_grouped' => $permissionsGrouped,
+                'permissions_grouped' => $permissionsForMustache,
                 'is_system_role' => $isSystemRole,
                 'page_title' => 'Editar Rol',
                 'editing_mode' => true,
@@ -258,7 +273,6 @@ class RoleController
             $updateData = [
                 'name' => $body['name'],
                 'description' => $body['description'] ?? '',
-                'level' => (int)($body['level'] ?? 50),
             ];
             $this->roleManager->update($roleId, $updateData);
         } else {

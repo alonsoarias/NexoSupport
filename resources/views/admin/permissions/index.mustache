@@ -43,8 +43,8 @@
         <div class="module-section">
             <div class="module-title">
                 <i class="bi bi-folder-fill"></i>
-                <h4>{{@key}}</h4>
-                <span class="module-badge">{{this.length}} permisos</span>
+                <h4>{{module_name_capitalized}}</h4>
+                <span class="module-badge">{{permission_count}} permisos</span>
             </div>
 
             <div class="table-responsive">
@@ -59,7 +59,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{#.}}
+                        {{#permissions}}
                         <tr>
                             <td>
                                 <div class="user-cell">
@@ -96,7 +96,7 @@
                                 </div>
                             </td>
                         </tr>
-                        {{/.}}
+                        {{/permissions}}
                     </tbody>
                 </table>
             </div>

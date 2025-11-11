@@ -41,13 +41,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="level">Nivel de Jerarquía *</label>
-                    <input type="number" id="level" name="level" class="form-input"
-                           value="{{form_data.level}}" min="1" max="100" placeholder="50" required>
-                    <small class="form-help">1-100 (Admin=100, Moderador=50, Usuario=10, Invitado=1)</small>
-                </div>
-
-                <div class="form-group">
                     <label for="description">Descripción</label>
                     <textarea id="description" name="description" class="form-textarea"
                               rows="3" placeholder="Describe las responsabilidades y alcance de este rol...">{{form_data.description}}</textarea>
@@ -62,9 +55,9 @@
 
                 {{#permissions_grouped}}
                 <div class="permission-module">
-                    <h4><i class="bi bi-folder"></i> {{@key}}</h4>
+                    <h4><i class="bi bi-folder"></i> {{module_name_capitalized}}</h4>
                     <div class="permissions-grid">
-                        {{#.}}
+                        {{#permissions}}
                         <label class="permission-checkbox">
                             <input type="checkbox" name="permissions[]" value="{{id}}">
                             <div class="permission-info">
@@ -72,7 +65,7 @@
                                 <small>{{description}}</small>
                             </div>
                         </label>
-                        {{/.}}
+                        {{/permissions}}
                     </div>
                 </div>
                 {{/permissions_grouped}}
@@ -431,12 +424,6 @@
 // Auto-generar slug desde el nombre (preview)
 document.addEventListener('DOMContentLoaded', function() {
     const nameInput = document.getElementById('name');
-    const levelInput = document.getElementById('level');
-
-    // Sugerencia de nivel por defecto
-    if (!levelInput.value) {
-        levelInput.value = 50;
-    }
 
     // Contador de permisos seleccionados
     const checkboxes = document.querySelectorAll('input[name="permissions[]"]');

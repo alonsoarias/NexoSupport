@@ -65,16 +65,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="level">Nivel de Jerarquía *</label>
-                    <input type="number" id="level" name="level" class="form-input"
-                           value="{{level}}" min="1" max="100" required {{#is_system_role}}readonly{{/is_system_role}}>
-                    <small class="form-help">
-                        1-100 (Admin=100, Moderador=50, Usuario=10, Invitado=1)
-                        {{#is_system_role}}· 🔒 Bloqueado para roles del sistema{{/is_system_role}}
-                    </small>
-                </div>
-
-                <div class="form-group">
                     <label for="description">Descripción</label>
                     <textarea id="description" name="description" class="form-textarea"
                               rows="3" placeholder="Describe las responsabilidades y alcance de este rol...">{{description}}</textarea>
@@ -104,9 +94,9 @@
 
                 {{#permissions_grouped}}
                 <div class="permission-module">
-                    <h4><i class="bi bi-folder"></i> {{@key}}</h4>
+                    <h4><i class="bi bi-folder"></i> {{module_name_capitalized}}</h4>
                     <div class="permissions-grid">
-                        {{#.}}
+                        {{#permissions}}
                         <label class="permission-checkbox {{#is_assigned}}checked{{/is_assigned}}">
                             <input type="checkbox" name="permissions[]" value="{{id}}" {{#is_assigned}}checked{{/is_assigned}}>
                             <div class="permission-info">
@@ -114,7 +104,7 @@
                                 <small>{{description}}</small>
                             </div>
                         </label>
-                        {{/.}}
+                        {{/permissions}}
                     </div>
                 </div>
                 {{/permissions_grouped}}

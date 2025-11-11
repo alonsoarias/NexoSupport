@@ -208,14 +208,12 @@
             <column name="name" type="VARCHAR(50)" null="false" unique="true"/>
             <column name="slug" type="VARCHAR(50)" null="false" unique="true"/>
             <column name="description" type="TEXT"/>
-            <column name="level" type="INT UNSIGNED" default="0"/>
             <column name="is_system" type="BOOLEAN" default="false"/>
             <column name="created_at" type="INT UNSIGNED" null="false"/>
             <column name="updated_at" type="INT UNSIGNED" null="false"/>
         </columns>
         <indexes>
             <index name="idx_slug" columns="slug"/>
-            <index name="idx_level" columns="level"/>
             <index name="idx_is_system" columns="is_system"/>
         </indexes>
         <data>
@@ -223,28 +221,24 @@
                 <name>Administrador</name>
                 <slug>admin</slug>
                 <description>System administrator with full access</description>
-                <level>100</level>
                 <is_system>1</is_system>
             </row>
             <row>
                 <name>Moderador</name>
                 <slug>moderator</slug>
                 <description>Moderator with limited permissions</description>
-                <level>50</level>
                 <is_system>1</is_system>
             </row>
             <row>
                 <name>Usuario</name>
                 <slug>user</slug>
                 <description>Standard system user</description>
-                <level>10</level>
                 <is_system>1</is_system>
             </row>
             <row>
                 <name>Invitado</name>
                 <slug>guest</slug>
                 <description>Guest user with limited access</description>
-                <level>1</level>
                 <is_system>1</is_system>
             </row>
         </data>

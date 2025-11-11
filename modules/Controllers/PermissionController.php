@@ -52,8 +52,11 @@ class PermissionController
         // Obtener permisos agrupados por módulo
         $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
 
-        // Enriquecer cada permiso con información de roles
-        foreach ($permissionsGrouped as $module => &$permissions) {
+        // CRÍTICO: Transformar array asociativo a indexado para Mustache
+        // Mustache no puede iterar sobre arrays asociativos correctamente
+        $permissionsForMustache = [];
+        foreach ($permissionsGrouped as $module => $permissions) {
+            // Enriquecer cada permiso con información de roles
             foreach ($permissions as &$permission) {
                 $permissionId = (int)$permission['id'];
                 $roles = $this->permissionManager->getPermissionRoles($permissionId);
@@ -65,13 +68,21 @@ class PermissionController
                 // CRÍTICO: Usar permission_id como string para Mustache
                 $permission['permission_id'] = (string)$permission['id'];
             }
+
+            // Agregar al array indexado con el módulo como propiedad
+            $permissionsForMustache[] = [
+                'module_name' => $module,
+                'module_name_capitalized' => ucfirst($module),
+                'permissions' => $permissions,
+                'permission_count' => count($permissions),
+            ];
         }
 
         // Obtener módulos disponibles
         $modules = $this->permissionManager->getModules();
 
         $data = [
-            'permissions_grouped' => $permissionsGrouped,
+            'permissions_grouped' => $permissionsForMustache,
             'modules' => $modules,
             'total_permissions' => $this->permissionManager->countPermissions(),
             'page_title' => 'Gestión de Permisos',
