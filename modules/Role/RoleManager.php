@@ -35,7 +35,7 @@ class RoleManager
             $params[':is_system'] = $filters['is_system'] ? 1 : 0;
         }
 
-        $sql .= " ORDER BY level DESC, name ASC LIMIT :limit OFFSET :offset";
+        $sql .= " ORDER BY name ASC LIMIT :limit OFFSET :offset";
 
         $stmt = $this->db->getConnection()->getConnection()->prepare($sql);
         $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
