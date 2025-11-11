@@ -28,11 +28,19 @@ trait NavigationTrait
         // Generar breadcrumbs
         $breadcrumbs = $customBreadcrumbs ?? $this->generateBreadcrumbs($activeRoute);
 
+        // Obtener contadores reales (con caché para performance)
+        $counts = $this->getNavigationCounts();
+
         // Agregar datos de navegación
         $data['navigation'] = [
             'user' => $user,
             'breadcrumbs' => $breadcrumbs,
             'notifications_count' => 0, // TODO: Implementar sistema de notificaciones
+
+            // Contadores para badges
+            'users_count' => $counts['users'],
+            'roles_count' => $counts['roles'],
+            'permissions_count' => $counts['permissions'],
 
             // Marcar ruta activa para sidebar
             'is_home' => $activeRoute === '/',
@@ -47,6 +55,69 @@ trait NavigationTrait
         ];
 
         return $data;
+    }
+
+    /**
+     * Obtener contadores para badges de navegación
+     * Usa caché de sesión para evitar consultas repetidas
+     *
+     * @return array Contadores de usuarios, roles y permisos
+     */
+    private function getNavigationCounts(): array
+    {
+        // Cache en sesión por 5 minutos
+        $cacheKey = 'navigation_counts';
+        $cacheExpiry = 'navigation_counts_expiry';
+        $now = time();
+
+        if (isset($_SESSION[$cacheKey]) && isset($_SESSION[$cacheExpiry]) && $_SESSION[$cacheExpiry] > $now) {
+            return $_SESSION[$cacheKey];
+        }
+
+        $counts = [
+            'users' => 0,
+            'roles' => 0,
+            'permissions' => 0,
+        ];
+
+        try {
+            // Si el controller tiene los managers, usarlos
+            if (isset($this->userManager)) {
+                $counts['users'] = $this->userManager->countUsers();
+            }
+            if (isset($this->roleManager)) {
+                $counts['roles'] = $this->roleManager->countRoles();
+            }
+            if (isset($this->permissionManager)) {
+                $counts['permissions'] = $this->permissionManager->countPermissions();
+            }
+
+            // Si no hay managers disponibles, consultar directamente
+            if ($counts['users'] === 0 && $counts['roles'] === 0 && $counts['permissions'] === 0) {
+                if (isset($this->db)) {
+                    $conn = $this->db->getConnection();
+                    $prefix = $conn->getPrefix();
+
+                    $users = $conn->fetchOne("SELECT COUNT(*) as count FROM {$prefix}users");
+                    $counts['users'] = (int)($users['count'] ?? 0);
+
+                    $roles = $conn->fetchOne("SELECT COUNT(*) as count FROM {$prefix}roles");
+                    $counts['roles'] = (int)($roles['count'] ?? 0);
+
+                    $permissions = $conn->fetchOne("SELECT COUNT(*) as count FROM {$prefix}permissions");
+                    $counts['permissions'] = (int)($permissions['count'] ?? 0);
+                }
+            }
+        } catch (\Exception $e) {
+            // En caso de error, retornar ceros
+            error_log("Error obteniendo contadores de navegación: " . $e->getMessage());
+        }
+
+        // Guardar en caché por 5 minutos
+        $_SESSION[$cacheKey] = $counts;
+        $_SESSION[$cacheExpiry] = $now + 300; // 5 minutos
+
+        return $counts;
     }
 
     /**

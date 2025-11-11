@@ -200,11 +200,69 @@
     }
 
     // ========================================
+    // DARK MODE TOGGLE
+    // ========================================
+
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const darkModeIcon = document.getElementById('darkModeIcon');
+
+    // Función para aplicar dark mode
+    function applyDarkMode(isDark) {
+        if (isDark) {
+            body.classList.add('dark-mode');
+            if (darkModeIcon) {
+                darkModeIcon.classList.remove('bi-toggle-off');
+                darkModeIcon.classList.add('bi-toggle-on');
+            }
+        } else {
+            body.classList.remove('dark-mode');
+            if (darkModeIcon) {
+                darkModeIcon.classList.remove('bi-toggle-on');
+                darkModeIcon.classList.add('bi-toggle-off');
+            }
+        }
+    }
+
+    // Cargar preferencia de dark mode desde localStorage
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    applyDarkMode(savedDarkMode);
+
+    // Toggle dark mode al hacer click
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const isDark = body.classList.contains('dark-mode');
+            const newMode = !isDark;
+
+            applyDarkMode(newMode);
+            localStorage.setItem('darkMode', newMode);
+        });
+    }
+
+    // Detectar preferencia del sistema
+    if (window.matchMedia && !localStorage.getItem('darkMode')) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyDarkMode(prefersDark);
+    }
+
+    // Escuchar cambios en la preferencia del sistema
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+            if (!localStorage.getItem('darkMode')) {
+                applyDarkMode(e.matches);
+            }
+        });
+    }
+
+    // ========================================
     // CONSOLE INFO
     // ========================================
 
     console.log('✅ NexoSupport Navigation initialized');
     console.log('📱 Window width:', window.innerWidth);
     console.log('🎨 Theme: ISER');
+    console.log('🌙 Dark Mode:', body.classList.contains('dark-mode'));
 
 })();

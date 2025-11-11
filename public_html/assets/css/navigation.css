@@ -385,3 +385,23 @@
     padding: 1.5rem;
     background: #f5f7fa;
 }
+
+/* ========================================
+   DARK MODE TOGGLE
+======================================== */
+
+.dark-mode-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem !important;
+}
+
+.dark-mode-toggle i:last-child {
+    font-size: 1.25rem;
+    transition: transform 0.3s ease;
+}
+
+body.dark-mode .dark-mode-toggle i:last-child {
+    color: #4ade80;
+}
