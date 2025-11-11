@@ -8,6 +8,9 @@ ini_set('display_errors', '1');
 define('BASE_DIR', dirname(__DIR__));
 require_once BASE_DIR . '/vendor/autoload.php';
 
+use ISER\Core\Bootstrap;
+use ISER\Permission\PermissionManager;
+
 session_start();
 
 header('Content-Type: text/plain; charset=UTF-8');
@@ -15,9 +18,6 @@ header('Content-Type: text/plain; charset=UTF-8');
 echo "=== TEST DE PERMISOS ===\n\n";
 
 try {
-    use ISER\Core\Bootstrap;
-    use ISER\Permission\PermissionManager;
-
     // Inicializar aplicación
     echo "1. Inicializando aplicación...\n";
     $app = new Bootstrap(BASE_DIR);
