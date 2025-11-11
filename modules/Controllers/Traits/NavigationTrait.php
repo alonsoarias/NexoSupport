@@ -23,7 +23,17 @@ trait NavigationTrait
     protected function enrichWithNavigation(array $data, string $activeRoute, ?array $customBreadcrumbs = null): array
     {
         // Obtener usuario actual de sesión
-        $user = $_SESSION['user'] ?? null;
+        $user = null;
+        if (isset($_SESSION['user_id'])) {
+            $user = [
+                'id' => $_SESSION['user_id'] ?? null,
+                'name' => $_SESSION['username'] ?? 'Usuario',
+                'email' => $_SESSION['email'] ?? '',
+                'username' => $_SESSION['username'] ?? '',
+                'role_name' => $_SESSION['role_name'] ?? 'Usuario',
+                'avatar' => $_SESSION['avatar'] ?? null,
+            ];
+        }
 
         // Generar breadcrumbs
         $breadcrumbs = $customBreadcrumbs ?? $this->generateBreadcrumbs($activeRoute);

@@ -158,9 +158,13 @@ class UserManager
         }
 
         if (isset($filters['search'])) {
-            $sql .= " AND (username LIKE :search OR email LIKE :search
-                     OR first_name LIKE :search OR last_name LIKE :search)";
-            $params[':search'] = '%' . $filters['search'] . '%';
+            $searchTerm = '%' . $filters['search'] . '%';
+            $sql .= " AND (username LIKE :search1 OR email LIKE :search2
+                     OR first_name LIKE :search3 OR last_name LIKE :search4)";
+            $params[':search1'] = $searchTerm;
+            $params[':search2'] = $searchTerm;
+            $params[':search3'] = $searchTerm;
+            $params[':search4'] = $searchTerm;
         }
 
         $sql .= " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
@@ -196,9 +200,13 @@ class UserManager
         }
 
         if (isset($filters['search'])) {
-            $sql .= " AND (username LIKE :search OR email LIKE :search
-                     OR first_name LIKE :search OR last_name LIKE :search)";
-            $params[':search'] = '%' . $filters['search'] . '%';
+            $searchTerm = '%' . $filters['search'] . '%';
+            $sql .= " AND (username LIKE :search1 OR email LIKE :search2
+                     OR first_name LIKE :search3 OR last_name LIKE :search4)";
+            $params[':search1'] = $searchTerm;
+            $params[':search2'] = $searchTerm;
+            $params[':search3'] = $searchTerm;
+            $params[':search4'] = $searchTerm;
         }
 
         $result = $this->db->getConnection()->fetchOne($sql, $params);

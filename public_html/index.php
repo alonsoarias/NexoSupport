@@ -142,6 +142,12 @@ $router->get('/dashboard', function ($request) use ($database) {
     return $controller->dashboard($request);
 }, 'dashboard');
 
+// Perfil de usuario
+$router->get('/profile', function ($request) use ($database) {
+    $controller = new HomeController($database);
+    return $controller->profile($request);
+}, 'profile');
+
 // ===== RUTAS DE ADMINISTRACIÓN =====
 $router->group('/admin', function (Router $router) use ($database) {
     // Panel principal de administración

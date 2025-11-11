@@ -158,6 +158,38 @@ class HomeController
     }
 
     /**
+     * Página de perfil de usuario
+     *
+     * @param ServerRequestInterface $request PSR-7 Request
+     * @return ResponseInterface PSR-7 Response
+     */
+    public function profile(ServerRequestInterface $request): ResponseInterface
+    {
+        // Verificar que el usuario esté autenticado
+        if (!isset($_SESSION['user_id'])) {
+            return Response::redirect('/login');
+        }
+
+        // Obtener información del usuario
+        $userId = (int)$_SESSION['user_id'];
+        $user = $this->userManager->getUserById($userId);
+
+        if (!$user) {
+            return Response::redirect('/login');
+        }
+
+        $data = [
+            'user' => $user,
+            'page_title' => 'Mi Perfil - ' . $this->translator->translate('app_name'),
+        ];
+
+        // Enriquecer con navegación
+        $data = $this->enrichWithNavigation($data, '/profile');
+
+        return $this->renderWithLayout('profile/index', $data);
+    }
+
+    /**
      * Obtener número de sesiones iniciadas hoy
      */
     private function getSessionsToday(int $todayStart): int
