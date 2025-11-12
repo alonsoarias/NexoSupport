@@ -122,10 +122,13 @@ class Bootstrap
             // Step 6: Initialize session (JWT)
             $this->initializeSession();
 
-            // Step 7: Initialize router
+            // Step 7: Initialize i18n and locale detection
+            $this->initializeI18n();
+
+            // Step 8: Initialize router
             $this->initializeRouter();
 
-            // Step 8: Discover and register modules
+            // Step 9: Discover and register modules
             $this->discoverModules();
 
             $this->initialized = true;
@@ -244,6 +247,28 @@ class Bootstrap
         $this->jwtSession = new JWTSession($jwtConfig);
 
         Logger::debug('JWT session initialized');
+    }
+
+    /**
+     * Initialize i18n and locale detection
+     *
+     * @return void
+     */
+    private function initializeI18n(): void
+    {
+        // Obtener instancia del Translator
+        $translator = \ISER\Core\I18n\Translator::getInstance();
+
+        // Crear LocaleDetector
+        $localeDetector = new \ISER\Core\I18n\LocaleDetector($translator, $this->database);
+
+        // Detectar y aplicar locale automáticamente
+        $localeDetector->apply();
+
+        Logger::debug('I18n initialized', [
+            'locale' => $translator->getLocale(),
+            'available_locales' => $translator->getAvailableLocales()
+        ]);
     }
 
     /**

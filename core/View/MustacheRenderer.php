@@ -139,22 +139,51 @@ class MustacheRenderer
                 return $translator->translate($text);
             },
 
-            // Helper de fecha
-            'date' => function ($timestamp = null, $format = 'Y-m-d H:i:s') {
-                if (is_numeric($timestamp)) {
-                    return date($format, (int)$timestamp);
+            // Helper de fecha (con soporte de locale)
+            'date' => function ($timestamp = null, $format = null) use ($translator) {
+                if (!is_numeric($timestamp)) {
+                    return $timestamp ?? '';
                 }
-                return $timestamp ?? '';
+
+                $locale = $translator->getLocale();
+
+                // Si no se especifica formato, usar formato por defecto según locale
+                if ($format === null || $format === 'Y-m-d H:i:s') {
+                    $format = match($locale) {
+                        'en' => 'm/d/Y H:i',     // 12/31/2025 23:59
+                        'pt' => 'd/m/Y H:i',     // 31/12/2025 23:59
+                        default => 'd/m/Y H:i',  // 31/12/2025 23:59 (es y otros)
+                    };
+                }
+
+                return date($format, (int)$timestamp);
             },
 
-            // Helper de número formateado
-            'number' => function ($number = 0, $decimals = 2) {
-                return number_format((float)$number, (int)$decimals, '.', ',');
+            // Helper de número formateado (con soporte de locale)
+            'number' => function ($number = 0, $decimals = 2) use ($translator) {
+                $locale = $translator->getLocale();
+
+                // Separadores según locale
+                [$decimalSep, $thousandsSep] = match($locale) {
+                    'en' => ['.', ','],  // 1,234.56
+                    'es' => [',', '.'],  // 1.234,56
+                    'pt' => [',', '.'],  // 1.234,56
+                    default => [',', '.'], // Por defecto como español
+                };
+
+                return number_format((float)$number, (int)$decimals, $decimalSep, $thousandsSep);
             },
 
-            // Helper de porcentaje
-            'percentage' => function ($value = 0) {
-                return number_format((float)$value, 2) . '%';
+            // Helper de porcentaje (con soporte de locale)
+            'percentage' => function ($value = 0) use ($translator) {
+                $locale = $translator->getLocale();
+
+                [$decimalSep, $thousandsSep] = match($locale) {
+                    'en' => ['.', ','],
+                    default => [',', '.'],
+                };
+
+                return number_format((float)$value, 2, $decimalSep, $thousandsSep) . '%';
             },
 
             // Helper de URL

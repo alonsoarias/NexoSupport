@@ -91,6 +91,7 @@ use ISER\Controllers\AdminController;
 use ISER\Controllers\UserManagementController;
 use ISER\Controllers\RoleController;
 use ISER\Controllers\PermissionController;
+use ISER\Controllers\I18nApiController;
 
 // Inicializar la aplicación
 try {
@@ -313,10 +314,35 @@ $router->get('/theme', function ($request) {
 
 // ===== RUTAS API =====
 $router->group('/api', function (Router $router) {
-    // API routes aquí
+    // API de estado del sistema
     $router->get('/status', function ($request) {
         return Response::json(['status' => 'ok', 'timestamp' => time()]);
     }, 'api.status');
+
+    // ===== API de Internacionalización =====
+    // Obtener locale actual
+    $router->get('/i18n/current', function ($request) {
+        $controller = new I18nApiController();
+        return $controller->getCurrentLocale($request);
+    }, 'api.i18n.current');
+
+    // Establecer locale del usuario
+    $router->post('/i18n/locale', function ($request) {
+        $controller = new I18nApiController();
+        return $controller->setLocale($request);
+    }, 'api.i18n.setLocale');
+
+    // Obtener todas las traducciones de un locale
+    $router->get('/i18n/{locale}', function ($request) {
+        $controller = new I18nApiController();
+        return $controller->getTranslations($request);
+    }, 'api.i18n.translations');
+
+    // Obtener traducciones de un namespace específico
+    $router->get('/i18n/{locale}/{namespace}', function ($request) {
+        $controller = new I18nApiController();
+        return $controller->getTranslations($request);
+    }, 'api.i18n.namespace');
 });
 
 // Ejecutar el router con PSR-7

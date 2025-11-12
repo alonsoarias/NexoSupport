@@ -1,12 +1,12 @@
 <!-- Dashboard -->
 <div class="dashboard-container">
     <div class="dashboard-header">
-        <h2>Panel de Control</h2>
+        <h2>{{#__}}dashboard.title{{/__}}</h2>
         <div class="user-info">
-            <span>Bienvenido, {{username}}</span>
+            <span>{{#__}}dashboard.welcome{{/__}}, {{username}}</span>
             <a href="/logout" class="btn btn-sm">
                 <i class="bi bi-box-arrow-right"></i>
-                Cerrar Sesión
+                {{#__}}auth.logout{{/__}}
             </a>
         </div>
     </div>
@@ -15,40 +15,40 @@
     <div class="cards-grid">
         <div class="card">
             <div class="card-header">
-                <div class="card-title">Usuarios del Sistema</div>
+                <div class="card-title">{{#__}}dashboard.stats.total_users{{/__}}</div>
             </div>
             <div class="card-body">
                 <div class="metric-value">150</div>
-                <div class="metric-label">Usuarios Activos</div>
+                <div class="metric-label">{{#__}}dashboard.stats.active_users{{/__}}</div>
             </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <div class="card-title">Sesiones</div>
+                <div class="card-title">{{#__}}admin.menu.sessions{{/__}}</div>
             </div>
             <div class="card-body">
                 <div class="metric-value">45</div>
-                <div class="metric-label">Sesiones Hoy</div>
+                <div class="metric-label">{{#__}}dashboard.stats.logins_today{{/__}}</div>
             </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <div class="card-title">Rendimiento</div>
+                <div class="card-title">{{#__}}dashboard.charts.performance{{/__}}</div>
             </div>
             <div class="card-body">
-                <div class="metric-value">98.5%</div>
-                <div class="metric-label">Tasa de Éxito</div>
+                <div class="metric-value">{{#percentage}}98.5{{/percentage}}</div>
+                <div class="metric-label">{{#__}}dashboard.charts.success{{/__}}</div>
             </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <div class="card-title">Disponibilidad</div>
+                <div class="card-title">{{#__}}dashboard.system_info.uptime{{/__}}</div>
             </div>
             <div class="card-body">
-                <div class="metric-value">99.9%</div>
+                <div class="metric-value">{{#percentage}}99.9{{/percentage}}</div>
                 <div class="metric-label">Uptime</div>
             </div>
         </div>
@@ -56,23 +56,23 @@
 
     <!-- Menú de acciones -->
     <div class="actions-section">
-        <h3>Acciones Rápidas</h3>
+        <h3>{{#__}}dashboard.quick_actions.title{{/__}}</h3>
         <div class="actions-grid">
             <a href="/admin" class="action-btn">
                 <i class="bi bi-gear"></i>
-                <span>Administración</span>
+                <span>{{#__}}admin.menu.admin{{/__}}</span>
             </a>
             <a href="/admin/plugins" class="action-btn">
                 <i class="bi bi-plugin"></i>
-                <span>Plugins</span>
+                <span>{{#__}}admin.menu.plugins{{/__}}</span>
             </a>
             <a href="/report" class="action-btn">
                 <i class="bi bi-file-text"></i>
-                <span>Reportes</span>
+                <span>{{#__}}admin.menu.reports{{/__}}</span>
             </a>
             <a href="/admin/settings" class="action-btn">
                 <i class="bi bi-sliders"></i>
-                <span>Configuración</span>
+                <span>{{#__}}admin.menu.settings{{/__}}</span>
             </a>
         </div>
     </div>
