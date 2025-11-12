@@ -35,7 +35,7 @@ Rediseñar el instalador web de 5 etapas actuales a **11 etapas completas** con 
 ### ETAPA 4: Instalación de Base de Datos
 **Ya existe - MANTENER**:
 - Parsear schema.xml
-- Crear 14 tablas (o 17 si normalizado a 3FN)
+- Crear tablas 
 - Insertar datos iniciales
 - Barra de progreso en tiempo real
 
