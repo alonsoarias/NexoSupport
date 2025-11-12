@@ -820,8 +820,14 @@
             <column name="version" type="VARCHAR(20)" null="false"/>
             <column name="description" type="TEXT"/>
             <column name="author" type="VARCHAR(100)"/>
+            <column name="author_url" type="VARCHAR(255)"/>
+            <column name="plugin_url" type="VARCHAR(255)"/>
             <column name="path" type="VARCHAR(255)" null="false"/>
+            <column name="is_core" type="BOOLEAN" default="false"/>
+            <column name="priority" type="INT" default="10"/>
+            <column name="manifest" type="TEXT"/>
             <column name="enabled" type="BOOLEAN" default="false"/>
+            <column name="activated_at" type="INT UNSIGNED"/>
             <column name="installed_at" type="INT UNSIGNED" null="false"/>
             <column name="updated_at" type="INT UNSIGNED" null="false"/>
         </columns>
@@ -829,6 +835,8 @@
             <index name="idx_slug" columns="slug"/>
             <index name="idx_type" columns="type"/>
             <index name="idx_enabled" columns="enabled"/>
+            <index name="idx_is_core" columns="is_core"/>
+            <index name="idx_priority" columns="priority"/>
         </indexes>
     </table>
 
