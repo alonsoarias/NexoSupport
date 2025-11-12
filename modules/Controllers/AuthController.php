@@ -10,12 +10,15 @@ use ISER\Core\Http\Response;
 use ISER\Core\Database\Database;
 use ISER\Core\Utils\Helpers;
 use ISER\User\UserManager;
+use ISER\User\AccountSecurityManager;
+use ISER\User\LoginHistoryManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
  * Authentication Controller
  * Sistema de autenticación simplificado y robusto
+ * Updated for FASE 6: 3FN normalization with separate security and login history tables
  */
 class AuthController
 {
@@ -23,6 +26,8 @@ class AuthController
     private Translator $translator;
     private Database $db;
     private UserManager $userManager;
+    private AccountSecurityManager $securityManager;
+    private LoginHistoryManager $loginHistory;
 
     public function __construct(Database $db)
     {
@@ -30,6 +35,8 @@ class AuthController
         $this->translator = Translator::getInstance();
         $this->db = $db;
         $this->userManager = new UserManager($db);
+        $this->securityManager = new AccountSecurityManager($db);
+        $this->loginHistory = new LoginHistoryManager($db);
     }
 
     /**
@@ -121,10 +128,9 @@ class AuthController
             return Response::redirect('/login');
         }
 
-        // Verificar si la cuenta está bloqueada
-        $lockedUntil = $user['locked_until'] ?? 0;
-        if ($lockedUntil > time()) {
-            $remainingTime = ceil(($lockedUntil - time()) / 60);
+        // Verificar si la cuenta está bloqueada (FASE 6: using account_security table)
+        if ($this->securityManager->isLocked($user['id'])) {
+            $remainingTime = ceil($this->securityManager->getRemainingLockTime($user['id']) / 60);
             error_log("[LOGIN ERROR] Cuenta bloqueada por {$remainingTime} minutos más");
             $_SESSION['login_error'] = "Cuenta bloqueada. Intenta en {$remainingTime} minutos.";
             return Response::redirect('/login');
@@ -144,23 +150,16 @@ class AuthController
             error_log("[LOGIN ERROR] Contraseña incorrecta");
             $this->recordFailedAttempt($username, $user['id']);
 
-            // Incrementar contador de intentos fallidos
-            $failedAttempts = ($user['failed_login_attempts'] ?? 0) + 1;
+            // Record failed attempt in account_security table (FASE 6)
+            $this->securityManager->recordFailedAttempt($user['id']);
+            $failedAttempts = $this->securityManager->getFailedAttempts($user['id']);
             error_log("[LOGIN] Intentos fallidos: {$failedAttempts}");
 
-            // Bloquear cuenta después de 5 intentos
-            if ($failedAttempts >= 5) {
-                $lockDuration = 900; // 15 minutos
-                $this->userManager->update($user['id'], [
-                    'failed_login_attempts' => $failedAttempts,
-                    'locked_until' => time() + $lockDuration
-                ]);
-                error_log("[LOGIN] Cuenta bloqueada por 15 minutos");
+            // Check if account is now locked
+            if ($this->securityManager->isLocked($user['id'])) {
+                error_log("[LOGIN] Cuenta bloqueada por intentos fallidos");
                 $_SESSION['login_error'] = 'Demasiados intentos fallidos. Cuenta bloqueada por 15 minutos.';
             } else {
-                $this->userManager->update($user['id'], [
-                    'failed_login_attempts' => $failedAttempts
-                ]);
                 $_SESSION['login_error'] = $this->translator->translate('auth.invalid_credentials');
             }
 
@@ -169,13 +168,19 @@ class AuthController
 
         error_log("[LOGIN SUCCESS] Contraseña verificada correctamente");
 
-        // Resetear intentos fallidos
-        $this->userManager->update($user['id'], [
-            'failed_login_attempts' => 0,
-            'locked_until' => null,
-            'last_login_at' => time(),
-            'last_login_ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'
-        ]);
+        // Reset failed login attempts (FASE 6: using account_security table)
+        $this->securityManager->resetAttempts($user['id']);
+
+        // Record successful login in login_history (FASE 6: using login_history table)
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+        $sessionId = session_id();
+        $loginId = $this->loginHistory->recordLogin($user['id'], $ipAddress, $userAgent, $sessionId);
+
+        // Store login_id in session for logout tracking
+        if ($loginId !== false) {
+            $_SESSION['login_id'] = $loginId;
+        }
 
         // Registrar intento exitoso
         $this->recordSuccessfulAttempt($username);
@@ -195,6 +200,12 @@ class AuthController
     public function logout(ServerRequestInterface $request): ResponseInterface
     {
         error_log("[LOGOUT] Usuario cerrando sesión - User ID: " . ($_SESSION['user_id'] ?? 'N/A'));
+
+        // Record logout in login_history (FASE 6)
+        if (isset($_SESSION['login_id'])) {
+            $this->loginHistory->recordLogout($_SESSION['login_id']);
+            error_log("[LOGOUT] Logout recorded in login_history - Login ID: " . $_SESSION['login_id']);
+        }
 
         // Destruir sesión
         $_SESSION = [];

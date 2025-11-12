@@ -28,18 +28,28 @@ class UserManager
         if (!Helpers::validateEmail($data['email'])) return false;
 
         $now = time();
-        return $this->db->insert('users', [
+        $userId = $this->db->insert('users', [
             'username' => $data['username'],
             'email' => $data['email'],
             'password' => Helpers::hashPassword($data['password']),
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'status' => $data['status'] ?? 'active',
-            'failed_login_attempts' => 0,
-            'locked_until' => 0,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
+
+        // Initialize account_security record (FASE 6 - 3FN normalization)
+        if ($userId !== false) {
+            $securityManager = new AccountSecurityManager($this->db);
+            $securityManager->initialize((int)$userId);
+
+            // Initialize default preferences (FASE 6 - 3FN normalization)
+            $prefsManager = new PreferencesManager($this->db);
+            $prefsManager->initializeDefaults((int)$userId);
+        }
+
+        return $userId;
     }
 
     public function getUserById(int $id): array|false
@@ -123,13 +133,16 @@ class UserManager
 
     /**
      * Update user's last login information
+     *
+     * @deprecated This method is deprecated as of FASE 6.
+     *             Use LoginHistoryManager::recordLogin() instead.
+     *             Login history is now stored in the login_history table (3FN normalization).
      */
     public function updateLastLogin(int $id, string $ip): bool
     {
-        return $this->update($id, [
-            'last_login_at' => time(),
-            'last_login_ip' => $ip
-        ]);
+        // This method is kept for backward compatibility only
+        // Login history is now managed by LoginHistoryManager
+        return true;
     }
 
     /**

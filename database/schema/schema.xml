@@ -183,7 +183,7 @@
 
     <!-- Users Table - NORMALIZED -->
     <table name="users">
-        <description>System users (password reset moved to separate table)</description>
+        <description>System users (3FN normalized - security and login history in separate tables)</description>
         <columns>
             <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
             <column name="username" type="VARCHAR(50)" null="false" unique="true"/>
@@ -195,10 +195,6 @@
             <column name="email_verified" type="BOOLEAN" default="false"/>
             <column name="email_verification_token" type="VARCHAR(64)"/>
             <column name="email_verification_expires" type="INT UNSIGNED"/>
-            <column name="last_login_at" type="INT UNSIGNED"/>
-            <column name="last_login_ip" type="VARCHAR(45)"/>
-            <column name="failed_login_attempts" type="INT UNSIGNED" default="0"/>
-            <column name="locked_until" type="INT UNSIGNED"/>
             <column name="created_at" type="INT UNSIGNED" null="false"/>
             <column name="updated_at" type="INT UNSIGNED" null="false"/>
             <column name="deleted_at" type="INT UNSIGNED"/>
@@ -259,7 +255,7 @@
 
     <!-- User Profiles Table - NORMALIZED (1:1 relationship with users) -->
     <table name="user_profiles">
-        <description>User profile information (user_id as PK for true 1:1 relationship)</description>
+        <description>User profile information (3FN normalized - preferences in separate table)</description>
         <columns>
             <column name="user_id" type="INT UNSIGNED" primary="true"/>
             <column name="phone" type="VARCHAR(20)"/>
@@ -269,14 +265,75 @@
             <column name="state" type="VARCHAR(100)"/>
             <column name="country" type="VARCHAR(100)"/>
             <column name="postal_code" type="VARCHAR(20)"/>
-            <column name="timezone" type="VARCHAR(50)" default="America/Bogota"/>
-            <column name="locale" type="VARCHAR(10)" default="es"/>
             <column name="avatar_url" type="VARCHAR(255)"/>
             <column name="bio" type="TEXT"/>
             <column name="metadata" type="JSON"/>
             <column name="created_at" type="INT UNSIGNED" null="false"/>
             <column name="updated_at" type="INT UNSIGNED" null="false"/>
         </columns>
+        <foreignKeys>
+            <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Login History Table - FASE 6 (3FN Normalization) -->
+    <table name="login_history">
+        <description>Complete login history tracking (normalized from users.last_login_*)</description>
+        <columns>
+            <column name="id" type="BIGINT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="user_id" type="INT UNSIGNED" null="false"/>
+            <column name="ip_address" type="VARCHAR(45)" null="false"/>
+            <column name="user_agent" type="VARCHAR(255)"/>
+            <column name="login_at" type="INT UNSIGNED" null="false"/>
+            <column name="logout_at" type="INT UNSIGNED"/>
+            <column name="session_id" type="VARCHAR(128)"/>
+        </columns>
+        <indexes>
+            <index name="idx_user_id" columns="user_id"/>
+            <index name="idx_login_at" columns="login_at"/>
+            <index name="idx_session_id" columns="session_id"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Account Security Table - FASE 6 (3FN Normalization) -->
+    <table name="account_security">
+        <description>User account security state (normalized from users.failed_login_*, locked_until)</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="user_id" type="INT UNSIGNED" null="false" unique="true"/>
+            <column name="failed_login_attempts" type="INT UNSIGNED" default="0" null="false"/>
+            <column name="locked_until" type="INT UNSIGNED"/>
+            <column name="last_failed_attempt_at" type="INT UNSIGNED"/>
+            <column name="updated_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_user_id" columns="user_id"/>
+            <index name="idx_locked_until" columns="locked_until"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- User Preferences Table - FASE 6 (3FN Normalization) -->
+    <table name="user_preferences">
+        <description>Extensible user preferences (normalized from user_profiles.timezone, locale)</description>
+        <columns>
+            <column name="id" type="BIGINT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="user_id" type="INT UNSIGNED" null="false"/>
+            <column name="preference_key" type="VARCHAR(100)" null="false"/>
+            <column name="preference_value" type="TEXT"/>
+            <column name="preference_type" type="ENUM('string','int','bool','json')" default="string"/>
+            <column name="updated_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_user_id" columns="user_id"/>
+            <index name="idx_preference_key" columns="preference_key"/>
+            <index name="idx_user_preference" columns="user_id,preference_key" unique="true"/>
+        </indexes>
         <foreignKeys>
             <foreignKey column="user_id" references="users(id)" onDelete="CASCADE"/>
         </foreignKeys>
