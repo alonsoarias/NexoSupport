@@ -28,12 +28,40 @@ class RoleController
     private RoleManager $roleManager;
     private PermissionManager $permissionManager;
     private MustacheRenderer $renderer;
+    private Database $db;
 
     public function __construct(Database $db)
     {
+        $this->db = $db;
         $this->roleManager = new RoleManager($db);
         $this->permissionManager = new PermissionManager($db);
         $this->renderer = MustacheRenderer::getInstance();
+    }
+
+    /**
+     * Log audit event
+     */
+    private function logAudit(string $action, string $entityType, ?int $entityId, ?array $oldValues = null, ?array $newValues = null): void
+    {
+        $userId = $_SESSION['user_id'] ?? null;
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? null;
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+
+        $sql = "INSERT INTO {$this->db->table('audit_log')}
+                (user_id, action, entity_type, entity_id, old_values, new_values, ip_address, user_agent, created_at)
+                VALUES (:user_id, :action, :entity_type, :entity_id, :old_values, :new_values, :ip_address, :user_agent, :created_at)";
+
+        $this->db->getConnection()->execute($sql, [
+            ':user_id' => $userId,
+            ':action' => $action,
+            ':entity_type' => $entityType,
+            ':entity_id' => $entityId,
+            ':old_values' => $oldValues ? json_encode($oldValues) : null,
+            ':new_values' => $newValues ? json_encode($newValues) : null,
+            ':ip_address' => $ipAddress,
+            ':user_agent' => $userAgent,
+            ':created_at' => time(),
+        ]);
     }
 
     /**
@@ -178,16 +206,28 @@ class RoleController
         }
 
         // Crear rol
-        $roleId = $this->roleManager->create([
+        $roleData = [
             'name' => $body['name'],
             'slug' => $this->generateSlug($body['name']),
             'description' => $body['description'] ?? '',
-        ]);
+        ];
+        $roleId = $this->roleManager->create($roleData);
 
         // Asignar permisos si se proporcionaron
+        $permissionIds = [];
         if (isset($body['permissions']) && is_array($body['permissions'])) {
-            $this->roleManager->syncPermissions($roleId, array_map('intval', $body['permissions']));
+            $permissionIds = array_map('intval', $body['permissions']);
+            $this->roleManager->syncPermissions($roleId, $permissionIds);
         }
+
+        // Log audit event
+        $this->logAudit(
+            'role.created',
+            'role',
+            $roleId,
+            null,
+            array_merge($roleData, ['permissions' => $permissionIds])
+        );
 
         return Response::redirect('/admin/roles?success=created');
     }
@@ -280,7 +320,11 @@ class RoleController
             return $this->renderWithLayout('admin/roles/edit', $data);
         }
 
+        // Obtener permisos actuales ANTES de actualizar (para audit log)
+        $oldPermissionIds = array_column($this->roleManager->getRolePermissions($roleId), 'id');
+
         // Preparar datos de actualización
+        $updateData = [];
         if (!$isSystemRole) {
             $updateData = [
                 'name' => $body['name'],
@@ -289,17 +333,29 @@ class RoleController
             $this->roleManager->update($roleId, $updateData);
         } else {
             // Para roles del sistema, solo actualizar descripción
-            $this->roleManager->update($roleId, [
+            $updateData = [
                 'description' => $body['description'] ?? '',
-            ]);
+            ];
+            $this->roleManager->update($roleId, $updateData);
         }
 
         // Actualizar permisos (permitido para todos los roles)
+        $newPermissionIds = [];
         if (isset($body['permissions']) && is_array($body['permissions'])) {
-            $this->roleManager->syncPermissions($roleId, array_map('intval', $body['permissions']));
+            $newPermissionIds = array_map('intval', $body['permissions']);
+            $this->roleManager->syncPermissions($roleId, $newPermissionIds);
         } else {
             $this->roleManager->syncPermissions($roleId, []);
         }
+
+        // Log audit event
+        $this->logAudit(
+            'role.updated',
+            'role',
+            $roleId,
+            array_merge($role, ['permissions' => $oldPermissionIds]),
+            array_merge($updateData, ['permissions' => $newPermissionIds])
+        );
 
         // LIMPIAR SESIÓN
         unset($_SESSION['editing_role_id']);
@@ -337,9 +393,22 @@ class RoleController
             ], 400);
         }
 
+        // Get role data before deletion for audit log
+        $roleData = $this->roleManager->getRoleById($roleId);
+        $rolePermissions = array_column($this->roleManager->getRolePermissions($roleId), 'id');
+
         $success = $this->roleManager->delete($roleId);
 
         if ($success) {
+            // Log audit event
+            $this->logAudit(
+                'role.deleted',
+                'role',
+                $roleId,
+                array_merge($roleData, ['permissions' => $rolePermissions]),
+                null
+            );
+
             return Response::json(['success' => true, 'message' => 'Rol eliminado correctamente']);
         }
 

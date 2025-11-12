@@ -609,6 +609,32 @@
                 <description>Permite cerrar sesiones de otros usuarios</description>
                 <module>sessions</module>
             </row>
+
+            <!-- Permisos granulares: Cola de Correos (FASE 8) -->
+            <row>
+                <name>Ver Cola de Correos</name>
+                <slug>email_queue.view</slug>
+                <description>Permite ver la cola de correos del sistema</description>
+                <module>email_queue</module>
+            </row>
+            <row>
+                <name>Reintentar Envío de Correos</name>
+                <slug>email_queue.retry</slug>
+                <description>Permite reintentar el envío de correos fallidos</description>
+                <module>email_queue</module>
+            </row>
+            <row>
+                <name>Eliminar Correos de la Cola</name>
+                <slug>email_queue.delete</slug>
+                <description>Permite eliminar correos de la cola de envío</description>
+                <module>email_queue</module>
+            </row>
+            <row>
+                <name>Limpiar Cola de Correos</name>
+                <slug>email_queue.clear</slug>
+                <description>Permite limpiar correos antiguos de la cola</description>
+                <module>email_queue</module>
+            </row>
         </data>
     </table>
 
@@ -880,5 +906,29 @@
         <foreignKeys>
             <foreignKey column="plugin_id" references="plugins(id)" onDelete="CASCADE"/>
         </foreignKeys>
+    </table>
+
+    <!-- Email Queue Table - FASE 8 -->
+    <table name="email_queue">
+        <description>Email queue management for asynchronous email delivery</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="to_email" type="VARCHAR(255)" null="false"/>
+            <column name="subject" type="VARCHAR(255)" null="false"/>
+            <column name="body" type="LONGTEXT" null="false"/>
+            <column name="status" type="ENUM('pending','sent','failed')" default="pending" null="false"/>
+            <column name="attempts" type="INT UNSIGNED" default="0" null="false"/>
+            <column name="last_attempt_at" type="INT UNSIGNED"/>
+            <column name="error_message" type="TEXT"/>
+            <column name="created_at" type="INT UNSIGNED" null="false"/>
+            <column name="updated_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_status" columns="status"/>
+            <index name="idx_to_email" columns="to_email"/>
+            <index name="idx_created_at" columns="created_at"/>
+            <index name="idx_last_attempt_at" columns="last_attempt_at"/>
+            <index name="idx_pending_queue" columns="status,created_at" unique="false"/>
+        </indexes>
     </table>
 </database>

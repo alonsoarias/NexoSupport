@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Traducciones de configuración del sistema - Portugués
+ * Traducciones de configuração do sistema - Português
  *
  * @package ISER\Resources\Lang
  */
@@ -9,103 +9,120 @@
 return [
     // Título
     'title' => 'Configurações do Sistema',
+    'description' => 'Configure todos os aspectos do sistema a partir desta interface centralizada',
 
-    // Grupos de configuración
-    'groups' => [
+    // Tabs
+    'tabs' => [
         'general' => 'Geral',
         'email' => 'Email',
         'security' => 'Segurança',
-        'cache' => 'Cache',
-        'logs' => 'Registros',
-        'regional' => 'Regional',
         'appearance' => 'Aparência',
         'advanced' => 'Avançado',
     ],
 
-    // Configuraciones generales
-    'general' => [
-        'app_name' => 'Nome da Aplicação',
-        'app_url' => 'URL da Aplicação',
-        'app_env' => 'Ambiente',
-        'app_debug' => 'Modo de Depuração',
-        'maintenance_mode' => 'Modo de Manutenção',
+    // Grupos de configuración
+    'groups' => [
+        'general' => 'Configurações Gerais',
+        'email' => 'Configurações de Email',
+        'security' => 'Configurações de Segurança',
+        'appearance' => 'Configurações de Aparência',
+        'advanced' => 'Configurações Avançadas',
+    ],
+
+    // Fields
+    'fields' => [
+        // General
+        'site_name' => 'Nome do Site',
+        'site_description' => 'Descrição do Site',
         'timezone' => 'Fuso Horário',
         'locale' => 'Idioma',
-    ],
-
-    // Configuraciones de correo
-    'email' => [
-        'driver' => 'Driver de Email',
-        'host' => 'Servidor SMTP',
-        'port' => 'Porta',
-        'username' => 'Usuário',
-        'password' => 'Senha',
-        'encryption' => 'Encriptação',
-        'from_address' => 'Endereço de Envio',
-        'from_name' => 'Nome de Envio',
-        'test_connection' => 'Testar Conexão',
-    ],
-
-    // Configuraciones de seguridad
-    'security' => [
-        'password_min_length' => 'Comprimento Mínimo da Senha',
-        'password_require_uppercase' => 'Requer Maiúsculas',
-        'password_require_lowercase' => 'Requer Minúsculas',
-        'password_require_numbers' => 'Requer Números',
-        'password_require_symbols' => 'Requer Símbolos',
-        'password_expiry_days' => 'Dias de Expiração da Senha',
-        'max_login_attempts' => 'Tentativas Máximas de Login',
-        'lockout_duration' => 'Duração do Bloqueio (minutos)',
-        'session_lifetime' => 'Duração da Sessão (minutos)',
-        'jwt_secret' => 'Chave Secreta JWT',
-        'jwt_ttl' => 'TTL do Token JWT (minutos)',
-        'mfa_enabled' => 'Ativar Autenticação de Dois Fatores',
-    ],
-
-    // Configuraciones de caché
-    'cache' => [
-        'driver' => 'Driver de Cache',
-        'ttl' => 'Tempo de Vida (segundos)',
-        'prefix' => 'Prefixo de Chaves',
-        'clear_cache' => 'Limpar Cache',
-    ],
-
-    // Configuraciones de logs
-    'logs' => [
-        'channel' => 'Canal de Registros',
-        'level' => 'Nível de Registro',
-        'max_files' => 'Arquivos Máximos',
-        'rotation' => 'Rotação de Arquivos',
-    ],
-
-    // Configuraciones regionales
-    'regional' => [
-        'default_timezone' => 'Fuso Horário Padrão',
-        'default_locale' => 'Idioma Padrão',
-        'available_locales' => 'Idiomas Disponíveis',
         'date_format' => 'Formato de Data',
-        'time_format' => 'Formato de Hora',
-        'currency' => 'Moeda',
+
+        // Email
+        'from_name' => 'Nome do Remetente',
+        'from_address' => 'Endereço de Email',
+        'reply_to' => 'Responder Para',
+        'mail_driver' => 'Driver de Email',
+
+        // Security
+        'session_lifetime' => 'Duração da Sessão (minutos)',
+        'password_min_length' => 'Comprimento Mínimo da Senha',
+        'require_email_verification' => 'Requer Verificação de Email',
+        'login_max_attempts' => 'Tentativas Máximas de Login',
+        'lockout_duration' => 'Duração do Bloqueio (minutos)',
+
+        // Appearance
+        'theme' => 'Tema',
+        'items_per_page' => 'Itens por Página',
+        'default_language' => 'Idioma Padrão',
+
+        // Advanced
+        'cache_driver' => 'Driver de Cache',
+        'log_level' => 'Nível de Registro',
+        'debug_mode' => 'Modo de Depuração',
+        'maintenance_mode' => 'Modo de Manutenção',
     ],
 
-    // Mensajes
+    // Help texts
+    'help' => [
+        // General
+        'site_name' => 'Nome que aparecerá em todo o sistema',
+        'site_description' => 'Breve descrição do propósito do sistema',
+        'timezone' => 'Fuso horário para datas e horas do sistema',
+        'locale' => 'Idioma padrão da interface',
+        'date_format' => 'Formato de exibição de datas',
+
+        // Email
+        'from_name' => 'Nome que aparecerá como remetente de emails',
+        'from_address' => 'Endereço de email para mensagens enviadas',
+        'reply_to' => 'Endereço para respostas dos usuários',
+        'mail_driver' => 'Método de envio de emails (SMTP recomendado)',
+
+        // Security
+        'session_lifetime' => 'Tempo de inatividade antes de desconectar automaticamente (5-1440 minutos)',
+        'password_min_length' => 'Número mínimo de caracteres para senhas (6-32)',
+        'require_email_verification' => 'Os usuários devem verificar seu email antes de acessar',
+        'login_max_attempts' => 'Tentativas falhadas permitidas antes de bloquear conta (3-20)',
+        'lockout_duration' => 'Tempo de bloqueio após exceder tentativas (1-1440 minutos)',
+
+        // Appearance
+        'theme' => 'Tema visual do sistema',
+        'items_per_page' => 'Número de itens em listas e tabelas (10-100)',
+        'default_language' => 'Idioma padrão para novos usuários',
+
+        // Advanced
+        'cache_driver' => 'Sistema de armazenamento de cache',
+        'log_level' => 'Nível de detalhe nos registros do sistema',
+        'debug_mode' => 'Mostrar erros detalhados - SOMENTE PARA DESENVOLVIMENTO',
+        'maintenance_mode' => 'Desativar o site para todos exceto administradores',
+    ],
+
+    // Messages
     'saved_message' => 'Configurações salvas com sucesso',
     'restored_message' => 'Configurações restauradas aos valores padrão',
-    'test_email_sent' => 'Email de teste enviado para :email',
-    'cache_cleared' => 'Cache limpo com sucesso',
+    'items_updated' => 'itens atualizados',
 
-    // Acciones
-    'save' => 'Salvar Configurações',
-    'restore_defaults' => 'Restaurar Valores Padrão',
-    'cancel' => 'Cancelar',
+    // Actions
+    'actions' => [
+        'save' => 'Salvar Alterações',
+        'cancel' => 'Cancelar',
+        'reset' => 'Restaurar Valores Padrão',
+    ],
 
-    // Ayuda
-    'help' => [
-        'app_name' => 'Nome que aparecerá em todo o sistema',
-        'app_url' => 'URL base da aplicação (sem barra final)',
-        'app_debug' => 'Mostrar erros detalhados (apenas para desenvolvimento)',
-        'password_min_length' => 'Número mínimo de caracteres necessários para senhas',
-        'max_login_attempts' => 'Número de tentativas falhadas antes de bloquear a conta',
-        'session_lifetime' => 'Tempo de inatividade antes de fazer logout',
+    // Warnings
+    'warnings' => [
+        'advanced' => 'AVISO: As configurações avançadas podem afetar o funcionamento do sistema. Modifique com cautela.',
+    ],
+
+    // Badges
+    'badges' => [
+        'sensitive' => 'Sensível',
+        'critical' => 'Crítico',
+    ],
+
+    // Confirmations
+    'confirmations' => [
+        'reset' => 'Tem certeza de que deseja restaurar todas as configurações para seus valores padrão? Esta ação não pode ser desfeita.',
+        'sensitive' => 'AVISO: Você ativou configurações sensíveis que podem afetar o funcionamento do sistema:',
     ],
 ];

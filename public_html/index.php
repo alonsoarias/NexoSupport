@@ -94,11 +94,16 @@ use ISER\Controllers\RoleController;
 use ISER\Controllers\PermissionController;
 use ISER\Controllers\I18nApiController;
 use ISER\Controllers\AppearanceController;
+use ISER\Controllers\ThemePreviewController;
 use ISER\Controllers\UserProfileController;
 use ISER\Controllers\UserPreferencesController;
 use ISER\Controllers\LoginHistoryController;
 use ISER\Controllers\AuditLogController;
 use ISER\Controllers\LogViewerController;
+use ISER\Controllers\AdminBackupController;
+use ISER\Controllers\AdminEmailQueueController;
+use ISER\Controllers\AdminSettingsController;
+use ISER\Controllers\SearchController;
 use ISER\Admin\AdminPlugins;
 
 // Inicializar la aplicación
@@ -231,11 +236,24 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->index($request);
     }, 'admin');
 
-    // Configuración del sistema
+    // ===== CONFIGURACIÓN DEL SISTEMA (FASE 8) =====
+    // Vista de configuración del sistema
     $router->get('/settings', function ($request) use ($database) {
-        $controller = new AdminController($database);
-        return $controller->settings($request);
-    }, 'admin.settings');
+        $controller = new AdminSettingsController($database);
+        return $controller->index($request);
+    }, 'admin.settings.index');
+
+    // Actualizar configuración
+    $router->post('/settings', function ($request) use ($database) {
+        $controller = new AdminSettingsController($database);
+        return $controller->update($request);
+    }, 'admin.settings.update');
+
+    // Resetear configuración a valores predeterminados
+    $router->post('/settings/reset', function ($request) use ($database) {
+        $controller = new AdminSettingsController($database);
+        return $controller->reset($request);
+    }, 'admin.settings.reset');
 
     // Reportes del sistema
     $router->get('/reports', function ($request) use ($database) {
@@ -385,6 +403,31 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->reset($request);
     }, 'admin.appearance.reset');
 
+    // ===== THEME PREVIEW SYSTEM (FASE 8) =====
+    // Display theme preview page with side-by-side comparison
+    $router->get('/theme/preview', function ($request) use ($database) {
+        $controller = new ThemePreviewController($database);
+        return $controller->preview($request);
+    }, 'admin.theme.preview');
+
+    // Switch to different theme for preview (session-based)
+    $router->post('/theme/switch', function ($request) use ($database) {
+        $controller = new ThemePreviewController($database);
+        return $controller->switch($request);
+    }, 'admin.theme.switch');
+
+    // Apply selected preview theme to account
+    $router->post('/theme/apply', function ($request) use ($database) {
+        $controller = new ThemePreviewController($database);
+        return $controller->apply($request);
+    }, 'admin.theme.apply');
+
+    // Reset preview to original theme
+    $router->post('/theme/reset-preview', function ($request) use ($database) {
+        $controller = new ThemePreviewController($database);
+        return $controller->resetPreview($request);
+    }, 'admin.theme.reset-preview');
+
     // ===== LOGIN HISTORY (Admin View) =====
     // Admin view of all logins
     $router->get('/login-history', function ($request) use ($database) {
@@ -491,6 +534,79 @@ $router->group('/admin', function (Router $router) use ($database) {
         $controller = new AuditLogController($database);
         return $controller->export($request);
     }, 'admin.audit.export');
+
+    // ===== EMAIL QUEUE MANAGER (FASE 8) =====
+    // List queued emails
+    $router->get('/email-queue', function ($request) use ($database) {
+        $controller = new AdminEmailQueueController($database);
+        return $controller->index($request);
+    }, 'admin.email-queue.index');
+
+    // View email details
+    $router->get('/email-queue/view/{id}', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $id = (int)($parts[3] ?? 0);
+        $controller = new AdminEmailQueueController($database);
+        return $controller->view($request, $id);
+    }, 'admin.email-queue.view');
+
+    // Retry failed email
+    $router->post('/email-queue/retry/{id}', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $id = (int)($parts[3] ?? 0);
+        $controller = new AdminEmailQueueController($database);
+        return $controller->retry($request, $id);
+    }, 'admin.email-queue.retry');
+
+    // Delete email from queue
+    $router->post('/email-queue/delete/{id}', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $id = (int)($parts[3] ?? 0);
+        $controller = new AdminEmailQueueController($database);
+        return $controller->delete($request, $id);
+    }, 'admin.email-queue.delete');
+
+    // Clear old emails
+    $router->post('/email-queue/clear', function ($request) use ($database) {
+        $controller = new AdminEmailQueueController($database);
+        return $controller->clear($request);
+    }, 'admin.email-queue.clear');
+
+    // ===== DATABASE BACKUP MANAGER (FASE 8) =====
+    // Show backup list
+    $router->get('/backup', function ($request) use ($database) {
+        $controller = new AdminBackupController($database);
+        return $controller->index($request);
+    }, 'admin.backup.index');
+
+    // Create new backup
+    $router->post('/backup/create', function ($request) use ($database) {
+        $controller = new AdminBackupController($database);
+        return $controller->create($request);
+    }, 'admin.backup.create');
+
+    // Download backup file
+    $router->get('/backup/download/{filename}', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $filename = $parts[3] ?? '';
+        $request = $request->withAttribute('filename', $filename);
+        $controller = new AdminBackupController($database);
+        return $controller->download($request);
+    }, 'admin.backup.download');
+
+    // Delete backup file
+    $router->post('/backup/delete/{filename}', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $filename = $parts[3] ?? '';
+        $request = $request->withAttribute('filename', $filename);
+        $controller = new AdminBackupController($database);
+        return $controller->delete($request);
+    }, 'admin.backup.delete');
 });
 
 // ===== RUTAS DE REPORTES =====
@@ -511,6 +627,25 @@ $router->get('/theme', function ($request) {
     $content = ob_get_clean();
     return Response::html($content);
 }, 'theme');
+
+// ===== SEARCH ROUTES (FASE 8) =====
+// Advanced search form
+$router->get('/search', function ($request) use ($database) {
+    $controller = new SearchController($database);
+    return $controller->index($request);
+}, 'search.index');
+
+// Search results
+$router->get('/search/results', function ($request) use ($database) {
+    $controller = new SearchController($database);
+    return $controller->results($request);
+}, 'search.results');
+
+// Search suggestions API
+$router->get('/api/search/suggestions', function ($request) use ($database) {
+    $controller = new SearchController($database);
+    return $controller->suggestions($request);
+}, 'api.search.suggestions');
 
 // ===== RUTAS API =====
 $router->group('/api', function (Router $router) {

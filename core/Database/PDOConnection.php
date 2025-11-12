@@ -382,4 +382,24 @@ class PDOConnection
     {
         throw new RuntimeException('Cannot unserialize singleton');
     }
+
+    /**
+     * Get database configuration
+     *
+     * @return array Configuration array
+     */
+    public function getConfig(): array
+    {
+        return $this->config;
+    }
+
+    /**
+     * Get database driver name
+     *
+     * @return string Driver name (mysql, pgsql, etc.)
+     */
+    public function getDriverName(): string
+    {
+        return $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+    }
 }

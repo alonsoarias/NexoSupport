@@ -1,0 +1,524 @@
+<!-- Admin Email Queue Manager -->
+<div class="admin-container">
+    <div class="admin-header">
+        <div>
+            <h2>{{trans.title}}</h2>
+            <p class="text-muted">Manage email queue and delivery status</p>
+        </div>
+        <div class="header-actions">
+            {{#has_filters}}
+            <a href="/admin/email-queue" class="btn btn-sm btn-secondary">
+                <i class="bi bi-x-circle"></i> {{trans.clear_filters}}
+            </a>
+            {{/has_filters}}
+            {{#stats.failed}}
+            <button onclick="confirmClearQueue()" class="btn btn-sm btn-warning">
+                <i class="bi bi-trash"></i> {{trans.clear}}
+            </button>
+            {{/stats.failed}}
+            <a href="/admin" class="btn btn-sm btn-secondary">
+                <i class="bi bi-arrow-left"></i> {{trans.back}}
+            </a>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    {{#success}}
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i>
+        {{success}}
+    </div>
+    {{/success}}
+
+    {{#error}}
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-circle"></i>
+        {{error}}
+    </div>
+    {{/error}}
+
+    <!-- Statistics Section -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #ffc107;">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">{{trans.pending}}</p>
+                <p class="stat-value">{{stats.pending}}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #28a745;">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">{{trans.sent}}</p>
+                <p class="stat-value">{{stats.sent}}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #dc3545;">
+                <i class="bi bi-exclamation-circle"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">{{trans.failed}}</p>
+                <p class="stat-value">{{stats.failed}}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #6c757d;">
+                <i class="bi bi-envelope"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Total</p>
+                <p class="stat-value">{{stats.total}}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <form method="GET" action="/admin/email-queue" class="filters-form">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>{{trans.status}}</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="pending" {{#filters.status}}{{#eq filters.status 'pending'}}selected{{/eq}}{{/filters.status}}>{{trans.pending}}</option>
+                        <option value="sent" {{#filters.status}}{{#eq filters.status 'sent'}}selected{{/eq}}{{/filters.status}}>{{trans.sent}}</option>
+                        <option value="failed" {{#filters.status}}{{#eq filters.status 'failed'}}selected{{/eq}}{{/filters.status}}>{{trans.failed}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel"></i> {{trans.filter}}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Email Queue Table -->
+    <div class="table-container">
+        {{#emails}}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>{{trans.to_email}}</th>
+                    <th>{{trans.subject}}</th>
+                    <th>{{trans.status}}</th>
+                    <th>{{trans.attempts}}</th>
+                    <th>{{trans.created_at}}</th>
+                    <th>{{trans.actions}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#emails}}
+                <tr>
+                    <td>{{to_email}}</td>
+                    <td title="{{subject}}">
+                        {{#subject}}
+                            {{#if_length subject 40}}
+                                {{substring subject 0 40}}...
+                            {{else}}
+                                {{subject}}
+                            {{/if_length}}
+                        {{/subject}}
+                    </td>
+                    <td>
+                        <span class="badge {{status_badge_class}}">{{status_label}}</span>
+                    </td>
+                    <td>{{attempts}}</td>
+                    <td>{{created_at}}</td>
+                    <td class="action-buttons">
+                        <a href="/admin/email-queue/view/{{id}}" class="btn btn-sm btn-info" title="{{trans.view}}">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        {{#can_retry}}
+                        <form method="POST" action="/admin/email-queue/retry/{{id}}" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-warning" title="{{trans.retry}}" onclick="return confirm('Retry this email?');">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </form>
+                        {{/can_retry}}
+                        <form method="POST" action="/admin/email-queue/delete/{{id}}" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" title="{{trans.delete}}" onclick="return confirm('Delete this email permanently?');">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {{/emails}}
+            </tbody>
+        </table>
+        {{else}}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            {{trans.no_emails}}
+        </div>
+        {{/emails}}
+    </div>
+
+    <!-- Pagination -->
+    {{#pagination}}
+    <div class="pagination-container">
+        <div class="pagination-info">
+            Showing {{pagination.showing_from}} to {{pagination.showing_to}} of {{pagination.total}} entries
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {{#pagination.has_prev}}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{pagination.prev_page}}{{#filters.status}}&status={{filters.status}}{{/filters.status}}">Previous</a>
+                </li>
+                {{/pagination.has_prev}}
+
+                {{#pagination.has_next}}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{pagination.next_page}}{{#filters.status}}&status={{filters.status}}{{/filters.status}}">Next</a>
+                </li>
+                {{/pagination.has_next}}
+            </ul>
+        </nav>
+    </div>
+    {{/pagination}}
+</div>
+
+<script>
+function confirmClearQueue() {
+    if (confirm('This will delete all sent and failed emails older than 30 days. Continue?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/email-queue/clear';
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+
+<style>
+.admin-container {
+    padding: 20px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.admin-header h2 {
+    margin: 0;
+    color: #1B9E88;
+    font-size: 28px;
+}
+
+.admin-header .text-muted {
+    color: #666;
+    margin: 5px 0 0 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 5px 0 0 0;
+    color: #333;
+}
+
+.filters-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.filters-form {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+}
+
+.filter-group label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.table-container {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.table thead {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: black;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-primary {
+    background-color: #1B9E88;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    gap: 5px;
+    margin: 0;
+}
+
+.page-link {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #1B9E88;
+}
+
+.page-link:hover {
+    background-color: #1B9E88;
+    color: white;
+}
+
+.alert {
+    padding: 15px 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+
+    .table th,
+    .table td {
+        padding: 10px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .pagination-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+</style>

@@ -9,103 +9,120 @@
 return [
     // Title
     'title' => 'System Settings',
+    'description' => 'Configure all aspects of the system from this centralized interface',
 
-    // Settings groups
-    'groups' => [
+    // Tabs
+    'tabs' => [
         'general' => 'General',
         'email' => 'Email',
         'security' => 'Security',
-        'cache' => 'Cache',
-        'logs' => 'Logs',
-        'regional' => 'Regional',
         'appearance' => 'Appearance',
         'advanced' => 'Advanced',
     ],
 
-    // General settings
-    'general' => [
-        'app_name' => 'Application Name',
-        'app_url' => 'Application URL',
-        'app_env' => 'Environment',
-        'app_debug' => 'Debug Mode',
-        'maintenance_mode' => 'Maintenance Mode',
+    // Settings groups
+    'groups' => [
+        'general' => 'General Settings',
+        'email' => 'Email Settings',
+        'security' => 'Security Settings',
+        'appearance' => 'Appearance Settings',
+        'advanced' => 'Advanced Settings',
+    ],
+
+    // Fields
+    'fields' => [
+        // General
+        'site_name' => 'Site Name',
+        'site_description' => 'Site Description',
         'timezone' => 'Timezone',
         'locale' => 'Language',
-    ],
-
-    // Email settings
-    'email' => [
-        'driver' => 'Email Driver',
-        'host' => 'SMTP Server',
-        'port' => 'Port',
-        'username' => 'Username',
-        'password' => 'Password',
-        'encryption' => 'Encryption',
-        'from_address' => 'From Address',
-        'from_name' => 'From Name',
-        'test_connection' => 'Test Connection',
-    ],
-
-    // Security settings
-    'security' => [
-        'password_min_length' => 'Minimum Password Length',
-        'password_require_uppercase' => 'Require Uppercase',
-        'password_require_lowercase' => 'Require Lowercase',
-        'password_require_numbers' => 'Require Numbers',
-        'password_require_symbols' => 'Require Symbols',
-        'password_expiry_days' => 'Password Expiry Days',
-        'max_login_attempts' => 'Maximum Login Attempts',
-        'lockout_duration' => 'Lockout Duration (minutes)',
-        'session_lifetime' => 'Session Duration (minutes)',
-        'jwt_secret' => 'JWT Secret Key',
-        'jwt_ttl' => 'JWT Token TTL (minutes)',
-        'mfa_enabled' => 'Enable Two-Factor Authentication',
-    ],
-
-    // Cache settings
-    'cache' => [
-        'driver' => 'Cache Driver',
-        'ttl' => 'Time to Live (seconds)',
-        'prefix' => 'Key Prefix',
-        'clear_cache' => 'Clear Cache',
-    ],
-
-    // Log settings
-    'logs' => [
-        'channel' => 'Log Channel',
-        'level' => 'Log Level',
-        'max_files' => 'Maximum Files',
-        'rotation' => 'File Rotation',
-    ],
-
-    // Regional settings
-    'regional' => [
-        'default_timezone' => 'Default Timezone',
-        'default_locale' => 'Default Language',
-        'available_locales' => 'Available Languages',
         'date_format' => 'Date Format',
-        'time_format' => 'Time Format',
-        'currency' => 'Currency',
+
+        // Email
+        'from_name' => 'From Name',
+        'from_address' => 'From Address',
+        'reply_to' => 'Reply To',
+        'mail_driver' => 'Mail Driver',
+
+        // Security
+        'session_lifetime' => 'Session Lifetime (minutes)',
+        'password_min_length' => 'Minimum Password Length',
+        'require_email_verification' => 'Require Email Verification',
+        'login_max_attempts' => 'Maximum Login Attempts',
+        'lockout_duration' => 'Lockout Duration (minutes)',
+
+        // Appearance
+        'theme' => 'Theme',
+        'items_per_page' => 'Items Per Page',
+        'default_language' => 'Default Language',
+
+        // Advanced
+        'cache_driver' => 'Cache Driver',
+        'log_level' => 'Log Level',
+        'debug_mode' => 'Debug Mode',
+        'maintenance_mode' => 'Maintenance Mode',
+    ],
+
+    // Help texts
+    'help' => [
+        // General
+        'site_name' => 'Name that will appear throughout the system',
+        'site_description' => 'Brief description of the system purpose',
+        'timezone' => 'Timezone for system dates and times',
+        'locale' => 'Default interface language',
+        'date_format' => 'Date display format',
+
+        // Email
+        'from_name' => 'Name that will appear as email sender',
+        'from_address' => 'Email address for outgoing messages',
+        'reply_to' => 'Address for user replies',
+        'mail_driver' => 'Email sending method (SMTP recommended)',
+
+        // Security
+        'session_lifetime' => 'Time of inactivity before automatic logout (5-1440 minutes)',
+        'password_min_length' => 'Minimum number of characters for passwords (6-32)',
+        'require_email_verification' => 'Users must verify their email before accessing',
+        'login_max_attempts' => 'Failed attempts allowed before locking account (3-20)',
+        'lockout_duration' => 'Lock time after exceeding attempts (1-1440 minutes)',
+
+        // Appearance
+        'theme' => 'System visual theme',
+        'items_per_page' => 'Number of items in lists and tables (10-100)',
+        'default_language' => 'Default language for new users',
+
+        // Advanced
+        'cache_driver' => 'Cache storage system',
+        'log_level' => 'Level of detail in system logs',
+        'debug_mode' => 'Show detailed errors - DEVELOPMENT ONLY',
+        'maintenance_mode' => 'Disable site for everyone except administrators',
     ],
 
     // Messages
     'saved_message' => 'Settings saved successfully',
     'restored_message' => 'Settings restored to default values',
-    'test_email_sent' => 'Test email sent to :email',
-    'cache_cleared' => 'Cache cleared successfully',
+    'items_updated' => 'items updated',
 
     // Actions
-    'save' => 'Save Settings',
-    'restore_defaults' => 'Restore Default Values',
-    'cancel' => 'Cancel',
+    'actions' => [
+        'save' => 'Save Changes',
+        'cancel' => 'Cancel',
+        'reset' => 'Restore Default Values',
+    ],
 
-    // Help
-    'help' => [
-        'app_name' => 'Name that will appear throughout the system',
-        'app_url' => 'Base URL of the application (without trailing slash)',
-        'app_debug' => 'Show detailed errors (development only)',
-        'password_min_length' => 'Minimum number of characters required for passwords',
-        'max_login_attempts' => 'Number of failed attempts before locking account',
-        'session_lifetime' => 'Time of inactivity before logging out',
+    // Warnings
+    'warnings' => [
+        'advanced' => 'WARNING: Advanced settings can affect system operation. Modify with caution.',
+    ],
+
+    // Badges
+    'badges' => [
+        'sensitive' => 'Sensitive',
+        'critical' => 'Critical',
+    ],
+
+    // Confirmations
+    'confirmations' => [
+        'reset' => 'Are you sure you want to restore all settings to their default values? This action cannot be undone.',
+        'sensitive' => 'WARNING: You have enabled sensitive settings that may affect system operation:',
     ],
 ];
