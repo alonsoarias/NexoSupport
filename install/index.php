@@ -169,11 +169,17 @@ if (!file_exists(BASE_DIR . '/vendor/autoload.php')) {
 require_once BASE_DIR . '/vendor/autoload.php';
 
 // Installation stages
-define('STAGE_REQUIREMENTS', 1);
-define('STAGE_DATABASE', 2);
-define('STAGE_INSTALL_DB', 3);
-define('STAGE_ADMIN', 4);
-define('STAGE_FINISH', 5);
+define('STAGE_WELCOME', 1);
+define('STAGE_REQUIREMENTS', 2);
+define('STAGE_DATABASE', 3);
+define('STAGE_INSTALL_DB', 4);
+define('STAGE_ADMIN', 5);
+define('STAGE_SECURITY', 6);
+define('STAGE_LOGGING', 7);
+define('STAGE_EMAIL', 8);
+define('STAGE_STORAGE', 9);
+define('STAGE_REGIONAL', 10);
+define('STAGE_FINISH', 11);
 
 // Get current stage
 if (!empty($_POST)) {
@@ -185,11 +191,11 @@ if (!empty($_POST)) {
         $stage--;
     }
 } else {
-    $stage = STAGE_REQUIREMENTS;
+    $stage = STAGE_WELCOME;
 }
 
 // Keep stage in bounds
-if ($stage < STAGE_REQUIREMENTS) $stage = STAGE_REQUIREMENTS;
+if ($stage < STAGE_WELCOME) $stage = STAGE_WELCOME;
 if ($stage > STAGE_FINISH) $stage = STAGE_FINISH;
 
 // Process form data
@@ -261,15 +267,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['next'])) {
                 $_SESSION['admin_lastname'] = trim($_POST['last_name'] ?? 'User');
             }
             break;
+
+        case STAGE_SECURITY:
+            // Save security configuration
+            $_SESSION['security_session_lifetime'] = (int)trim($_POST['security_session_lifetime'] ?? 3600);
+            $_SESSION['security_max_login_attempts'] = (int)trim($_POST['security_max_login_attempts'] ?? 5);
+            $_SESSION['security_lockout_time'] = (int)trim($_POST['security_lockout_time'] ?? 900);
+            $_SESSION['security_password_min_length'] = (int)trim($_POST['security_password_min_length'] ?? 8);
+            $_SESSION['security_require_special_chars'] = isset($_POST['security_require_special_chars']) ? 1 : 0;
+            $_SESSION['security_enable_2fa'] = isset($_POST['security_enable_2fa']) ? 1 : 0;
+            $_SESSION['security_jwt_secret'] = trim($_POST['security_jwt_secret'] ?? bin2hex(random_bytes(32)));
+            break;
+
+        case STAGE_LOGGING:
+            // Save logging configuration
+            $_SESSION['log_level'] = trim($_POST['log_level'] ?? 'info');
+            $_SESSION['log_path'] = trim($_POST['log_path'] ?? 'storage/logs');
+            $_SESSION['log_channel'] = trim($_POST['log_channel'] ?? 'daily');
+            $_SESSION['log_max_files'] = (int)trim($_POST['log_max_files'] ?? 14);
+            $_SESSION['log_enable_query_log'] = isset($_POST['log_enable_query_log']) ? 1 : 0;
+            $_SESSION['log_enable_error_reporting'] = isset($_POST['log_enable_error_reporting']) ? 1 : 0;
+            break;
+
+        case STAGE_EMAIL:
+            // Save email configuration
+            $_SESSION['mail_driver'] = trim($_POST['mail_driver'] ?? 'smtp');
+            $_SESSION['mail_host'] = trim($_POST['mail_host'] ?? '');
+            $_SESSION['mail_port'] = (int)trim($_POST['mail_port'] ?? 587);
+            $_SESSION['mail_username'] = trim($_POST['mail_username'] ?? '');
+            $_SESSION['mail_password'] = trim($_POST['mail_password'] ?? '');
+            $_SESSION['mail_encryption'] = trim($_POST['mail_encryption'] ?? 'tls');
+            $_SESSION['mail_from_address'] = trim($_POST['mail_from_address'] ?? '');
+            $_SESSION['mail_from_name'] = trim($_POST['mail_from_name'] ?? 'NexoSupport');
+            break;
+
+        case STAGE_STORAGE:
+            // Save storage and cache configuration
+            $_SESSION['cache_driver'] = trim($_POST['cache_driver'] ?? 'file');
+            $_SESSION['cache_prefix'] = trim($_POST['cache_prefix'] ?? 'nexo_');
+            $_SESSION['cache_ttl'] = (int)trim($_POST['cache_ttl'] ?? 3600);
+            $_SESSION['storage_driver'] = trim($_POST['storage_driver'] ?? 'local');
+            $_SESSION['storage_path'] = trim($_POST['storage_path'] ?? 'storage/uploads');
+            $_SESSION['storage_max_size'] = (int)trim($_POST['storage_max_size'] ?? 10485760);
+            break;
+
+        case STAGE_REGIONAL:
+            // Save regional and localization configuration
+            $_SESSION['regional_timezone'] = trim($_POST['regional_timezone'] ?? 'America/Bogota');
+            $_SESSION['regional_locale'] = trim($_POST['regional_locale'] ?? 'es_CO');
+            $_SESSION['regional_currency'] = trim($_POST['regional_currency'] ?? 'COP');
+            $_SESSION['regional_date_format'] = trim($_POST['regional_date_format'] ?? 'Y-m-d');
+            $_SESSION['regional_time_format'] = trim($_POST['regional_time_format'] ?? 'H:i:s');
+            break;
     }
 }
 
 // Stage titles
 $stages = [
+    STAGE_WELCOME => 'Bienvenida',
     STAGE_REQUIREMENTS => 'Requisitos del Sistema',
     STAGE_DATABASE => 'Configuración de Base de Datos',
     STAGE_INSTALL_DB => 'Instalación de Base de Datos',
     STAGE_ADMIN => 'Usuario Administrador',
+    STAGE_SECURITY => 'Seguridad',
+    STAGE_LOGGING => 'Sistema de Logs',
+    STAGE_EMAIL => 'Configuración de Email',
+    STAGE_STORAGE => 'Almacenamiento y Cache',
+    STAGE_REGIONAL => 'Configuración Regional',
     STAGE_FINISH => 'Instalación Completada'
 ];
 
@@ -300,10 +364,21 @@ $stages = [
             </div>
         </div>
 
+        <!-- Progress Indicator -->
+        <div style="background: var(--bg-light); padding: 15px 30px; margin-bottom: 20px; border-radius: 8px; text-align: center; border: 2px solid var(--iser-green);">
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 5px;">Progreso de Instalación</div>
+            <div style="font-size: 1.3rem; font-weight: 600; color: var(--iser-green);">
+                Etapa <?= $stage ?> de 11: <?= $stages[$stage] ?>
+            </div>
+            <div style="margin-top: 10px; background: var(--border-color); height: 8px; border-radius: 4px; overflow: hidden;">
+                <div style="background: var(--iser-green); height: 100%; width: <?= round(($stage / 11) * 100) ?>%; transition: width 0.3s ease;"></div>
+            </div>
+        </div>
+
         <!-- Progress Steps -->
         <div class="steps-container">
             <div class="steps-progress">
-                <?php for ($i = STAGE_REQUIREMENTS; $i <= STAGE_FINISH; $i++): ?>
+                <?php for ($i = STAGE_WELCOME; $i <= STAGE_FINISH; $i++): ?>
                 <div class="step <?= $i < $stage ? 'completed' : ($i == $stage ? 'active' : '') ?>">
                     <div class="step-number">
                         <?php if ($i < $stage): ?>
@@ -337,6 +412,9 @@ $stages = [
                 <?php
                 // Include stage file
                 switch ($stage) {
+                    case STAGE_WELCOME:
+                        include __DIR__ . '/stages/welcome.php';
+                        break;
                     case STAGE_REQUIREMENTS:
                         include __DIR__ . '/stages/requirements.php';
                         break;
@@ -348,6 +426,21 @@ $stages = [
                         break;
                     case STAGE_ADMIN:
                         include __DIR__ . '/stages/admin.php';
+                        break;
+                    case STAGE_SECURITY:
+                        include __DIR__ . '/stages/security.php';
+                        break;
+                    case STAGE_LOGGING:
+                        include __DIR__ . '/stages/logging.php';
+                        break;
+                    case STAGE_EMAIL:
+                        include __DIR__ . '/stages/email.php';
+                        break;
+                    case STAGE_STORAGE:
+                        include __DIR__ . '/stages/storage.php';
+                        break;
+                    case STAGE_REGIONAL:
+                        include __DIR__ . '/stages/regional.php';
                         break;
                     case STAGE_FINISH:
                         include __DIR__ . '/stages/finish.php';
