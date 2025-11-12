@@ -477,6 +477,18 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->discover();
     }, 'admin.plugins.discover');
 
+    // Mostrar formulario de upload de plugin
+    $router->get('/plugins/upload', function ($request) use ($database) {
+        $controller = new AdminPlugins($database);
+        return $controller->showUploadForm();
+    }, 'admin.plugins.upload.form');
+
+    // Procesar upload de plugin
+    $router->post('/plugins/upload', function ($request) use ($database) {
+        $controller = new AdminPlugins($database);
+        return $controller->handleUpload();
+    }, 'admin.plugins.upload.process');
+
     // Habilitar plugin
     $router->post('/plugins/{slug}/enable', function ($request) use ($database) {
         $uri = $request->getUri()->getPath();
@@ -503,6 +515,15 @@ $router->group('/admin', function (Router $router) use ($database) {
         $controller = new AdminPlugins($database);
         return $controller->uninstall($slug);
     }, 'admin.plugins.uninstall');
+
+    // Actualizar plugin
+    $router->post('/plugins/{slug}/update', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $slug = $parts[2] ?? '';
+        $controller = new AdminPlugins($database);
+        return $controller->update($slug);
+    }, 'admin.plugins.update');
 
     // Ver detalles de plugin
     $router->get('/plugins/{slug}', function ($request) use ($database) {

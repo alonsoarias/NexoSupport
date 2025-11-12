@@ -305,6 +305,57 @@ class PluginManager
     }
 
     /**
+     * Update plugin version and manifest
+     *
+     * Updates the plugin's version number and manifest data in the database.
+     * Called after successful plugin update.
+     *
+     * @param string $slug Plugin slug identifier
+     * @param string $newVersion New version number
+     * @param string $manifestJson Updated manifest as JSON string
+     * @return bool True on success
+     */
+    public function updateVersion(string $slug, string $newVersion, string $manifestJson): bool
+    {
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE plugins
+                SET version = :version,
+                    manifest = :manifest,
+                    updated_at = :updated_at
+                WHERE slug = :slug
+            ");
+
+            $result = $stmt->execute([
+                'version' => $newVersion,
+                'manifest' => $manifestJson,
+                'updated_at' => time(),
+                'slug' => $slug
+            ]);
+
+            if ($result) {
+                // Clear cache
+                $this->clearCache();
+
+                Logger::info('Plugin version updated in database', [
+                    'slug' => $slug,
+                    'new_version' => $newVersion
+                ]);
+            }
+
+            return $result;
+
+        } catch (\Exception $e) {
+            Logger::error('Failed to update plugin version', [
+                'slug' => $slug,
+                'version' => $newVersion,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
      * Check plugin dependencies
      *
      * Returns array with:

@@ -641,6 +641,147 @@ class AdminPlugins
     }
 
     /**
+     * Update a plugin from uploaded ZIP file
+     *
+     * POST /admin/plugins/{slug}/update
+     * Expects: plugin_file (ZIP archive via multipart/form-data)
+     *
+     * Updates an existing plugin to a new version, validating compatibility
+     * and preserving data.
+     *
+     * @param string $slug Plugin slug identifier
+     * @return Response JSON response with update result
+     */
+    public function update(string $slug): Response
+    {
+        try {
+            // Verify CSRF token
+            if (!$this->verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'Invalid CSRF token'
+                ], 403);
+            }
+
+            // Validate plugin exists
+            $plugin = $this->pluginManager->getBySlug($slug);
+
+            if (!$plugin) {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'Plugin not found: ' . $slug
+                ], 404);
+            }
+
+            // Validate file upload
+            if (!isset($_FILES['plugin_file']) || $_FILES['plugin_file']['error'] !== UPLOAD_ERR_OK) {
+                $errorMessage = $this->getUploadErrorMessage($_FILES['plugin_file']['error'] ?? UPLOAD_ERR_NO_FILE);
+
+                Logger::warning('Plugin update upload failed', [
+                    'slug' => $slug,
+                    'error_code' => $_FILES['plugin_file']['error'] ?? 'NO_FILE',
+                    'error_message' => $errorMessage
+                ]);
+
+                return Response::json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ], 400);
+            }
+
+            $uploadedFile = $_FILES['plugin_file'];
+
+            // Validate file type
+            if (!str_ends_with(strtolower($uploadedFile['name']), '.zip')) {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'Invalid file type. Only ZIP files are allowed.'
+                ], 400);
+            }
+
+            // Validate file size (100MB max)
+            $maxSize = 100 * 1024 * 1024;
+            if ($uploadedFile['size'] > $maxSize) {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'File size exceeds maximum of 100MB'
+                ], 400);
+            }
+
+            // Move uploaded file to temporary location
+            $tempDir = sys_get_temp_dir();
+            $tempFile = $tempDir . '/plugin_update_' . uniqid() . '.zip';
+
+            if (!move_uploaded_file($uploadedFile['tmp_name'], $tempFile)) {
+                Logger::error('Failed to move uploaded update file', [
+                    'slug' => $slug,
+                    'temp_file' => $tempFile
+                ]);
+
+                return Response::json([
+                    'success' => false,
+                    'message' => 'Failed to process uploaded file'
+                ], 500);
+            }
+
+            Logger::info('Plugin update file uploaded', [
+                'slug' => $slug,
+                'filename' => $uploadedFile['name'],
+                'size' => $uploadedFile['size'],
+                'temp_path' => $tempFile
+            ]);
+
+            // Update plugin using PluginInstaller
+            $result = $this->pluginInstaller->update($slug, $tempFile);
+
+            // Clean up temporary file
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+
+            if (!$result['success']) {
+                Logger::warning('Plugin update failed', [
+                    'slug' => $slug,
+                    'message' => $result['message']
+                ]);
+
+                return Response::json([
+                    'success' => false,
+                    'message' => $result['message']
+                ], 400);
+            }
+
+            Logger::info('Plugin updated successfully', [
+                'slug' => $slug,
+                'name' => $result['plugin']['name'],
+                'version' => $result['plugin']['version']
+            ]);
+
+            return Response::json([
+                'success' => true,
+                'message' => $result['message'],
+                'plugin' => $result['plugin']
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Clean up temporary file on error
+            if (isset($tempFile) && file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+
+            Logger::error('Plugin update error', [
+                'slug' => $slug,
+                'error' => $e->getMessage()
+            ]);
+
+            return Response::json([
+                'success' => false,
+                'message' => 'Update error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Discover available plugins in filesystem
      *
      * POST /admin/plugins/discover

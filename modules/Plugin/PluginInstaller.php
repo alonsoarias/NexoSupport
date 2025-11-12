@@ -18,6 +18,7 @@
 namespace ISER\Plugin;
 
 use ISER\Core\Database\Database;
+use ISER\Core\Database\SchemaInstaller;
 use ISER\Core\Utils\Logger;
 use ZipArchive;
 
@@ -237,6 +238,18 @@ class PluginInstaller
                 ];
             }
 
+            // Install plugin database schema if install.xml exists
+            $schemaResult = $this->installPluginSchema($targetPath, $manifest['slug']);
+            if (!$schemaResult['success']) {
+                $this->removePluginDirectory($targetPath);
+                $this->cleanupTempDirectory($extractedPath);
+                return [
+                    'success' => false,
+                    'message' => 'Failed to install plugin database schema: ' . $schemaResult['message'],
+                    'plugin' => null
+                ];
+            }
+
             // Register in database
             $registered = $this->registerPluginInDatabase($manifest, $targetPath);
             if (!$registered) {
@@ -314,6 +327,9 @@ class PluginInstaller
                 return false;
             }
 
+            // Uninstall plugin database schema (drop plugin tables)
+            $this->uninstallPluginSchema($slug);
+
             // Remove plugin files from filesystem
             $pluginPath = $this->pluginLoader->getPluginPath($plugin['type'], $slug);
             if (is_dir($pluginPath)) {
@@ -340,6 +356,214 @@ class PluginInstaller
                 'error' => $e->getMessage()
             ]);
             return false;
+        }
+    }
+
+    /**
+     * Update an existing plugin
+     *
+     * Updates a plugin from a new ZIP file, preserving configuration and data.
+     * Validates version compatibility and handles schema updates.
+     *
+     * @param string $slug Plugin slug to update
+     * @param string $zipPath Path to new plugin ZIP file
+     * @return array Result with success status, message, and plugin data
+     */
+    public function update(string $slug, string $zipPath): array
+    {
+        try {
+            // Get existing plugin
+            $existingPlugin = $this->pluginManager->getBySlug($slug);
+
+            if (!$existingPlugin) {
+                return [
+                    'success' => false,
+                    'message' => 'Plugin not found: ' . $slug,
+                    'plugin' => null
+                ];
+            }
+
+            // Validate ZIP file
+            if (!file_exists($zipPath)) {
+                return [
+                    'success' => false,
+                    'message' => 'ZIP file not found: ' . $zipPath,
+                    'plugin' => null
+                ];
+            }
+
+            // Extract ZIP
+            $extractResult = $this->extractZip($zipPath);
+            if (!$extractResult['success']) {
+                return $extractResult;
+            }
+
+            $extractedPath = $extractResult['path'];
+
+            // Find plugin directory
+            $pluginDir = $this->findPluginDirectory($extractedPath);
+            if (!$pluginDir) {
+                $this->cleanupTempDirectory($extractedPath);
+                return [
+                    'success' => false,
+                    'message' => 'No valid plugin directory found in ZIP',
+                    'plugin' => null
+                ];
+            }
+
+            // Load and validate new manifest
+            $manifest = $this->loadManifest($pluginDir);
+            if (!$manifest) {
+                $this->cleanupTempDirectory($extractedPath);
+                return [
+                    'success' => false,
+                    'message' => 'Invalid or missing plugin.json',
+                    'plugin' => null
+                ];
+            }
+
+            // Validate slug matches
+            if ($manifest['slug'] !== $slug) {
+                $this->cleanupTempDirectory($extractedPath);
+                return [
+                    'success' => false,
+                    'message' => 'Plugin slug mismatch. Expected: ' . $slug . ', Got: ' . $manifest['slug'],
+                    'plugin' => null
+                ];
+            }
+
+            // Validate version is newer
+            if (version_compare($manifest['version'], $existingPlugin['version'], '<=')) {
+                $this->cleanupTempDirectory($extractedPath);
+                return [
+                    'success' => false,
+                    'message' => 'Update version must be newer than current version (' . $existingPlugin['version'] . ')',
+                    'plugin' => null
+                ];
+            }
+
+            // Temporarily disable plugin if enabled
+            $wasEnabled = (bool)$existingPlugin['enabled'];
+            if ($wasEnabled) {
+                $this->pluginManager->disable($slug);
+            }
+
+            // Get plugin path
+            $targetPath = $this->pluginsDir . '/' . $manifest['type'] . '/' . $manifest['slug'];
+
+            // Backup current plugin (optional - rename to .backup)
+            $backupPath = $targetPath . '.backup';
+            if (is_dir($targetPath)) {
+                if (is_dir($backupPath)) {
+                    $this->removePluginDirectory($backupPath);
+                }
+                if (!rename($targetPath, $backupPath)) {
+                    $this->cleanupTempDirectory($extractedPath);
+                    if ($wasEnabled) {
+                        $this->pluginManager->enable($slug);
+                    }
+                    return [
+                        'success' => false,
+                        'message' => 'Failed to backup current plugin version',
+                        'plugin' => null
+                    ];
+                }
+            }
+
+            // Copy new plugin files
+            if (!$this->copyPluginFiles($pluginDir, $targetPath)) {
+                // Restore backup on failure
+                if (is_dir($backupPath)) {
+                    rename($backupPath, $targetPath);
+                }
+                $this->cleanupTempDirectory($extractedPath);
+                if ($wasEnabled) {
+                    $this->pluginManager->enable($slug);
+                }
+                return [
+                    'success' => false,
+                    'message' => 'Failed to copy updated plugin files',
+                    'plugin' => null
+                ];
+            }
+
+            // Update plugin database schema if install.xml exists
+            $schemaResult = $this->installPluginSchema($targetPath, $manifest['slug']);
+            if (!$schemaResult['success']) {
+                // Restore backup on schema failure
+                $this->removePluginDirectory($targetPath);
+                if (is_dir($backupPath)) {
+                    rename($backupPath, $targetPath);
+                }
+                $this->cleanupTempDirectory($extractedPath);
+                if ($wasEnabled) {
+                    $this->pluginManager->enable($slug);
+                }
+                return [
+                    'success' => false,
+                    'message' => 'Failed to update plugin database schema: ' . $schemaResult['message'],
+                    'plugin' => null
+                ];
+            }
+
+            // Update plugin metadata in database
+            $updateResult = $this->pluginManager->updateVersion($slug, $manifest['version'], json_encode($manifest));
+            if (!$updateResult) {
+                // Restore backup on database update failure
+                $this->removePluginDirectory($targetPath);
+                if (is_dir($backupPath)) {
+                    rename($backupPath, $targetPath);
+                }
+                $this->cleanupTempDirectory($extractedPath);
+                if ($wasEnabled) {
+                    $this->pluginManager->enable($slug);
+                }
+                return [
+                    'success' => false,
+                    'message' => 'Failed to update plugin metadata in database',
+                    'plugin' => null
+                ];
+            }
+
+            // Re-enable plugin if it was enabled
+            if ($wasEnabled) {
+                $this->pluginManager->enable($slug);
+            }
+
+            // Remove backup after successful update
+            if (is_dir($backupPath)) {
+                $this->removePluginDirectory($backupPath);
+            }
+
+            // Cleanup temporary files
+            $this->cleanupTempDirectory($extractedPath);
+
+            // Get updated plugin data
+            $updatedPlugin = $this->pluginManager->getBySlug($slug);
+
+            Logger::info('Plugin updated successfully', [
+                'slug' => $slug,
+                'old_version' => $existingPlugin['version'],
+                'new_version' => $manifest['version']
+            ]);
+
+            return [
+                'success' => true,
+                'message' => 'Plugin updated successfully from ' . $existingPlugin['version'] . ' to ' . $manifest['version'],
+                'plugin' => $updatedPlugin
+            ];
+
+        } catch (\Exception $e) {
+            Logger::error('Plugin update failed', [
+                'slug' => $slug,
+                'error' => $e->getMessage()
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Update error: ' . $e->getMessage(),
+                'plugin' => null
+            ];
         }
     }
 
@@ -793,6 +1017,178 @@ class PluginInstaller
     {
         if (is_dir($path)) {
             $this->removePluginDirectory($path);
+        }
+    }
+
+    /**
+     * Install plugin database schema from install.xml
+     *
+     * Checks if the plugin has an install.xml file and uses SchemaInstaller
+     * to create the necessary database tables with plugin-specific prefix.
+     *
+     * @param string $pluginPath Path to plugin directory
+     * @param string $slug Plugin slug for table prefix
+     * @return array Result with success status and message
+     */
+    private function installPluginSchema(string $pluginPath, string $slug): array
+    {
+        $installXmlPath = $pluginPath . '/install.xml';
+
+        // Check if install.xml exists
+        if (!file_exists($installXmlPath)) {
+            // No schema file - this is OK, not all plugins need database tables
+            Logger::info('Plugin has no install.xml, skipping schema installation', [
+                'slug' => $slug
+            ]);
+
+            return [
+                'success' => true,
+                'message' => 'No database schema required'
+            ];
+        }
+
+        try {
+            Logger::info('Installing plugin database schema', [
+                'slug' => $slug,
+                'xml_path' => $installXmlPath
+            ]);
+
+            // Get PDO connection from database
+            $pdo = $this->db->getConnection();
+
+            // Create table prefix for plugin (format: plugin_slugname_)
+            $tablePrefix = 'plugin_' . str_replace('-', '_', $slug) . '_';
+
+            // Initialize SchemaInstaller with plugin prefix
+            $schemaInstaller = new SchemaInstaller($pdo, $tablePrefix, true); // silent mode
+
+            // Install schema from XML
+            $result = $schemaInstaller->installFromXML($installXmlPath);
+
+            if (!$result) {
+                Logger::error('Plugin schema installation failed', [
+                    'slug' => $slug,
+                    'errors' => $schemaInstaller->getErrors()
+                ]);
+
+                return [
+                    'success' => false,
+                    'message' => 'Schema installation failed: ' . implode(', ', $schemaInstaller->getErrors())
+                ];
+            }
+
+            $createdTables = $schemaInstaller->getCreatedTables();
+            Logger::info('Plugin schema installed successfully', [
+                'slug' => $slug,
+                'tables_created' => count($createdTables),
+                'tables' => $createdTables
+            ]);
+
+            return [
+                'success' => true,
+                'message' => 'Schema installed successfully',
+                'tables' => $createdTables
+            ];
+
+        } catch (\Exception $e) {
+            Logger::error('Plugin schema installation exception', [
+                'slug' => $slug,
+                'error' => $e->getMessage()
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Schema installation error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Uninstall plugin database schema
+     *
+     * Drops all tables created by the plugin (identified by prefix).
+     * Called during plugin uninstallation.
+     *
+     * @param string $slug Plugin slug
+     * @return bool True on success
+     */
+    private function uninstallPluginSchema(string $slug): bool
+    {
+        try {
+            $tablePrefix = 'plugin_' . str_replace('-', '_', $slug) . '_';
+
+            Logger::info('Uninstalling plugin database schema', [
+                'slug' => $slug,
+                'prefix' => $tablePrefix
+            ]);
+
+            $pdo = $this->db->getConnection();
+
+            // Get all tables with plugin prefix
+            $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+
+            if ($driver === 'mysql') {
+                $stmt = $pdo->query("SHOW TABLES LIKE '{$tablePrefix}%'");
+                $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            } elseif ($driver === 'pgsql') {
+                $stmt = $pdo->query("
+                    SELECT tablename FROM pg_tables
+                    WHERE schemaname = 'public'
+                    AND tablename LIKE '{$tablePrefix}%'
+                ");
+                $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            } elseif ($driver === 'sqlite') {
+                $stmt = $pdo->query("
+                    SELECT name FROM sqlite_master
+                    WHERE type='table'
+                    AND name LIKE '{$tablePrefix}%'
+                ");
+                $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            } else {
+                Logger::warning('Unsupported database driver for schema cleanup', [
+                    'driver' => $driver
+                ]);
+                return true; // Continue with uninstall even if we can't cleanup
+            }
+
+            // Drop each table
+            foreach ($tables as $table) {
+                try {
+                    if ($driver === 'mysql') {
+                        $pdo->exec("DROP TABLE IF EXISTS `{$table}`");
+                    } else {
+                        $pdo->exec("DROP TABLE IF EXISTS \"{$table}\"");
+                    }
+
+                    Logger::info('Dropped plugin table', [
+                        'slug' => $slug,
+                        'table' => $table
+                    ]);
+                } catch (\PDOException $e) {
+                    Logger::warning('Failed to drop plugin table', [
+                        'slug' => $slug,
+                        'table' => $table,
+                        'error' => $e->getMessage()
+                    ]);
+                    // Continue with other tables
+                }
+            }
+
+            Logger::info('Plugin schema uninstalled', [
+                'slug' => $slug,
+                'tables_dropped' => count($tables)
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            Logger::error('Plugin schema uninstallation failed', [
+                'slug' => $slug,
+                'error' => $e->getMessage()
+            ]);
+
+            // Don't fail uninstall if schema cleanup fails
+            return true;
         }
     }
 
