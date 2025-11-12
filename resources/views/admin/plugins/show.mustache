@@ -121,6 +121,62 @@
             {{/plugin.is_core}}
         </div>
 
+        <!-- Update Plugin Card -->
+        {{^plugin.is_core}}
+        <div class="details-card">
+            <div class="card-header">
+                <h3><i class="bi bi-arrow-up-circle"></i> {{#__}}plugins.update_plugin{{/__}}</h3>
+            </div>
+
+            <div class="update-section">
+                <p class="text-muted">
+                    <i class="bi bi-info-circle"></i>
+                    {{#__}}plugins.update_description{{/__}}
+                </p>
+
+                <form id="plugin-update-form" enctype="multipart/form-data" style="margin-top: 1rem;">
+                    <input type="hidden" name="csrf_token" value="{{csrf_token}}">
+
+                    <div class="file-upload-compact">
+                        <label for="update-file" class="btn btn-primary btn-sm">
+                            <i class="bi bi-cloud-upload"></i> {{#__}}plugins.select_update_file{{/__}}
+                        </label>
+                        <input type="file"
+                               id="update-file"
+                               name="plugin_file"
+                               accept=".zip"
+                               style="display: none;">
+                        <span id="update-file-name" class="file-name-display"></span>
+                    </div>
+
+                    <div id="update-progress" class="update-progress" style="display: none;">
+                        <div class="progress-label">
+                            <span id="update-progress-text">{{#__}}plugins.uploading{{/__}}...</span>
+                            <span id="update-progress-percent">0%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div id="update-progress-bar" class="progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="update-submit-btn" class="btn btn-success btn-sm" disabled style="margin-top: 1rem;">
+                        <i class="bi bi-arrow-repeat"></i> {{#__}}plugins.update_button{{/__}}
+                    </button>
+                </form>
+
+                <div class="update-notes">
+                    <h5><i class="bi bi-exclamation-triangle"></i> {{#__}}plugins.update_notes_title{{/__}}</h5>
+                    <ul>
+                        <li>{{#__}}plugins.update_note_1{{/__}}</li>
+                        <li>{{#__}}plugins.update_note_2{{/__}}</li>
+                        <li>{{#__}}plugins.update_note_3{{/__}}</li>
+                        <li>{{#__}}plugins.update_note_4{{/__}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {{/plugin.is_core}}
+
         <!-- Dependencies Card -->
         <div class="details-card">
             <div class="card-header">
@@ -699,6 +755,95 @@
     font-size: 0.9rem;
 }
 
+/* Update Section */
+.update-section {
+    padding: 0;
+}
+
+.file-upload-compact {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.file-name-display {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    background: var(--bg-primary);
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.file-name-display:empty {
+    display: none;
+}
+
+.update-progress {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-primary);
+    border-radius: 6px;
+    border-left: 4px solid var(--iser-blue);
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.progress-bar-container {
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--iser-blue), var(--iser-green));
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.update-notes {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+}
+
+.update-notes h5 {
+    margin: 0 0 0.75rem 0;
+    color: #856404;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.update-notes ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #856404;
+}
+
+.update-notes li {
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.update-notes li:last-child {
+    margin-bottom: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .admin-header {
@@ -728,6 +873,11 @@
 
     .manifest-item .value {
         text-align: left;
+    }
+
+    .file-upload-compact {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 </style>
@@ -807,4 +957,128 @@ function uninstallPlugin(slug) {
         alert('Error al desinstalar plugin');
     });
 }
+
+// Plugin Update Form Handlers
+document.addEventListener('DOMContentLoaded', function() {
+    const updateForm = document.getElementById('plugin-update-form');
+    const updateFileInput = document.getElementById('update-file');
+    const updateFileName = document.getElementById('update-file-name');
+    const updateSubmitBtn = document.getElementById('update-submit-btn');
+    const updateProgress = document.getElementById('update-progress');
+    const updateProgressBar = document.getElementById('update-progress-bar');
+    const updateProgressPercent = document.getElementById('update-progress-percent');
+
+    if (!updateForm) return; // Exit if update form not present (core plugins)
+
+    // Handle file selection
+    updateFileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+
+        if (file) {
+            // Validate file type
+            if (!file.name.endsWith('.zip')) {
+                alert('{{#__}}plugins.error_invalid_file{{/__}}');
+                updateFileInput.value = '';
+                return;
+            }
+
+            // Validate file size (100MB max)
+            const maxSize = 100 * 1024 * 1024;
+            if (file.size > maxSize) {
+                alert('{{#__}}plugins.error_file_too_large{{/__}}');
+                updateFileInput.value = '';
+                return;
+            }
+
+            // Display filename
+            updateFileName.textContent = file.name;
+            updateSubmitBtn.disabled = false;
+        } else {
+            updateFileName.textContent = '';
+            updateSubmitBtn.disabled = true;
+        }
+    });
+
+    // Handle form submission
+    updateForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        if (!updateFileInput.files[0]) {
+            alert('{{#__}}plugins.error_no_file{{/__}}');
+            return;
+        }
+
+        const formData = new FormData(updateForm);
+
+        // Show progress bar
+        updateProgress.style.display = 'block';
+        updateSubmitBtn.disabled = true;
+        updateFileInput.disabled = true;
+
+        const xhr = new XMLHttpRequest();
+
+        // Track upload progress
+        xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+                const percentComplete = Math.round((e.loaded / e.total) * 100);
+                updateProgressBar.style.width = percentComplete + '%';
+                updateProgressPercent.textContent = percentComplete + '%';
+            }
+        });
+
+        // Handle successful upload
+        xhr.addEventListener('load', function() {
+            if (xhr.status === 200 || xhr.status === 201) {
+                updateProgressBar.style.width = '100%';
+                updateProgressPercent.textContent = '100%';
+
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        alert('{{#__}}plugins.update_success{{/__}}');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        alert('{{#__}}plugins.error_update{{/__}}: ' + (response.message || 'Unknown error'));
+                        resetUpdateForm();
+                    }
+                } catch (e) {
+                    console.error('Parse error:', e);
+                    alert('{{#__}}plugins.error_update{{/__}}');
+                    resetUpdateForm();
+                }
+            } else {
+                alert('{{#__}}plugins.error_upload{{/__}} (Status: ' + xhr.status + ')');
+                resetUpdateForm();
+            }
+        });
+
+        // Handle network errors
+        xhr.addEventListener('error', function() {
+            alert('{{#__}}plugins.error_network{{/__}}');
+            resetUpdateForm();
+        });
+
+        // Handle timeout
+        xhr.addEventListener('timeout', function() {
+            alert('{{#__}}plugins.error_timeout{{/__}}');
+            resetUpdateForm();
+        });
+
+        xhr.open('POST', '/admin/plugins/{{plugin.slug}}/update');
+        xhr.timeout = 300000; // 5 minutes timeout
+        xhr.send(formData);
+    });
+
+    function resetUpdateForm() {
+        updateProgress.style.display = 'none';
+        updateProgressBar.style.width = '0%';
+        updateProgressPercent.textContent = '0%';
+        updateSubmitBtn.disabled = false;
+        updateFileInput.disabled = false;
+        updateFileInput.value = '';
+        updateFileName.textContent = '';
+    }
+});
 </script>

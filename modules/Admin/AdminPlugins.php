@@ -895,7 +895,8 @@ class AdminPlugins
                         [
                             'plugin' => $plugin,
                             'manifest' => $manifest,
-                            'dependents' => $dependents
+                            'dependents' => $dependents,
+                            'csrf_token' => $this->generateCsrfToken()
                         ]
                     )
                 );

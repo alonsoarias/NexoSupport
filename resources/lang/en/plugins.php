@@ -117,9 +117,23 @@ return [
 
     // Plugin Update
     'update_available' => 'Update available',
-    'update_button' => 'Update',
+    'update_plugin' => 'Update Plugin',
+    'update_description' => 'Update the plugin to a new version',
+    'select_update_file' => 'Select update file',
+    'update_button' => 'Update Plugin',
     'current_version' => 'Current version',
     'new_version' => 'New version',
     'update_message' => 'Plugin updated successfully',
     'confirm_update' => 'Update this plugin to version {version}?',
+    'update_success' => 'Plugin updated successfully',
+    'error_update' => 'Error updating plugin',
+    'error_no_file' => 'Please select a ZIP file',
+    'error_timeout' => 'Error: Request timeout. File is too large or connection is slow.',
+
+    // Update Notes
+    'update_notes_title' => 'Important Notes',
+    'update_note_1' => 'The plugin will be temporarily disabled during the update',
+    'update_note_2' => 'The new version must be higher than the current version',
+    'update_note_3' => 'An automatic backup will be created before updating',
+    'update_note_4' => 'Plugin data will be preserved during the update',
 ];

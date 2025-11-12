@@ -117,9 +117,23 @@ return [
 
     // Update de Plugins
     'update_available' => 'Actualización disponible',
-    'update_button' => 'Actualizar',
+    'update_plugin' => 'Actualizar Plugin',
+    'update_description' => 'Actualiza el plugin a una nueva versión',
+    'select_update_file' => 'Seleccionar archivo de actualización',
+    'update_button' => 'Actualizar Plugin',
     'current_version' => 'Versión actual',
     'new_version' => 'Nueva versión',
     'update_message' => 'Plugin actualizado correctamente',
     'confirm_update' => '¿Actualizar este plugin a la versión {version}?',
+    'update_success' => 'Plugin actualizado correctamente',
+    'error_update' => 'Error al actualizar el plugin',
+    'error_no_file' => 'Por favor selecciona un archivo ZIP',
+    'error_timeout' => 'Error: Tiempo de espera agotado. El archivo es muy grande o la conexión es lenta.',
+
+    // Notas de Actualización
+    'update_notes_title' => 'Notas Importantes',
+    'update_note_1' => 'El plugin se deshabilitará temporalmente durante la actualización',
+    'update_note_2' => 'La nueva versión debe ser superior a la versión actual',
+    'update_note_3' => 'Se creará un respaldo automático antes de actualizar',
+    'update_note_4' => 'Los datos del plugin se preservarán durante la actualización',
 ];
