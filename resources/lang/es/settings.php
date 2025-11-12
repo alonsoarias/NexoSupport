@@ -9,6 +9,7 @@
 return [
     // Título
     'title' => 'Configuración del Sistema',
+    'system_title' => 'Configuración del Sistema',
     'description' => 'Configura todos los aspectos del sistema desde esta interfaz centralizada',
 
     // Tabs

@@ -116,4 +116,10 @@ return [
     'something_went_wrong' => 'Algo salió mal',
     'please_try_again' => 'Por favor, intente nuevamente',
     'if_problem_persists' => 'Si el problema persiste, contacte al administrador',
+    'not_found' => 'No encontrado',
+    'unknown_error' => 'Error desconocido',
+    'delete_failed' => 'Error al eliminar',
+    'restore_failed' => 'Error al restaurar',
+    'update_failed' => 'Error al actualizar',
+    'create_failed' => 'Error al crear',
 ];

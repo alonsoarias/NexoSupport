@@ -50,4 +50,5 @@ return [
     'admin_panel' => 'Administration Panel',
     'back_to_home' => 'Back to Home',
     'error_occurred' => 'An error occurred',
+    'never' => 'Never',
 ];

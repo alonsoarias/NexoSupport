@@ -97,9 +97,12 @@ return [
     ],
 
     // Messages
-    'updated_message' => 'Permissions updated successfully',
+    'created_message' => 'Permission :name created successfully',
+    'updated_message' => 'Permission :name updated successfully',
+    'deleted_message' => 'Permission :name deleted successfully',
     'no_permissions' => 'You do not have permission to perform this action',
     'permission_denied' => 'Access denied',
+    'name_required' => 'Permission name is required',
 
     // Search and filters
     'search_placeholder' => 'Search permissions...',

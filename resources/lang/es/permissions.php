@@ -97,9 +97,12 @@ return [
     ],
 
     // Mensajes
-    'updated_message' => 'Permisos actualizados exitosamente',
+    'created_message' => 'Permiso :name creado correctamente',
+    'updated_message' => 'Permiso :name actualizado correctamente',
+    'deleted_message' => 'Permiso :name eliminado correctamente',
     'no_permissions' => 'No tiene permisos para realizar esta acción',
     'permission_denied' => 'Acceso denegado',
+    'name_required' => 'El nombre del permiso es requerido',
 
     // Búsqueda y filtros
     'search_placeholder' => 'Buscar permisos...',

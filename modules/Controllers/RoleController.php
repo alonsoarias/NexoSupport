@@ -111,26 +111,26 @@ class RoleController
             'has_next' => $page < $totalPages,
             'previous_page' => $page - 1,
             'next_page' => $page + 1,
-            'page_title' => 'Gestión de Roles',
+            'page_title' => __('roles.management_title'),
         ];
 
         // Mensajes
         if (isset($queryParams['success'])) {
             $messages = [
-                'created' => 'Rol creado correctamente',
-                'updated' => 'Rol actualizado correctamente',
-                'deleted' => 'Rol eliminado correctamente',
+                'created' => __('roles.created_message', ['name' => '']),
+                'updated' => __('roles.updated_message', ['name' => '']),
+                'deleted' => __('roles.deleted_message', ['name' => '']),
             ];
             $data['success_message'] = $messages[$queryParams['success']] ?? null;
         }
 
         if (isset($queryParams['error'])) {
             $errors = [
-                'invalid_id' => 'ID de rol inválido',
-                'not_found' => 'Rol no encontrado',
-                'system_role' => 'No se pueden modificar roles del sistema',
+                'invalid_id' => __('roles.name_required'),
+                'not_found' => __('errors.not_found'),
+                'system_role' => __('roles.system_role_error'),
             ];
-            $data['error_message'] = $errors[$queryParams['error']] ?? 'Error desconocido';
+            $data['error_message'] = $errors[$queryParams['error']] ?? __('errors.unknown_error');
         }
 
         // Enriquecer con navegación
@@ -409,10 +409,10 @@ class RoleController
                 null
             );
 
-            return Response::json(['success' => true, 'message' => 'Rol eliminado correctamente']);
+            return Response::json(['success' => true, 'message' => __('roles.deleted_message', ['name' => ''])]);
         }
 
-        return Response::json(['error' => 'Error al eliminar el rol'], 500);
+        return Response::json(['error' => __('errors.delete_failed')], 500);
     }
 
     /**

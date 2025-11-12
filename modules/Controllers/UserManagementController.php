@@ -103,26 +103,26 @@ class UserManagementController
             'next_page' => $page + 1,
             'filters' => $filters,
             'showing_deleted' => isset($filters['deleted']),
-            'page_title' => 'Gestión de Usuarios',
+            'page_title' => __('users.management_title'),
         ];
 
         // Mensajes
         if (isset($queryParams['success'])) {
             $messages = [
-                'created' => 'Usuario creado correctamente',
-                'updated' => 'Usuario actualizado correctamente',
-                'deleted' => 'Usuario eliminado correctamente',
-                'restored' => 'Usuario restaurado correctamente',
+                'created' => __('users.created_message', ['name' => '']),
+                'updated' => __('users.updated_message', ['name' => '']),
+                'deleted' => __('users.deleted_message', ['name' => '']),
+                'restored' => __('users.restored_message', ['name' => '']),
             ];
             $data['success_message'] = $messages[$queryParams['success']] ?? null;
         }
 
         if (isset($queryParams['error'])) {
             $errors = [
-                'invalid_id' => 'ID de usuario inválido',
-                'not_found' => 'Usuario no encontrado',
+                'invalid_id' => __('users.username_required'),
+                'not_found' => __('errors.not_found'),
             ];
-            $data['error_message'] = $errors[$queryParams['error']] ?? 'Error desconocido';
+            $data['error_message'] = $errors[$queryParams['error']] ?? __('errors.unknown_error');
         }
 
         // Enriquecer con navegación
@@ -341,10 +341,10 @@ class UserManagementController
         $success = $this->userManager->softDelete($userId);
 
         if ($success) {
-            return Response::json(['success' => true, 'message' => 'Usuario eliminado correctamente']);
+            return Response::json(['success' => true, 'message' => __('users.deleted_message', ['name' => ''])]);
         }
 
-        return Response::json(['error' => 'Error al eliminar el usuario'], 500);
+        return Response::json(['error' => __('errors.delete_failed')], 500);
     }
 
     /**
@@ -367,10 +367,10 @@ class UserManagementController
         $success = $this->userManager->restore($userId);
 
         if ($success) {
-            return Response::json(['success' => true, 'message' => 'Usuario restaurado correctamente']);
+            return Response::json(['success' => true, 'message' => __('users.restored_message', ['name' => ''])]);
         }
 
-        return Response::json(['error' => 'Error al restaurar el usuario'], 500);
+        return Response::json(['error' => __('errors.restore_failed')], 500);
     }
 
     /**

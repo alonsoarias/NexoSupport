@@ -88,25 +88,25 @@ class PermissionController
             'permissions_grouped' => $permissionsForMustache,
             'modules' => $modules,
             'total_permissions' => $this->permissionManager->countPermissions(),
-            'page_title' => 'Gestión de Permisos',
+            'page_title' => __('permissions.management_title'),
         ];
 
         // Mensajes
         if (isset($queryParams['success'])) {
             $messages = [
-                'created' => 'Permiso creado correctamente',
-                'updated' => 'Permiso actualizado correctamente',
-                'deleted' => 'Permiso eliminado correctamente',
+                'created' => __('permissions.created_message', ['name' => '']),
+                'updated' => __('permissions.updated_message', ['name' => '']),
+                'deleted' => __('permissions.deleted_message', ['name' => '']),
             ];
             $data['success_message'] = $messages[$queryParams['success']] ?? null;
         }
 
         if (isset($queryParams['error'])) {
             $errors = [
-                'invalid_id' => 'ID de permiso inválido',
-                'not_found' => 'Permiso no encontrado',
+                'invalid_id' => __('permissions.name_required'),
+                'not_found' => __('errors.not_found'),
             ];
-            $data['error_message'] = $errors[$queryParams['error']] ?? 'Error desconocido';
+            $data['error_message'] = $errors[$queryParams['error']] ?? __('errors.unknown_error');
         }
 
         // Enriquecer con navegación
@@ -313,10 +313,10 @@ class PermissionController
         $success = $this->permissionManager->delete($permissionId);
 
         if ($success) {
-            return Response::json(['success' => true, 'message' => 'Permiso eliminado correctamente']);
+            return Response::json(['success' => true, 'message' => __('permissions.deleted_message', ['name' => ''])]);
         }
 
-        return Response::json(['error' => 'Error al eliminar el permiso'], 500);
+        return Response::json(['error' => __('errors.delete_failed')], 500);
     }
 
     /**

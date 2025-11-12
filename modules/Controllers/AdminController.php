@@ -69,8 +69,8 @@ class AdminController
 
         $data = [
             'locale' => $this->translator->getLocale(),
-            'page_title' => 'Panel de Administración',
-            'header_title' => 'Administración del Sistema',
+            'page_title' => __('admin.dashboard'),
+            'header_title' => __('admin.system'),
             'current_user' => [
                 'full_name' => trim(($currentUser['first_name'] ?? '') . ' ' . ($currentUser['last_name'] ?? '')),
                 'email' => $currentUser['email'] ?? '',
@@ -80,10 +80,10 @@ class AdminController
             'recent_activity' => $recentActivity,
             'recent_users' => $recentUsers,
             'menu_items' => [
-                ['icon' => 'people', 'title' => 'Usuarios', 'url' => '/admin/users', 'count' => $stats['total_users']],
-                ['icon' => 'shield-check', 'title' => 'Seguridad', 'url' => '/admin/security', 'count' => $stats['login_attempts_today']],
-                ['icon' => 'gear', 'title' => 'Configuración', 'url' => '/admin/settings', 'count' => null],
-                ['icon' => 'graph-up', 'title' => 'Reportes', 'url' => '/admin/reports', 'count' => null],
+                ['icon' => 'people', 'title' => __('admin.menu.users'), 'url' => '/admin/users', 'count' => $stats['total_users']],
+                ['icon' => 'shield-check', 'title' => __('admin.security'), 'url' => '/admin/security', 'count' => $stats['login_attempts_today']],
+                ['icon' => 'gear', 'title' => __('admin.configuration'), 'url' => '/admin/settings', 'count' => null],
+                ['icon' => 'graph-up', 'title' => __('admin.reports'), 'url' => '/admin/reports', 'count' => null],
             ],
         ];
 
@@ -113,8 +113,8 @@ class AdminController
 
         $data = [
             'locale' => $this->translator->getLocale(),
-            'page_title' => 'Gestión de Usuarios',
-            'header_title' => 'Gestión de Usuarios',
+            'page_title' => __('users.management_title'),
+            'header_title' => __('users.management_title'),
             'users' => array_map(function($user) {
                 return [
                     'id' => $user['id'],
@@ -124,7 +124,7 @@ class AdminController
                     'status' => $user['status'] ?? 'active',
                     'status_label' => $this->getStatusLabel($user['status'] ?? 'active'),
                     'created_at' => date('Y-m-d H:i', $user['created_at'] ?? time()),
-                    'last_login' => $user['last_login_at'] ? date('Y-m-d H:i', $user['last_login_at']) : 'Nunca',
+                    'last_login' => $user['last_login_at'] ? date('Y-m-d H:i', $user['last_login_at']) : __('common.never'),
                 ];
             }, $users),
             'stats' => [
@@ -153,8 +153,8 @@ class AdminController
 
         $data = [
             'locale' => $this->translator->getLocale(),
-            'page_title' => 'Configuración del Sistema',
-            'header_title' => 'Configuración',
+            'page_title' => __('settings.system_title'),
+            'header_title' => __('admin.configuration'),
             'config' => $config,
         ];
 
@@ -439,10 +439,10 @@ class AdminController
     private function getStatusLabel(string $status): string
     {
         return match(strtolower($status)) {
-            'active' => 'Activo',
-            'inactive' => 'Inactivo',
-            'suspended' => 'Suspendido',
-            'pending' => 'Pendiente',
+            'active' => __('users.status_active'),
+            'inactive' => __('users.status_inactive'),
+            'suspended' => __('users.status_suspended'),
+            'pending' => __('users.status_pending'),
             default => ucfirst($status),
         };
     }

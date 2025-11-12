@@ -9,6 +9,7 @@
 return [
     // Title
     'title' => 'System Settings',
+    'system_title' => 'System Settings',
     'description' => 'Configure all aspects of the system from this centralized interface',
 
     // Tabs

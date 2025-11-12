@@ -116,4 +116,10 @@ return [
     'something_went_wrong' => 'Something went wrong',
     'please_try_again' => 'Please try again',
     'if_problem_persists' => 'If the problem persists, contact the administrator',
+    'not_found' => 'Not found',
+    'unknown_error' => 'Unknown error',
+    'delete_failed' => 'Failed to delete',
+    'restore_failed' => 'Failed to restore',
+    'update_failed' => 'Failed to update',
+    'create_failed' => 'Failed to create',
 ];

@@ -50,4 +50,5 @@ return [
     'admin_panel' => 'Panel de Administración',
     'back_to_home' => 'Volver al Inicio',
     'error_occurred' => 'Ha ocurrido un error',
+    'never' => 'Nunca',
 ];
