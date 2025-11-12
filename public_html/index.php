@@ -92,6 +92,7 @@ use ISER\Controllers\UserManagementController;
 use ISER\Controllers\RoleController;
 use ISER\Controllers\PermissionController;
 use ISER\Controllers\I18nApiController;
+use ISER\Controllers\AppearanceController;
 
 // Inicializar la aplicación
 try {
@@ -291,6 +292,25 @@ $router->group('/admin', function (Router $router) use ($database) {
         $controller = new PermissionController($database);
         return $controller->delete($request);
     }, 'admin.permissions.delete');
+
+    // ===== CONFIGURACIÓN DE APARIENCIA (FASE 4) =====
+    // Página de configuración de apariencia
+    $router->get('/appearance', function ($request) use ($database) {
+        $controller = new AppearanceController($database);
+        return $controller->index($request);
+    }, 'admin.appearance.index');
+
+    // Guardar configuración de apariencia
+    $router->post('/appearance/save', function ($request) use ($database) {
+        $controller = new AppearanceController($database);
+        return $controller->save($request);
+    }, 'admin.appearance.save');
+
+    // Restaurar configuración por defecto
+    $router->post('/appearance/reset', function ($request) use ($database) {
+        $controller = new AppearanceController($database);
+        return $controller->reset($request);
+    }, 'admin.appearance.reset');
 });
 
 // ===== RUTAS DE REPORTES =====
