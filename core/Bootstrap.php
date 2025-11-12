@@ -125,10 +125,13 @@ class Bootstrap
             // Step 7: Initialize i18n and locale detection
             $this->initializeI18n();
 
-            // Step 8: Initialize router
+            // Step 8: Initialize plugin system (FASE 2)
+            $this->initializePluginSystem();
+
+            // Step 9: Initialize router
             $this->initializeRouter();
 
-            // Step 9: Discover and register modules
+            // Step 10: Discover and register modules
             $this->discoverModules();
 
             $this->initialized = true;
@@ -269,6 +272,35 @@ class Bootstrap
             'locale' => $translator->getLocale(),
             'available_locales' => $translator->getAvailableLocales()
         ]);
+    }
+
+    /**
+     * Initialize plugin system (FASE 2)
+     *
+     * @return void
+     */
+    private function initializePluginSystem(): void
+    {
+        // Initialize HookManager singleton
+        $hookManager = \ISER\Core\Plugin\HookManager::getInstance();
+
+        // Initialize PluginLoader
+        $pluginLoader = new \ISER\Plugin\PluginLoader($this->database, $hookManager);
+
+        // Load all enabled plugins
+        try {
+            $pluginLoader->loadAll();
+            $loadedPlugins = $pluginLoader->getLoadedPlugins();
+
+            Logger::info('Plugin system initialized', [
+                'loaded_plugins' => count($loadedPlugins),
+                'plugins' => array_column($loadedPlugins, 'slug')
+            ]);
+        } catch (\Exception $e) {
+            Logger::error('Failed to load plugins', [
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     /**

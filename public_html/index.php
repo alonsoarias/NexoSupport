@@ -93,6 +93,7 @@ use ISER\Controllers\RoleController;
 use ISER\Controllers\PermissionController;
 use ISER\Controllers\I18nApiController;
 use ISER\Controllers\AppearanceController;
+use ISER\Admin\AdminPlugins;
 
 // Inicializar la aplicación
 try {
@@ -311,6 +312,56 @@ $router->group('/admin', function (Router $router) use ($database) {
         $controller = new AppearanceController($database);
         return $controller->reset($request);
     }, 'admin.appearance.reset');
+
+    // ===== GESTIÓN DE PLUGINS (FASE 2) =====
+    // Listar plugins
+    $router->get('/plugins', function ($request) use ($database) {
+        $controller = new AdminPlugins($database);
+        $queryParams = $request->getQueryParams();
+        return $controller->index($queryParams);
+    }, 'admin.plugins.index');
+
+    // Descubrir plugins
+    $router->post('/plugins/discover', function ($request) use ($database) {
+        $controller = new AdminPlugins($database);
+        return $controller->discover();
+    }, 'admin.plugins.discover');
+
+    // Habilitar plugin
+    $router->post('/plugins/{slug}/enable', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $slug = $parts[2] ?? '';
+        $controller = new AdminPlugins($database);
+        return $controller->enable($slug);
+    }, 'admin.plugins.enable');
+
+    // Deshabilitar plugin
+    $router->post('/plugins/{slug}/disable', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $slug = $parts[2] ?? '';
+        $controller = new AdminPlugins($database);
+        return $controller->disable($slug);
+    }, 'admin.plugins.disable');
+
+    // Desinstalar plugin
+    $router->post('/plugins/{slug}/uninstall', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $slug = $parts[2] ?? '';
+        $controller = new AdminPlugins($database);
+        return $controller->uninstall($slug);
+    }, 'admin.plugins.uninstall');
+
+    // Ver detalles de plugin
+    $router->get('/plugins/{slug}', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $slug = $parts[2] ?? '';
+        $controller = new AdminPlugins($database);
+        return $controller->show($slug);
+    }, 'admin.plugins.show');
 });
 
 // ===== RUTAS DE REPORTES =====

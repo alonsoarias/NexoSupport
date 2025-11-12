@@ -723,4 +723,105 @@
             <foreignKey column="user_id" references="users(id)" onDelete="SET NULL"/>
         </foreignKeys>
     </table>
+
+    <!-- FASE 2: PLUGIN SYSTEM TABLES -->
+
+    <!-- Plugins Table -->
+    <table name="plugins">
+        <description>Installed plugins registry</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="slug" type="VARCHAR(100)" null="false" unique="true"/>
+            <column name="name" type="VARCHAR(200)" null="false"/>
+            <column name="type" type="ENUM('tools','auth','themes','reports','modules','integrations')" null="false"/>
+            <column name="version" type="VARCHAR(20)" null="false"/>
+            <column name="description" type="TEXT"/>
+            <column name="author" type="VARCHAR(100)"/>
+            <column name="path" type="VARCHAR(255)" null="false"/>
+            <column name="enabled" type="BOOLEAN" default="false"/>
+            <column name="installed_at" type="INT UNSIGNED" null="false"/>
+            <column name="updated_at" type="INT UNSIGNED" null="false"/>
+        </columns>
+        <indexes>
+            <index name="idx_slug" columns="slug"/>
+            <index name="idx_type" columns="type"/>
+            <index name="idx_enabled" columns="enabled"/>
+        </indexes>
+    </table>
+
+    <!-- Plugin Dependencies Table -->
+    <table name="plugin_dependencies">
+        <description>Plugin dependency relationships</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="plugin_id" type="INT UNSIGNED" null="false"/>
+            <column name="depends_on_slug" type="VARCHAR(100)" null="false"/>
+            <column name="min_version" type="VARCHAR(20)"/>
+        </columns>
+        <indexes>
+            <index name="idx_plugin_id" columns="plugin_id"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="plugin_id" references="plugins(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Plugin Hooks Table -->
+    <table name="plugin_hooks">
+        <description>Plugin hook registrations</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="plugin_id" type="INT UNSIGNED" null="false"/>
+            <column name="hook_name" type="VARCHAR(100)" null="false"/>
+            <column name="callback_class" type="VARCHAR(255)" null="false"/>
+            <column name="callback_method" type="VARCHAR(100)" null="false"/>
+            <column name="priority" type="INT" default="10"/>
+        </columns>
+        <indexes>
+            <index name="idx_plugin_id" columns="plugin_id"/>
+            <index name="idx_hook_name" columns="hook_name"/>
+            <index name="idx_priority" columns="priority"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="plugin_id" references="plugins(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Plugin Settings Table -->
+    <table name="plugin_settings">
+        <description>Plugin configuration settings</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="plugin_id" type="INT UNSIGNED" null="false"/>
+            <column name="setting_key" type="VARCHAR(100)" null="false"/>
+            <column name="setting_value" type="TEXT"/>
+            <column name="setting_type" type="ENUM('string','int','bool','json')" default="string"/>
+        </columns>
+        <indexes>
+            <index name="idx_plugin_setting" columns="plugin_id,setting_key" unique="true"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="plugin_id" references="plugins(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
+
+    <!-- Plugin Assets Table -->
+    <table name="plugin_assets">
+        <description>Plugin static assets registry</description>
+        <columns>
+            <column name="id" type="INT UNSIGNED" autoincrement="true" primary="true"/>
+            <column name="plugin_id" type="INT UNSIGNED" null="false"/>
+            <column name="asset_type" type="ENUM('css','js','image','font')" null="false"/>
+            <column name="asset_path" type="VARCHAR(255)" null="false"/>
+            <column name="load_order" type="INT" default="10"/>
+            <column name="is_active" type="BOOLEAN" default="true"/>
+        </columns>
+        <indexes>
+            <index name="idx_plugin_id" columns="plugin_id"/>
+            <index name="idx_asset_type" columns="asset_type"/>
+        </indexes>
+        <foreignKeys>
+            <foreignKey column="plugin_id" references="plugins(id)" onDelete="CASCADE"/>
+        </foreignKeys>
+    </table>
 </database>
