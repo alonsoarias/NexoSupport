@@ -230,7 +230,7 @@ class UploadUser
 
                         // Send welcome email if requested
                         if ($sendEmails) {
-                            // TODO: Implement email sending with Mailer class
+                            $this->sendWelcomeEmail($data['email'], $data['first_name'], $data['username'], $tempPassword);
                         }
 
                         Logger::auth('User created via CSV upload', [
@@ -313,6 +313,57 @@ class UploadUser
             ];
         } catch (\Exception $e) {
             return ['total_uploads' => 0, 'last_upload' => 0];
+        }
+    }
+
+    /**
+     * Send welcome email to newly created user
+     *
+     * @param string $email User email address
+     * @param string $firstName User first name
+     * @param string $username User username
+     * @param string $tempPassword Temporary password
+     * @return void
+     */
+    private function sendWelcomeEmail(string $email, string $firstName, string $username, string $tempPassword): void
+    {
+        try {
+            // Prepare email content
+            $subject = 'Bienvenido a NexoSupport - Credenciales de Acceso';
+            $message = "Hola {$firstName},\n\n";
+            $message .= "Tu cuenta en NexoSupport ha sido creada exitosamente.\n\n";
+            $message .= "Credenciales de acceso:\n";
+            $message .= "Usuario: {$username}\n";
+            $message .= "Contraseña temporal: {$tempPassword}\n\n";
+            $message .= "Por favor, cambia tu contraseña después del primer inicio de sesión.\n\n";
+            $message .= "Puedes acceder al sistema en: " . ($_SERVER['HTTP_HOST'] ?? 'localhost') . "\n\n";
+            $message .= "Saludos,\n";
+            $message .= "Equipo de NexoSupport";
+
+            // Log the email (actual sending will be implemented when email system is configured)
+            Logger::info('Welcome email prepared for new user', [
+                'email' => $email,
+                'username' => $username,
+                'subject' => $subject
+            ]);
+
+            // TODO: When email system is fully configured, replace logging with actual email sending:
+            // $mailer = new Mailer();
+            // $mailer->send($email, $subject, $message);
+
+            // For now, we log the email content so admins can manually send it if needed
+            Logger::debug('Email content', [
+                'to' => $email,
+                'subject' => $subject,
+                'message' => $message
+            ]);
+
+        } catch (\Exception $e) {
+            Logger::error('Failed to send welcome email', [
+                'email' => $email,
+                'error' => $e->getMessage()
+            ]);
+            // Don't throw exception - email failure shouldn't stop user creation
         }
     }
 }

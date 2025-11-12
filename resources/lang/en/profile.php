@@ -25,16 +25,34 @@ return [
     'full_name' => 'Full Name',
     'email' => 'Email Address',
     'phone' => 'Phone',
+    'mobile' => 'Mobile',
     'bio' => 'Bio',
     'location' => 'Location',
     'website' => 'Website',
     'birthday' => 'Date of Birth',
 
+    // Address fields
+    'address' => 'Address',
+    'city' => 'City',
+    'state' => 'State/Province',
+    'country' => 'Country',
+    'postal_code' => 'Postal Code',
+
     // Account fields
     'username' => 'Username',
     'member_since' => 'Member Since',
     'last_login' => 'Last Login',
+    'last_updated' => 'Last Updated',
     'account_status' => 'Account Status',
+    'roles' => 'Roles',
+
+    // Additional fields
+    'avatar_url' => 'Avatar URL',
+    'linkedin' => 'LinkedIn',
+    'twitter' => 'Twitter',
+    'institution' => 'Institution',
+    'department' => 'Department',
+    'position' => 'Position',
 
     // Security
     'change_password' => 'Change Password',
@@ -49,6 +67,20 @@ return [
     'security_questions' => 'Security Questions',
 
     // Preferences
+    'preferences_title' => 'User Preferences',
+    'preferences_description' => 'Configure your personal preferences',
+    'preferences_updated' => 'Preferences updated successfully',
+    'regional_settings' => 'Regional Settings',
+    'locale_label' => 'Language',
+    'locale_help' => 'Select your preferred language',
+    'timezone_help' => 'Select your timezone',
+    'appearance_settings' => 'Appearance Settings',
+    'theme_label' => 'Theme',
+    'theme_help' => 'Choose the interface theme',
+    'notification_settings' => 'Notification Settings',
+    'browser_notifications' => 'Browser Notifications',
+    'browser_notifications_help' => 'Receive push notifications in your browser',
+    'email_notifications_help' => 'Receive important notifications via email',
     'language' => 'Language',
     'timezone' => 'Timezone',
     'date_format' => 'Date Format',

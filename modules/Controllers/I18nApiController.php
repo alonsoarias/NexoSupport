@@ -153,8 +153,15 @@ class I18nApiController
 
         // Si el usuario está autenticado, guardar en BD
         if (isset($_SESSION['user_id'])) {
-            // TODO: Guardar preferencia en user_preferences cuando exista la tabla
-            // $this->saveUserPreference($_SESSION['user_id'], 'locale', $locale);
+            try {
+                // Save locale preference to user_preferences table
+                $db = \ISER\Core\Bootstrap::getInstance()->getDatabase();
+                $preferencesManager = new \ISER\User\PreferencesManager($db);
+                $preferencesManager->set($_SESSION['user_id'], 'locale', $locale, 'string');
+            } catch (\Exception $e) {
+                error_log('Failed to save locale preference: ' . $e->getMessage());
+                // Continue execution even if save fails
+            }
         }
 
         return $this->jsonResponse([

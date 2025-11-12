@@ -55,9 +55,11 @@ class AuthController
             'header_title' => $this->translator->translate('auth.login'),
             'login_url' => '/login',
             'error' => $_SESSION['login_error'] ?? null,
+            'success' => $_SESSION['login_success'] ?? null,
         ];
 
         unset($_SESSION['login_error']);
+        unset($_SESSION['login_success']);
 
         $html = $this->renderer->render('auth/login', $data);
         return Response::html($html);

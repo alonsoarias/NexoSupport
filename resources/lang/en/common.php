@@ -49,4 +49,5 @@ return [
     'vigilado_mineducacion' => 'Supervised by Mineducación',
     'admin_panel' => 'Administration Panel',
     'back_to_home' => 'Back to Home',
+    'error_occurred' => 'An error occurred',
 ];

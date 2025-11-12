@@ -95,6 +95,16 @@ return [
         'compromised' => 'Esta contraseña ha sido comprometida en brechas de seguridad',
     ],
 
+    // Profile-specific validations
+    'phone_too_long' => 'El teléfono no debe exceder 20 caracteres',
+    'phone_invalid' => 'El formato del teléfono no es válido',
+    'postalcode_too_long' => 'El código postal no debe exceder 20 caracteres',
+    'city_too_long' => 'La ciudad no debe exceder 100 caracteres',
+    'country_too_long' => 'El país no debe exceder 100 caracteres',
+    'website_invalid' => 'El sitio web debe ser una URL válida',
+    'linkedin_invalid' => 'LinkedIn debe ser una URL válida',
+    'bio_too_long' => 'La biografía no debe exceder 1000 caracteres',
+
     // Nombres de campos comunes
     'attributes' => [
         'username' => 'nombre de usuario',
@@ -104,9 +114,20 @@ return [
         'first_name' => 'nombre',
         'last_name' => 'apellido',
         'phone' => 'teléfono',
+        'mobile' => 'móvil',
         'address' => 'dirección',
         'city' => 'ciudad',
+        'state' => 'estado/provincia',
         'country' => 'país',
+        'postalcode' => 'código postal',
+        'postal_code' => 'código postal',
+        'bio' => 'biografía',
+        'website' => 'sitio web',
+        'linkedin' => 'LinkedIn',
+        'twitter' => 'Twitter',
+        'institution' => 'institución',
+        'department' => 'departamento',
+        'position' => 'cargo',
         'role' => 'rol',
         'status' => 'estado',
         'description' => 'descripción',

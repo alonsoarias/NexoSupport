@@ -25,16 +25,34 @@ return [
     'full_name' => 'Nombre Completo',
     'email' => 'Correo Electrónico',
     'phone' => 'Teléfono',
+    'mobile' => 'Móvil',
     'bio' => 'Biografía',
     'location' => 'Ubicación',
     'website' => 'Sitio Web',
     'birthday' => 'Fecha de Nacimiento',
 
+    // Campos de dirección
+    'address' => 'Dirección',
+    'city' => 'Ciudad',
+    'state' => 'Estado/Provincia',
+    'country' => 'País',
+    'postal_code' => 'Código Postal',
+
     // Campos de cuenta
     'username' => 'Nombre de Usuario',
     'member_since' => 'Miembro Desde',
     'last_login' => 'Último Acceso',
+    'last_updated' => 'Última Actualización',
     'account_status' => 'Estado de Cuenta',
+    'roles' => 'Roles',
+
+    // Campos adicionales
+    'avatar_url' => 'URL del Avatar',
+    'linkedin' => 'LinkedIn',
+    'twitter' => 'Twitter',
+    'institution' => 'Institución',
+    'department' => 'Departamento',
+    'position' => 'Cargo',
 
     // Seguridad
     'change_password' => 'Cambiar Contraseña',
@@ -49,6 +67,20 @@ return [
     'security_questions' => 'Preguntas de Seguridad',
 
     // Preferencias
+    'preferences_title' => 'Preferencias de Usuario',
+    'preferences_description' => 'Configura tus preferencias personales',
+    'preferences_updated' => 'Preferencias actualizadas exitosamente',
+    'regional_settings' => 'Configuración Regional',
+    'locale_label' => 'Idioma',
+    'locale_help' => 'Selecciona tu idioma preferido',
+    'timezone_help' => 'Selecciona tu zona horaria',
+    'appearance_settings' => 'Configuración de Apariencia',
+    'theme_label' => 'Tema',
+    'theme_help' => 'Elige el tema de la interfaz',
+    'notification_settings' => 'Configuración de Notificaciones',
+    'browser_notifications' => 'Notificaciones del Navegador',
+    'browser_notifications_help' => 'Recibir notificaciones push en el navegador',
+    'email_notifications_help' => 'Recibir notificaciones importantes por correo electrónico',
     'language' => 'Idioma',
     'timezone' => 'Zona Horaria',
     'date_format' => 'Formato de Fecha',

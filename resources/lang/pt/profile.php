@@ -25,16 +25,34 @@ return [
     'full_name' => 'Nome Completo',
     'email' => 'Email',
     'phone' => 'Telefone',
+    'mobile' => 'Celular',
     'bio' => 'Biografia',
     'location' => 'Localização',
     'website' => 'Site',
     'birthday' => 'Data de Nascimento',
 
+    // Campos de endereço
+    'address' => 'Endereço',
+    'city' => 'Cidade',
+    'state' => 'Estado/Província',
+    'country' => 'País',
+    'postal_code' => 'Código Postal',
+
     // Campos de cuenta
     'username' => 'Nome de Usuário',
     'member_since' => 'Membro Desde',
     'last_login' => 'Último Login',
+    'last_updated' => 'Última Atualização',
     'account_status' => 'Status da Conta',
+    'roles' => 'Funções',
+
+    // Campos adicionais
+    'avatar_url' => 'URL do Avatar',
+    'linkedin' => 'LinkedIn',
+    'twitter' => 'Twitter',
+    'institution' => 'Instituição',
+    'department' => 'Departamento',
+    'position' => 'Cargo',
 
     // Seguridad
     'change_password' => 'Alterar Senha',
@@ -49,6 +67,20 @@ return [
     'security_questions' => 'Perguntas de Segurança',
 
     // Preferencias
+    'preferences_title' => 'Preferências do Usuário',
+    'preferences_description' => 'Configure suas preferências pessoais',
+    'preferences_updated' => 'Preferências atualizadas com sucesso',
+    'regional_settings' => 'Configurações Regionais',
+    'locale_label' => 'Idioma',
+    'locale_help' => 'Selecione seu idioma preferido',
+    'timezone_help' => 'Selecione seu fuso horário',
+    'appearance_settings' => 'Configurações de Aparência',
+    'theme_label' => 'Tema',
+    'theme_help' => 'Escolha o tema da interface',
+    'notification_settings' => 'Configurações de Notificações',
+    'browser_notifications' => 'Notificações do Navegador',
+    'browser_notifications_help' => 'Receber notificações push no navegador',
+    'email_notifications_help' => 'Receber notificações importantes por email',
     'language' => 'Idioma',
     'timezone' => 'Fuso Horário',
     'date_format' => 'Formato de Data',

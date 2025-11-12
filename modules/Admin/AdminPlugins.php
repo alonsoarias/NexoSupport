@@ -103,8 +103,10 @@ class AdminPlugins
      * GET /admin/plugins
      * GET /admin/plugins?type=auth&enabled=1
      *
+     * Supports both HTML (browser) and JSON (API) responses based on Accept header
+     *
      * @param array $filters Filter parameters (type, enabled, search)
-     * @return Response JSON response with plugins list
+     * @return Response HTML view or JSON response with plugins list
      */
     public function index(array $filters = []): Response
     {
@@ -151,6 +153,29 @@ class AdminPlugins
                 'filters' => $filters
             ]);
 
+            // Check if HTML is requested (browser) or JSON (API)
+            if ($this->isHtmlRequested()) {
+                // Prepare data for HTML view with type icons
+                $pluginsForView = array_map(function($plugin) {
+                    $plugin['type_icon'] = $this->getPluginTypeIcon($plugin['type']);
+                    $plugin['type_' . $plugin['type']] = true;
+                    return $plugin;
+                }, array_values($plugins));
+
+                return Response::html(
+                    $this->renderer->render(
+                        'admin/plugins/index',
+                        [
+                            'plugins' => $pluginsForView,
+                            'plugins_count' => count($pluginsForView),
+                            'stats' => $stats,
+                            'filters' => $filters
+                        ]
+                    )
+                );
+            }
+
+            // Return JSON for API requests
             return Response::json([
                 'success' => true,
                 'data' => [
@@ -164,6 +189,17 @@ class AdminPlugins
             Logger::error('Failed to list plugins', [
                 'error' => $e->getMessage()
             ]);
+
+            // Return appropriate response based on request type
+            if ($this->isHtmlRequested()) {
+                return Response::html(
+                    $this->renderer->render('errors/500', [
+                        'message' => 'Error al cargar los plugins',
+                        'error' => $e->getMessage()
+                    ]),
+                    500
+                );
+            }
 
             return Response::json([
                 'success' => false,
@@ -499,8 +535,10 @@ class AdminPlugins
      *
      * GET /admin/plugins/{slug}
      *
+     * Supports both HTML (browser) and JSON (API) responses based on Accept header
+     *
      * @param string $slug Plugin slug identifier
-     * @return Response JSON response with plugin details
+     * @return Response HTML view or JSON response with plugin details
      */
     public function show(string $slug): Response
     {
@@ -508,6 +546,15 @@ class AdminPlugins
             $plugin = $this->pluginManager->getBySlug($slug);
 
             if (!$plugin) {
+                if ($this->isHtmlRequested()) {
+                    return Response::html(
+                        $this->renderer->render('errors/404', [
+                            'message' => 'Plugin no encontrado'
+                        ]),
+                        404
+                    );
+                }
+
                 return Response::json([
                     'success' => false,
                     'message' => 'Plugin not found: ' . $slug
@@ -527,6 +574,30 @@ class AdminPlugins
             // Get dependents
             $dependents = $this->pluginManager->getDependents($slug);
 
+            Logger::info('Plugin details retrieved', [
+                'slug' => $slug,
+                'name' => $plugin['name']
+            ]);
+
+            // Check if HTML is requested (browser) or JSON (API)
+            if ($this->isHtmlRequested()) {
+                // Prepare plugin data for HTML view
+                $plugin['type_icon'] = $this->getPluginTypeIcon($plugin['type']);
+                $plugin['type_' . $plugin['type']] = true;
+
+                return Response::html(
+                    $this->renderer->render(
+                        'admin/plugins/show',
+                        [
+                            'plugin' => $plugin,
+                            'manifest' => $manifest,
+                            'dependents' => $dependents
+                        ]
+                    )
+                );
+            }
+
+            // Return JSON for API requests
             return Response::json([
                 'success' => true,
                 'plugin' => $plugin,
@@ -539,6 +610,17 @@ class AdminPlugins
                 'slug' => $slug,
                 'error' => $e->getMessage()
             ]);
+
+            // Return appropriate response based on request type
+            if ($this->isHtmlRequested()) {
+                return Response::html(
+                    $this->renderer->render('errors/500', [
+                        'message' => 'Error al cargar los detalles del plugin',
+                        'error' => $e->getMessage()
+                    ]),
+                    500
+                );
+            }
 
             return Response::json([
                 'success' => false,
@@ -563,5 +645,51 @@ class AdminPlugins
         }
 
         return $counts;
+    }
+
+    /**
+     * Check if HTML is requested based on Accept header
+     *
+     * @return bool True if HTML is requested, false for JSON/API
+     */
+    private function isHtmlRequested(): bool
+    {
+        $acceptHeader = $_SERVER['HTTP_ACCEPT'] ?? '';
+
+        // If Accept header contains HTML, prioritize it
+        if (stripos($acceptHeader, 'text/html') !== false) {
+            return true;
+        }
+
+        // If Accept header contains JSON, return JSON
+        if (stripos($acceptHeader, 'application/json') !== false) {
+            return false;
+        }
+
+        // Default to HTML for browser requests (common Accept headers)
+        // Most browsers send Accept: text/html,application/xhtml+xml,...
+        return stripos($acceptHeader, 'text/html') !== false ||
+               stripos($acceptHeader, 'application/xhtml+xml') !== false ||
+               empty($acceptHeader); // Default to HTML if no specific header
+    }
+
+    /**
+     * Get Bootstrap icon class for plugin type
+     *
+     * @param string $type Plugin type
+     * @return string Bootstrap icon class
+     */
+    private function getPluginTypeIcon(string $type): string
+    {
+        $iconMap = [
+            'auth' => 'bi-shield-lock',
+            'theme' => 'bi-palette',
+            'tool' => 'bi-wrench',
+            'module' => 'bi-box',
+            'integration' => 'bi-arrow-left-right',
+            'report' => 'bi-bar-chart'
+        ];
+
+        return $iconMap[$type] ?? 'bi-puzzle';
     }
 }

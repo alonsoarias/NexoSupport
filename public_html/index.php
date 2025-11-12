@@ -87,12 +87,18 @@ use ISER\Core\Http\Request;
 use ISER\Core\Http\Response;
 use ISER\Controllers\HomeController;
 use ISER\Controllers\AuthController;
+use ISER\Controllers\PasswordResetController;
 use ISER\Controllers\AdminController;
 use ISER\Controllers\UserManagementController;
 use ISER\Controllers\RoleController;
 use ISER\Controllers\PermissionController;
 use ISER\Controllers\I18nApiController;
 use ISER\Controllers\AppearanceController;
+use ISER\Controllers\UserProfileController;
+use ISER\Controllers\UserPreferencesController;
+use ISER\Controllers\LoginHistoryController;
+use ISER\Controllers\AuditLogController;
+use ISER\Controllers\LogViewerController;
 use ISER\Admin\AdminPlugins;
 
 // Inicializar la aplicación
@@ -139,17 +145,83 @@ $router->get('/logout', function ($request) use ($database) {
     return $controller->logout($request);
 }, 'logout');
 
+// ===== PASSWORD RESET ROUTES =====
+$router->get('/forgot-password', function ($request) use ($database) {
+    $controller = new PasswordResetController($database);
+    return $controller->showForgotForm($request);
+}, 'forgot-password');
+
+$router->post('/forgot-password', function ($request) use ($database) {
+    $controller = new PasswordResetController($database);
+    return $controller->sendResetLink($request);
+}, 'forgot-password.send');
+
+$router->get('/reset-password', function ($request) use ($database) {
+    $controller = new PasswordResetController($database);
+    return $controller->showResetForm($request);
+}, 'reset-password');
+
+$router->post('/reset-password', function ($request) use ($database) {
+    $controller = new PasswordResetController($database);
+    return $controller->resetPassword($request);
+}, 'reset-password.process');
+
 // ===== RUTAS PROTEGIDAS =====
 $router->get('/dashboard', function ($request) use ($database) {
     $controller = new HomeController($database);
     return $controller->dashboard($request);
 }, 'dashboard');
 
-// Perfil de usuario
+// ===== USER PROFILE ROUTES (require authentication) =====
 $router->get('/profile', function ($request) use ($database) {
-    $controller = new HomeController($database);
-    return $controller->profile($request);
-}, 'profile');
+    $controller = new UserProfileController($database);
+    return $controller->index($request);
+}, 'profile.index');
+
+$router->get('/profile/edit', function ($request) use ($database) {
+    $controller = new UserProfileController($database);
+    return $controller->edit($request);
+}, 'profile.edit');
+
+$router->post('/profile/edit', function ($request) use ($database) {
+    $controller = new UserProfileController($database);
+    return $controller->update($request);
+}, 'profile.update');
+
+// View any user's profile (admin only)
+$router->get('/profile/view/{id}', function ($request) use ($database) {
+    $uri = $request->getUri()->getPath();
+    $parts = explode('/', trim($uri, '/'));
+    $userId = (int)($parts[2] ?? 0);
+    $controller = new UserProfileController($database);
+    return $controller->viewProfile($request, $userId);
+}, 'profile.view');
+
+// ===== USER PREFERENCES ROUTES (require authentication) =====
+$router->get('/preferences', function ($request) use ($database) {
+    $controller = new UserPreferencesController($database);
+    return $controller->index($request);
+}, 'preferences.index');
+
+$router->post('/preferences', function ($request) use ($database) {
+    $controller = new UserPreferencesController($database);
+    return $controller->update($request);
+}, 'preferences.update');
+
+// ===== USER LOGIN HISTORY ROUTES (require authentication) =====
+$router->get('/login-history', function ($request) use ($database) {
+    $controller = new LoginHistoryController($database);
+    return $controller->index($request);
+}, 'login-history.index');
+
+$router->post('/login-history/terminate/{id}', function ($request) use ($database) {
+    $uri = $request->getUri()->getPath();
+    $parts = explode('/', trim($uri, '/'));
+    $loginId = (int)($parts[2] ?? 0);
+    $request = $request->withAttribute('login_id', $loginId);
+    $controller = new LoginHistoryController($database);
+    return $controller->terminate($request);
+}, 'login-history.terminate');
 
 // ===== RUTAS DE ADMINISTRACIÓN =====
 $router->group('/admin', function (Router $router) use ($database) {
@@ -313,6 +385,41 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->reset($request);
     }, 'admin.appearance.reset');
 
+    // ===== LOGIN HISTORY (Admin View) =====
+    // Admin view of all logins
+    $router->get('/login-history', function ($request) use ($database) {
+        $controller = new LoginHistoryController($database);
+        return $controller->adminIndex($request);
+    }, 'admin.login-history.index');
+
+    // ===== SYSTEM LOGS VIEWER =====
+    // View logs page with filters and pagination
+    $router->get('/logs', function ($request) use ($database) {
+        $controller = new LogViewerController($database);
+        return $controller->index($request);
+    }, 'admin.logs.index');
+
+    // View single log entry details
+    $router->get('/logs/view/{id}', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $logId = (int)($parts[2] ?? 0);
+        $controller = new LogViewerController($database);
+        return $controller->view($request, $logId);
+    }, 'admin.logs.view');
+
+    // Clear old logs (admin action)
+    $router->post('/logs/clear', function ($request) use ($database) {
+        $controller = new LogViewerController($database);
+        return $controller->clear($request);
+    }, 'admin.logs.clear');
+
+    // Download logs as CSV or JSON
+    $router->get('/logs/download', function ($request) use ($database) {
+        $controller = new LogViewerController($database);
+        return $controller->download($request);
+    }, 'admin.logs.download');
+
     // ===== GESTIÓN DE PLUGINS (FASE 2) =====
     // Listar plugins
     $router->get('/plugins', function ($request) use ($database) {
@@ -362,6 +469,28 @@ $router->group('/admin', function (Router $router) use ($database) {
         $controller = new AdminPlugins($database);
         return $controller->show($slug);
     }, 'admin.plugins.show');
+
+    // ===== AUDIT LOG VIEWER =====
+    // Lista de logs de auditoría
+    $router->get('/audit', function ($request) use ($database) {
+        $controller = new AuditLogController($database);
+        return $controller->index($request);
+    }, 'admin.audit.index');
+
+    // Ver detalles de entrada de auditoría
+    $router->get('/audit/view/{id}', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $id = (int)($parts[3] ?? 0);
+        $controller = new AuditLogController($database);
+        return $controller->view($request, $id);
+    }, 'admin.audit.view');
+
+    // Exportar logs de auditoría a CSV
+    $router->get('/audit/export', function ($request) use ($database) {
+        $controller = new AuditLogController($database);
+        return $controller->export($request);
+    }, 'admin.audit.export');
 });
 
 // ===== RUTAS DE REPORTES =====

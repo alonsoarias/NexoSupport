@@ -1,0 +1,648 @@
+<!-- Admin Audit Log Viewer -->
+<div class="admin-container">
+    <div class="admin-header">
+        <div>
+            <h2>{{trans.title}}</h2>
+            <p class="text-muted">Monitor all system activity and changes</p>
+        </div>
+        <div class="header-actions">
+            {{#filters_active}}
+            <a href="/admin/audit" class="btn btn-sm btn-secondary">
+                <i class="bi bi-x-circle"></i> {{trans.clear_filters}}
+            </a>
+            {{/filters_active}}
+            <button onclick="exportAuditCSV()" class="btn btn-sm btn-primary">
+                <i class="bi bi-download"></i> {{trans.export}}
+            </button>
+            <a href="/admin" class="btn btn-sm btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    {{#success}}
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i>
+        {{success}}
+    </div>
+    {{/success}}
+
+    {{#error}}
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-circle"></i>
+        {{error}}
+    </div>
+    {{/error}}
+
+    <!-- Statistics Section -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">{{trans.stats.total_events}}</p>
+                <p class="stat-value">{{stats.total_events}}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-calendar-day"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">{{trans.stats.events_today}}</p>
+                <p class="stat-value">{{stats.events_today}}</p>
+            </div>
+        </div>
+
+        {{#stats.by_action}}
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-list-task"></i>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">By Action Type</p>
+                <p class="stat-value">{{stats.by_action}}</p>
+            </div>
+        </div>
+        {{/stats.by_action}}
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <form method="GET" action="/admin/audit" class="filters-form">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>{{trans.filters.user}}</label>
+                    <select name="user_id" class="form-select">
+                        <option value="">All Users</option>
+                        {{#all_users}}
+                        <option value="{{id}}" {{#selected}}selected{{/selected}}>{{username}} ({{email}})</option>
+                        {{/all_users}}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>{{trans.filters.event_type}}</label>
+                    <select name="action" class="form-select">
+                        <option value="">All Actions</option>
+                        <option value="create">{{trans.event_types.create}}</option>
+                        <option value="update">{{trans.event_types.update}}</option>
+                        <option value="delete">{{trans.event_types.delete}}</option>
+                        <option value="login">{{trans.event_types.login}}</option>
+                        <option value="logout">{{trans.event_types.logout}}</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>{{trans.filters.entity_type}}</label>
+                    <select name="entity_type" class="form-select">
+                        <option value="">All Entities</option>
+                        <option value="user">{{trans.entities.user}}</option>
+                        <option value="role">{{trans.entities.role}}</option>
+                        <option value="permission">{{trans.entities.permission}}</option>
+                        <option value="setting">{{trans.entities.setting}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>{{trans.filters.date_from}}</label>
+                    <input type="date" name="date_from" class="form-input" value="{{filters.date_from}}">
+                </div>
+
+                <div class="filter-group">
+                    <label>{{trans.filters.date_to}}</label>
+                    <input type="date" name="date_to" class="form-input" value="{{filters.date_to}}">
+                </div>
+
+                <div class="filter-group">
+                    <label>{{trans.filters.ip}}</label>
+                    <input type="text" name="ip" placeholder="Search IP..." class="form-input" value="{{filters.ip}}">
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-sm btn-primary">
+                    <i class="bi bi-search"></i> {{trans.filter}}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Audit Logs Table -->
+    <div class="table-section">
+        <div class="table-header">
+            <h3>
+                <i class="bi bi-list"></i> {{trans.table.showing}}
+                <span class="count-badge">{{total_logs}} total</span>
+            </h3>
+        </div>
+
+        {{#empty_logs}}
+        <div class="no-data">
+            <i class="bi bi-inbox"></i>
+            <p>{{trans.no_records}}</p>
+        </div>
+        {{/empty_logs}}
+
+        {{#has_logs}}
+        <div class="table-responsive">
+            <table class="data-table" id="auditLogTable">
+                <thead>
+                    <tr>
+                        <th>{{trans.timestamp}}</th>
+                        <th>{{trans.user}}</th>
+                        <th>{{trans.event}}</th>
+                        <th>{{trans.entity_type}}</th>
+                        <th>{{trans.entity_id}}</th>
+                        <th>{{trans.ip_address}}</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#audit_logs}}
+                    <tr>
+                        <td>
+                            <span class="timestamp">{{timestamp_formatted}}</span>
+                        </td>
+                        <td>
+                            <div class="user-cell">
+                                <i class="bi bi-person-circle"></i>
+                                <div>
+                                    <strong>{{username}}</strong>
+                                    <small class="text-muted">{{email}}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge {{action_class}}">{{action_label}}</span>
+                        </td>
+                        <td>
+                            <span class="entity-type">{{entity_label}}</span>
+                        </td>
+                        <td>
+                            {{#entity_id}}
+                            <code>{{entity_id}}</code>
+                            {{/entity_id}}
+                            {{^entity_id}}
+                            <span class="text-muted">-</span>
+                            {{/entity_id}}
+                        </td>
+                        <td>
+                            <span class="ip-address" title="{{ip_address}}">{{ip_address}}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                {{#has_changes}}
+                                <a href="/admin/audit/view/{{id}}" class="btn btn-xs btn-info" title="View Changes">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                {{/has_changes}}
+                                {{^has_changes}}
+                                <button class="btn btn-xs btn-secondary" disabled title="No changes">
+                                    <i class="bi bi-eye"></i> View
+                                </button>
+                                {{/has_changes}}
+                            </div>
+                        </td>
+                    </tr>
+                    {{/audit_logs}}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-section">
+            <nav>
+                <ul class="pagination">
+                    {{#pagination.has_prev}}
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/audit?page=1">{{trans.table.first}}</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/audit?page={{pagination.prev_page}}">{{trans.table.prev}}</a>
+                    </li>
+                    {{/pagination.has_prev}}
+
+                    <li class="page-item active">
+                        <span class="page-link">Page {{pagination.current}} of {{pagination.total_pages}}</span>
+                    </li>
+
+                    {{#pagination.has_next}}
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/audit?page={{pagination.next_page}}">{{trans.table.next}}</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/audit?page={{pagination.total_pages}}">{{trans.table.last}}</a>
+                    </li>
+                    {{/pagination.has_next}}
+                </ul>
+            </nav>
+        </div>
+        {{/has_logs}}
+    </div>
+</div>
+
+<style>
+.admin-container {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.admin-header h2 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.admin-header .text-muted {
+    margin: 5px 0 0 0;
+    color: #666;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #1B9E88;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #158470;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    display: flex;
+    gap: 10px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-icon {
+    font-size: 32px;
+    color: #1B9E88;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-label {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    margin: 5px 0 0 0;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+}
+
+.filters-section {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.filters-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.form-select,
+.form-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.form-select:focus,
+.form-input:focus {
+    outline: none;
+    border-color: #1B9E88;
+    box-shadow: 0 0 0 3px rgba(27, 158, 136, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.table-section {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.table-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.table-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.count-badge {
+    background-color: #1B9E88;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.no-data {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.no-data i {
+    font-size: 48px;
+    color: #ddd;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.no-data p {
+    font-size: 16px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.data-table thead {
+    background-color: #f5f5f5;
+}
+
+.data-table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    color: #333;
+    border-bottom: 2px solid #ddd;
+}
+
+.data-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.timestamp {
+    font-family: monospace;
+    font-size: 13px;
+    color: #666;
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-cell i {
+    font-size: 24px;
+    color: #1B9E88;
+}
+
+.user-cell strong {
+    display: block;
+}
+
+.user-cell small {
+    display: block;
+    font-size: 12px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.badge-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.badge-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.badge-secondary {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.entity-type {
+    font-weight: 500;
+    color: #333;
+}
+
+code {
+    background-color: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.ip-address {
+    font-family: monospace;
+    font-size: 12px;
+    color: #666;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-xs {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+}
+
+.pagination-section {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination {
+    list-style: none;
+    display: inline-flex;
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+}
+
+.page-item {
+    margin: 0;
+}
+
+.page-link {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #1B9E88;
+    transition: all 0.3s;
+}
+
+.page-link:hover {
+    background-color: #f5f5f5;
+}
+
+.page-item.active .page-link {
+    background-color: #1B9E88;
+    color: white;
+    border-color: #1B9E88;
+}
+
+.text-muted {
+    color: #6c757d;
+}
+</style>
+
+<script>
+function exportAuditCSV() {
+    const params = new URLSearchParams(window.location.search);
+    window.location.href = '/admin/audit/export?' + params.toString();
+}
+</script>
