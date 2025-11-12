@@ -76,4 +76,50 @@ return [
     // Settings
     'plugin_settings' => 'Plugin Settings',
     'no_settings' => 'This plugin has no configurable settings',
+
+    // Plugin Upload
+    'upload_title' => 'Upload New Plugin',
+    'upload_description' => 'Install a new plugin by uploading a valid ZIP file',
+    'upload_form_title' => 'Upload Form',
+    'drag_drop_title' => 'Drag and drop ZIP file here',
+    'or' => 'or',
+    'browse_button' => 'Browse Files',
+
+    // Instructions
+    'instructions_title' => 'Instructions',
+    'instruction_1' => 'File must be in ZIP format',
+    'instruction_2' => 'ZIP must contain a valid plugin.json file at the root',
+    'instruction_3' => 'Verify that the plugin is compatible with this system version',
+    'instruction_4' => 'Maximum file size is 100MB',
+
+    // Requirements
+    'requirements_title' => 'Plugin Requirements',
+    'requirement_1' => 'Valid plugin.json file structure',
+    'requirement_2' => 'Unique slug (cannot exist another plugin with the same slug)',
+    'requirement_3' => 'Valid type: tool, auth, theme, report, module, integration',
+    'requirement_4' => 'Semantic versioning format (e.g., 1.0.0)',
+
+    // Manifest
+    'manifest_title' => 'Manifest Structure',
+    'manifest_description' => 'The plugin.json file must contain at least these fields:',
+
+    // Types
+    'types_title' => 'Plugin Types',
+
+    // Upload Messages
+    'uploading' => 'Uploading file',
+    'installation_complete' => 'Installation complete',
+    'error_invalid_file' => 'Error: File must be a valid ZIP',
+    'error_file_too_large' => 'Error: File exceeds maximum size of 100MB',
+    'error_installation' => 'Error during installation',
+    'error_upload' => 'Error uploading file. Invalid HTTP status code.',
+    'error_network' => 'Network error. Check your connection and try again.',
+
+    // Plugin Update
+    'update_available' => 'Update available',
+    'update_button' => 'Update',
+    'current_version' => 'Current version',
+    'new_version' => 'New version',
+    'update_message' => 'Plugin updated successfully',
+    'confirm_update' => 'Update this plugin to version {version}?',
 ];

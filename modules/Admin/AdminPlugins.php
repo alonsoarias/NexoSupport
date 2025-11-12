@@ -268,6 +268,169 @@ class AdminPlugins
     }
 
     /**
+     * Show plugin upload form
+     *
+     * GET /admin/plugins/upload
+     *
+     * Displays the plugin upload interface where administrators can
+     * upload new plugins via ZIP file.
+     *
+     * @return Response HTML view with upload form
+     */
+    public function showUploadForm(): Response
+    {
+        try {
+            Logger::info('Plugin upload form accessed');
+
+            return Response::html(
+                $this->renderer->render(
+                    'admin/plugins/upload',
+                    [
+                        'csrf_token' => $this->generateCsrfToken()
+                    ]
+                )
+            );
+
+        } catch (\Exception $e) {
+            Logger::error('Failed to load plugin upload form', [
+                'error' => $e->getMessage()
+            ]);
+
+            return Response::html(
+                $this->renderer->render('errors/500', [
+                    'message' => 'Error al cargar el formulario de subida',
+                    'error' => $e->getMessage()
+                ]),
+                500
+            );
+        }
+    }
+
+    /**
+     * Handle plugin upload from form
+     *
+     * POST /admin/plugins/upload
+     * Expects: plugin_file (ZIP archive via multipart/form-data)
+     *
+     * Handles the uploaded plugin ZIP file, validates it, and installs it.
+     *
+     * @return Response JSON response with upload/installation result
+     */
+    public function handleUpload(): Response
+    {
+        try {
+            // Verify CSRF token
+            if (!$this->verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'Invalid CSRF token'
+                ], 403);
+            }
+
+            // Validate file upload
+            if (!isset($_FILES['plugin_file']) || $_FILES['plugin_file']['error'] !== UPLOAD_ERR_OK) {
+                $errorMessage = $this->getUploadErrorMessage($_FILES['plugin_file']['error'] ?? UPLOAD_ERR_NO_FILE);
+
+                Logger::warning('Plugin upload failed', [
+                    'error_code' => $_FILES['plugin_file']['error'] ?? 'NO_FILE',
+                    'error_message' => $errorMessage
+                ]);
+
+                return Response::json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ], 400);
+            }
+
+            $uploadedFile = $_FILES['plugin_file'];
+
+            // Validate file type
+            if (!str_ends_with(strtolower($uploadedFile['name']), '.zip')) {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'Invalid file type. Only ZIP files are allowed.'
+                ], 400);
+            }
+
+            // Validate file size (100MB max)
+            $maxSize = 100 * 1024 * 1024;
+            if ($uploadedFile['size'] > $maxSize) {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'File size exceeds maximum of 100MB'
+                ], 400);
+            }
+
+            // Move uploaded file to temporary location
+            $tempDir = sys_get_temp_dir();
+            $tempFile = $tempDir . '/plugin_' . uniqid() . '.zip';
+
+            if (!move_uploaded_file($uploadedFile['tmp_name'], $tempFile)) {
+                Logger::error('Failed to move uploaded file', [
+                    'temp_file' => $tempFile
+                ]);
+
+                return Response::json([
+                    'success' => false,
+                    'message' => 'Failed to process uploaded file'
+                ], 500);
+            }
+
+            Logger::info('Plugin uploaded successfully', [
+                'filename' => $uploadedFile['name'],
+                'size' => $uploadedFile['size'],
+                'temp_path' => $tempFile
+            ]);
+
+            // Install plugin using existing install() method
+            $result = $this->pluginInstaller->install($tempFile);
+
+            // Clean up temporary file
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+
+            if (!$result['success']) {
+                Logger::warning('Plugin installation failed after upload', [
+                    'message' => $result['message']
+                ]);
+
+                return Response::json([
+                    'success' => false,
+                    'message' => $result['message']
+                ], 400);
+            }
+
+            Logger::info('Plugin installed successfully from upload', [
+                'slug' => $result['plugin']['slug'],
+                'name' => $result['plugin']['name'],
+                'version' => $result['plugin']['version']
+            ]);
+
+            return Response::json([
+                'success' => true,
+                'message' => $result['message'],
+                'plugin' => $result['plugin']
+            ], 201);
+
+        } catch (\Exception $e) {
+            // Clean up temporary file on error
+            if (isset($tempFile) && file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+
+            Logger::error('Plugin upload error', [
+                'error' => $e->getMessage()
+            ]);
+
+            return Response::json([
+                'success' => false,
+                'message' => 'Upload error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Enable a plugin
      *
      * PUT /admin/plugins/{slug}/enable
@@ -691,5 +854,58 @@ class AdminPlugins
         ];
 
         return $iconMap[$type] ?? 'bi-puzzle';
+    }
+
+    /**
+     * Generate CSRF token for forms
+     *
+     * @return string CSRF token
+     */
+    private function generateCsrfToken(): string
+    {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+
+        return $_SESSION['csrf_token'];
+    }
+
+    /**
+     * Verify CSRF token
+     *
+     * @param string $token Token to verify
+     * @return bool True if valid, false otherwise
+     */
+    private function verifyCsrfToken(string $token): bool
+    {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+
+        return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+    }
+
+    /**
+     * Get human-readable upload error message
+     *
+     * @param int $errorCode PHP upload error code
+     * @return string Error message
+     */
+    private function getUploadErrorMessage(int $errorCode): string
+    {
+        return match($errorCode) {
+            UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
+            UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive',
+            UPLOAD_ERR_PARTIAL => 'The uploaded file was only partially uploaded',
+            UPLOAD_ERR_NO_FILE => 'No file was uploaded',
+            UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
+            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
+            UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload',
+            default => 'Unknown upload error'
+        };
     }
 }
