@@ -354,4 +354,248 @@ class ThemeConfigurator
         $this->cache = [];
         $this->cacheLoaded = false;
     }
+
+    /**
+     * Set multiple configuration values at once
+     *
+     * @param array $configs Key-value pairs to set
+     * @return array Success status for each key ['key' => bool]
+     */
+    public function setMultiple(array $configs): array
+    {
+        $results = [];
+
+        foreach ($configs as $key => $value) {
+            $results[$key] = $this->set($key, $value);
+        }
+
+        return $results;
+    }
+
+    /**
+     * Get configuration by group
+     *
+     * @param string $group 'colors', 'typography', 'branding', 'layout'
+     * @return array Configuration group
+     */
+    public function getGroup(string $group): array
+    {
+        $this->loadCache();
+
+        $groupConfig = [];
+
+        // Define group prefixes
+        $groupPrefixes = [
+            'colors' => ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'],
+            'typography' => ['font_heading', 'font_body', 'font_mono', 'base_font_size', 'line_height'],
+            'branding' => ['logo_url', 'logo_dark_url', 'favicon_url', 'site_name', 'site_tagline'],
+            'layout' => ['default_layout', 'sidebar_position', 'sidebar_width', 'navbar_position', 'container_width']
+        ];
+
+        if (!isset($groupPrefixes[$group])) {
+            return [];
+        }
+
+        // Get all keys for this group
+        foreach ($groupPrefixes[$group] as $key) {
+            if (isset($this->cache[$key])) {
+                $groupConfig[$key] = $this->cache[$key];
+            }
+        }
+
+        return $groupConfig;
+    }
+
+    /**
+     * Export theme configuration as JSON
+     *
+     * @return string JSON string
+     */
+    public function exportConfiguration(): string
+    {
+        $this->loadCache();
+
+        $export = [
+            'theme_export' => [
+                'version' => '1.0.0',
+                'exported_at' => date('c'),
+                'app_version' => '1.0.0'
+            ],
+            'configuration' => [
+                'colors' => $this->getGroup('colors'),
+                'typography' => $this->getGroup('typography'),
+                'branding' => $this->getGroup('branding'),
+                'layout' => $this->getGroup('layout')
+            ]
+        ];
+
+        return json_encode($export, JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * Import theme configuration from JSON
+     *
+     * @param string $json JSON configuration
+     * @param bool $validate Validate before applying
+     * @return bool Success status
+     */
+    public function importConfiguration(string $json, bool $validate = true): bool
+    {
+        try {
+            $data = json_decode($json, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log("Invalid JSON in theme import: " . json_last_error_msg());
+                return false;
+            }
+
+            // Validate structure
+            if (!isset($data['configuration'])) {
+                error_log("Missing 'configuration' key in theme import");
+                return false;
+            }
+
+            $config = $data['configuration'];
+
+            // Import each group
+            $allSuccess = true;
+
+            if (isset($config['colors'])) {
+                $results = $this->setMultiple($config['colors']);
+                $allSuccess = $allSuccess && !in_array(false, $results, true);
+            }
+
+            if (isset($config['typography'])) {
+                $results = $this->setMultiple($config['typography']);
+                $allSuccess = $allSuccess && !in_array(false, $results, true);
+            }
+
+            if (isset($config['branding'])) {
+                $results = $this->setMultiple($config['branding']);
+                $allSuccess = $allSuccess && !in_array(false, $results, true);
+            }
+
+            if (isset($config['layout'])) {
+                $results = $this->setMultiple($config['layout']);
+                $allSuccess = $allSuccess && !in_array(false, $results, true);
+            }
+
+            return $allSuccess;
+        } catch (\Exception $e) {
+            error_log("Error importing theme configuration: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Create backup of current configuration
+     *
+     * @param string $backupName Backup name
+     * @return int Backup ID (0 on failure)
+     */
+    public function createBackup(string $backupName): int
+    {
+        try {
+            $backupData = $this->exportConfiguration();
+            $userId = $_SESSION['user_id'] ?? 1;
+
+            $result = $this->db->insert('theme_backups', [
+                'backup_name' => $backupName,
+                'backup_data' => $backupData,
+                'created_by' => $userId,
+                'created_at' => time(),
+                'is_system_backup' => 0
+            ]);
+
+            return $result !== false ? (int)$result : 0;
+        } catch (\Exception $e) {
+            error_log("Error creating theme backup: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Restore configuration from backup
+     *
+     * @param int $backupId Backup ID
+     * @return bool Success status
+     */
+    public function restoreBackup(int $backupId): bool
+    {
+        try {
+            $backup = $this->db->selectOne('theme_backups', ['id' => $backupId]);
+
+            if (!$backup) {
+                error_log("Backup not found: $backupId");
+                return false;
+            }
+
+            return $this->importConfiguration($backup['backup_data']);
+        } catch (\Exception $e) {
+            error_log("Error restoring theme backup: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get all backups
+     *
+     * @param int $limit Maximum number of backups to return
+     * @return array List of backups
+     */
+    public function getBackups(int $limit = 20): array
+    {
+        try {
+            return $this->db->select('theme_backups', [], 'created_at DESC', $limit);
+        } catch (\Exception $e) {
+            error_log("Error getting theme backups: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Delete a backup
+     *
+     * @param int $backupId Backup ID
+     * @return bool Success status
+     */
+    public function deleteBackup(int $backupId): bool
+    {
+        try {
+            return $this->db->delete('theme_backups', ['id' => $backupId]) > 0;
+        } catch (\Exception $e) {
+            error_log("Error deleting theme backup: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Validate RGB color
+     *
+     * @param string $color RGB/RGBA color (e.g., "rgb(255, 0, 0)" or "rgba(255, 0, 0, 0.5)")
+     * @return bool Valid status
+     */
+    private function validateRGBColor(string $color): bool
+    {
+        // Check RGB format: rgb(r, g, b)
+        if (preg_match('/^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i', $color, $matches)) {
+            $r = (int)$matches[1];
+            $g = (int)$matches[2];
+            $b = (int)$matches[3];
+
+            return $r >= 0 && $r <= 255 && $g >= 0 && $g <= 255 && $b >= 0 && $b <= 255;
+        }
+
+        // Check RGBA format: rgba(r, g, b, a)
+        if (preg_match('/^rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*([0-1]?\.?\d+)\s*\)$/i', $color, $matches)) {
+            $r = (int)$matches[1];
+            $g = (int)$matches[2];
+            $b = (int)$matches[3];
+            $a = (float)$matches[4];
+
+            return $r >= 0 && $r <= 255 && $g >= 0 && $g <= 255 && $b >= 0 && $b <= 255 && $a >= 0 && $a <= 1;
+        }
+
+        return false;
+    }
 }
