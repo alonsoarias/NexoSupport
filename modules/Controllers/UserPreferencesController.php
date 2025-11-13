@@ -17,40 +17,22 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Controllers\Traits\NavigationTrait;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\I18n\Translator;
-use ISER\Core\Http\Response;
 use ISER\User\PreferencesManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * UserPreferencesController Class
+ * UserPreferencesController Class (REFACTORIZADO con BaseController)
  *
  * Handles user preferences management
  * Provides endpoints for viewing and updating user preferences
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class UserPreferencesController
+class UserPreferencesController extends BaseController
 {
-    use NavigationTrait;
-
-    /**
-     * Database instance
-     */
-    private Database $db;
-
-    /**
-     * Mustache renderer instance
-     */
-    private MustacheRenderer $renderer;
-
-    /**
-     * Translator instance
-     */
-    private Translator $translator;
-
     /**
      * Preferences manager instance
      */
@@ -94,9 +76,7 @@ class UserPreferencesController
      */
     public function __construct(Database $db)
     {
-        $this->db = $db;
-        $this->renderer = MustacheRenderer::getInstance();
-        $this->translator = Translator::getInstance();
+        parent::__construct($db);
         $this->preferencesManager = new PreferencesManager($db);
     }
 
@@ -112,7 +92,7 @@ class UserPreferencesController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         $userId = $_SESSION['user_id'];
@@ -196,19 +176,11 @@ class UserPreferencesController
                 'error_message' => $errorMessage,
             ];
 
-            // Enrich with navigation
-            $data = $this->enrichWithNavigation($data, '/preferences');
-
-            // Render with layout
-            $html = $this->renderer->render('user/preferences', $data, 'layouts/app');
-            return Response::html($html);
+            return $this->render('user/preferences', $data, '/preferences');
 
         } catch (\Exception $e) {
             error_log("Error in UserPreferencesController::index: " . $e->getMessage());
-            return Response::json(
-                ['error' => 'Internal server error'],
-                500
-            );
+            return $this->jsonError('Internal server error', [], 500);
         }
     }
 
@@ -224,7 +196,7 @@ class UserPreferencesController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         $userId = $_SESSION['user_id'];
@@ -235,7 +207,7 @@ class UserPreferencesController
 
             if (!is_array($body)) {
                 $_SESSION['preferences_error'] = $this->translator->translate('common.error_occurred');
-                return Response::redirect('/preferences');
+                return $this->redirect('/preferences');
             }
 
             // Extract and validate preferences
@@ -262,7 +234,7 @@ class UserPreferencesController
 
             if (!empty($errors)) {
                 $_SESSION['preferences_error'] = implode(', ', $errors);
-                return Response::redirect('/preferences');
+                return $this->redirect('/preferences');
             }
 
             // Save preferences
@@ -301,24 +273,12 @@ class UserPreferencesController
             // Set success message
             $_SESSION['preferences_success'] = $this->translator->translate('profile.preferences_updated');
 
-            return Response::redirect('/preferences');
+            return $this->redirect('/preferences');
 
         } catch (\Exception $e) {
             error_log("Error in UserPreferencesController::update: " . $e->getMessage());
             $_SESSION['preferences_error'] = $this->translator->translate('common.error_occurred');
-            return Response::redirect('/preferences');
+            return $this->redirect('/preferences');
         }
-    }
-
-    /**
-     * Check if user is authenticated
-     *
-     * @return bool True if authenticated
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id'])
-            && isset($_SESSION['authenticated'])
-            && $_SESSION['authenticated'] === true;
     }
 }

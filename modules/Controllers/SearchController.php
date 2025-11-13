@@ -15,22 +15,19 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Controllers\Traits\NavigationTrait;
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\I18n\Translator;
-use ISER\Core\Http\Response;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
 use ISER\Core\Search\SearchManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class SearchController
+/**
+ * SearchController (REFACTORIZADO con BaseController)
+ *
+ * Extiende BaseController para reducir código duplicado.
+ */
+class SearchController extends BaseController
 {
-    use NavigationTrait;
-
-    private MustacheRenderer $renderer;
-    private Translator $translator;
-    private Database $db;
     private SearchManager $searchManager;
 
     /**
@@ -38,19 +35,8 @@ class SearchController
      */
     public function __construct(Database $db)
     {
-        $this->renderer = MustacheRenderer::getInstance();
-        $this->translator = Translator::getInstance();
-        $this->db = $db;
+        parent::__construct($db);
         $this->searchManager = new SearchManager($db);
-    }
-
-    /**
-     * Renderizar con layout
-     */
-    private function renderWithLayout(string $view, array $data = [], string $layout = 'layouts/app'): ResponseInterface
-    {
-        $html = $this->renderer->render($view, $data, $layout);
-        return Response::html($html);
     }
 
     /**
@@ -62,8 +48,8 @@ class SearchController
     public function index(ServerRequestInterface $request): ResponseInterface
     {
         // Check authentication
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-            return Response::redirect('/login');
+        if (!$this->isAuthenticated()) {
+            return $this->redirect('/login');
         }
 
         // Get search statistics
@@ -90,10 +76,7 @@ class SearchController
             ],
         ];
 
-        // Enrich with navigation
-        $data = $this->enrichWithNavigation($data, '/search');
-
-        return $this->renderWithLayout('search/index', $data);
+        return $this->render('search/index', $data, '/search');
     }
 
     /**
@@ -105,8 +88,8 @@ class SearchController
     public function results(ServerRequestInterface $request): ResponseInterface
     {
         // Check authentication
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-            return Response::redirect('/login');
+        if (!$this->isAuthenticated()) {
+            return $this->redirect('/login');
         }
 
         // Get query parameters
@@ -169,10 +152,7 @@ class SearchController
             'active_filters' => $this->getActiveFiltersDisplay($queryParams),
         ];
 
-        // Enrich with navigation
-        $data = $this->enrichWithNavigation($data, '/search/results');
-
-        return $this->renderWithLayout('search/results', $data);
+        return $this->render('search/results', $data, '/search/results');
     }
 
     /**
@@ -184,15 +164,15 @@ class SearchController
     public function suggestions(ServerRequestInterface $request): ResponseInterface
     {
         // Check authentication
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-            return Response::json(['suggestions' => []]);
+        if (!$this->isAuthenticated()) {
+            return $this->json(['suggestions' => []]);
         }
 
         $queryParams = $request->getQueryParams();
         $query = (string)($queryParams['q'] ?? '');
 
         if (strlen(trim($query)) < 2) {
-            return Response::json(['suggestions' => []]);
+            return $this->json(['suggestions' => []]);
         }
 
         // Get suggestions (limit to 5 per entity type)
@@ -244,7 +224,7 @@ class SearchController
             error_log('Search Suggestions Error: ' . $e->getMessage());
         }
 
-        return Response::json(['suggestions' => $suggestions]);
+        return $this->json(['suggestions' => $suggestions]);
     }
 
     /**

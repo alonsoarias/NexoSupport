@@ -4,27 +4,28 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Core\I18n\Translator;
+use ISER\Core\Controllers\BaseController;
+use ISER\Core\Database\Database;
 use ISER\Core\Http\Response;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * I18n API Controller
+ * I18n API Controller (REFACTORIZADO con BaseController)
  *
  * Proporciona endpoints para obtener traducciones en formato JSON
  * para uso en JavaScript
  *
+ * Extiende BaseController para reducir código duplicado.
+ *
  * @package ISER\Controllers
  * @author ISER Desarrollo
  */
-class I18nApiController
+class I18nApiController extends BaseController
 {
-    private Translator $translator;
-
-    public function __construct()
+    public function __construct(Database $db)
     {
-        $this->translator = Translator::getInstance();
+        parent::__construct($db);
     }
 
     /**
@@ -155,8 +156,7 @@ class I18nApiController
         if (isset($_SESSION['user_id'])) {
             try {
                 // Save locale preference to user_preferences table
-                $db = \ISER\Core\Bootstrap::getInstance()->getDatabase();
-                $preferencesManager = new \ISER\User\PreferencesManager($db);
+                $preferencesManager = new \ISER\User\PreferencesManager($this->db);
                 $preferencesManager->set($_SESSION['user_id'], 'locale', $locale, 'string');
             } catch (\Exception $e) {
                 error_log('Failed to save locale preference: ' . $e->getMessage());
