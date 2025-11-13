@@ -2,16 +2,13 @@
 
 declare(strict_types=1);
 
-namespace ISER\Permission;
+namespace ISER\Roles;
 
 use ISER\Core\Database\Database;
 use ISER\Core\Database\BaseRepository;
 
 /**
- * Permission Manager (CRUD Operations)
- *
- * IMPORTANTE: Este es el sistema de gestión administrativa de permisos.
- * Para verificaciones de autorización en runtime, ver ISER\Roles\PermissionManager.
+ * Permission Repository (CRUD Operations)
  *
  * PROPÓSITO:
  * - Operaciones CRUD para la tabla 'permissions'
@@ -19,18 +16,20 @@ use ISER\Core\Database\BaseRepository;
  * - Agrupación y listado de permisos por módulo
  * - Consultas para relación permission-role
  *
+ * IMPORTANTE: NO confundir con PermissionManager
+ * - PermissionRepository: CRUD administrativo (este archivo)
+ * - PermissionManager: Autorización en runtime (capabilities)
+ *
  * USADO EN:
  * - Controllers/PermissionController.php (gestión de permisos)
  * - Controllers/RoleController.php (asignación de permisos a roles)
  *
- * NO USAR PARA: Verificaciones de autorización en runtime (usar Roles\PermissionManager)
- *
  * Extiende BaseRepository para reducir código duplicado.
  *
- * @package ISER\Permission
+ * @package ISER\Roles
  * @see \ISER\Roles\PermissionManager Para sistema de capabilities/autorización
  */
-class PermissionManager extends BaseRepository
+class PermissionRepository extends BaseRepository
 {
     protected string $table = 'permissions';
     protected string $defaultOrderBy = 'module, name';

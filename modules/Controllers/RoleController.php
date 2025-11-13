@@ -7,7 +7,7 @@ namespace ISER\Controllers;
 use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
 use ISER\Roles\RoleManager;
-use ISER\Permission\PermissionManager;
+use ISER\Roles\PermissionRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -24,13 +24,13 @@ use Psr\Http\Message\ResponseInterface;
 class RoleController extends BaseController
 {
     private RoleManager $roleManager;
-    private PermissionManager $permissionManager;
+    private PermissionRepository $permissionRepository;
 
     public function __construct(Database $db)
     {
         parent::__construct($db);
         $this->roleManager = new RoleManager($db);
-        $this->permissionManager = new PermissionManager($db);
+        $this->permissionRepository = new PermissionRepository($db);
     }
 
     /**
@@ -129,7 +129,7 @@ class RoleController extends BaseController
     public function create(ServerRequestInterface $request): ResponseInterface
     {
         // Obtener permisos agrupados por módulo
-        $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
+        $permissionsGrouped = $this->permissionRepository->getPermissionsGroupedByModule();
         $permissionsForMustache = $this->transformPermissionsForMustache($permissionsGrouped);
 
         $data = [
@@ -206,7 +206,7 @@ class RoleController extends BaseController
         $assignedPermissionIds = array_column($assignedPermissions, 'id');
 
         // Obtener todos los permisos agrupados
-        $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
+        $permissionsGrouped = $this->permissionRepository->getPermissionsGroupedByModule();
         $permissionsForMustache = $this->transformPermissionsForMustache($permissionsGrouped, $assignedPermissionIds);
 
         $data = [

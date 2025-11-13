@@ -7,7 +7,7 @@ namespace ISER\Controllers;
 use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
 use ISER\Core\Utils\Validator;
-use ISER\Permission\PermissionManager;
+use ISER\Roles\PermissionRepository;
 use ISER\Roles\RoleManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -24,13 +24,13 @@ use Psr\Http\Message\ResponseInterface;
  */
 class PermissionController extends BaseController
 {
-    private PermissionManager $permissionManager;
+    private PermissionRepository $permissionRepository;
     private RoleManager $roleManager;
 
     public function __construct(Database $db)
     {
         parent::__construct($db);
-        $this->permissionManager = new PermissionManager($db);
+        $this->permissionRepository = new PermissionRepository($db);
         $this->roleManager = new RoleManager($db);
     }
 
@@ -42,7 +42,7 @@ class PermissionController extends BaseController
         $queryParams = $request->getQueryParams();
 
         // Obtener permisos agrupados por módulo
-        $permissionsGrouped = $this->permissionManager->getPermissionsGroupedByModule();
+        $permissionsGrouped = $this->permissionRepository->getPermissionsGroupedByModule();
 
         // CRÍTICO: Transformar array asociativo a indexado para Mustache
         // Mustache no puede iterar sobre arrays asociativos correctamente
@@ -51,7 +51,7 @@ class PermissionController extends BaseController
             // Enriquecer cada permiso con información de roles
             foreach ($permissions as &$permission) {
                 $permissionId = (int)$permission['id'];
-                $roles = $this->permissionManager->getPermissionRoles($permissionId);
+                $roles = $this->permissionRepository->getPermissionRoles($permissionId);
                 $permission['roles'] = $roles;
                 $permission['role_count'] = count($roles);
                 $permission['role_names'] = array_map(fn($r) => $r['name'], $roles);
@@ -71,12 +71,12 @@ class PermissionController extends BaseController
         }
 
         // Obtener módulos disponibles
-        $modules = $this->permissionManager->getModules();
+        $modules = $this->permissionRepository->getModules();
 
         $data = [
             'permissions_grouped' => $permissionsForMustache,
             'modules' => $modules,
-            'total_permissions' => $this->permissionManager->countPermissions(),
+            'total_permissions' => $this->permissionRepository->countPermissions(),
             'page_title' => __('permissions.management_title'),
         ];
 
@@ -106,7 +106,7 @@ class PermissionController extends BaseController
      */
     public function create(ServerRequestInterface $request): ResponseInterface
     {
-        $modules = $this->permissionManager->getModules();
+        $modules = $this->permissionRepository->getModules();
 
         $data = [
             'modules' => $modules,
@@ -127,7 +127,7 @@ class PermissionController extends BaseController
         $errors = $this->validatePermissionData($body);
 
         if (!empty($errors)) {
-            $modules = $this->permissionManager->getModules();
+            $modules = $this->permissionRepository->getModules();
             $data = [
                 'errors' => $errors,
                 'form_data' => $body,
@@ -138,7 +138,7 @@ class PermissionController extends BaseController
         }
 
         // Crear permiso
-        $permissionId = $this->permissionManager->create([
+        $permissionId = $this->permissionRepository->create([
             'name' => $body['name'],
             'slug' => $body['slug'],
             'description' => $body['description'] ?? '',
@@ -147,7 +147,7 @@ class PermissionController extends BaseController
 
         if ($permissionId === 0) {
             $errors[] = 'Error al crear el permiso';
-            $modules = $this->permissionManager->getModules();
+            $modules = $this->permissionRepository->getModules();
             $data = [
                 'errors' => $errors,
                 'form_data' => $body,
@@ -175,17 +175,17 @@ class PermissionController extends BaseController
         // GUARDAR ID EN SESIÓN
         $_SESSION['editing_permission_id'] = $permissionId;
 
-        $permission = $this->permissionManager->getPermissionById($permissionId);
+        $permission = $this->permissionRepository->getPermissionById($permissionId);
         if (!$permission) {
             unset($_SESSION['editing_permission_id']);
             return $this->redirect('/admin/permissions?error=not_found');
         }
 
         // Obtener roles que tienen este permiso
-        $roles = $this->permissionManager->getPermissionRoles($permissionId);
+        $roles = $this->permissionRepository->getPermissionRoles($permissionId);
 
         // Obtener módulos existentes
-        $modules = $this->permissionManager->getModules();
+        $modules = $this->permissionRepository->getModules();
 
         $data = [
             'permission' => $permission,
@@ -212,7 +212,7 @@ class PermissionController extends BaseController
 
         $body = $request->getParsedBody();
 
-        $permission = $this->permissionManager->getPermissionById($permissionId);
+        $permission = $this->permissionRepository->getPermissionById($permissionId);
         if (!$permission) {
             unset($_SESSION['editing_permission_id']);
             return $this->redirect('/admin/permissions?error=not_found');
@@ -222,8 +222,8 @@ class PermissionController extends BaseController
         $errors = $this->validatePermissionData($body, $permissionId);
 
         if (!empty($errors)) {
-            $roles = $this->permissionManager->getPermissionRoles($permissionId);
-            $modules = $this->permissionManager->getModules();
+            $roles = $this->permissionRepository->getPermissionRoles($permissionId);
+            $modules = $this->permissionRepository->getModules();
 
             $data = [
                 'errors' => $errors,
@@ -237,7 +237,7 @@ class PermissionController extends BaseController
         }
 
         // Actualizar permiso (no se puede cambiar el slug)
-        $success = $this->permissionManager->update($permissionId, [
+        $success = $this->permissionRepository->update($permissionId, [
             'name' => $body['name'],
             'description' => $body['description'] ?? '',
             'module' => $body['module'],
@@ -245,8 +245,8 @@ class PermissionController extends BaseController
 
         if (!$success) {
             $errors[] = 'Error al actualizar el permiso';
-            $roles = $this->permissionManager->getPermissionRoles($permissionId);
-            $modules = $this->permissionManager->getModules();
+            $roles = $this->permissionRepository->getPermissionRoles($permissionId);
+            $modules = $this->permissionRepository->getModules();
 
             $data = [
                 'errors' => $errors,
@@ -277,13 +277,13 @@ class PermissionController extends BaseController
             return $this->jsonError('ID de permiso no proporcionado', [], 400);
         }
 
-        $permission = $this->permissionManager->getPermissionById($permissionId);
+        $permission = $this->permissionRepository->getPermissionById($permissionId);
         if (!$permission) {
             return $this->jsonError('Permiso no encontrado', [], 404);
         }
 
         // Verificar si hay roles asignados
-        $roles = $this->permissionManager->getPermissionRoles($permissionId);
+        $roles = $this->permissionRepository->getPermissionRoles($permissionId);
         if (!empty($roles)) {
             return $this->jsonError(
                 'No se puede eliminar el permiso porque está asignado a ' . count($roles) . ' rol(es)',
@@ -292,7 +292,7 @@ class PermissionController extends BaseController
             );
         }
 
-        $success = $this->permissionManager->delete($permissionId);
+        $success = $this->permissionRepository->delete($permissionId);
 
         if ($success) {
             return $this->jsonSuccess(__('permissions.deleted_message', ['name' => '']));
@@ -323,7 +323,7 @@ class PermissionController extends BaseController
 
         // Add custom business logic validations (uniqueness check for slug)
         if ($excludePermissionId === null && empty($errors['slug'])) {
-            if ($this->permissionManager->getPermissionBySlug($data['slug'])) {
+            if ($this->permissionRepository->getPermissionBySlug($data['slug'])) {
                 $errors['slug'] = 'El slug ya está en uso';
             }
         }
