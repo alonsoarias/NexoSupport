@@ -23,12 +23,12 @@ use ISER\Core\Bootstrap;
 use ISER\Core\Database\Database;
 use ISER\Core\Config\ConfigManager;
 use ISER\Core\Config\SettingsManager;
-use ISER\Modules\Auth\Middleware\AuthMiddleware;
-use ISER\Modules\Admin\Middleware\AdminMiddleware;
-use ISER\Modules\Report\Log\ReportLog;
-use ISER\Modules\Report\Log\LogManager;
-use ISER\Modules\Report\Log\LogExporter;
-use ISER\Modules\Theme\Iser\ThemeIser;
+use ISER\Core\Middleware\AuthMiddleware;
+use ISER\Core\Middleware\AdminMiddleware;
+use ISER\Report\Log\ReportLog;
+use ISER\Report\Log\LogManager;
+use ISER\Report\Log\LogExporter;
+use ISER\Theme\Iser\ThemeIser;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 

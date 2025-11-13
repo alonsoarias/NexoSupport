@@ -9,9 +9,9 @@ namespace ISER\Core\Middleware;
 use ISER\Core\Session\JWTSession;
 use ISER\Core\Utils\Helpers;
 use ISER\Core\Utils\Logger;
-use ISER\Modules\User\UserManager;
-use ISER\Modules\Roles\PermissionManager;
-use ISER\Modules\Roles\RoleAssignment;
+use ISER\User\UserManager;
+use ISER\Roles\PermissionManager;
+use ISER\Roles\RoleAssignment;
 
 class AdminMiddleware
 {

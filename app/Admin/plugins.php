@@ -19,11 +19,11 @@ use ISER\Core\Config\SettingsManager;
 use ISER\Core\Database\Database;
 use ISER\Core\Session\JWTSession;
 use ISER\Core\Middleware\AdminMiddleware;
-use ISER\Modules\User\UserManager;
-use ISER\Modules\Roles\PermissionManager;
-use ISER\Modules\Roles\RoleAssignment;
-use ISER\Modules\Admin\AdminManager;
-use ISER\Modules\Admin\AdminPlugins;
+use ISER\User\UserManager;
+use ISER\Roles\PermissionManager;
+use ISER\Roles\RoleAssignment;
+use ISER\Admin\AdminManager;
+use ISER\Admin\AdminPlugins;
 
 // Initialize core services
 $config = ConfigManager::getInstance(ISER_BASE_DIR);

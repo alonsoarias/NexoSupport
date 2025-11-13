@@ -9,9 +9,9 @@ require_once(__DIR__ . '/../../core/bootstrap.php');
 use ISER\Core\Database\Database;
 use ISER\Core\Config\SettingsManager;
 use ISER\Core\Config\ConfigManager;
-use ISER\Modules\Theme\Iser\ThemeIser;
-use ISER\Modules\Auth\Middleware\AuthMiddleware;
-use ISER\Modules\Admin\Middleware\AdminMiddleware;
+use ISER\Theme\Iser\ThemeIser;
+use ISER\Core\Middleware\AuthMiddleware;
+use ISER\Core\Middleware\AdminMiddleware;
 use Monolog\Logger;
 
 // Cargar configuración
