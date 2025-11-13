@@ -1,0 +1,2 @@
+File,Line,String,Context,Priority
+"modules/Admin/templates/admin_plugins.mustache",2,"Plugins del Sistema","HTML content","HIGH"
