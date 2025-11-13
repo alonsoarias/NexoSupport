@@ -1,10 +1,30 @@
 <?php
 /**
- * ISER Roles System - Permission Manager
+ * Permission Manager (Runtime Authorization & Capabilities)
  *
- * @package    ISER\Modules\Roles
+ * IMPORTANTE: Este es el sistema de autorización en runtime (Moodle-style).
+ * Para operaciones CRUD de permisos, ver ISER\Permission\PermissionManager.
+ *
+ * PROPÓSITO:
+ * - Verificación de capabilities en runtime (hasCapability)
+ * - Sistema de permisos tipo Moodle con contextos
+ * - Cache de permisos de usuario
+ * - Enforcement de permisos en middleware
+ * - Soporte para CAP_ALLOW, CAP_PREVENT, CAP_PROHIBIT
+ *
+ * USADO EN:
+ * - core/Middleware/PermissionMiddleware.php (protección de rutas)
+ * - core/Middleware/AdminMiddleware.php (verificación admin)
+ * - app/Admin/*.php (páginas administrativas)
+ *
+ * NO USAR PARA: Gestión CRUD de permisos (usar Permission\PermissionManager)
+ *
+ * CAPABILITY FORMAT: 'moodle/module:action' (e.g., 'moodle/user:create')
+ *
+ * @package    ISER\Roles
  * @copyright  2024 ISER
  * @license    Proprietary
+ * @see \ISER\Permission\PermissionManager Para operaciones CRUD administrativas
  */
 
 namespace ISER\Roles;

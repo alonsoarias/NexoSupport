@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ISER\Role;
+namespace ISER\Roles;
 
 use ISER\Core\Database\Database;
 

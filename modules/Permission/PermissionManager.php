@@ -7,9 +7,25 @@ namespace ISER\Permission;
 use ISER\Core\Database\Database;
 
 /**
- * Permission Manager
+ * Permission Manager (CRUD Operations)
  *
- * Gestiona permisos del sistema: crear, leer, actualizar, eliminar
+ * IMPORTANTE: Este es el sistema de gestión administrativa de permisos.
+ * Para verificaciones de autorización en runtime, ver ISER\Roles\PermissionManager.
+ *
+ * PROPÓSITO:
+ * - Operaciones CRUD para la tabla 'permissions'
+ * - Gestión administrativa de permisos en la UI
+ * - Agrupación y listado de permisos por módulo
+ * - Consultas para relación permission-role
+ *
+ * USADO EN:
+ * - Controllers/PermissionController.php (gestión de permisos)
+ * - Controllers/RoleController.php (asignación de permisos a roles)
+ *
+ * NO USAR PARA: Verificaciones de autorización en runtime (usar Roles\PermissionManager)
+ *
+ * @package ISER\Permission
+ * @see \ISER\Roles\PermissionManager Para sistema de capabilities/autorización
  */
 class PermissionManager
 {
