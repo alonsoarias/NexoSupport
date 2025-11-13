@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\I18n\Translator;
-use ISER\Core\Http\Response;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
-use ISER\Core\Utils\Helpers;
 use ISER\User\UserManager;
 use ISER\User\AccountSecurityManager;
 use ISER\User\LoginHistoryManager;
@@ -16,24 +13,21 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Authentication Controller
+ * Authentication Controller (REFACTORIZADO con BaseController)
  * Sistema de autenticación simplificado y robusto
  * Updated for FASE 6: 3FN normalization with separate security and login history tables
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class AuthController
+class AuthController extends BaseController
 {
-    private MustacheRenderer $renderer;
-    private Translator $translator;
-    private Database $db;
     private UserManager $userManager;
     private AccountSecurityManager $securityManager;
     private LoginHistoryManager $loginHistory;
 
     public function __construct(Database $db)
     {
-        $this->renderer = MustacheRenderer::getInstance();
-        $this->translator = Translator::getInstance();
-        $this->db = $db;
+        parent::__construct($db);
         $this->userManager = new UserManager($db);
         $this->securityManager = new AccountSecurityManager($db);
         $this->loginHistory = new LoginHistoryManager($db);
@@ -46,11 +40,10 @@ class AuthController
     {
         // Si ya está autenticado, redirigir al dashboard
         if ($this->isAuthenticated()) {
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         $data = [
-            'locale' => $this->translator->getLocale(),
             'page_title' => $this->translator->translate('auth.login'),
             'header_title' => $this->translator->translate('auth.login'),
             'login_url' => '/login',
@@ -61,8 +54,7 @@ class AuthController
         unset($_SESSION['login_error']);
         unset($_SESSION['login_success']);
 
-        $html = $this->renderer->render('auth/login', $data);
-        return Response::html($html);
+        return $this->renderWithLayout('auth/login', $data);
     }
 
     /**
@@ -81,7 +73,7 @@ class AuthController
         if (!is_array($body)) {
             error_log("[LOGIN ERROR] Body no es array: " . gettype($body));
             $_SESSION['login_error'] = 'Error en el formato de datos';
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         $username = trim($body['username'] ?? '');
@@ -94,7 +86,7 @@ class AuthController
         if (empty($username) || empty($password)) {
             error_log("[LOGIN ERROR] Credenciales vacías");
             $_SESSION['login_error'] = $this->translator->translate('auth.credentials_required');
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Buscar usuario
@@ -110,7 +102,7 @@ class AuthController
             error_log("[LOGIN ERROR] Usuario no existe: {$username}");
             $this->recordFailedAttempt($username);
             $_SESSION['login_error'] = $this->translator->translate('auth.invalid_credentials');
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         error_log("[LOGIN] Usuario encontrado - ID: {$user['id']}, Username: {$user['username']}, Email: {$user['email']}");
@@ -120,14 +112,14 @@ class AuthController
         if ($userStatus !== 'active') {
             error_log("[LOGIN ERROR] Usuario inactivo - Status: {$user['status']}");
             $_SESSION['login_error'] = 'Usuario inactivo o suspendido';
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Verificar que no esté eliminado
         if (!empty($user['deleted_at'])) {
             error_log("[LOGIN ERROR] Usuario eliminado");
             $_SESSION['login_error'] = 'Usuario no disponible';
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Verificar si la cuenta está bloqueada (FASE 6: using account_security table)
@@ -135,7 +127,7 @@ class AuthController
             $remainingTime = ceil($this->securityManager->getRemainingLockTime($user['id']) / 60);
             error_log("[LOGIN ERROR] Cuenta bloqueada por {$remainingTime} minutos más");
             $_SESSION['login_error'] = "Cuenta bloqueada. Intenta en {$remainingTime} minutos.";
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Verificar contraseña
@@ -165,7 +157,7 @@ class AuthController
                 $_SESSION['login_error'] = $this->translator->translate('auth.invalid_credentials');
             }
 
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         error_log("[LOGIN SUCCESS] Contraseña verificada correctamente");
@@ -193,7 +185,7 @@ class AuthController
         error_log("[LOGIN SUCCESS] Sesión creada - Redirigiendo a dashboard");
         error_log("========================================");
 
-        return Response::redirect('/dashboard');
+        return $this->redirect('/dashboard');
     }
 
     /**
@@ -227,17 +219,7 @@ class AuthController
 
         session_destroy();
 
-        return Response::redirect('/');
-    }
-
-    /**
-     * Verificar si el usuario está autenticado
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id'])
-            && isset($_SESSION['authenticated'])
-            && $_SESSION['authenticated'] === true;
+        return $this->redirect('/');
     }
 
     /**

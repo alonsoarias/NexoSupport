@@ -18,33 +18,27 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Controllers\Traits\NavigationTrait;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\Http\Response;
 use ISER\Core\Config\SettingsManager;
-use ISER\Core\I18n\Translator;
 use ISER\Core\Utils\Logger;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * AdminSettingsController Class
+ * AdminSettingsController Class (REFACTORIZADO con BaseController)
  *
  * Provides comprehensive system settings management with:
  * - Tabbed interface by category
  * - Input validation
  * - Audit logging
  * - Default restoration
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class AdminSettingsController
+class AdminSettingsController extends BaseController
 {
-    use NavigationTrait;
-
-    private Database $db;
-    private MustacheRenderer $renderer;
     private SettingsManager $settings;
-    private Translator $translator;
 
     /**
      * Default values for all settings
@@ -89,10 +83,8 @@ class AdminSettingsController
      */
     public function __construct(Database $db)
     {
-        $this->db = $db;
-        $this->renderer = MustacheRenderer::getInstance();
+        parent::__construct($db);
         $this->settings = new SettingsManager($db);
-        $this->translator = Translator::getInstance();
     }
 
     /**
@@ -107,12 +99,12 @@ class AdminSettingsController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Verify admin permissions
         if (!$this->hasAdminPermission()) {
-            return Response::json(['error' => 'Unauthorized access'], 403);
+            return $this->jsonError('Unauthorized access', [], 403);
         }
 
         try {
@@ -127,7 +119,6 @@ class AdminSettingsController
             $data = [
                 'page_title' => $this->translator->translate('settings.title'),
                 'header_title' => $this->translator->translate('settings.title'),
-                'locale' => $this->translator->getLocale(),
 
                 // Settings by category
                 'general_settings' => $this->getGeneralSettings($currentSettings),
@@ -150,16 +141,11 @@ class AdminSettingsController
                 'error_message' => null,
             ];
 
-            // Enrich with navigation
-            $data = $this->enrichWithNavigation($data, '/admin/settings');
-
-            // Render with layout
-            $html = $this->renderer->render('admin/settings/index', $data, 'layouts/app');
-            return Response::html($html);
+            return $this->render('admin/settings/index', $data, '/admin/settings');
 
         } catch (\Exception $e) {
             error_log("Error in AdminSettingsController::index: " . $e->getMessage());
-            return Response::json(['error' => 'Internal server error'], 500);
+            return $this->jsonError('Internal server error', [], 500);
         }
     }
 
@@ -175,12 +161,12 @@ class AdminSettingsController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Verify admin permissions
         if (!$this->hasAdminPermission()) {
-            return Response::json(['error' => 'Unauthorized access'], 403);
+            return $this->jsonError('Unauthorized access', [], 403);
         }
 
         try {
@@ -192,7 +178,7 @@ class AdminSettingsController
 
             if (isset($validatedSettings['errors']) && !empty($validatedSettings['errors'])) {
                 $_SESSION['settings_error'] = implode(', ', $validatedSettings['errors']);
-                return Response::redirect('/admin/settings');
+                return $this->redirect('/admin/settings');
             }
 
             // Save each setting
@@ -217,12 +203,12 @@ class AdminSettingsController
             // Set success message
             $_SESSION['settings_success'] = $this->translator->translate('settings.saved_message') . " ({$savedCount} " . $this->translator->translate('settings.items_updated') . ")";
 
-            return Response::redirect('/admin/settings');
+            return $this->redirect('/admin/settings');
 
         } catch (\Exception $e) {
             error_log("Error in AdminSettingsController::update: " . $e->getMessage());
             $_SESSION['settings_error'] = 'Failed to save settings';
-            return Response::redirect('/admin/settings');
+            return $this->redirect('/admin/settings');
         }
     }
 
@@ -238,12 +224,12 @@ class AdminSettingsController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::json(['error' => 'Unauthorized access'], 401);
+            return $this->jsonError('Unauthorized access', [], 401);
         }
 
         // Verify admin permissions
         if (!$this->hasAdminPermission()) {
-            return Response::json(['error' => 'Insufficient permissions'], 403);
+            return $this->jsonError('Insufficient permissions', [], 403);
         }
 
         try {
@@ -261,17 +247,14 @@ class AdminSettingsController
                 'count' => $count
             ]);
 
-            return Response::json([
-                'success' => true,
-                'message' => $this->translator->translate('settings.restored_message'),
-                'count' => $count
-            ], 200);
+            return $this->jsonSuccess(
+                $this->translator->translate('settings.restored_message'),
+                ['count' => $count]
+            );
 
         } catch (\Exception $e) {
             error_log("Error in AdminSettingsController::reset: " . $e->getMessage());
-            return Response::json([
-                'error' => 'Failed to reset settings: ' . $e->getMessage()
-            ], 500);
+            return $this->jsonError('Failed to reset settings: ' . $e->getMessage(), [], 500);
         }
     }
 
@@ -640,18 +623,6 @@ class AdminSettingsController
             ['value' => 'iser', 'label' => 'ISER Corporate', 'selected' => $current === 'iser'],
             ['value' => 'default', 'label' => 'Default', 'selected' => $current === 'default'],
         ];
-    }
-
-    /**
-     * Check if user is authenticated
-     *
-     * @return bool True if authenticated
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id'])
-            && isset($_SESSION['authenticated'])
-            && $_SESSION['authenticated'] === true;
     }
 
     /**

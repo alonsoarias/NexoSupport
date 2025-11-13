@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Controllers\Traits\NavigationTrait;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
-use ISER\Core\Http\Response;
-use ISER\Core\View\MustacheRenderer;
 use ISER\Core\Utils\Validator;
 use ISER\Permission\PermissionManager;
 use ISER\Roles\RoleManager;
@@ -15,35 +13,25 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * PermissionController - Gestión completa de permisos (REFACTORIZADO)
+ * PermissionController - Gestión completa de permisos (REFACTORIZADO con BaseController)
  *
  * PATRÓN DE SESIONES:
  * - Usa sesiones para almacenar ID durante edición
  * - IDs se pasan como permission_id (string) para compatibilidad con Mustache
  * - Sin exposición de IDs en URLs ni campos hidden
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class PermissionController
+class PermissionController extends BaseController
 {
-    use NavigationTrait;
-
     private PermissionManager $permissionManager;
     private RoleManager $roleManager;
-    private MustacheRenderer $renderer;
 
     public function __construct(Database $db)
     {
+        parent::__construct($db);
         $this->permissionManager = new PermissionManager($db);
         $this->roleManager = new RoleManager($db);
-        $this->renderer = MustacheRenderer::getInstance();
-    }
-
-    /**
-     * Renderizar con layout
-     */
-    private function renderWithLayout(string $view, array $data = [], string $layout = 'layouts/app'): ResponseInterface
-    {
-        $html = $this->renderer->render($view, $data, $layout);
-        return Response::html($html);
     }
 
     /**
@@ -110,10 +98,7 @@ class PermissionController
             $data['error_message'] = $errors[$queryParams['error']] ?? __('errors.unknown_error');
         }
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/admin/permissions');
-
-        return $this->renderWithLayout('admin/permissions/index', $data);
+        return $this->render('admin/permissions/index', $data, '/admin/permissions');
     }
 
     /**
@@ -128,10 +113,7 @@ class PermissionController
             'page_title' => 'Crear Permiso',
         ];
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/admin/permissions/create');
-
-        return $this->renderWithLayout('admin/permissions/create', $data);
+        return $this->render('admin/permissions/create', $data, '/admin/permissions/create');
     }
 
     /**
@@ -152,7 +134,7 @@ class PermissionController
                 'modules' => $modules,
                 'page_title' => 'Crear Permiso',
             ];
-            return $this->renderWithLayout('admin/permissions/create', $data);
+            return $this->render('admin/permissions/create', $data, '/admin/permissions/create');
         }
 
         // Crear permiso
@@ -172,10 +154,10 @@ class PermissionController
                 'modules' => $modules,
                 'page_title' => 'Crear Permiso',
             ];
-            return $this->renderWithLayout('admin/permissions/create', $data);
+            return $this->render('admin/permissions/create', $data, '/admin/permissions/create');
         }
 
-        return Response::redirect('/admin/permissions?success=created');
+        return $this->redirect('/admin/permissions?success=created');
     }
 
     /**
@@ -187,7 +169,7 @@ class PermissionController
         $permissionId = (int)($body['permission_id'] ?? 0);
 
         if (!$permissionId) {
-            return Response::redirect('/admin/permissions?error=invalid_id');
+            return $this->redirect('/admin/permissions?error=invalid_id');
         }
 
         // GUARDAR ID EN SESIÓN
@@ -196,7 +178,7 @@ class PermissionController
         $permission = $this->permissionManager->getPermissionById($permissionId);
         if (!$permission) {
             unset($_SESSION['editing_permission_id']);
-            return Response::redirect('/admin/permissions?error=not_found');
+            return $this->redirect('/admin/permissions?error=not_found');
         }
 
         // Obtener roles que tienen este permiso
@@ -213,10 +195,7 @@ class PermissionController
             'editing_mode' => true,
         ];
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/admin/permissions/edit');
-
-        return $this->renderWithLayout('admin/permissions/edit', $data);
+        return $this->render('admin/permissions/edit', $data, '/admin/permissions/edit');
     }
 
     /**
@@ -228,7 +207,7 @@ class PermissionController
         $permissionId = (int)($_SESSION['editing_permission_id'] ?? 0);
 
         if (!$permissionId) {
-            return Response::redirect('/admin/permissions?error=session_expired');
+            return $this->redirect('/admin/permissions?error=session_expired');
         }
 
         $body = $request->getParsedBody();
@@ -236,7 +215,7 @@ class PermissionController
         $permission = $this->permissionManager->getPermissionById($permissionId);
         if (!$permission) {
             unset($_SESSION['editing_permission_id']);
-            return Response::redirect('/admin/permissions?error=not_found');
+            return $this->redirect('/admin/permissions?error=not_found');
         }
 
         // Validar datos
@@ -254,7 +233,7 @@ class PermissionController
                 'page_title' => 'Editar Permiso',
                 'editing_mode' => true,
             ];
-            return $this->renderWithLayout('admin/permissions/edit', $data);
+            return $this->render('admin/permissions/edit', $data, '/admin/permissions/edit');
         }
 
         // Actualizar permiso (no se puede cambiar el slug)
@@ -277,13 +256,13 @@ class PermissionController
                 'page_title' => 'Editar Permiso',
                 'editing_mode' => true,
             ];
-            return $this->renderWithLayout('admin/permissions/edit', $data);
+            return $this->render('admin/permissions/edit', $data, '/admin/permissions/edit');
         }
 
         // LIMPIAR SESIÓN
         unset($_SESSION['editing_permission_id']);
 
-        return Response::redirect('/admin/permissions?success=updated');
+        return $this->redirect('/admin/permissions?success=updated');
     }
 
     /**
@@ -295,29 +274,31 @@ class PermissionController
         $permissionId = (int)($body['permission_id'] ?? 0);
 
         if (!$permissionId) {
-            return Response::json(['error' => 'ID de permiso no proporcionado'], 400);
+            return $this->jsonError('ID de permiso no proporcionado', [], 400);
         }
 
         $permission = $this->permissionManager->getPermissionById($permissionId);
         if (!$permission) {
-            return Response::json(['error' => 'Permiso no encontrado'], 404);
+            return $this->jsonError('Permiso no encontrado', [], 404);
         }
 
         // Verificar si hay roles asignados
         $roles = $this->permissionManager->getPermissionRoles($permissionId);
         if (!empty($roles)) {
-            return Response::json([
-                'error' => 'No se puede eliminar el permiso porque está asignado a ' . count($roles) . ' rol(es)',
-            ], 400);
+            return $this->jsonError(
+                'No se puede eliminar el permiso porque está asignado a ' . count($roles) . ' rol(es)',
+                [],
+                400
+            );
         }
 
         $success = $this->permissionManager->delete($permissionId);
 
         if ($success) {
-            return Response::json(['success' => true, 'message' => __('permissions.deleted_message', ['name' => ''])]);
+            return $this->jsonSuccess(__('permissions.deleted_message', ['name' => '']));
         }
 
-        return Response::json(['error' => __('errors.delete_failed')], 500);
+        return $this->jsonError(__('errors.delete_failed'), [], 500);
     }
 
     /**
