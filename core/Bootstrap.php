@@ -20,7 +20,7 @@ use ISER\Core\Config\ConfigManager;
 use ISER\Core\Config\Environment;
 use ISER\Core\Database\PDOConnection;
 use ISER\Core\Database\Database;
-use ISER\Core\Router\Router;
+use ISER\Core\Routing\Router;
 use ISER\Core\Session\JWTSession;
 use ISER\Core\Utils\Logger;
 use RuntimeException;
