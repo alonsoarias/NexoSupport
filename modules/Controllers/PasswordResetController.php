@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\I18n\Translator;
-use ISER\Core\Http\Response;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
 use ISER\Core\Utils\Helpers;
 use ISER\User\UserManager;
@@ -15,22 +13,19 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Password Reset Controller
+ * Password Reset Controller (REFACTORIZADO con BaseController)
  * Handles complete password reset flow
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class PasswordResetController
+class PasswordResetController extends BaseController
 {
-    private MustacheRenderer $renderer;
-    private Translator $translator;
-    private Database $db;
     private UserManager $userManager;
     private PasswordResetTokenManager $tokenManager;
 
     public function __construct(Database $db)
     {
-        $this->renderer = MustacheRenderer::getInstance();
-        $this->translator = Translator::getInstance();
-        $this->db = $db;
+        parent::__construct($db);
         $this->userManager = new UserManager($db);
         $this->tokenManager = new PasswordResetTokenManager($db->getPdo());
     }
@@ -42,7 +37,7 @@ class PasswordResetController
     {
         // If already authenticated, redirect to dashboard
         if ($this->isAuthenticated()) {
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         $data = [
@@ -56,8 +51,7 @@ class PasswordResetController
         unset($_SESSION['password_reset_error']);
         unset($_SESSION['password_reset_success']);
 
-        $html = $this->renderer->render('auth/forgot-password', $data);
-        return Response::html($html);
+        return $this->renderWithLayout('auth/forgot-password', $data);
     }
 
     /**
@@ -74,7 +68,7 @@ class PasswordResetController
         if (!is_array($body)) {
             error_log("[PASSWORD RESET ERROR] Body is not array: " . gettype($body));
             $_SESSION['password_reset_error'] = $this->translator->translate('common.error_occurred');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         $email = trim($body['email'] ?? '');
@@ -85,13 +79,13 @@ class PasswordResetController
         if (empty($email)) {
             error_log("[PASSWORD RESET ERROR] Email is empty");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.email_required');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         if (!Helpers::validateEmail($email)) {
             error_log("[PASSWORD RESET ERROR] Invalid email format: {$email}");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.invalid_email');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         // Check if user exists
@@ -102,7 +96,7 @@ class PasswordResetController
             // Security: Don't reveal if user exists or not
             // Show success message anyway to prevent user enumeration
             $_SESSION['password_reset_success'] = $this->translator->translate('auth.reset_link_sent');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         error_log("[PASSWORD RESET] User found - ID: {$user['id']}, Username: {$user['username']}");
@@ -112,21 +106,21 @@ class PasswordResetController
         if ($userStatus !== 'active') {
             error_log("[PASSWORD RESET ERROR] User not active - Status: {$user['status']}");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.account_inactive');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         // Check if user is deleted
         if (!empty($user['deleted_at'])) {
             error_log("[PASSWORD RESET ERROR] User is deleted");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.account_not_found');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         // Check rate limit (3 attempts per hour)
         if (!$this->tokenManager->checkResetRateLimit($user['id'], 3600, 3)) {
             error_log("[PASSWORD RESET ERROR] Rate limit exceeded for user ID: {$user['id']}");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.reset_rate_limit');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         // Create reset token (expires in 24 hours = 86400 seconds)
@@ -162,7 +156,7 @@ class PasswordResetController
             $_SESSION['password_reset_error'] = $this->translator->translate('common.error_occurred');
         }
 
-        return Response::redirect('/forgot-password');
+        return $this->redirect('/forgot-password');
     }
 
     /**
@@ -172,7 +166,7 @@ class PasswordResetController
     {
         // If already authenticated, redirect to dashboard
         if ($this->isAuthenticated()) {
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         $queryParams = $request->getQueryParams();
@@ -185,7 +179,7 @@ class PasswordResetController
         if (empty($token) || empty($email)) {
             error_log("[PASSWORD RESET ERROR] Missing token or email");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.invalid_reset_link');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         // Validate token
@@ -194,7 +188,7 @@ class PasswordResetController
         if (!$tokenData) {
             error_log("[PASSWORD RESET ERROR] Invalid or expired token");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.expired_reset_link');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         error_log("[PASSWORD RESET] Token valid for user ID: {$tokenData['user_id']}");
@@ -205,7 +199,7 @@ class PasswordResetController
         if (!$user || $user['email'] !== $email) {
             error_log("[PASSWORD RESET ERROR] User not found or email mismatch");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.invalid_reset_link');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         $data = [
@@ -219,8 +213,7 @@ class PasswordResetController
 
         unset($_SESSION['password_reset_error']);
 
-        $html = $this->renderer->render('auth/reset-password', $data);
-        return Response::html($html);
+        return $this->renderWithLayout('auth/reset-password', $data);
     }
 
     /**
@@ -237,7 +230,7 @@ class PasswordResetController
         if (!is_array($body)) {
             error_log("[PASSWORD RESET ERROR] Body is not array: " . gettype($body));
             $_SESSION['password_reset_error'] = $this->translator->translate('common.error_occurred');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         $token = trim($body['token'] ?? '');
@@ -253,21 +246,21 @@ class PasswordResetController
         if (empty($token) || empty($email) || empty($password) || empty($passwordConfirm)) {
             error_log("[PASSWORD RESET ERROR] Missing required fields");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.all_fields_required');
-            return Response::redirect("/reset-password?token={$token}&email=" . urlencode($email));
+            return $this->redirect("/reset-password?token={$token}&email=" . urlencode($email));
         }
 
         // Validate password match
         if ($password !== $passwordConfirm) {
             error_log("[PASSWORD RESET ERROR] Passwords do not match");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.passwords_not_match');
-            return Response::redirect("/reset-password?token={$token}&email=" . urlencode($email));
+            return $this->redirect("/reset-password?token={$token}&email=" . urlencode($email));
         }
 
         // Validate password strength (minimum 8 characters)
         if (strlen($password) < 8) {
             error_log("[PASSWORD RESET ERROR] Password too short");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.password_too_short');
-            return Response::redirect("/reset-password?token={$token}&email=" . urlencode($email));
+            return $this->redirect("/reset-password?token={$token}&email=" . urlencode($email));
         }
 
         // Validate token
@@ -276,7 +269,7 @@ class PasswordResetController
         if (!$tokenData) {
             error_log("[PASSWORD RESET ERROR] Invalid or expired token");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.expired_reset_link');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         error_log("[PASSWORD RESET] Token valid for user ID: {$tokenData['user_id']}");
@@ -287,7 +280,7 @@ class PasswordResetController
         if (!$user || $user['email'] !== $email) {
             error_log("[PASSWORD RESET ERROR] User not found or email mismatch");
             $_SESSION['password_reset_error'] = $this->translator->translate('auth.invalid_reset_link');
-            return Response::redirect('/forgot-password');
+            return $this->redirect('/forgot-password');
         }
 
         error_log("[PASSWORD RESET] User found - ID: {$user['id']}, Username: {$user['username']}");
@@ -301,7 +294,7 @@ class PasswordResetController
             if (!$updated) {
                 error_log("[PASSWORD RESET ERROR] Failed to update password");
                 $_SESSION['password_reset_error'] = $this->translator->translate('common.error_occurred');
-                return Response::redirect("/reset-password?token={$token}&email=" . urlencode($email));
+                return $this->redirect("/reset-password?token={$token}&email=" . urlencode($email));
             }
 
             // Mark token as used
@@ -312,22 +305,12 @@ class PasswordResetController
             error_log("[PASSWORD RESET SUCCESS] Password reset completed for user ID: {$user['id']}");
 
             $_SESSION['login_success'] = $this->translator->translate('auth.password_reset_success');
-            return Response::redirect('/login');
+            return $this->redirect('/login');
 
         } catch (\Exception $e) {
             error_log("[PASSWORD RESET ERROR] Exception: " . $e->getMessage());
             $_SESSION['password_reset_error'] = $this->translator->translate('common.error_occurred');
-            return Response::redirect("/reset-password?token={$token}&email=" . urlencode($email));
+            return $this->redirect("/reset-password?token={$token}&email=" . urlencode($email));
         }
-    }
-
-    /**
-     * Check if user is authenticated
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id'])
-            && isset($_SESSION['authenticated'])
-            && $_SESSION['authenticated'] === true;
     }
 }

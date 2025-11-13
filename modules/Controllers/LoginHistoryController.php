@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\I18n\Translator;
-use ISER\Core\Http\Response;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
 use ISER\User\UserManager;
 use ISER\User\LoginHistoryManager;
@@ -14,22 +12,19 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Login History Controller
+ * Login History Controller (REFACTORIZADO con BaseController)
  * Manages user login history views and session termination
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class LoginHistoryController
+class LoginHistoryController extends BaseController
 {
-    private MustacheRenderer $renderer;
-    private Translator $translator;
-    private Database $db;
     private UserManager $userManager;
     private LoginHistoryManager $loginHistoryManager;
 
     public function __construct(Database $db)
     {
-        $this->renderer = MustacheRenderer::getInstance();
-        $this->translator = Translator::getInstance();
-        $this->db = $db;
+        parent::__construct($db);
         $this->userManager = new UserManager($db);
         $this->loginHistoryManager = new LoginHistoryManager($db);
     }
@@ -41,7 +36,7 @@ class LoginHistoryController
     {
         // Check authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         $userId = $_SESSION['user_id'];
@@ -53,7 +48,7 @@ class LoginHistoryController
         $user = $this->userManager->getUserById($userId);
         if (!$user) {
             $_SESSION['error'] = $this->translator->translate('errors.user_not_found');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         // Get login history
@@ -109,48 +104,44 @@ class LoginHistoryController
             'user' => $user,
             'success' => $_SESSION['success'] ?? null,
             'error' => $_SESSION['error'] ?? null,
-            'content' => $this->renderer->render('user/login-history', [
-                'user' => $user,
-                'login_history' => $formattedHistory,
-                'active_sessions_count' => count($activeSessions),
-                'total_logins' => $totalLogins,
-                'unique_ips' => $stats['unique_ips'] ?? 0,
-                'avg_session_duration' => $avgDuration,
-                'current_page' => $page,
-                'total_pages' => $totalPages,
-                'show_pagination' => $totalPages > 1,
-                'has_previous' => $hasPrevious,
-                'has_next' => $hasNext,
-                'previous_page' => $page - 1,
-                'next_page' => $page + 1,
-                'empty_history' => empty($formattedHistory),
-                'trans' => [
-                    'login_history' => $this->translator->translate('security.login_history'),
-                    'login_history_title' => $this->translator->translate('security.login_history_title'),
-                    'login_time' => $this->translator->translate('security.login_time'),
-                    'ip_address' => $this->translator->translate('security.ip_address'),
-                    'user_agent' => $this->translator->translate('security.user_agent'),
-                    'session_status' => $this->translator->translate('security.session_status'),
-                    'active_session' => $this->translator->translate('security.active_session'),
-                    'ended_session' => $this->translator->translate('security.ended_session'),
-                    'current_session' => $this->translator->translate('security.current_session'),
-                    'terminate_session' => $this->translator->translate('security.terminate_session'),
-                    'session_duration' => $this->translator->translate('security.session_duration'),
-                    'total_logins' => $this->translator->translate('security.total_logins'),
-                    'unique_ips' => $this->translator->translate('security.unique_ips'),
-                    'avg_session_duration' => $this->translator->translate('security.avg_session_duration'),
-                    'logout_date' => $this->translator->translate('security.logout_date'),
-                    'no_logout' => $this->translator->translate('security.no_logout'),
-                    'no_history' => $this->translator->translate('security.no_login_history'),
-                ],
-            ]),
+            'login_history' => $formattedHistory,
+            'active_sessions_count' => count($activeSessions),
+            'total_logins' => $totalLogins,
+            'unique_ips' => $stats['unique_ips'] ?? 0,
+            'avg_session_duration' => $avgDuration,
+            'current_page' => $page,
+            'total_pages' => $totalPages,
+            'show_pagination' => $totalPages > 1,
+            'has_previous' => $hasPrevious,
+            'has_next' => $hasNext,
+            'previous_page' => $page - 1,
+            'next_page' => $page + 1,
+            'empty_history' => empty($formattedHistory),
+            'trans' => [
+                'login_history' => $this->translator->translate('security.login_history'),
+                'login_history_title' => $this->translator->translate('security.login_history_title'),
+                'login_time' => $this->translator->translate('security.login_time'),
+                'ip_address' => $this->translator->translate('security.ip_address'),
+                'user_agent' => $this->translator->translate('security.user_agent'),
+                'session_status' => $this->translator->translate('security.session_status'),
+                'active_session' => $this->translator->translate('security.active_session'),
+                'ended_session' => $this->translator->translate('security.ended_session'),
+                'current_session' => $this->translator->translate('security.current_session'),
+                'terminate_session' => $this->translator->translate('security.terminate_session'),
+                'session_duration' => $this->translator->translate('security.session_duration'),
+                'total_logins' => $this->translator->translate('security.total_logins'),
+                'unique_ips' => $this->translator->translate('security.unique_ips'),
+                'avg_session_duration' => $this->translator->translate('security.avg_session_duration'),
+                'logout_date' => $this->translator->translate('security.logout_date'),
+                'no_logout' => $this->translator->translate('security.no_logout'),
+                'no_history' => $this->translator->translate('security.no_login_history'),
+            ],
         ];
 
         unset($_SESSION['success']);
         unset($_SESSION['error']);
 
-        $html = $this->renderer->render('layouts/app', $data);
-        return Response::html($html);
+        return $this->renderWithLayout('user/login-history', $data);
     }
 
     /**
@@ -160,14 +151,14 @@ class LoginHistoryController
     {
         // Check authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Check if user is admin
         $userId = $_SESSION['user_id'];
         if (!$this->isAdmin($userId)) {
             $_SESSION['error'] = $this->translator->translate('errors.access_denied');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         $page = (int)($request->getQueryParams()['page'] ?? 1);
@@ -226,58 +217,55 @@ class LoginHistoryController
             'app_name' => 'NexoSupport',
             'success' => $_SESSION['success'] ?? null,
             'error' => $_SESSION['error'] ?? null,
-            'content' => $this->renderer->render('admin/login-history', [
-                'login_history' => $formattedHistory,
-                'users' => $users,
-                'filters' => [
-                    'user_id' => $filterUserId,
-                    'ip' => $filterIp,
-                    'start_date' => $filterStartDate,
-                    'end_date' => $filterEndDate,
-                ],
-                'total_logins' => $totalLogins,
-                'unique_ips' => $totalStats['unique_ips'],
-                'avg_session_duration' => $totalStats['avg_session_duration'],
-                'current_page' => $page,
-                'total_pages' => $totalPages,
-                'show_pagination' => $totalPages > 1,
-                'has_previous' => $hasPrevious,
-                'has_next' => $hasNext,
-                'previous_page' => $page - 1,
-                'next_page' => $page + 1,
-                'empty_history' => empty($formattedHistory),
-                'trans' => [
-                    'admin_login_history' => $this->translator->translate('security.admin_login_history'),
-                    'login_history_title' => $this->translator->translate('security.login_history_title'),
-                    'login_time' => $this->translator->translate('security.login_time'),
-                    'ip_address' => $this->translator->translate('security.ip_address'),
-                    'user_agent' => $this->translator->translate('security.user_agent'),
-                    'session_status' => $this->translator->translate('security.session_status'),
-                    'active_session' => $this->translator->translate('security.active_session'),
-                    'ended_session' => $this->translator->translate('security.ended_session'),
-                    'terminate_session' => $this->translator->translate('security.terminate_session'),
-                    'session_duration' => $this->translator->translate('security.session_duration'),
-                    'total_logins' => $this->translator->translate('security.total_logins'),
-                    'unique_ips' => $this->translator->translate('security.unique_ips'),
-                    'avg_session_duration' => $this->translator->translate('security.avg_session_duration'),
-                    'logout_date' => $this->translator->translate('security.logout_date'),
-                    'user' => $this->translator->translate('security.user'),
-                    'email' => $this->translator->translate('security.email'),
-                    'filter_results' => $this->translator->translate('security.filter_results'),
-                    'filter' => $this->translator->translate('security.filter'),
-                    'clear_filters' => $this->translator->translate('security.clear_filters'),
-                    'export_csv' => $this->translator->translate('security.export_csv'),
-                    'no_logout' => $this->translator->translate('security.no_logout'),
-                    'no_history' => $this->translator->translate('security.no_login_history'),
-                ],
-            ]),
+            'login_history' => $formattedHistory,
+            'users' => $users,
+            'filters' => [
+                'user_id' => $filterUserId,
+                'ip' => $filterIp,
+                'start_date' => $filterStartDate,
+                'end_date' => $filterEndDate,
+            ],
+            'total_logins' => $totalLogins,
+            'unique_ips' => $totalStats['unique_ips'],
+            'avg_session_duration' => $totalStats['avg_session_duration'],
+            'current_page' => $page,
+            'total_pages' => $totalPages,
+            'show_pagination' => $totalPages > 1,
+            'has_previous' => $hasPrevious,
+            'has_next' => $hasNext,
+            'previous_page' => $page - 1,
+            'next_page' => $page + 1,
+            'empty_history' => empty($formattedHistory),
+            'trans' => [
+                'admin_login_history' => $this->translator->translate('security.admin_login_history'),
+                'login_history_title' => $this->translator->translate('security.login_history_title'),
+                'login_time' => $this->translator->translate('security.login_time'),
+                'ip_address' => $this->translator->translate('security.ip_address'),
+                'user_agent' => $this->translator->translate('security.user_agent'),
+                'session_status' => $this->translator->translate('security.session_status'),
+                'active_session' => $this->translator->translate('security.active_session'),
+                'ended_session' => $this->translator->translate('security.ended_session'),
+                'terminate_session' => $this->translator->translate('security.terminate_session'),
+                'session_duration' => $this->translator->translate('security.session_duration'),
+                'total_logins' => $this->translator->translate('security.total_logins'),
+                'unique_ips' => $this->translator->translate('security.unique_ips'),
+                'avg_session_duration' => $this->translator->translate('security.avg_session_duration'),
+                'logout_date' => $this->translator->translate('security.logout_date'),
+                'user' => $this->translator->translate('security.user'),
+                'email' => $this->translator->translate('security.email'),
+                'filter_results' => $this->translator->translate('security.filter_results'),
+                'filter' => $this->translator->translate('security.filter'),
+                'clear_filters' => $this->translator->translate('security.clear_filters'),
+                'export_csv' => $this->translator->translate('security.export_csv'),
+                'no_logout' => $this->translator->translate('security.no_logout'),
+                'no_history' => $this->translator->translate('security.no_login_history'),
+            ],
         ];
 
         unset($_SESSION['success']);
         unset($_SESSION['error']);
 
-        $html = $this->renderer->render('layouts/app', $data);
-        return Response::html($html);
+        return $this->renderWithLayout('admin/login-history', $data);
     }
 
     /**
@@ -287,7 +275,7 @@ class LoginHistoryController
     {
         // Check authentication
         if (!$this->isAuthenticated()) {
-            return Response::json(['success' => false, 'error' => 'Unauthorized'], 401);
+            return $this->jsonError('Unauthorized', [], 401);
         }
 
         $userId = $_SESSION['user_id'];
@@ -295,7 +283,7 @@ class LoginHistoryController
         $loginId = isset($body['login_id']) ? (int)$body['login_id'] : 0;
 
         if (!$loginId) {
-            return Response::json(['success' => false, 'error' => 'Invalid login ID'], 400);
+            return $this->jsonError('Invalid login ID', [], 400);
         }
 
         // Verify that this login belongs to the user (or user is admin)
@@ -303,14 +291,14 @@ class LoginHistoryController
         $login = $this->db->getConnection()->fetchOne($sql, [':id' => $loginId]);
 
         if (!$login) {
-            return Response::json(['success' => false, 'error' => 'Session not found or already ended'], 404);
+            return $this->jsonError('Session not found or already ended', [], 404);
         }
 
         $loginUserId = (int)$login['user_id'];
 
         // Check permissions: user can only terminate their own sessions, unless admin
         if ($loginUserId !== $userId && !$this->isAdmin($userId)) {
-            return Response::json(['success' => false, 'error' => 'Unauthorized'], 403);
+            return $this->jsonError('Unauthorized', [], 403);
         }
 
         // Prevent current session termination
@@ -319,7 +307,7 @@ class LoginHistoryController
             $sql = "SELECT session_id FROM {$this->db->table('login_history')} WHERE id = :id";
             $sessionRecord = $this->db->getConnection()->fetchOne($sql, [':id' => $loginId]);
             if ($sessionRecord && $sessionRecord['session_id'] === $currentSessionId) {
-                return Response::json(['success' => false, 'error' => 'Cannot terminate current session'], 400);
+                return $this->jsonError('Cannot terminate current session', [], 400);
             }
         }
 
@@ -328,20 +316,10 @@ class LoginHistoryController
 
         if ($success) {
             $_SESSION['success'] = $this->translator->translate('security.session_terminated');
-            return Response::json(['success' => true, 'message' => 'Session terminated successfully']);
+            return $this->jsonSuccess('Session terminated successfully');
         } else {
-            return Response::json(['success' => false, 'error' => 'Failed to terminate session'], 500);
+            return $this->jsonError('Failed to terminate session', [], 500);
         }
-    }
-
-    /**
-     * Check if user is authenticated
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id'])
-            && isset($_SESSION['authenticated'])
-            && $_SESSION['authenticated'] === true;
     }
 
     /**

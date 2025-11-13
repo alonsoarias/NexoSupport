@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\I18n\Translator;
-use ISER\Core\Http\Response;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
 use ISER\User\UserManager;
 use ISER\User\UserProfile;
@@ -14,22 +12,19 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * User Profile Controller
+ * User Profile Controller (REFACTORIZADO con BaseController)
  * Manages user profile viewing and editing
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class UserProfileController
+class UserProfileController extends BaseController
 {
-    private MustacheRenderer $renderer;
-    private Translator $translator;
-    private Database $db;
     private UserManager $userManager;
     private UserProfile $profileManager;
 
     public function __construct(Database $db)
     {
-        $this->renderer = MustacheRenderer::getInstance();
-        $this->translator = Translator::getInstance();
-        $this->db = $db;
+        parent::__construct($db);
         $this->userManager = new UserManager($db);
         $this->profileManager = new UserProfile($db);
     }
@@ -41,7 +36,7 @@ class UserProfileController
     {
         // Check authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         $userId = $_SESSION['user_id'];
@@ -50,7 +45,7 @@ class UserProfileController
         $user = $this->userManager->getUserById($userId);
         if (!$user) {
             $_SESSION['error'] = $this->translator->translate('errors.user_not_found');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         // Get profile data
@@ -107,8 +102,7 @@ class UserProfileController
         unset($_SESSION['success']);
         unset($_SESSION['error']);
 
-        $html = $this->renderer->render('layouts/app', $data);
-        return Response::html($html);
+        return $this->renderWithLayout('user/profile', $data);
     }
 
     /**
@@ -118,7 +112,7 @@ class UserProfileController
     {
         // Check authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         $userId = $_SESSION['user_id'];
@@ -127,7 +121,7 @@ class UserProfileController
         $user = $this->userManager->getUserById($userId);
         if (!$user) {
             $_SESSION['error'] = $this->translator->translate('errors.user_not_found');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         // Get profile data
@@ -167,8 +161,7 @@ class UserProfileController
 
         unset($_SESSION['errors']);
 
-        $html = $this->renderer->render('layouts/app', $data);
-        return Response::html($html);
+        return $this->renderWithLayout('user/profile', $data);
     }
 
     /**
@@ -178,7 +171,7 @@ class UserProfileController
     {
         // Check authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         $userId = $_SESSION['user_id'];
@@ -186,7 +179,7 @@ class UserProfileController
 
         if (!is_array($body)) {
             $_SESSION['error'] = $this->translator->translate('errors.invalid_data');
-            return Response::redirect('/profile/edit');
+            return $this->redirect('/profile/edit');
         }
 
         // Prepare profile data
@@ -219,7 +212,7 @@ class UserProfileController
 
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
-            return Response::redirect('/profile/edit');
+            return $this->redirect('/profile/edit');
         }
 
         // Update profile
@@ -228,15 +221,15 @@ class UserProfileController
 
             if ($success) {
                 $_SESSION['success'] = $this->translator->translate('profile.updated_message');
-                return Response::redirect('/profile');
+                return $this->redirect('/profile');
             } else {
                 $_SESSION['error'] = $this->translator->translate('errors.update_failed');
-                return Response::redirect('/profile/edit');
+                return $this->redirect('/profile/edit');
             }
         } catch (\Exception $e) {
             error_log("Profile update error: " . $e->getMessage());
             $_SESSION['error'] = $this->translator->translate('errors.system_error');
-            return Response::redirect('/profile/edit');
+            return $this->redirect('/profile/edit');
         }
     }
 
@@ -247,21 +240,21 @@ class UserProfileController
     {
         // Check authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Check if user is admin
         $currentUserId = $_SESSION['user_id'];
         if (!$this->isAdmin($currentUserId)) {
             $_SESSION['error'] = $this->translator->translate('errors.access_denied');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         // Get user data
         $user = $this->userManager->getUserById($userId);
         if (!$user) {
             $_SESSION['error'] = $this->translator->translate('errors.user_not_found');
-            return Response::redirect('/admin/users');
+            return $this->redirect('/admin/users');
         }
 
         // Get profile data
@@ -314,18 +307,7 @@ class UserProfileController
             ]),
         ];
 
-        $html = $this->renderer->render('layouts/app', $data);
-        return Response::html($html);
-    }
-
-    /**
-     * Check if user is authenticated
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id'])
-            && isset($_SESSION['authenticated'])
-            && $_SESSION['authenticated'] === true;
+        return $this->renderWithLayout('user/profile', $data);
     }
 
     /**
