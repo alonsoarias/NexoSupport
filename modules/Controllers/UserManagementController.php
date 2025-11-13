@@ -8,6 +8,7 @@ use ISER\Controllers\Traits\NavigationTrait;
 use ISER\Core\Database\Database;
 use ISER\Core\Http\Response;
 use ISER\Core\View\MustacheRenderer;
+use ISER\Core\Utils\Validator;
 use ISER\User\UserManager;
 use ISER\Roles\RoleManager;
 use Psr\Http\Message\ResponseInterface;
@@ -374,49 +375,40 @@ class UserManagementController
     }
 
     /**
-     * Validar datos de usuario
+     * Validar datos de usuario (usando Validator centralizado)
      */
     private function validateUserData(array $data, ?int $excludeUserId = null): array
     {
-        $errors = [];
+        // Define validation rules
+        $rules = [
+            'username' => ['required', 'minLength:3', 'maxLength:50'],
+            'email' => ['required', 'email'],
+            'first_name' => ['required', 'maxLength:100'],
+            'last_name' => ['required', 'maxLength:100'],
+        ];
 
-        if (empty($data['username'])) {
-            $errors[] = 'El nombre de usuario es requerido';
-        } elseif ($this->userManager->usernameExists($data['username'], $excludeUserId)) {
-            $errors[] = 'El nombre de usuario ya está en uso';
-        }
-
-        if (empty($data['email'])) {
-            $errors[] = 'El email es requerido';
-        } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'El email no es válido';
-        } elseif ($this->userManager->emailExists($data['email'], $excludeUserId)) {
-            $errors[] = 'El email ya está en uso';
-        }
-
-        if (empty($data['first_name'])) {
-            $errors[] = 'El nombre es requerido';
-        }
-
-        if (empty($data['last_name'])) {
-            $errors[] = 'El apellido es requerido';
-        }
-
-        // Validar password solo si se está creando o si se proporcionó uno nuevo
+        // Add password rules based on create vs edit
         if ($excludeUserId === null) {
-            // Creando nuevo usuario
-            if (empty($data['password'])) {
-                $errors[] = 'La contraseña es requerida';
-            } elseif (strlen($data['password']) < 8) {
-                $errors[] = 'La contraseña debe tener al menos 8 caracteres';
-            }
-        } else {
-            // Editando usuario existente
-            if (!empty($data['password']) && strlen($data['password']) < 8) {
-                $errors[] = 'La contraseña debe tener al menos 8 caracteres';
-            }
+            // Creating new user - password required
+            $rules['password'] = ['required', 'minLength:8'];
+        } elseif (!empty($data['password'])) {
+            // Editing user - password optional but must be valid if provided
+            $rules['password'] = ['minLength:8'];
         }
 
-        return $errors;
+        // Run centralized validation
+        $errors = Validator::validate($data, $rules);
+
+        // Add custom business logic validations (uniqueness checks)
+        if (empty($errors['username']) && $this->userManager->usernameExists($data['username'], $excludeUserId)) {
+            $errors['username'] = 'El nombre de usuario ya está en uso';
+        }
+
+        if (empty($errors['email']) && $this->userManager->emailExists($data['email'], $excludeUserId)) {
+            $errors['email'] = 'El email ya está en uso';
+        }
+
+        // Convert field-keyed errors to simple array for backwards compatibility
+        return array_values($errors);
     }
 }

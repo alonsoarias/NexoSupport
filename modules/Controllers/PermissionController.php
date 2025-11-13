@@ -8,6 +8,7 @@ use ISER\Controllers\Traits\NavigationTrait;
 use ISER\Core\Database\Database;
 use ISER\Core\Http\Response;
 use ISER\Core\View\MustacheRenderer;
+use ISER\Core\Utils\Validator;
 use ISER\Permission\PermissionManager;
 use ISER\Roles\RoleManager;
 use Psr\Http\Message\ServerRequestInterface;
@@ -320,29 +321,33 @@ class PermissionController
     }
 
     /**
-     * Validar datos de permiso
+     * Validar datos de permiso (usando Validator centralizado)
      */
     private function validatePermissionData(array $data, ?int $excludePermissionId = null): array
     {
-        $errors = [];
+        // Define validation rules
+        $rules = [
+            'name' => ['required', 'maxLength:100'],
+            'module' => ['required', 'maxLength:50'],
+            'description' => ['maxLength:500'],
+        ];
 
-        if (empty($data['name'])) {
-            $errors[] = 'El nombre del permiso es requerido';
-        }
-
-        if (empty($data['module'])) {
-            $errors[] = 'El módulo es requerido';
-        }
-
-        // Solo validar slug al crear (no al editar)
+        // Slug required only when creating
         if ($excludePermissionId === null) {
-            if (empty($data['slug'])) {
-                $errors[] = 'El slug es requerido';
-            } elseif ($this->permissionManager->getPermissionBySlug($data['slug'])) {
-                $errors[] = 'El slug ya está en uso';
+            $rules['slug'] = ['required', 'slug', 'maxLength:100'];
+        }
+
+        // Run centralized validation
+        $errors = Validator::validate($data, $rules);
+
+        // Add custom business logic validations (uniqueness check for slug)
+        if ($excludePermissionId === null && empty($errors['slug'])) {
+            if ($this->permissionManager->getPermissionBySlug($data['slug'])) {
+                $errors['slug'] = 'El slug ya está en uso';
             }
         }
 
-        return $errors;
+        // Convert field-keyed errors to simple array for backwards compatibility
+        return array_values($errors);
     }
 }
