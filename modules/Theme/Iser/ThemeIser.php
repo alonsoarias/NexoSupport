@@ -8,7 +8,7 @@
 
 namespace ISER\Theme\Iser;
 
-use ISER\Core\Render\MustacheRenderer;
+use ISER\Core\View\MustacheRenderer;
 use ISER\Core\Config\SettingsManager;
 use ISER\Core\Database\Database;
 use Monolog\Logger;

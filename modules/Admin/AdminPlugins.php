@@ -19,7 +19,7 @@ namespace ISER\Admin;
 
 use ISER\Core\Database\Database;
 use ISER\Core\Http\Response;
-use ISER\Core\Render\MustacheRenderer;
+use ISER\Core\View\MustacheRenderer;
 use ISER\Core\Utils\Logger;
 use ISER\Plugin\PluginManager;
 use ISER\Plugin\PluginLoader;
