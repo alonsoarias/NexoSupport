@@ -9,7 +9,7 @@ use ISER\Core\Database\Database;
 use ISER\Core\Http\Response;
 use ISER\Core\View\MustacheRenderer;
 use ISER\Permission\PermissionManager;
-use ISER\Role\RoleManager;
+use ISER\Roles\RoleManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 

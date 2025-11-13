@@ -8,7 +8,7 @@ use ISER\Controllers\Traits\NavigationTrait;
 use ISER\Core\Database\Database;
 use ISER\Core\Http\Response;
 use ISER\Core\View\MustacheRenderer;
-use ISER\Role\RoleManager;
+use ISER\Roles\RoleManager;
 use ISER\Permission\PermissionManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
