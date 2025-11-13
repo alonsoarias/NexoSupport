@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ISER\Permission;
 
 use ISER\Core\Database\Database;
+use ISER\Core\Database\BaseRepository;
 
 /**
  * Permission Manager (CRUD Operations)
@@ -24,48 +25,33 @@ use ISER\Core\Database\Database;
  *
  * NO USAR PARA: Verificaciones de autorización en runtime (usar Roles\PermissionManager)
  *
+ * Extiende BaseRepository para reducir código duplicado.
+ *
  * @package ISER\Permission
  * @see \ISER\Roles\PermissionManager Para sistema de capabilities/autorización
  */
-class PermissionManager
+class PermissionManager extends BaseRepository
 {
-    private Database $db;
-
-    public function __construct(Database $db)
-    {
-        $this->db = $db;
-    }
+    protected string $table = 'permissions';
+    protected string $defaultOrderBy = 'module, name';
 
     /**
      * Obtener todos los permisos
+     *
+     * @param int $limit Límite de resultados
+     * @param int $offset Offset para paginación
+     * @param array $filters Filtros opcionales (module)
+     * @return array Lista de permisos
      */
     public function getPermissions(int $limit = 100, int $offset = 0, array $filters = []): array
     {
-        $sql = "SELECT * FROM {$this->db->table('permissions')} WHERE 1=1";
-        $params = [];
-
-        // Filtrar por módulo
-        if (isset($filters['module'])) {
-            $sql .= " AND module = :module";
-            $params[':module'] = $filters['module'];
-        }
-
-        $sql .= " ORDER BY module, name LIMIT :limit OFFSET :offset";
-
-        $stmt = $this->db->getConnection()->getConnection()->prepare($sql);
-        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
-
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
-        }
-
-        $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->getAll($limit, $offset, $filters);
     }
 
     /**
      * Obtener permisos agrupados por módulo
+     *
+     * @return array Permisos agrupados por módulo
      */
     public function getPermissionsGroupedByModule(): array
     {
@@ -86,75 +72,42 @@ class PermissionManager
 
     /**
      * Contar permisos
+     *
+     * @param array $filters Filtros opcionales (module)
+     * @return int Total de permisos
      */
     public function countPermissions(array $filters = []): int
     {
-        $sql = "SELECT COUNT(*) as count FROM {$this->db->table('permissions')} WHERE 1=1";
-        $params = [];
-
-        if (isset($filters['module'])) {
-            $sql .= " AND module = :module";
-            $params[':module'] = $filters['module'];
-        }
-
-        $result = $this->db->getConnection()->fetchOne($sql, $params);
-        return (int)($result['count'] ?? 0);
+        return $this->count($filters);
     }
 
     /**
      * Obtener permiso por ID
+     *
+     * @param int $id Permission ID
+     * @return array|null Permiso o null si no existe
      */
     public function getPermissionById(int $id): ?array
     {
-        $sql = "SELECT * FROM {$this->db->table('permissions')} WHERE id = :id";
-        $result = $this->db->getConnection()->fetchOne($sql, [':id' => $id]);
-        return $result ?: null;
+        return $this->findById($id);
     }
 
     /**
      * Obtener permiso por slug
+     *
+     * @param string $slug Permission slug
+     * @return array|null Permiso o null si no existe
      */
     public function getPermissionBySlug(string $slug): ?array
     {
-        $sql = "SELECT * FROM {$this->db->table('permissions')} WHERE slug = :slug";
-        $result = $this->db->getConnection()->fetchOne($sql, [':slug' => $slug]);
-        return $result ?: null;
-    }
-
-    /**
-     * Crear permiso
-     */
-    public function create(array $data): int
-    {
-        $now = time();
-        $data['created_at'] = $now;
-        $data['updated_at'] = $now;
-
-        return (int)$this->db->insert('permissions', $data);
-    }
-
-    /**
-     * Actualizar permiso
-     */
-    public function update(int $id, array $data): bool
-    {
-        $data['updated_at'] = time();
-        $rowsAffected = $this->db->update('permissions', $data, ['id' => $id]);
-        return $rowsAffected > 0;
-    }
-
-    /**
-     * Eliminar permiso
-     */
-    public function delete(int $id): bool
-    {
-        $sql = "DELETE FROM {$this->db->table('permissions')} WHERE id = :id";
-        $this->db->getConnection()->execute($sql, [':id' => $id]);
-        return true;
+        return $this->findByField('slug', $slug);
     }
 
     /**
      * Obtener roles que tienen un permiso específico
+     *
+     * @param int $permissionId Permission ID
+     * @return array Lista de roles con el permiso
      */
     public function getPermissionRoles(int $permissionId): array
     {
@@ -168,6 +121,10 @@ class PermissionManager
 
     /**
      * Verificar si un usuario tiene un permiso específico
+     *
+     * @param int $userId User ID
+     * @param string $permissionSlug Permission slug
+     * @return bool True si el usuario tiene el permiso
      */
     public function userHasPermission(int $userId, string $permissionSlug): bool
     {
@@ -187,6 +144,8 @@ class PermissionManager
 
     /**
      * Obtener todos los módulos disponibles
+     *
+     * @return array Lista de módulos
      */
     public function getModules(): array
     {
@@ -194,5 +153,27 @@ class PermissionManager
         $results = $this->db->getConnection()->fetchAll($sql);
 
         return array_column($results, 'module');
+    }
+
+    /**
+     * Apply custom filters for permission queries
+     *
+     * Override del método applyFilters() de BaseRepository para
+     * soportar el filtro module
+     *
+     * @param string $sql SQL base query
+     * @param array $filters Filtros a aplicar
+     * @param array $params Parámetros (por referencia)
+     * @return string SQL modificado
+     */
+    protected function applyFilters(string $sql, array $filters, array &$params): string
+    {
+        if (isset($filters['module'])) {
+            $sql .= " AND module = :module";
+            $params[':module'] = $filters['module'];
+        }
+
+        // Call parent for any additional filters
+        return parent::applyFilters($sql, $filters, $params);
     }
 }

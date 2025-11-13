@@ -5,111 +5,75 @@ declare(strict_types=1);
 namespace ISER\Roles;
 
 use ISER\Core\Database\Database;
+use ISER\Core\Database\BaseRepository;
 
 /**
  * Role Manager
  *
  * Gestiona roles del sistema: crear, leer, actualizar, eliminar
  * y gestionar permisos de roles
+ *
+ * Extiende BaseRepository para reducir código duplicado.
  */
-class RoleManager
+class RoleManager extends BaseRepository
 {
-    private Database $db;
-
-    public function __construct(Database $db)
-    {
-        $this->db = $db;
-    }
+    protected string $table = 'roles';
+    protected string $defaultOrderBy = 'name ASC';
 
     /**
      * Obtener todos los roles
+     *
+     * @param int $limit Límite de resultados
+     * @param int $offset Offset para paginación
+     * @param array $filters Filtros opcionales (is_system)
+     * @return array Lista de roles
      */
     public function getRoles(int $limit = 100, int $offset = 0, array $filters = []): array
     {
-        $sql = "SELECT * FROM {$this->db->table('roles')} WHERE 1=1";
-        $params = [];
-
-        // Aplicar filtros
-        if (isset($filters['is_system'])) {
-            $sql .= " AND is_system = :is_system";
-            $params[':is_system'] = $filters['is_system'] ? 1 : 0;
-        }
-
-        $sql .= " ORDER BY name ASC LIMIT :limit OFFSET :offset";
-
-        $stmt = $this->db->getConnection()->getConnection()->prepare($sql);
-        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
-
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
-        }
-
-        $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->getAll($limit, $offset, $filters);
     }
 
     /**
      * Contar roles
+     *
+     * @param array $filters Filtros opcionales (is_system)
+     * @return int Total de roles
      */
     public function countRoles(array $filters = []): int
     {
-        $sql = "SELECT COUNT(*) as count FROM {$this->db->table('roles')} WHERE 1=1";
-        $params = [];
-
-        if (isset($filters['is_system'])) {
-            $sql .= " AND is_system = :is_system";
-            $params[':is_system'] = $filters['is_system'] ? 1 : 0;
-        }
-
-        $result = $this->db->getConnection()->fetchOne($sql, $params);
-        return (int)($result['count'] ?? 0);
+        return $this->count($filters);
     }
 
     /**
      * Obtener rol por ID
+     *
+     * @param int $id Role ID
+     * @return array|null Rol o null si no existe
      */
     public function getRoleById(int $id): ?array
     {
-        $sql = "SELECT * FROM {$this->db->table('roles')} WHERE id = :id";
-        $result = $this->db->getConnection()->fetchOne($sql, [':id' => $id]);
-        return $result ?: null;
+        return $this->findById($id);
     }
 
     /**
      * Obtener rol por slug
+     *
+     * @param string $slug Role slug
+     * @return array|null Rol o null si no existe
      */
     public function getRoleBySlug(string $slug): ?array
     {
-        $sql = "SELECT * FROM {$this->db->table('roles')} WHERE slug = :slug";
-        $result = $this->db->getConnection()->fetchOne($sql, [':slug' => $slug]);
-        return $result ?: null;
-    }
-
-    /**
-     * Crear rol
-     */
-    public function create(array $data): int
-    {
-        $now = time();
-        $data['created_at'] = $now;
-        $data['updated_at'] = $now;
-
-        return (int)$this->db->insert('roles', $data);
-    }
-
-    /**
-     * Actualizar rol
-     */
-    public function update(int $id, array $data): bool
-    {
-        $data['updated_at'] = time();
-        $rowsAffected = $this->db->update('roles', $data, ['id' => $id]);
-        return $rowsAffected > 0;
+        return $this->findByField('slug', $slug);
     }
 
     /**
      * Eliminar rol (solo si no es sistema)
+     *
+     * Override del método delete() de BaseRepository para
+     * prevenir eliminación de roles del sistema
+     *
+     * @param int $id Role ID
+     * @return bool True si se eliminó, false si es rol del sistema
      */
     public function delete(int $id): bool
     {
@@ -126,6 +90,9 @@ class RoleManager
 
     /**
      * Obtener permisos de un rol
+     *
+     * @param int $roleId Role ID
+     * @return array Lista de permisos del rol
      */
     public function getRolePermissions(int $roleId): array
     {
@@ -139,6 +106,10 @@ class RoleManager
 
     /**
      * Asignar permiso a rol
+     *
+     * @param int $roleId Role ID
+     * @param int $permissionId Permission ID
+     * @return bool True si se asignó correctamente
      */
     public function assignPermission(int $roleId, int $permissionId): bool
     {
@@ -157,6 +128,10 @@ class RoleManager
 
     /**
      * Remover permiso de rol
+     *
+     * @param int $roleId Role ID
+     * @param int $permissionId Permission ID
+     * @return bool True si se removió correctamente
      */
     public function removePermission(int $roleId, int $permissionId): bool
     {
@@ -173,6 +148,10 @@ class RoleManager
 
     /**
      * Sincronizar permisos de un rol (reemplaza todos)
+     *
+     * @param int $roleId Role ID
+     * @param array $permissionIds Array de Permission IDs
+     * @return bool True si se sincronizó correctamente
      */
     public function syncPermissions(int $roleId, array $permissionIds): bool
     {
@@ -190,6 +169,9 @@ class RoleManager
 
     /**
      * Obtener usuarios con un rol específico
+     *
+     * @param int $roleId Role ID
+     * @return array Lista de usuarios con el rol
      */
     public function getRoleUsers(int $roleId): array
     {
@@ -199,5 +181,27 @@ class RoleManager
                 ORDER BY u.username";
 
         return $this->db->getConnection()->fetchAll($sql, [':role_id' => $roleId]);
+    }
+
+    /**
+     * Apply custom filters for role queries
+     *
+     * Override del método applyFilters() de BaseRepository para
+     * soportar el filtro is_system
+     *
+     * @param string $sql SQL base query
+     * @param array $filters Filtros a aplicar
+     * @param array $params Parámetros (por referencia)
+     * @return string SQL modificado
+     */
+    protected function applyFilters(string $sql, array $filters, array &$params): string
+    {
+        if (isset($filters['is_system'])) {
+            $sql .= " AND is_system = :is_system";
+            $params[':is_system'] = $filters['is_system'] ? 1 : 0;
+        }
+
+        // Call parent for any additional filters
+        return parent::applyFilters($sql, $filters, $params);
     }
 }
