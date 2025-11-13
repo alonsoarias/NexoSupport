@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\I18n\Translator;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Http\Response;
 use ISER\Core\Database\Database;
 use ISER\Core\Database\BackupManager;
@@ -15,24 +14,21 @@ use Psr\Http\Message\ResponseInterface;
 use Exception;
 
 /**
- * Admin Backup Controller
+ * Admin Backup Controller (REFACTORIZADO con BaseController)
  *
  * Manages database backups and restore operations.
  * Only accessible to admin users.
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class AdminBackupController
+class AdminBackupController extends BaseController
 {
-    private MustacheRenderer $renderer;
-    private Translator $translator;
-    private Database $db;
     private UserManager $userManager;
     private BackupManager $backupManager;
 
     public function __construct(Database $db)
     {
-        $this->renderer = MustacheRenderer::getInstance();
-        $this->translator = Translator::getInstance();
-        $this->db = $db;
+        parent::__construct($db);
         $this->userManager = new UserManager($db);
 
         // Initialize backup manager
@@ -40,46 +36,6 @@ class AdminBackupController
             $db->getConnection(),
             $db
         );
-    }
-
-    /**
-     * Log audit event
-     */
-    private function logAudit(string $action, string $entityType, string $entityId, ?array $oldValues = null, ?array $newValues = null): void
-    {
-        try {
-            $userId = $_SESSION['user_id'] ?? null;
-            $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
-            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN';
-
-            $sql = "INSERT INTO {$this->db->table('audit_log')}
-                    (user_id, action, entity_type, entity_id, old_values, new_values, ip_address, user_agent, created_at)
-                    VALUES (:user_id, :action, :entity_type, :entity_id, :old_values, :new_values, :ip_address, :user_agent, :created_at)";
-
-            $this->db->getConnection()->execute($sql, [
-                ':user_id' => $userId,
-                ':action' => $action,
-                ':entity_type' => $entityType,
-                ':entity_id' => $entityId,
-                ':old_values' => $oldValues ? json_encode($oldValues) : null,
-                ':new_values' => $newValues ? json_encode($newValues) : null,
-                ':ip_address' => $ipAddress,
-                ':user_agent' => $userAgent,
-                ':created_at' => time(),
-            ]);
-        } catch (Exception $e) {
-            error_log('Audit log error: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Check if user is authenticated
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id'])
-            && isset($_SESSION['authenticated'])
-            && $_SESSION['authenticated'] === true;
     }
 
     /**
@@ -107,28 +63,18 @@ class AdminBackupController
     }
 
     /**
-     * Render with layout
-     */
-    private function renderWithLayout(string $view, array $data = []): ResponseInterface
-    {
-        $data['locale'] = $this->translator->getLocale();
-        $html = $this->renderer->render($view, $data, 'layouts/app');
-        return Response::html($html);
-    }
-
-    /**
      * Show backup list
      */
     public function index(ServerRequestInterface $request): ResponseInterface
     {
         // Check authentication and permissions
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         if (!$this->isAdmin()) {
             $_SESSION['error'] = $this->translator->translate('admin.messages.permission_denied');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         try {
@@ -177,7 +123,7 @@ class AdminBackupController
         } catch (Exception $e) {
             error_log('Backup list error: ' . $e->getMessage());
             $_SESSION['error'] = $this->translator->translate('backup.error_listing_backups');
-            return Response::redirect('/admin');
+            return $this->redirect('/admin');
         }
     }
 
@@ -188,11 +134,11 @@ class AdminBackupController
     {
         // Check authentication and permissions
         if (!$this->isAuthenticated()) {
-            return Response::json(['success' => false, 'message' => 'Unauthorized'], 401);
+            return $this->jsonError('Unauthorized', [], 401);
         }
 
         if (!$this->isAdmin()) {
-            return Response::json(['success' => false, 'message' => 'Permission denied'], 403);
+            return $this->jsonError('Permission denied', [], 403);
         }
 
         try {
@@ -208,15 +154,16 @@ class AdminBackupController
                 ['filename' => $backup['filename'], 'size' => $backup['size']]
             );
 
-            return Response::json([
-                'success' => true,
-                'message' => $this->translator->translate('backup.backup_created_success'),
-                'backup' => [
-                    'filename' => $backup['filename'],
-                    'size' => $backup['size_human'],
-                    'created_at' => $backup['created_at_formatted'],
-                ],
-            ]);
+            return $this->jsonSuccess(
+                $this->translator->translate('backup.backup_created_success'),
+                [
+                    'backup' => [
+                        'filename' => $backup['filename'],
+                        'size' => $backup['size_human'],
+                        'created_at' => $backup['created_at_formatted'],
+                    ],
+                ]
+            );
         } catch (Exception $e) {
             error_log('Backup creation error: ' . $e->getMessage());
 
@@ -229,10 +176,11 @@ class AdminBackupController
                 ['error' => $e->getMessage()]
             );
 
-            return Response::json([
-                'success' => false,
-                'message' => $this->translator->translate('backup.backup_creation_failed') . ': ' . $e->getMessage(),
-            ], 500);
+            return $this->jsonError(
+                $this->translator->translate('backup.backup_creation_failed') . ': ' . $e->getMessage(),
+                [],
+                500
+            );
         }
     }
 
@@ -243,7 +191,7 @@ class AdminBackupController
     {
         // Check authentication and permissions
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         if (!$this->isAdmin()) {
@@ -308,11 +256,11 @@ class AdminBackupController
     {
         // Check authentication and permissions
         if (!$this->isAuthenticated()) {
-            return Response::json(['success' => false, 'message' => 'Unauthorized'], 401);
+            return $this->jsonError('Unauthorized', [], 401);
         }
 
         if (!$this->isAdmin()) {
-            return Response::json(['success' => false, 'message' => 'Permission denied'], 403);
+            return $this->jsonError('Permission denied', [], 403);
         }
 
         try {
@@ -322,7 +270,7 @@ class AdminBackupController
             $filename = $parts[3] ?? '';
 
             if (empty($filename)) {
-                return Response::json(['success' => false, 'message' => 'Invalid filename'], 400);
+                return $this->jsonError('Invalid filename', [], 400);
             }
 
             // Delete backup
@@ -337,10 +285,9 @@ class AdminBackupController
                 null
             );
 
-            return Response::json([
-                'success' => true,
-                'message' => $this->translator->translate('backup.backup_deleted_success'),
-            ]);
+            return $this->jsonSuccess(
+                $this->translator->translate('backup.backup_deleted_success')
+            );
         } catch (Exception $e) {
             error_log('Backup deletion error: ' . $e->getMessage());
 
@@ -353,10 +300,11 @@ class AdminBackupController
                 ['error' => $e->getMessage()]
             );
 
-            return Response::json([
-                'success' => false,
-                'message' => $this->translator->translate('backup.backup_deletion_failed'),
-            ], 500);
+            return $this->jsonError(
+                $this->translator->translate('backup.backup_deletion_failed'),
+                [],
+                500
+            );
         }
     }
 

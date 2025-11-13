@@ -16,44 +16,26 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Controllers\Traits\NavigationTrait;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\Http\Response;
 use ISER\Theme\ThemeConfigurator;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use ISER\Core\I18n\Translator;
 
 /**
- * ThemePreviewController Class
+ * ThemePreviewController Class (REFACTORIZADO con BaseController)
  *
  * Manages theme preview, switching, and application
  * Provides side-by-side theme comparison and live preview
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class ThemePreviewController
+class ThemePreviewController extends BaseController
 {
-    use NavigationTrait;
-
-    /**
-     * Database instance
-     */
-    private Database $db;
-
-    /**
-     * Mustache renderer instance
-     */
-    private MustacheRenderer $renderer;
-
     /**
      * Theme configurator instance
      */
     private ThemeConfigurator $themeConfig;
-
-    /**
-     * Translator instance
-     */
-    private Translator $translator;
 
     /**
      * Session key for preview theme
@@ -77,10 +59,8 @@ class ThemePreviewController
      */
     public function __construct(Database $db)
     {
-        $this->db = $db;
-        $this->renderer = MustacheRenderer::getInstance();
+        parent::__construct($db);
         $this->themeConfig = new ThemeConfigurator($db);
-        $this->translator = Translator::getInstance();
     }
 
     /**
@@ -95,15 +75,12 @@ class ThemePreviewController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Verify admin/moderator permissions
         if (!$this->hasAdminPermission()) {
-            return Response::json(
-                ['error' => $this->translator->translate('theme.errors.unauthorized')],
-                403
-            );
+            return $this->jsonError($this->translator->translate('theme.errors.unauthorized'), [], 403);
         }
 
         try {
@@ -164,19 +141,11 @@ class ThemePreviewController
                 'error' => null,
             ];
 
-            // Enrich with navigation
-            $data = $this->enrichWithNavigation($data, '/admin/theme/preview');
-
-            // Render with layout
-            $html = $this->renderer->render('admin/theme/preview', $data, 'layouts/app');
-            return Response::html($html);
+            return $this->render('admin/theme/preview', $data, '/admin/theme/preview');
 
         } catch (\Exception $e) {
             error_log("Error in ThemePreviewController::preview: " . $e->getMessage());
-            return Response::json(
-                ['error' => $this->translator->translate('theme.errors.internal')],
-                500
-            );
+            return $this->jsonError($this->translator->translate('theme.errors.internal'), [], 500);
         }
     }
 
@@ -192,18 +161,12 @@ class ThemePreviewController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::json(
-                ['error' => $this->translator->translate('theme.errors.unauthorized')],
-                401
-            );
+            return $this->jsonError($this->translator->translate('theme.errors.unauthorized'), [], 401);
         }
 
         // Verify admin/moderator permissions
         if (!$this->hasAdminPermission()) {
-            return Response::json(
-                ['error' => $this->translator->translate('theme.errors.forbidden')],
-                403
-            );
+            return $this->jsonError($this->translator->translate('theme.errors.forbidden'), [], 403);
         }
 
         try {
@@ -212,10 +175,7 @@ class ThemePreviewController
             $data = json_decode($body, true);
 
             if (!is_array($data) || !isset($data['theme'])) {
-                return Response::json(
-                    ['error' => $this->translator->translate('theme.errors.invalid_request')],
-                    400
-                );
+                return $this->jsonError($this->translator->translate('theme.errors.invalid_request'), [], 400);
             }
 
             $themeName = trim((string)$data['theme']);
@@ -223,10 +183,7 @@ class ThemePreviewController
             // Validate theme exists
             $themes = $this->getAvailableThemes();
             if (!in_array($themeName, $themes)) {
-                return Response::json(
-                    ['error' => $this->translator->translate('theme.errors.not_found')],
-                    404
-                );
+                return $this->jsonError($this->translator->translate('theme.errors.not_found'), [], 404);
             }
 
             // Store original theme on first switch
@@ -240,25 +197,23 @@ class ThemePreviewController
             // Get theme metadata
             $metadata = $this->getThemeMetadata($themeName);
 
-            return Response::json([
-                'success' => true,
-                'message' => $this->translator->translate('theme.switch_success'),
-                'theme' => [
-                    'id' => $themeName,
-                    'name' => $metadata['name'] ?? $themeName,
-                    'description' => $metadata['description'] ?? '',
-                    'author' => $metadata['author'] ?? '',
-                    'version' => $metadata['version'] ?? '1.0.0',
-                    'thumbnail' => $this->getThemeThumbnailUrl($themeName),
+            return $this->jsonSuccess(
+                $this->translator->translate('theme.switch_success'),
+                [
+                    'theme' => [
+                        'id' => $themeName,
+                        'name' => $metadata['name'] ?? $themeName,
+                        'description' => $metadata['description'] ?? '',
+                        'author' => $metadata['author'] ?? '',
+                        'version' => $metadata['version'] ?? '1.0.0',
+                        'thumbnail' => $this->getThemeThumbnailUrl($themeName),
+                    ]
                 ]
-            ], 200);
+            );
 
         } catch (\Exception $e) {
             error_log("Error in ThemePreviewController::switch: " . $e->getMessage());
-            return Response::json(
-                ['error' => $this->translator->translate('theme.errors.internal')],
-                500
-            );
+            return $this->jsonError($this->translator->translate('theme.errors.internal'), [], 500);
         }
     }
 
@@ -274,18 +229,12 @@ class ThemePreviewController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::json(
-                ['error' => $this->translator->translate('theme.errors.unauthorized')],
-                401
-            );
+            return $this->jsonError($this->translator->translate('theme.errors.unauthorized'), [], 401);
         }
 
         // Verify admin/moderator permissions
         if (!$this->hasAdminPermission()) {
-            return Response::json(
-                ['error' => $this->translator->translate('theme.errors.forbidden')],
-                403
-            );
+            return $this->jsonError($this->translator->translate('theme.errors.forbidden'), [], 403);
         }
 
         try {
@@ -294,38 +243,26 @@ class ThemePreviewController
             $data = json_decode($body, true);
 
             if (!is_array($data)) {
-                return Response::json(
-                    ['error' => $this->translator->translate('theme.errors.invalid_request')],
-                    400
-                );
+                return $this->jsonError($this->translator->translate('theme.errors.invalid_request'), [], 400);
             }
 
             // Get current preview theme
             $previewTheme = $_SESSION[self::SESSION_PREVIEW_KEY] ?? null;
 
             if (!$previewTheme) {
-                return Response::json(
-                    ['error' => $this->translator->translate('theme.errors.no_preview')],
-                    400
-                );
+                return $this->jsonError($this->translator->translate('theme.errors.no_preview'), [], 400);
             }
 
             // Validate theme exists
             $themes = $this->getAvailableThemes();
             if (!in_array($previewTheme, $themes)) {
-                return Response::json(
-                    ['error' => $this->translator->translate('theme.errors.not_found')],
-                    404
-                );
+                return $this->jsonError($this->translator->translate('theme.errors.not_found'), [], 404);
             }
 
             // Get user ID
             $userId = $_SESSION['user_id'] ?? null;
             if (!$userId) {
-                return Response::json(
-                    ['error' => $this->translator->translate('theme.errors.no_user')],
-                    401
-                );
+                return $this->jsonError($this->translator->translate('theme.errors.no_user'), [], 401);
             }
 
             // Save theme preference to user table
@@ -335,10 +272,7 @@ class ThemePreviewController
             ], ['id' => $userId]);
 
             if ($result === false || $result <= 0) {
-                return Response::json(
-                    ['error' => $this->translator->translate('theme.errors.save_failed')],
-                    500
-                );
+                return $this->jsonError($this->translator->translate('theme.errors.save_failed'), [], 500);
             }
 
             // Also save color/font configurations if provided
@@ -361,18 +295,14 @@ class ThemePreviewController
             // Update session theme
             $_SESSION['theme_preference'] = $previewTheme;
 
-            return Response::json([
-                'success' => true,
-                'message' => $this->translator->translate('theme.apply_success'),
-                'theme' => $previewTheme
-            ], 200);
+            return $this->jsonSuccess(
+                $this->translator->translate('theme.apply_success'),
+                ['theme' => $previewTheme]
+            );
 
         } catch (\Exception $e) {
             error_log("Error in ThemePreviewController::apply: " . $e->getMessage());
-            return Response::json(
-                ['error' => $this->translator->translate('theme.errors.internal')],
-                500
-            );
+            return $this->jsonError($this->translator->translate('theme.errors.internal'), [], 500);
         }
     }
 
@@ -388,18 +318,12 @@ class ThemePreviewController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::json(
-                ['error' => $this->translator->translate('theme.errors.unauthorized')],
-                401
-            );
+            return $this->jsonError($this->translator->translate('theme.errors.unauthorized'), [], 401);
         }
 
         // Verify admin/moderator permissions
         if (!$this->hasAdminPermission()) {
-            return Response::json(
-                ['error' => $this->translator->translate('theme.errors.forbidden')],
-                403
-            );
+            return $this->jsonError($this->translator->translate('theme.errors.forbidden'), [], 403);
         }
 
         try {
@@ -409,18 +333,14 @@ class ThemePreviewController
             // Reset preview to original
             $_SESSION[self::SESSION_PREVIEW_KEY] = $originalTheme;
 
-            return Response::json([
-                'success' => true,
-                'message' => $this->translator->translate('theme.reset_success'),
-                'theme' => $originalTheme
-            ], 200);
+            return $this->jsonSuccess(
+                $this->translator->translate('theme.reset_success'),
+                ['theme' => $originalTheme]
+            );
 
         } catch (\Exception $e) {
             error_log("Error in ThemePreviewController::resetPreview: " . $e->getMessage());
-            return Response::json(
-                ['error' => $this->translator->translate('theme.errors.internal')],
-                500
-            );
+            return $this->jsonError($this->translator->translate('theme.errors.internal'), [], 500);
         }
     }
 
@@ -533,18 +453,6 @@ class ThemePreviewController
         }
 
         return $fonts;
-    }
-
-    /**
-     * Check if user is authenticated
-     *
-     * @return bool True if authenticated
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id'])
-            && isset($_SESSION['authenticated'])
-            && $_SESSION['authenticated'] === true;
     }
 
     /**

@@ -16,34 +16,22 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Controllers\Traits\NavigationTrait;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\Http\Response;
 use ISER\Theme\ThemeConfigurator;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * AppearanceController Class
+ * AppearanceController Class (REFACTORIZADO con BaseController)
  *
  * Handles theme and appearance configuration management
  * Provides endpoints for viewing and updating theme settings
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class AppearanceController
+class AppearanceController extends BaseController
 {
-    use NavigationTrait;
-
-    /**
-     * Database instance
-     */
-    private Database $db;
-
-    /**
-     * Mustache renderer instance
-     */
-    private MustacheRenderer $renderer;
-
     /**
      * Theme configurator instance
      */
@@ -56,8 +44,7 @@ class AppearanceController
      */
     public function __construct(Database $db)
     {
-        $this->db = $db;
-        $this->renderer = MustacheRenderer::getInstance();
+        parent::__construct($db);
         $this->themeConfig = new ThemeConfigurator($db);
     }
 
@@ -73,15 +60,12 @@ class AppearanceController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Verify admin/moderator permissions
         if (!$this->hasAdminPermission()) {
-            return Response::json(
-                ['error' => 'Unauthorized access'],
-                403
-            );
+            return $this->jsonError('Unauthorized access', [], 403);
         }
 
         try {
@@ -123,18 +107,10 @@ class AppearanceController
                 'error' => null,
             ];
 
-            // Enrich with navigation
-            $data = $this->enrichWithNavigation($data, '/admin/appearance');
-
-            // Render with layout
-            $html = $this->renderer->render('admin/appearance', $data, 'layouts/app');
-            return Response::html($html);
+            return $this->render('admin/appearance', $data, '/admin/appearance');
         } catch (\Exception $e) {
             error_log("Error in AppearanceController::index: " . $e->getMessage());
-            return Response::json(
-                ['error' => 'Internal server error'],
-                500
-            );
+            return $this->jsonError('Internal server error', [], 500);
         }
     }
 
@@ -150,18 +126,12 @@ class AppearanceController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::json(
-                ['error' => 'Unauthorized access'],
-                401
-            );
+            return $this->jsonError('Unauthorized access', [], 401);
         }
 
         // Verify admin/moderator permissions
         if (!$this->hasAdminPermission()) {
-            return Response::json(
-                ['error' => 'Insufficient permissions'],
-                403
-            );
+            return $this->jsonError('Insufficient permissions', [], 403);
         }
 
         try {
@@ -170,10 +140,7 @@ class AppearanceController
             $data = json_decode($body, true);
 
             if (!is_array($data)) {
-                return Response::json(
-                    ['error' => 'Invalid request data'],
-                    400
-                );
+                return $this->jsonError('Invalid request data', [], 400);
             }
 
             $savedCount = 0;
@@ -203,7 +170,7 @@ class AppearanceController
 
             // Return response
             if (!empty($errors)) {
-                return Response::json([
+                return $this->json([
                     'success' => false,
                     'message' => "Saved {$savedCount} settings with " . count($errors) . " errors",
                     'errors' => $errors,
@@ -211,16 +178,16 @@ class AppearanceController
                 ], 200);
             }
 
-            return Response::json([
-                'success' => true,
-                'message' => "Configuration saved successfully ({$savedCount} items)",
-                'saved' => $savedCount
-            ], 200);
+            return $this->jsonSuccess(
+                "Configuration saved successfully ({$savedCount} items)",
+                ['saved' => $savedCount]
+            );
 
         } catch (\Exception $e) {
             error_log("Error in AppearanceController::save: " . $e->getMessage());
-            return Response::json(
-                ['error' => 'Failed to save configuration: ' . $e->getMessage()],
+            return $this->jsonError(
+                'Failed to save configuration: ' . $e->getMessage(),
+                [],
                 500
             );
         }
@@ -238,51 +205,29 @@ class AppearanceController
     {
         // Verify authentication
         if (!$this->isAuthenticated()) {
-            return Response::json(
-                ['error' => 'Unauthorized access'],
-                401
-            );
+            return $this->jsonError('Unauthorized access', [], 401);
         }
 
         // Verify admin/moderator permissions
         if (!$this->hasAdminPermission()) {
-            return Response::json(
-                ['error' => 'Insufficient permissions'],
-                403
-            );
+            return $this->jsonError('Insufficient permissions', [], 403);
         }
 
         try {
             // Reset to defaults
             if ($this->themeConfig->reset()) {
-                return Response::json([
-                    'success' => true,
-                    'message' => 'Theme configuration reset to defaults successfully'
-                ], 200);
+                return $this->jsonSuccess('Theme configuration reset to defaults successfully');
             } else {
-                return Response::json([
-                    'error' => 'Failed to reset configuration'
-                ], 500);
+                return $this->jsonError('Failed to reset configuration', [], 500);
             }
         } catch (\Exception $e) {
             error_log("Error in AppearanceController::reset: " . $e->getMessage());
-            return Response::json(
-                ['error' => 'Failed to reset configuration: ' . $e->getMessage()],
+            return $this->jsonError(
+                'Failed to reset configuration: ' . $e->getMessage(),
+                [],
                 500
             );
         }
-    }
-
-    /**
-     * Check if user is authenticated
-     *
-     * @return bool True if authenticated
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id'])
-            && isset($_SESSION['authenticated'])
-            && $_SESSION['authenticated'] === true;
     }
 
     /**
