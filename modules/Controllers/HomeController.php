@@ -4,30 +4,24 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Controllers\Traits\NavigationTrait;
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\I18n\Translator;
-use ISER\Core\Http\Response;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
 use ISER\User\UserManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Home Controller
+ * Home Controller (REFACTORIZADO con BaseController)
  *
  * Controlador para página principal y dashboard
  * Cumple con PSR-1, PSR-4, PSR-7 y PSR-12
  *
+ * Extiende BaseController para reducir código duplicado.
+ *
  * @package ISER\Controllers
  */
-class HomeController
+class HomeController extends BaseController
 {
-    use NavigationTrait;
-
-    private MustacheRenderer $renderer;
-    private Translator $translator;
-    private Database $db;
     private UserManager $userManager;
 
     /**
@@ -35,19 +29,8 @@ class HomeController
      */
     public function __construct(Database $db)
     {
-        $this->renderer = MustacheRenderer::getInstance();
-        $this->translator = Translator::getInstance();
-        $this->db = $db;
+        parent::__construct($db);
         $this->userManager = new UserManager($db);
-    }
-
-    /**
-     * Renderizar con layout
-     */
-    private function renderWithLayout(string $view, array $data = [], string $layout = 'layouts/app'): ResponseInterface
-    {
-        $html = $this->renderer->render($view, $data, $layout);
-        return Response::html($html);
     }
 
     /**
@@ -59,13 +42,12 @@ class HomeController
     public function index(ServerRequestInterface $request): ResponseInterface
     {
         // Si el usuario está autenticado, redirigir al dashboard
-        if (isset($_SESSION['user_id']) && isset($_SESSION['authenticated'])) {
-            return Response::redirect('/dashboard');
+        if ($this->isAuthenticated()) {
+            return $this->redirect('/dashboard');
         }
 
         // Datos para la vista
         $data = [
-            'locale' => $this->translator->getLocale(),
             'app_name' => $this->translator->translate('common.app_name'),
             'page_title' => $this->translator->translate('common.welcome'),
             'header_title' => $this->translator->translate('common.app_name'),
@@ -100,8 +82,8 @@ class HomeController
             'admin_url' => '/admin',
         ];
 
-        $html = $this->renderer->render('home/index', $data);
-        return Response::html($html);
+        // Landing page sin navegación admin
+        return $this->renderWithLayout('home/index', $data);
     }
 
     /**
@@ -112,9 +94,9 @@ class HomeController
      */
     public function dashboard(ServerRequestInterface $request): ResponseInterface
     {
-        // Verificar autenticación
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated'])) {
-            return Response::redirect('/login');
+        // Verificar autenticación (usar método de BaseController)
+        if (!$this->isAuthenticated()) {
+            return $this->redirect('/login');
         }
 
         // Obtener estadísticas reales de la base de datos
@@ -128,14 +110,14 @@ class HomeController
         // Obtener tasa de éxito de login
         $loginSuccessRate = $this->getLoginSuccessRate();
 
-        // Obtener información del usuario actual
-        $currentUser = $this->userManager->getUserById((int)$_SESSION['user_id']);
+        // Obtener información del usuario actual (usar método de BaseController)
+        $currentUserId = $this->getCurrentUserId();
+        $currentUser = $this->userManager->getUserById($currentUserId);
         $fullName = $currentUser
             ? trim(($currentUser['first_name'] ?? '') . ' ' . ($currentUser['last_name'] ?? ''))
             : ($_SESSION['username'] ?? 'Usuario');
 
         $data = [
-            'locale' => $this->translator->getLocale(),
             'page_title' => $this->translator->translate('common.dashboard'),
             'header_title' => $this->translator->translate('common.dashboard'),
             'show_stats' => true,
@@ -151,10 +133,8 @@ class HomeController
             ],
         ];
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/dashboard');
-
-        return $this->renderWithLayout('dashboard/index', $data);
+        // Usar render() de BaseController con navegación automática
+        return $this->render('dashboard/index', $data, '/dashboard');
     }
 
     /**
@@ -166,16 +146,16 @@ class HomeController
     public function profile(ServerRequestInterface $request): ResponseInterface
     {
         // Verificar que el usuario esté autenticado
-        if (!isset($_SESSION['user_id'])) {
-            return Response::redirect('/login');
+        if (!$this->isAuthenticated()) {
+            return $this->redirect('/login');
         }
 
-        // Obtener información del usuario
-        $userId = (int)$_SESSION['user_id'];
+        // Obtener información del usuario (usar getCurrentUserId de BaseController)
+        $userId = $this->getCurrentUserId();
         $user = $this->userManager->getUserById($userId);
 
         if (!$user) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         $data = [
@@ -183,10 +163,8 @@ class HomeController
             'page_title' => 'Mi Perfil - ' . $this->translator->translate('app_name'),
         ];
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/profile');
-
-        return $this->renderWithLayout('profile/index', $data);
+        // Usar render() con navegación automática
+        return $this->render('profile/index', $data, '/profile');
     }
 
     /**
