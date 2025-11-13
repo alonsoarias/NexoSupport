@@ -403,6 +403,59 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->reset($request);
     }, 'admin.appearance.reset');
 
+    // ===== PHASE 9: ENHANCED THEME SYSTEM =====
+    // Export theme configuration as JSON
+    $router->get('/appearance/export', function ($request) use ($database) {
+        $controller = new AppearanceController($database);
+        return $controller->export($request);
+    }, 'admin.appearance.export');
+
+    // Import theme configuration from JSON
+    $router->post('/appearance/import', function ($request) use ($database) {
+        $controller = new AppearanceController($database);
+        return $controller->import($request);
+    }, 'admin.appearance.import');
+
+    // Create backup of current theme
+    $router->post('/appearance/backup/create', function ($request) use ($database) {
+        $controller = new AppearanceController($database);
+        return $controller->createBackup($request);
+    }, 'admin.appearance.backup.create');
+
+    // Restore theme from backup
+    $router->post('/appearance/backup/restore', function ($request) use ($database) {
+        $controller = new AppearanceController($database);
+        return $controller->restoreBackup($request);
+    }, 'admin.appearance.backup.restore');
+
+    // List all theme backups
+    $router->get('/appearance/backups', function ($request) use ($database) {
+        $controller = new AppearanceController($database);
+        return $controller->listBackups($request);
+    }, 'admin.appearance.backups');
+
+    // Delete theme backup
+    $router->post('/appearance/backup/delete/{id}', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $id = (int)($parts[4] ?? 0);
+        $request = $request->withAttribute('route_params', ['id' => $id]);
+        $controller = new AppearanceController($database);
+        return $controller->deleteBackup($request);
+    }, 'admin.appearance.backup.delete');
+
+    // Regenerate CSS file
+    $router->post('/appearance/regenerate-css', function ($request) use ($database) {
+        $controller = new AppearanceController($database);
+        return $controller->regenerateCss($request);
+    }, 'admin.appearance.regenerate-css');
+
+    // Validate color contrast (WCAG)
+    $router->post('/appearance/validate-contrast', function ($request) use ($database) {
+        $controller = new AppearanceController($database);
+        return $controller->validateContrast($request);
+    }, 'admin.appearance.validate-contrast');
+
     // ===== THEME PREVIEW SYSTEM (FASE 8) =====
     // Display theme preview page with side-by-side comparison
     $router->get('/theme/preview', function ($request) use ($database) {
