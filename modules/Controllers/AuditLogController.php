@@ -4,39 +4,26 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\I18n\Translator;
-use ISER\Core\Http\Response;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
 use ISER\User\UserManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Audit Log Controller
+ * Audit Log Controller (REFACTORIZADO con BaseController)
  * Manages audit log viewing, filtering, and exporting
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class AuditLogController
+class AuditLogController extends BaseController
 {
-    private MustacheRenderer $renderer;
-    private Translator $translator;
-    private Database $db;
     private UserManager $userManager;
 
     public function __construct(Database $db)
     {
-        $this->renderer = MustacheRenderer::getInstance();
-        $this->translator = Translator::getInstance();
-        $this->db = $db;
+        parent::__construct($db);
         $this->userManager = new UserManager($db);
-    }
-
-    /**
-     * Check if user is authenticated and has admin role
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id']) && isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true;
     }
 
     /**
@@ -73,12 +60,12 @@ class AuditLogController
     {
         // Check authentication and permissions
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         if (!$this->canViewAudit()) {
             $_SESSION['error'] = $this->translator->translate('errors.permission_denied');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         $page = (int)($request->getQueryParams()['page'] ?? 1);
@@ -232,7 +219,7 @@ class AuditLogController
             ],
         ];
 
-        return $this->renderer->render('admin/audit/index', $data);
+        return $this->render('admin/audit/index', $data, '/admin/audit');
     }
 
     /**
@@ -242,12 +229,12 @@ class AuditLogController
     {
         // Check authentication and permissions
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         if (!$this->canViewAudit()) {
             $_SESSION['error'] = $this->translator->translate('errors.permission_denied');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         // Get audit log entry
@@ -256,7 +243,7 @@ class AuditLogController
 
         if (empty($result)) {
             $_SESSION['error'] = $this->translator->translate('errors.not_found');
-            return Response::redirect('/admin/audit');
+            return $this->redirect('/admin/audit');
         }
 
         $log = $result[0];
@@ -336,7 +323,7 @@ class AuditLogController
             'related_entity_type' => $log['entity_type'],
         ];
 
-        return $this->renderer->render('admin/audit/view', $data);
+        return $this->render('admin/audit/view', $data, '/admin/audit/view');
     }
 
     /**
@@ -346,7 +333,7 @@ class AuditLogController
     {
         // Check authentication and permissions
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         if (!$this->canViewAudit()) {

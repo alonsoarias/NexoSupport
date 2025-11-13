@@ -4,43 +4,28 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Controllers\Traits\NavigationTrait;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
-use ISER\Core\Http\Response;
-use ISER\Core\View\MustacheRenderer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * LogViewerController - System Logs Viewer
+ * LogViewerController - System Logs Viewer (REFACTORIZADO con BaseController)
  *
  * Handles viewing, filtering, clearing and downloading system logs.
  * Admin only access.
+ *
+ * Extiende BaseController para reducir código duplicado.
  *
  * @package ISER\Controllers
  * @author ISER Desarrollo
  * @license Propietario
  */
-class LogViewerController
+class LogViewerController extends BaseController
 {
-    use NavigationTrait;
-
-    private Database $database;
-    private MustacheRenderer $renderer;
-
     public function __construct(Database $database)
     {
-        $this->database = $database;
-        $this->renderer = MustacheRenderer::getInstance();
-    }
-
-    /**
-     * Render with layout
-     */
-    private function renderWithLayout(string $view, array $data = [], string $layout = 'layouts/app'): ResponseInterface
-    {
-        $html = $this->renderer->render($view, $data, $layout);
-        return Response::html($html);
+        parent::__construct($database);
     }
 
     /**
@@ -49,8 +34,8 @@ class LogViewerController
     public function index(ServerRequestInterface $request): ResponseInterface
     {
         // Check admin permission
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-            return Response::redirect('/login');
+        if (!$this->isAuthenticated()) {
+            return $this->redirect('/login');
         }
 
         $queryParams = $request->getQueryParams();
@@ -172,7 +157,7 @@ class LogViewerController
             ],
         ];
 
-        return $this->renderWithLayout('admin/logs/index', $data);
+        return $this->render('admin/logs/index', $data, '/admin/logs');
     }
 
     /**
@@ -181,8 +166,8 @@ class LogViewerController
     public function view(ServerRequestInterface $request, int $id): ResponseInterface
     {
         // Check admin permission
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-            return Response::redirect('/login');
+        if (!$this->isAuthenticated()) {
+            return $this->redirect('/login');
         }
 
         // Get log entry
@@ -195,7 +180,7 @@ class LogViewerController
         );
 
         if (empty($logs)) {
-            return Response::redirect('/admin/logs');
+            return $this->redirect('/admin/logs');
         }
 
         $log = $logs[0];
@@ -247,7 +232,7 @@ class LogViewerController
             ],
         ];
 
-        return $this->renderWithLayout('admin/logs/view', $data);
+        return $this->render('admin/logs/view', $data, '/admin/logs/view');
     }
 
     /**
@@ -256,15 +241,15 @@ class LogViewerController
     public function clear(ServerRequestInterface $request): ResponseInterface
     {
         // Check admin permission
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-            return Response::redirect('/login');
+        if (!$this->isAuthenticated()) {
+            return $this->redirect('/login');
         }
 
         $body = $request->getParsedBody();
 
         // Verify confirmation
         if (empty($body['confirm']) || $body['confirm'] !== 'yes') {
-            return Response::redirect('/admin/logs?error=confirm_required');
+            return $this->redirect('/admin/logs?error=confirm_required');
         }
 
         // Determine retention days from settings (default 90)
@@ -298,7 +283,7 @@ class LogViewerController
             ]
         );
 
-        return Response::redirect('/admin/logs?success=logs_cleared&deleted=' . $deleted);
+        return $this->redirect('/admin/logs?success=logs_cleared&deleted=' . $deleted);
     }
 
     /**
@@ -307,8 +292,8 @@ class LogViewerController
     public function download(ServerRequestInterface $request): ResponseInterface
     {
         // Check admin permission
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-            return Response::redirect('/login');
+        if (!$this->isAuthenticated()) {
+            return $this->redirect('/login');
         }
 
         $queryParams = $request->getQueryParams();

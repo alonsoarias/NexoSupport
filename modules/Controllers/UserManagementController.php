@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Controllers\Traits\NavigationTrait;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
-use ISER\Core\Http\Response;
-use ISER\Core\View\MustacheRenderer;
 use ISER\Core\Utils\Validator;
 use ISER\User\UserManager;
 use ISER\Roles\RoleManager;
@@ -15,35 +13,25 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * UserManagementController - Gestión completa de usuarios (REFACTORIZADO)
+ * UserManagementController - Gestión completa de usuarios (REFACTORIZADO con BaseController)
  *
  * NUEVO ENFOQUE:
  * - Usa sesiones para almacenar ID durante edición
  * - Evita renderizar IDs en campos hidden
  * - IDs se pasan como user_id (string) para compatibilidad con Mustache
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class UserManagementController
+class UserManagementController extends BaseController
 {
-    use NavigationTrait;
-
     private UserManager $userManager;
     private RoleManager $roleManager;
-    private MustacheRenderer $renderer;
 
     public function __construct(Database $database)
     {
+        parent::__construct($database);
         $this->userManager = new UserManager($database);
         $this->roleManager = new RoleManager($database);
-        $this->renderer = MustacheRenderer::getInstance();
-    }
-
-    /**
-     * Renderizar con layout
-     */
-    private function renderWithLayout(string $view, array $data = [], string $layout = 'layouts/app'): ResponseInterface
-    {
-        $html = $this->renderer->render($view, $data, $layout);
-        return Response::html($html);
     }
 
     /**
@@ -126,10 +114,7 @@ class UserManagementController
             $data['error_message'] = $errors[$queryParams['error']] ?? __('errors.unknown_error');
         }
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/admin/users');
-
-        return $this->renderWithLayout('admin/users/index', $data);
+        return $this->render('admin/users/index', $data, '/admin/users');
     }
 
     /**
@@ -144,10 +129,7 @@ class UserManagementController
             'page_title' => 'Crear Usuario',
         ];
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/admin/users/create');
-
-        return $this->renderWithLayout('admin/users/create', $data);
+        return $this->render('admin/users/create', $data, '/admin/users/create');
     }
 
     /**
@@ -168,7 +150,7 @@ class UserManagementController
                 'all_roles' => $allRoles,
                 'page_title' => 'Crear Usuario',
             ];
-            return $this->renderWithLayout('admin/users/create', $data);
+            return $this->render('admin/users/create', $data, '/admin/users/create');
         }
 
         // Crear usuario
@@ -187,7 +169,7 @@ class UserManagementController
             $this->userManager->syncRoles($userId, array_map('intval', $body['roles']), $currentUserId);
         }
 
-        return Response::redirect('/admin/users?success=created');
+        return $this->redirect('/admin/users?success=created');
     }
 
     /**
@@ -199,7 +181,7 @@ class UserManagementController
         $userId = (int)($body['user_id'] ?? 0);
 
         if (!$userId) {
-            return Response::redirect('/admin/users?error=invalid_id');
+            return $this->redirect('/admin/users?error=invalid_id');
         }
 
         // GUARDAR ID EN SESIÓN para uso en update()
@@ -208,7 +190,7 @@ class UserManagementController
         $user = $this->userManager->getUserById($userId);
         if (!$user) {
             unset($_SESSION['editing_user_id']);
-            return Response::redirect('/admin/users?error=not_found');
+            return $this->redirect('/admin/users?error=not_found');
         }
 
         // Obtener roles del usuario
@@ -232,10 +214,7 @@ class UserManagementController
             'editing_mode' => true, // Flag para saber que estamos editando
         ];
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/admin/users/edit');
-
-        return $this->renderWithLayout('admin/users/edit', $data);
+        return $this->render('admin/users/edit', $data, '/admin/users/edit');
     }
 
     /**
@@ -247,7 +226,7 @@ class UserManagementController
         $userId = (int)($_SESSION['editing_user_id'] ?? 0);
 
         if (!$userId) {
-            return Response::redirect('/admin/users?error=session_expired');
+            return $this->redirect('/admin/users?error=session_expired');
         }
 
         $body = $request->getParsedBody();
@@ -255,7 +234,7 @@ class UserManagementController
         $user = $this->userManager->getUserById($userId);
         if (!$user) {
             unset($_SESSION['editing_user_id']);
-            return Response::redirect('/admin/users?error=not_found');
+            return $this->redirect('/admin/users?error=not_found');
         }
 
         // Validar datos
@@ -279,7 +258,7 @@ class UserManagementController
                 'page_title' => 'Editar Usuario',
                 'editing_mode' => true,
             ];
-            return $this->renderWithLayout('admin/users/edit', $data);
+            return $this->render('admin/users/edit', $data, '/admin/users/edit');
         }
 
         // Preparar datos de actualización
@@ -300,7 +279,7 @@ class UserManagementController
         $success = $this->userManager->update($userId, $updateData);
 
         if (!$success) {
-            return Response::json(['error' => 'Error al actualizar usuario'], 500);
+            return $this->jsonError('Error al actualizar usuario', [], 500);
         }
 
         // Actualizar roles
@@ -314,7 +293,7 @@ class UserManagementController
         // LIMPIAR SESIÓN
         unset($_SESSION['editing_user_id']);
 
-        return Response::redirect('/admin/users?success=updated');
+        return $this->redirect('/admin/users?success=updated');
     }
 
     /**
@@ -326,26 +305,26 @@ class UserManagementController
         $userId = (int)($body['user_id'] ?? 0);
 
         if (!$userId) {
-            return Response::json(['error' => 'ID de usuario no proporcionado'], 400);
+            return $this->jsonError('ID de usuario no proporcionado', [], 400);
         }
 
         $user = $this->userManager->getUserById($userId);
         if (!$user) {
-            return Response::json(['error' => 'Usuario no encontrado'], 404);
+            return $this->jsonError('Usuario no encontrado', [], 404);
         }
 
         // Evitar que el usuario se elimine a sí mismo
         if ($userId === ($_SESSION['user_id'] ?? 0)) {
-            return Response::json(['error' => 'No puedes eliminar tu propia cuenta'], 400);
+            return $this->jsonError('No puedes eliminar tu propia cuenta', [], 400);
         }
 
         $success = $this->userManager->softDelete($userId);
 
         if ($success) {
-            return Response::json(['success' => true, 'message' => __('users.deleted_message', ['name' => ''])]);
+            return $this->jsonSuccess(__('users.deleted_message', ['name' => '']));
         }
 
-        return Response::json(['error' => __('errors.delete_failed')], 500);
+        return $this->jsonError(__('errors.delete_failed'), [], 500);
     }
 
     /**
@@ -357,21 +336,21 @@ class UserManagementController
         $userId = (int)($body['user_id'] ?? 0);
 
         if (!$userId) {
-            return Response::json(['error' => 'ID de usuario no proporcionado'], 400);
+            return $this->jsonError('ID de usuario no proporcionado', [], 400);
         }
 
         $user = $this->userManager->getUserById($userId);
         if (!$user) {
-            return Response::json(['error' => 'Usuario no encontrado'], 404);
+            return $this->jsonError('Usuario no encontrado', [], 404);
         }
 
         $success = $this->userManager->restore($userId);
 
         if ($success) {
-            return Response::json(['success' => true, 'message' => __('users.restored_message', ['name' => ''])]);
+            return $this->jsonSuccess(__('users.restored_message', ['name' => '']));
         }
 
-        return Response::json(['error' => __('errors.restore_failed')], 500);
+        return $this->jsonError(__('errors.restore_failed'), [], 500);
     }
 
     /**
