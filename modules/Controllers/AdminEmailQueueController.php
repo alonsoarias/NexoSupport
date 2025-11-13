@@ -4,39 +4,26 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\I18n\Translator;
-use ISER\Core\Http\Response;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
 use ISER\User\UserManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Admin Email Queue Controller - FASE 8
+ * Admin Email Queue Controller (REFACTORIZADO con BaseController) - FASE 8
  * Manages email queue viewing, filtering, and operations
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class AdminEmailQueueController
+class AdminEmailQueueController extends BaseController
 {
-    private MustacheRenderer $renderer;
-    private Translator $translator;
-    private Database $db;
     private UserManager $userManager;
 
     public function __construct(Database $db)
     {
-        $this->renderer = MustacheRenderer::getInstance();
-        $this->translator = Translator::getInstance();
-        $this->db = $db;
+        parent::__construct($db);
         $this->userManager = new UserManager($db);
-    }
-
-    /**
-     * Check if user is authenticated
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id']) && isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true;
     }
 
     /**
@@ -71,12 +58,12 @@ class AdminEmailQueueController
     {
         // Check authentication and permissions
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         if (!$this->isAdmin()) {
             $_SESSION['error'] = $this->translator->translate('errors.permission_denied');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         $page = (int)($request->getQueryParams()['page'] ?? 1);
@@ -191,8 +178,7 @@ class AdminEmailQueueController
             ],
         ];
 
-        $html = $this->renderer->render('admin/email-queue/index', $data, 'layouts/app');
-        return Response::html($html);
+        return $this->renderWithLayout('admin/email-queue/index', $data);
     }
 
     /**
@@ -201,12 +187,12 @@ class AdminEmailQueueController
     public function view(ServerRequestInterface $request, int $id): ResponseInterface
     {
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         if (!$this->isAdmin()) {
             $_SESSION['error'] = $this->translator->translate('errors.permission_denied');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         $email = $this->db->getConnection()->fetchOne(
@@ -216,7 +202,7 @@ class AdminEmailQueueController
 
         if (!$email) {
             $_SESSION['error'] = $this->translator->translate('email_queue.not_found');
-            return Response::redirect('/admin/email-queue');
+            return $this->redirect('/admin/email-queue');
         }
 
         $data = [
@@ -256,8 +242,7 @@ class AdminEmailQueueController
             ],
         ];
 
-        $html = $this->renderer->render('admin/email-queue/view', $data, 'layouts/app');
-        return Response::html($html);
+        return $this->renderWithLayout('admin/email-queue/view', $data);
     }
 
     /**
@@ -266,12 +251,12 @@ class AdminEmailQueueController
     public function retry(ServerRequestInterface $request, int $id): ResponseInterface
     {
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         if (!$this->isAdmin()) {
             $_SESSION['error'] = $this->translator->translate('errors.permission_denied');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         $email = $this->db->getConnection()->fetchOne(
@@ -281,7 +266,7 @@ class AdminEmailQueueController
 
         if (!$email) {
             $_SESSION['error'] = $this->translator->translate('email_queue.not_found');
-            return Response::redirect('/admin/email-queue');
+            return $this->redirect('/admin/email-queue');
         }
 
         // Reset to pending status
@@ -297,7 +282,7 @@ class AdminEmailQueueController
         );
 
         $_SESSION['success'] = $this->translator->translate('email_queue.retry_success');
-        return Response::redirect('/admin/email-queue');
+        return $this->redirect('/admin/email-queue');
     }
 
     /**
@@ -306,12 +291,12 @@ class AdminEmailQueueController
     public function delete(ServerRequestInterface $request, int $id): ResponseInterface
     {
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         if (!$this->isAdmin()) {
             $_SESSION['error'] = $this->translator->translate('errors.permission_denied');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         $email = $this->db->getConnection()->fetchOne(
@@ -321,7 +306,7 @@ class AdminEmailQueueController
 
         if (!$email) {
             $_SESSION['error'] = $this->translator->translate('email_queue.not_found');
-            return Response::redirect('/admin/email-queue');
+            return $this->redirect('/admin/email-queue');
         }
 
         $this->db->getConnection()->delete(
@@ -330,7 +315,7 @@ class AdminEmailQueueController
         );
 
         $_SESSION['success'] = $this->translator->translate('email_queue.delete_success');
-        return Response::redirect('/admin/email-queue');
+        return $this->redirect('/admin/email-queue');
     }
 
     /**
@@ -339,12 +324,12 @@ class AdminEmailQueueController
     public function clear(ServerRequestInterface $request): ResponseInterface
     {
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         if (!$this->isAdmin()) {
             $_SESSION['error'] = $this->translator->translate('errors.permission_denied');
-            return Response::redirect('/dashboard');
+            return $this->redirect('/dashboard');
         }
 
         $thirtyDaysAgo = time() - (30 * 24 * 60 * 60);
@@ -359,7 +344,7 @@ class AdminEmailQueueController
             'count' => $deleted,
         ]);
 
-        return Response::redirect('/admin/email-queue');
+        return $this->redirect('/admin/email-queue');
     }
 
     /**

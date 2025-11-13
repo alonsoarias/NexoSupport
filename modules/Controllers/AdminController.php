@@ -4,45 +4,28 @@ declare(strict_types=1);
 
 namespace ISER\Controllers;
 
-use ISER\Controllers\Traits\NavigationTrait;
-use ISER\Core\View\MustacheRenderer;
-use ISER\Core\I18n\Translator;
-use ISER\Core\Http\Response;
+use ISER\Core\Controllers\BaseController;
 use ISER\Core\Database\Database;
 use ISER\User\UserManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Admin Controller
+ * Admin Controller (REFACTORIZADO con BaseController)
  *
  * Controlador para panel de administración
  * Maneja usuarios, configuración, reportes, etc.
+ *
+ * Extiende BaseController para reducir código duplicado.
  */
-class AdminController
+class AdminController extends BaseController
 {
-    use NavigationTrait;
-
-    private MustacheRenderer $renderer;
-    private Translator $translator;
-    private Database $db;
     private UserManager $userManager;
 
     public function __construct(Database $db)
     {
-        $this->renderer = MustacheRenderer::getInstance();
-        $this->translator = Translator::getInstance();
-        $this->db = $db;
+        parent::__construct($db);
         $this->userManager = new UserManager($db);
-    }
-
-    /**
-     * Renderizar con layout
-     */
-    private function renderWithLayout(string $view, array $data = [], string $layout = 'layouts/app'): ResponseInterface
-    {
-        $html = $this->renderer->render($view, $data, $layout);
-        return Response::html($html);
     }
 
     /**
@@ -52,7 +35,7 @@ class AdminController
     {
         // Verificar autenticación
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Obtener usuario actual
@@ -87,10 +70,7 @@ class AdminController
             ],
         ];
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/admin');
-
-        return $this->renderWithLayout('admin/index', $data);
+        return $this->render('admin/index', $data, '/admin');
     }
 
     /**
@@ -99,7 +79,7 @@ class AdminController
     public function users(ServerRequestInterface $request): ResponseInterface
     {
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Obtener todos los usuarios
@@ -135,8 +115,7 @@ class AdminController
             ],
         ];
 
-        $html = $this->renderer->render('admin/users', $data);
-        return Response::html($html);
+        return $this->renderWithLayout('admin/users', $data);
     }
 
     /**
@@ -145,7 +124,7 @@ class AdminController
     public function settings(ServerRequestInterface $request): ResponseInterface
     {
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Obtener configuración actual del sistema
@@ -158,10 +137,7 @@ class AdminController
             'config' => $config,
         ];
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/admin/settings');
-
-        return $this->renderWithLayout('admin/settings', $data);
+        return $this->render('admin/settings', $data, '/admin/settings');
     }
 
     /**
@@ -170,7 +146,7 @@ class AdminController
     public function reports(ServerRequestInterface $request): ResponseInterface
     {
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Estadísticas de login por día (últimos 7 días)
@@ -187,10 +163,7 @@ class AdminController
             'top_ips' => $topIPs,
         ];
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/admin/reports');
-
-        return $this->renderWithLayout('admin/reports', $data);
+        return $this->render('admin/reports', $data, '/admin/reports');
     }
 
     /**
@@ -199,7 +172,7 @@ class AdminController
     public function security(ServerRequestInterface $request): ResponseInterface
     {
         if (!$this->isAuthenticated()) {
-            return Response::redirect('/login');
+            return $this->redirect('/login');
         }
 
         // Intentos de login fallidos recientes
@@ -216,20 +189,7 @@ class AdminController
             'locked_accounts' => $lockedAccounts,
         ];
 
-        // Enriquecer con navegación
-        $data = $this->enrichWithNavigation($data, '/admin/security');
-
-        return $this->renderWithLayout('admin/security', $data);
-    }
-
-    /**
-     * Verificar si el usuario está autenticado
-     */
-    private function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user_id'])
-            && isset($_SESSION['authenticated'])
-            && $_SESSION['authenticated'] === true;
+        return $this->render('admin/security', $data, '/admin/security');
     }
 
     /**
