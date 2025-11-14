@@ -587,6 +587,44 @@ $router->group('/admin', function (Router $router) use ($database) {
         return $controller->show($slug);
     }, 'admin.plugins.show');
 
+    // Mostrar formulario de configuración de plugin
+    $router->get('/plugins/{slug}/configure', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $slug = $parts[2] ?? '';
+        $controller = new AdminPlugins($database);
+        return $controller->showConfigureForm($slug);
+    }, 'admin.plugins.configure.form');
+
+    // Guardar configuración de plugin
+    $router->post('/plugins/{slug}/configure', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $slug = $parts[2] ?? '';
+        $postData = json_decode($request->getBody()->getContents(), true) ?? [];
+        $controller = new AdminPlugins($database);
+        return $controller->saveConfiguration($slug, $postData);
+    }, 'admin.plugins.configure.save');
+
+    // Obtener configuración de plugin (API)
+    $router->get('/plugins/{slug}/config', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $slug = $parts[2] ?? '';
+        $controller = new AdminPlugins($database);
+        return $controller->getConfiguration($slug);
+    }, 'admin.plugins.config.get');
+
+    // Resetear configuración de plugin
+    $router->post('/plugins/{slug}/configure/reset', function ($request) use ($database) {
+        $uri = $request->getUri()->getPath();
+        $parts = explode('/', trim($uri, '/'));
+        $slug = $parts[2] ?? '';
+        $postData = json_decode($request->getBody()->getContents(), true) ?? [];
+        $controller = new AdminPlugins($database);
+        return $controller->resetConfiguration($slug, $postData);
+    }, 'admin.plugins.configure.reset');
+
     // ===== AUDIT LOG VIEWER =====
     // Lista de logs de auditoría
     $router->get('/audit', function ($request) use ($database) {

@@ -1,0 +1,47 @@
+{
+  "name": "Test Plugin A",
+  "slug": "test-plugin-a",
+  "version": "2.0.0",
+  "type": "tool",
+  "description": "Advanced test plugin that demonstrates dependency resolution, version constraints, and conflict detection in the plugin system.",
+  "author": "ISER Development Team",
+  "author_email": "dev@iser.com",
+  "license": "Proprietary",
+  "requires": {
+    "php": ">=8.0",
+    "iser": ">=1.0.0",
+    "plugins": [
+      {
+        "slug": "test-plugin-b",
+        "version": ">=1.0.0"
+      }
+    ]
+  },
+  "recommends": [
+    "test-plugin-config"
+  ],
+  "conflicts_with": [
+    "test-plugin-conflict"
+  ],
+  "hooks": {
+    "init": "TestPluginA::init",
+    "admin_dashboard": "TestPluginA::addDashboardWidget"
+  },
+  "permissions": [
+    {
+      "name": "test_plugin_a.manage",
+      "description": "Manage Test Plugin A settings"
+    },
+    {
+      "name": "test_plugin_a.view",
+      "description": "View Test Plugin A data"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/test-plugin-a/dashboard",
+      "handler": "TestPluginA::showDashboard",
+      "method": "GET"
+    }
+  ]
+}

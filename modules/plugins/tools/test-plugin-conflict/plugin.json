@@ -1,0 +1,26 @@
+{
+  "name": "Test Plugin Conflict",
+  "slug": "test-plugin-conflict",
+  "version": "1.0.0",
+  "type": "tool",
+  "description": "Test plugin that conflicts with Test Plugin A. Used to demonstrate conflict detection and prevention in the plugin system.",
+  "author": "ISER Development Team",
+  "author_email": "dev@iser.com",
+  "license": "Proprietary",
+  "requires": {
+    "php": ">=8.0",
+    "iser": ">=1.0.0"
+  },
+  "conflicts_with": [
+    "test-plugin-a"
+  ],
+  "hooks": {
+    "init": "TestPluginConflict::init"
+  },
+  "permissions": [
+    {
+      "name": "test_plugin_conflict.use",
+      "description": "Use Test Plugin Conflict features"
+    }
+  ]
+}
