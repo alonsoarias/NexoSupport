@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Plugin: {{name}} | Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .plugin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .invalid-feedback {
+            display: none;
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+        .is-invalid {
+            border-color: #dc3545;
+        }
+        .alert-config {
+            margin-top: 1rem;
+        }
+        .form-actions {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #dee2e6;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            color: #f8f9fa;
+        }
+        .no-config-message {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Plugin Header -->
+        <div class="plugin-header">
+            <a href="/admin/plugins" class="back-link mb-2 d-inline-block">
+                <i class="bi bi-arrow-left"></i> Back to Plugins
+            </a>
+            <h1 class="mb-1">
+                <i class="bi bi-gear"></i> Configure {{name}}
+            </h1>
+            <p class="mb-0">Version {{version}}</p>
+            {{#description}}
+            <p class="mb-0 mt-2"><small>{{description}}</small></p>
+            {{/description}}
+        </div>
+
+        <!-- Configuration Form -->
+        <div class="card">
+            <div class="card-body">
+                {{#has_config}}
+                <div id="config-alerts"></div>
+
+                {{{form_html}}}
+
+                {{/has_config}}
+
+                {{^has_config}}
+                <div class="no-config-message">
+                    <i class="bi bi-info-circle" style="font-size: 3rem; color: #6c757d;"></i>
+                    <h4 class="mt-3">No Configuration Options</h4>
+                    <p class="text-muted">This plugin does not have any configuration options.</p>
+                    <a href="/admin/plugins" class="btn btn-primary mt-3">
+                        <i class="bi bi-arrow-left"></i> Back to Plugins
+                    </a>
+                </div>
+                {{/has_config}}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    {{#has_config}}
+    <script>
+    // CSRF Token
+    const csrfToken = '{{csrf_token}}';
+    const pluginSlug = '{{slug}}';
+
+    // Show alert message
+    function showAlert(message, type = 'success') {
+        const alertsContainer = document.getElementById('config-alerts');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show alert-config`;
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertsContainer.appendChild(alert);
+
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            alert.classList.remove('show');
+            setTimeout(() => alert.remove(), 150);
+        }, 5000);
+    }
+
+    // Form submission handler
+    document.getElementById('plugin-config-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const config = {};
+
+        // Convert FormData to object
+        for (const [key, value] of formData.entries()) {
+            const field = this.querySelector(`[name="${key}"]`);
+            if (field && field.type === 'checkbox') {
+                config[key] = field.checked;
+            } else {
+                config[key] = value;
+            }
+        }
+
+        // Add CSRF token
+        config.csrf_token = csrfToken;
+
+        try {
+            const response = await fetch(`/admin/plugins/${pluginSlug}/configure`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showAlert('<i class="bi bi-check-circle"></i> Configuration saved successfully!', 'success');
+            } else if (result.errors) {
+                // Display validation errors
+                for (const [field, error] of Object.entries(result.errors)) {
+                    const fieldElement = this.querySelector(`[name="${field}"]`);
+                    if (fieldElement) {
+                        fieldElement.classList.add('is-invalid');
+                        const feedbackEl = fieldElement.closest('.form-group')?.querySelector('.invalid-feedback');
+                        if (feedbackEl) {
+                            feedbackEl.textContent = error;
+                        }
+                    }
+                }
+                showAlert('<i class="bi bi-exclamation-circle"></i> Please fix the validation errors', 'danger');
+            } else {
+                showAlert('<i class="bi bi-exclamation-triangle"></i> Failed to save configuration', 'danger');
+            }
+        } catch (error) {
+            console.error('Error saving configuration:', error);
+            showAlert('<i class="bi bi-exclamation-triangle"></i> An error occurred while saving', 'danger');
+        }
+    });
+
+    // Reset button handler
+    document.getElementById('reset-config')?.addEventListener('click', async function() {
+        if (!confirm('Are you sure you want to reset all configuration to default values?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/plugins/${pluginSlug}/configure/reset`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ csrf_token: csrfToken })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showAlert('<i class="bi bi-arrow-clockwise"></i> Configuration reset to defaults', 'info');
+
+                // Reload config values in form
+                if (result.config) {
+                    for (const [key, value] of Object.entries(result.config)) {
+                        const field = document.querySelector(`[name="${key}"]`);
+                        if (field) {
+                            if (field.type === 'checkbox') {
+                                field.checked = !!value;
+                            } else {
+                                field.value = value;
+                            }
+                        }
+                    }
+                }
+            } else {
+                showAlert('<i class="bi bi-exclamation-triangle"></i> Failed to reset configuration', 'danger');
+            }
+        } catch (error) {
+            console.error('Error resetting configuration:', error);
+            showAlert('<i class="bi bi-exclamation-triangle"></i> An error occurred while resetting', 'danger');
+        }
+    });
+
+    // Client-side validation script from generator
+    {{{validation_js}}}
+    </script>
+    {{/has_config}}
+</body>
+</html>

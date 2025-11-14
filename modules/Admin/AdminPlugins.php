@@ -64,25 +64,37 @@ class AdminPlugins
     private string $pluginsDir;
 
     /**
+     * Plugin configurator instance
+     */
+    private \ISER\Plugin\PluginConfigurator $pluginConfigurator;
+
+    /**
+     * Form generator instance
+     */
+    private \ISER\Core\Plugin\ConfigFormGenerator $formGenerator;
+
+    /**
      * Constructor
      *
      * @param Database $db Database instance
-     * @param PluginManager $pluginManager Plugin manager instance
-     * @param PluginLoader $pluginLoader Plugin loader instance
-     * @param MustacheRenderer $renderer Mustache renderer instance
+     * @param PluginManager|null $pluginManager Plugin manager instance (optional)
+     * @param PluginLoader|null $pluginLoader Plugin loader instance (optional)
+     * @param MustacheRenderer|null $renderer Mustache renderer instance (optional)
      * @param string $pluginsDir Base plugins directory (optional)
      */
     public function __construct(
         Database $db,
-        PluginManager $pluginManager,
-        PluginLoader $pluginLoader,
-        MustacheRenderer $renderer,
+        ?PluginManager $pluginManager = null,
+        ?PluginLoader $pluginLoader = null,
+        ?MustacheRenderer $renderer = null,
         string $pluginsDir = ''
     ) {
         $this->db = $db;
-        $this->pluginManager = $pluginManager;
-        $this->pluginLoader = $pluginLoader;
-        $this->renderer = $renderer;
+
+        // Create dependencies if not provided
+        $this->pluginManager = $pluginManager ?? new PluginManager($db);
+        $this->pluginLoader = $pluginLoader ?? new PluginLoader($db, $pluginsDir);
+        $this->renderer = $renderer ?? new MustacheRenderer();
 
         if (empty($pluginsDir)) {
             $pluginsDir = dirname(dirname(__DIR__)) . '/modules/plugins';
@@ -91,10 +103,13 @@ class AdminPlugins
 
         $this->pluginInstaller = new PluginInstaller(
             $db,
-            $pluginManager,
-            $pluginLoader,
+            $this->pluginManager,
+            $this->pluginLoader,
             $pluginsDir
         );
+
+        $this->pluginConfigurator = new \ISER\Plugin\PluginConfigurator($db, $this->pluginManager);
+        $this->formGenerator = new \ISER\Core\Plugin\ConfigFormGenerator();
     }
 
     /**
@@ -1049,5 +1064,215 @@ class AdminPlugins
             UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload',
             default => 'Unknown upload error'
         };
+    }
+
+    /**
+     * Show plugin configuration form
+     *
+     * GET /admin/plugins/{slug}/configure
+     *
+     * @param string $slug Plugin slug
+     * @return Response HTML view with configuration form
+     */
+    public function showConfigureForm(string $slug): Response
+    {
+        try {
+            // Get plugin
+            $plugin = $this->pluginManager->getBySlug($slug);
+            if (!$plugin) {
+                Logger::warning('Plugin not found for configuration', ['slug' => $slug]);
+                return $this->jsonResponse(['error' => 'Plugin not found'], 404);
+            }
+
+            // Parse manifest
+            $manifest = [];
+            if (!empty($plugin['manifest'])) {
+                $manifest = json_decode($plugin['manifest'], true) ?? [];
+            }
+
+            // Check if plugin has configuration schema
+            $configSchema = $manifest['config_schema'] ?? [];
+            if (empty($configSchema)) {
+                Logger::info('Plugin has no configuration schema', ['slug' => $slug]);
+            }
+
+            // Get current configuration
+            $currentConfig = $this->pluginConfigurator->getConfig($slug);
+
+            // Generate form HTML
+            $formHtml = $this->formGenerator->generateForm($configSchema, $currentConfig);
+
+            // Generate validation JavaScript
+            $validationJs = $this->formGenerator->generateValidationJS($configSchema);
+
+            // Render view
+            $data = [
+                'plugin' => $plugin,
+                'slug' => $slug,
+                'name' => $plugin['name'],
+                'version' => $plugin['version'],
+                'description' => $plugin['description'] ?? '',
+                'has_config' => !empty($configSchema),
+                'form_html' => $formHtml,
+                'validation_js' => $validationJs,
+                'csrf_token' => $this->generateCsrfToken()
+            ];
+
+            return $this->htmlResponse(
+                $this->renderer->render('admin/plugins/configure', $data)
+            );
+
+        } catch (\Exception $e) {
+            Logger::error('Failed to show configuration form', [
+                'slug' => $slug,
+                'error' => $e->getMessage()
+            ]);
+            return $this->jsonResponse([
+                'error' => 'Failed to load configuration form: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Save plugin configuration
+     *
+     * POST /admin/plugins/{slug}/configure
+     *
+     * @param string $slug Plugin slug
+     * @param array $postData POST data with configuration values
+     * @return Response JSON response with result
+     */
+    public function saveConfiguration(string $slug, array $postData): Response
+    {
+        try {
+            // Verify CSRF token
+            $csrfToken = $postData['csrf_token'] ?? '';
+            if (!$this->verifyCsrfToken($csrfToken)) {
+                return $this->jsonResponse(['error' => 'Invalid CSRF token'], 403);
+            }
+
+            // Remove CSRF token from config data
+            unset($postData['csrf_token']);
+
+            // Get plugin
+            $plugin = $this->pluginManager->getBySlug($slug);
+            if (!$plugin) {
+                return $this->jsonResponse(['error' => 'Plugin not found'], 404);
+            }
+
+            // Save configuration
+            $result = $this->pluginConfigurator->setConfig($slug, $postData);
+
+            if ($result['success']) {
+                Logger::info('Plugin configuration saved', [
+                    'slug' => $slug,
+                    'keys' => array_keys($result['saved'])
+                ]);
+
+                return $this->jsonResponse([
+                    'success' => true,
+                    'message' => 'Configuration saved successfully',
+                    'saved' => $result['saved']
+                ]);
+            } else {
+                return $this->jsonResponse([
+                    'success' => false,
+                    'errors' => $result['errors']
+                ], 400);
+            }
+
+        } catch (\Exception $e) {
+            Logger::error('Failed to save configuration', [
+                'slug' => $slug,
+                'error' => $e->getMessage()
+            ]);
+            return $this->jsonResponse([
+                'error' => 'Failed to save configuration: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get plugin configuration (API endpoint)
+     *
+     * GET /admin/plugins/{slug}/config
+     *
+     * @param string $slug Plugin slug
+     * @return Response JSON response with configuration
+     */
+    public function getConfiguration(string $slug): Response
+    {
+        try {
+            $config = $this->pluginConfigurator->getConfig($slug);
+
+            return $this->jsonResponse([
+                'success' => true,
+                'config' => $config
+            ]);
+
+        } catch (\Exception $e) {
+            Logger::error('Failed to get configuration', [
+                'slug' => $slug,
+                'error' => $e->getMessage()
+            ]);
+            return $this->jsonResponse([
+                'error' => 'Failed to get configuration: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Reset plugin configuration to defaults
+     *
+     * POST /admin/plugins/{slug}/configure/reset
+     *
+     * @param string $slug Plugin slug
+     * @param array $postData POST data (for CSRF token)
+     * @return Response JSON response with result
+     */
+    public function resetConfiguration(string $slug, array $postData): Response
+    {
+        try {
+            // Verify CSRF token
+            $csrfToken = $postData['csrf_token'] ?? '';
+            if (!$this->verifyCsrfToken($csrfToken)) {
+                return $this->jsonResponse(['error' => 'Invalid CSRF token'], 403);
+            }
+
+            // Get plugin
+            $plugin = $this->pluginManager->getBySlug($slug);
+            if (!$plugin) {
+                return $this->jsonResponse(['error' => 'Plugin not found'], 404);
+            }
+
+            // Reset configuration
+            $result = $this->pluginConfigurator->resetConfig($slug);
+
+            if ($result) {
+                $defaults = $this->pluginConfigurator->getDefaultConfig($slug);
+
+                Logger::info('Plugin configuration reset to defaults', ['slug' => $slug]);
+
+                return $this->jsonResponse([
+                    'success' => true,
+                    'message' => 'Configuration reset to defaults',
+                    'config' => $defaults
+                ]);
+            } else {
+                return $this->jsonResponse([
+                    'success' => false,
+                    'error' => 'Failed to reset configuration'
+                ], 500);
+            }
+
+        } catch (\Exception $e) {
+            Logger::error('Failed to reset configuration', [
+                'slug' => $slug,
+                'error' => $e->getMessage()
+            ]);
+            return $this->jsonResponse([
+                'error' => 'Failed to reset configuration: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
