@@ -22,7 +22,7 @@
     <div class="form-section">
         <form method="POST" action="/admin/permissions/store" class="perm-form">
             <div class="form-card">
-                <h3><i class="bi bi-key"></i> {{#__}}admin.información_del_permiso_1{{/__}}</h3>
+                <h3><i class="bi bi-key"></i> Información del Permiso</h3>
                 <div class="form-group">
                     <label for="name">Nombre *</label>
                     <input type="text" id="name" name="name" class="form-input" value="{{form_data.name}}" required>
@@ -33,15 +33,15 @@
                     <small class="form-help">Formato: modulo.accion (ej: users.create, posts.delete)</small>
                 </div>
                 <div class="form-group">
-                    <label for="module">{{#__}}admin.módulo_1{{/__}}</label>
+                    <label for="module">Módulo *</label>
                     <input type="text" id="module" name="module" class="form-input" value="{{form_data.module}}" list="modules-list" required>
                     <datalist id="modules-list">
                         {{#modules}}<option value="{{.}}">{{/modules}}
                     </datalist>
-                    <small class="form-help">{{#__}}admin.módulo_al_que_pertenece_users_roles_post{{/__}}</small>
+                    <small class="form-help">Módulo al que pertenece (users, roles, posts, etc.)</small>
                 </div>
                 <div class="form-group">
-                    <label for="description">{{#__}}forms.descripción_6{{/__}}</label>
+                    <label for="description">Descripción</label>
                     <textarea id="description" name="description" class="form-textarea" rows="3">{{form_data.description}}</textarea>
                 </div>
             </div>

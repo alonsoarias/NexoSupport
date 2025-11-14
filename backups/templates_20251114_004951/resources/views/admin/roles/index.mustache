@@ -1,8 +1,8 @@
-<!-- {{#__}}admin.gestión_de_roles_2{{/__}} -->
+<!-- Gestión de Roles -->
 <div class="admin-container">
     <div class="admin-header">
         <div>
-            <h2>{{#__}}admin.gestión_de_roles_2{{/__}}</h2>
+            <h2>Gestión de Roles</h2>
             <p class="text-muted">Administra roles y permisos del sistema</p>
         </div>
         <div class="user-actions">
@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <!-- {{#__}}messages.mensajes_de_éxito{{/__}}/error -->
+    <!-- Mensajes de éxito/error -->
     {{#success_message}}
     <div class="alert alert-success">
         <i class="bi bi-check-circle"></i>
@@ -47,7 +47,7 @@
                         <th>Slug</th>
                         <th>Nivel</th>
                         <th>Permisos</th>
-                        <th>{{#__}}forms.descripción_6{{/__}}</th>
+                        <th>Descripción</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -70,7 +70,7 @@
                         </td>
                         <td class="text-secondary">
                             {{#description}}{{description}}{{/description}}
-                            {{^description}}<span class="text-muted">{{#__}}forms.sin_descripción_1{{/__}}</span>{{/description}}
+                            {{^description}}<span class="text-muted">Sin descripción</span>{{/description}}
                         </td>
                         <td>
                             {{#is_system_role}}
@@ -136,19 +136,19 @@
 
     <!-- Links rápidos -->
     <div class="quick-links">
-        <h3><i class="bi bi-link-45deg"></i> {{#__}}admin.acceso_rápido_2{{/__}}</h3>
+        <h3><i class="bi bi-link-45deg"></i> Acceso Rápido</h3>
         <div class="quick-links-grid">
             <a href="/admin/users" class="quick-link-card">
                 <i class="bi bi-people"></i>
                 <div>
-                    <strong>{{#__}}admin.gestión_de_usuarios_5{{/__}}</strong>
+                    <strong>Gestión de Usuarios</strong>
                     <p>Administrar usuarios del sistema</p>
                 </div>
             </a>
             <a href="/admin/permissions" class="quick-link-card">
                 <i class="bi bi-key"></i>
                 <div>
-                    <strong>{{#__}}admin.gestión_de_permisos_2{{/__}}</strong>
+                    <strong>Gestión de Permisos</strong>
                     <p>Administrar permisos por rol</p>
                 </div>
             </a>

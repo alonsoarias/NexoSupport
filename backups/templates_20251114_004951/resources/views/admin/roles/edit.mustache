@@ -33,7 +33,7 @@
         <i class="bi bi-shield-lock"></i>
         <div>
             <strong>Rol del Sistema:</strong>
-            <p>{{#__}}forms.este_es_un_rol_protegido_del_sistema_sol{{/__}}</p>
+            <p>Este es un rol protegido del sistema. Solo puedes modificar la descripción y los permisos asignados. El nombre, slug y nivel están bloqueados para mantener la integridad del sistema.</p>
         </div>
     </div>
     {{/is_system_role}}
@@ -44,9 +44,9 @@
         <form method="POST" action="/admin/roles/update" class="role-form">
             <!-- El ID se maneja en sesión del servidor - sin campos hidden -->
 
-            <!-- {{#__}}admin.información_del_rol_1{{/__}} -->
+            <!-- Información del Rol -->
             <div class="form-card">
-                <h3><i class="bi bi-shield"></i> {{#__}}admin.información_del_rol_1{{/__}}</h3>
+                <h3><i class="bi bi-shield"></i> Información del Rol</h3>
 
                 <div class="form-group">
                     <label for="name">Nombre del Rol *</label>
@@ -61,11 +61,11 @@
                     <label for="slug">Slug</label>
                     <input type="text" id="slug" name="slug" class="form-input"
                            value="{{slug}}" readonly disabled>
-                    <small class="form-help">{{#__}}admin.el_slug_es_un_identificador_único_y_no{{/__}}</small>
+                    <small class="form-help">🔒 El slug es un identificador único y no se puede modificar</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="description">{{#__}}forms.descripción_6{{/__}}</label>
+                    <label for="description">Descripción</label>
                     <textarea id="description" name="description" class="form-textarea"
                               rows="3" placeholder="Describe las responsabilidades y alcance de este rol...">{{description}}</textarea>
                     <small class="form-help">✓ Este campo puede ser modificado</small>

@@ -3,7 +3,7 @@
     <div class="admin-header">
         <div>
             <h2>{{header_title}}</h2>
-            <p class="text-muted">{{#__}}admin.gestión_de_respaldos_de_base_de_datos{{/__}}</p>
+            <p class="text-muted">Gestión de respaldos de base de datos</p>
         </div>
         <div class="admin-user-info">
             <span><i class="bi bi-person-circle"></i> {{current_user.full_name}}</span>
@@ -29,7 +29,7 @@
         <div>
             <strong>Directorio de Respaldos</strong>
             <p><code>{{backup_dir}}</code></p>
-            <p><small>{{#__}}admin.tamaño_total{{/__}} <strong>{{total_backup_size}}</strong></small></p>
+            <p><small>Tamaño total: <strong>{{total_backup_size}}</strong></small></p>
         </div>
     </div>
     {{/is_writable}}
@@ -51,7 +51,7 @@
             <h3><i class="bi bi-cloud-arrow-down"></i> {{translations.create_backup}}</h3>
         </div>
         <div class="section-body">
-            <p>{{#__}}admin.cree_un_nuevo_respaldo_de_la_base_de_dat{{/__}}</p>
+            <p>Cree un nuevo respaldo de la base de datos. Esta operación puede tomar varios minutos según el tamaño de la base de datos.</p>
             <button class="btn btn-primary" id="createBackupBtn" {{^is_writable}}disabled{{/is_writable}}>
                 <i class="bi bi-download"></i> Crear Nuevo Respaldo
             </button>
@@ -125,7 +125,7 @@
         </div>
         <div class="section-body">
             <div class="alert alert-warning" role="alert">
-                <strong>⚠️ Advertencia de Seguridad:</strong> {{#__}}admin.la_restauración_de_respaldos_es_una_oper{{/__}}
+                <strong>⚠️ Advertencia de Seguridad:</strong> La restauración de respaldos es una operación peligrosa que requiere acceso a la línea de comandos del servidor.
             </div>
 
             <h5>Para restaurar un respaldo, use los siguientes comandos en el servidor:</h5>
@@ -141,7 +141,7 @@
             </div>
 
             <div class="alert alert-info" role="alert">
-                <strong>ℹ️ Nota:</strong> {{#__}}help.se_recomienda_hacer_una_copia_de_segurid{{/__}}
+                <strong>ℹ️ Nota:</strong> Se recomienda hacer una copia de seguridad del servidor antes de restaurar cualquier respaldo. Contáctese con el administrador del sistema si necesita ayuda.
             </div>
         </div>
     </div>

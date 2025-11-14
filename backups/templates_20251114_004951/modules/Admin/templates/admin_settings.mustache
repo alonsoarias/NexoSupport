@@ -99,10 +99,10 @@
 
 {{#show_test_email}}
 <div class="settings-section mt-4">
-    <h4><i class="bi bi-envelope-check"></i> {{#__}}forms.probar_configuración_de_email{{/__}}</h4>
+    <h4><i class="bi bi-envelope-check"></i> Probar Configuración de Email</h4>
     <form method="POST" action="/admin/settings.php?section={{current_section}}&action=test_email">
         <div class="mb-3">
-            <label for="test_email_address" class="form-label">{{#__}}admin.dirección_de_prueba{{/__}}</label>
+            <label for="test_email_address" class="form-label">Dirección de Prueba</label>
             <input type="email" class="form-control" id="test_email_address" name="test_email_address" required>
         </div>
         <button type="submit" class="btn btn-success">
