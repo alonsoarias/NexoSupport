@@ -19,6 +19,7 @@ namespace ISER\Plugin;
 
 use ISER\Core\Database\Database;
 use ISER\Core\Database\SchemaInstaller;
+use ISER\Core\Plugin\DependencyResolver;
 use ISER\Core\Utils\Logger;
 use ZipArchive;
 
@@ -48,6 +49,11 @@ class PluginInstaller
      * PluginLoader instance
      */
     private PluginLoader $pluginLoader;
+
+    /**
+     * DependencyResolver instance
+     */
+    private DependencyResolver $dependencyResolver;
 
     /**
      * Base plugins directory
@@ -93,6 +99,7 @@ class PluginInstaller
         $this->db = $db;
         $this->pluginManager = $pluginManager;
         $this->pluginLoader = $pluginLoader;
+        $this->dependencyResolver = new DependencyResolver($db);
 
         // Set plugins directory
         if (empty($pluginsDir)) {
@@ -293,6 +300,244 @@ class PluginInstaller
                 'plugin' => null
             ];
         }
+    }
+
+    /**
+     * Install plugin with automatic dependency resolution
+     *
+     * This method automatically installs all required dependencies
+     * before installing the target plugin. Dependencies are installed
+     * in the correct order based on dependency graph analysis.
+     *
+     * @param string $zipPath Path to plugin ZIP file
+     * @param bool $autoInstallDeps Whether to automatically install dependencies (default: true)
+     * @param array $availablePlugins List of available plugins for dependency resolution (optional)
+     * @return array Installation result with detailed dependency information
+     */
+    public function installWithDependencies(
+        string $zipPath,
+        bool $autoInstallDeps = true,
+        array $availablePlugins = []
+    ): array {
+        $result = [
+            'success' => true,
+            'message' => '',
+            'plugin' => null,
+            'dependencies_installed' => [],
+            'dependencies_skipped' => [],
+            'errors' => [],
+            'warnings' => []
+        ];
+
+        try {
+            // First, extract and validate the target plugin
+            // We need to get its manifest to resolve dependencies
+            $targetManifest = $this->extractManifestFromZip($zipPath);
+
+            if (!$targetManifest) {
+                return [
+                    'success' => false,
+                    'message' => 'Failed to extract plugin manifest from ZIP',
+                    'plugin' => null,
+                    'dependencies_installed' => [],
+                    'dependencies_skipped' => [],
+                    'errors' => ['Invalid ZIP or missing plugin.json'],
+                    'warnings' => []
+                ];
+            }
+
+            $targetSlug = $targetManifest['slug'] ?? 'unknown';
+
+            Logger::info('Starting plugin installation with dependencies', [
+                'target_plugin' => $targetSlug,
+                'auto_install_deps' => $autoInstallDeps
+            ]);
+
+            // Resolve dependencies
+            $depResolution = $this->dependencyResolver->resolveDependencies(
+                $targetSlug,
+                array_merge($availablePlugins, [$targetManifest])
+            );
+
+            if (!$depResolution['success']) {
+                return [
+                    'success' => false,
+                    'message' => 'Dependency resolution failed: ' . implode(', ', $depResolution['errors']),
+                    'plugin' => null,
+                    'dependencies_installed' => [],
+                    'dependencies_skipped' => [],
+                    'errors' => $depResolution['errors'],
+                    'warnings' => $depResolution['warnings']
+                ];
+            }
+
+            $result['warnings'] = $depResolution['warnings'];
+
+            // Get list of dependencies to install (excluding target plugin itself)
+            $depsToInstall = array_filter(
+                $depResolution['dependencies'],
+                fn($slug) => $slug !== $targetSlug
+            );
+
+            Logger::info('Dependencies resolved', [
+                'target_plugin' => $targetSlug,
+                'dependencies_count' => count($depsToInstall),
+                'dependencies' => $depsToInstall
+            ]);
+
+            // Install dependencies if auto-install is enabled
+            if ($autoInstallDeps && !empty($depsToInstall)) {
+                foreach ($depsToInstall as $depSlug) {
+                    // Check if dependency is already installed
+                    $existingDep = $this->pluginManager->getBySlug($depSlug);
+                    if ($existingDep) {
+                        Logger::info('Dependency already installed, skipping', [
+                            'dependency' => $depSlug
+                        ]);
+                        $result['dependencies_skipped'][] = $depSlug;
+                        continue;
+                    }
+
+                    // Find dependency in available plugins
+                    $depZipPath = $this->findPluginZip($depSlug, $availablePlugins);
+
+                    if (!$depZipPath) {
+                        $error = "Dependency not available for installation: {$depSlug}";
+                        $result['errors'][] = $error;
+                        $result['warnings'][] = "Cannot auto-install {$depSlug} - ZIP file not found. Please install manually.";
+                        Logger::warning($error);
+                        continue;
+                    }
+
+                    // Install dependency
+                    Logger::info('Installing dependency', ['dependency' => $depSlug]);
+                    $depInstall = $this->install($depZipPath);
+
+                    if ($depInstall['success']) {
+                        $result['dependencies_installed'][] = $depSlug;
+                        Logger::info('Dependency installed successfully', [
+                            'dependency' => $depSlug
+                        ]);
+                    } else {
+                        $error = "Failed to install dependency {$depSlug}: {$depInstall['message']}";
+                        $result['errors'][] = $error;
+                        $result['success'] = false;
+                        Logger::error($error);
+
+                        // Stop installation if a required dependency fails
+                        return $result;
+                    }
+                }
+            } elseif (!$autoInstallDeps && !empty($depsToInstall)) {
+                // Auto-install disabled but dependencies required
+                $result['warnings'][] = 'Auto-install disabled. The following dependencies must be installed manually: ' .
+                    implode(', ', $depsToInstall);
+            }
+
+            // Install the target plugin
+            Logger::info('Installing target plugin', ['plugin' => $targetSlug]);
+            $targetInstall = $this->install($zipPath);
+
+            if ($targetInstall['success']) {
+                $result['success'] = true;
+                $result['message'] = "Plugin installed successfully";
+                if (!empty($result['dependencies_installed'])) {
+                    $result['message'] .= " (with " . count($result['dependencies_installed']) . " dependencies)";
+                }
+                $result['plugin'] = $targetInstall['plugin'];
+
+                Logger::info('Plugin installation with dependencies completed', [
+                    'plugin' => $targetSlug,
+                    'dependencies_installed' => count($result['dependencies_installed']),
+                    'dependencies_skipped' => count($result['dependencies_skipped'])
+                ]);
+            } else {
+                $result['success'] = false;
+                $result['message'] = "Failed to install plugin: {$targetInstall['message']}";
+                $result['errors'][] = $targetInstall['message'];
+
+                Logger::error('Failed to install target plugin', [
+                    'plugin' => $targetSlug,
+                    'error' => $targetInstall['message']
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            $result['success'] = false;
+            $result['message'] = 'Installation error: ' . $e->getMessage();
+            $result['errors'][] = $e->getMessage();
+
+            Logger::error('Plugin installation with dependencies failed', [
+                'zipPath' => $zipPath,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Extract manifest from ZIP file without installing
+     *
+     * @param string $zipPath Path to ZIP file
+     * @return array|null Manifest data or null on failure
+     */
+    private function extractManifestFromZip(string $zipPath): ?array
+    {
+        try {
+            if (!file_exists($zipPath) || !is_readable($zipPath)) {
+                return null;
+            }
+
+            $zip = new ZipArchive();
+            if ($zip->open($zipPath) !== true) {
+                return null;
+            }
+
+            // Look for plugin.json in ZIP
+            $manifestContent = null;
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $filename = $zip->getNameIndex($i);
+                if (basename($filename) === 'plugin.json') {
+                    $manifestContent = $zip->getFromIndex($i);
+                    break;
+                }
+            }
+
+            $zip->close();
+
+            if (!$manifestContent) {
+                return null;
+            }
+
+            $manifest = json_decode($manifestContent, true);
+            return $manifest ?: null;
+
+        } catch (\Exception $e) {
+            Logger::error('Failed to extract manifest from ZIP', [
+                'zipPath' => $zipPath,
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Find plugin ZIP file by slug
+     *
+     * @param string $slug Plugin slug
+     * @param array $availablePlugins Available plugins with ZIP paths
+     * @return string|null ZIP path or null if not found
+     */
+    private function findPluginZip(string $slug, array $availablePlugins): ?string
+    {
+        foreach ($availablePlugins as $plugin) {
+            if (isset($plugin['slug']) && $plugin['slug'] === $slug && isset($plugin['zip_path'])) {
+                return $plugin['zip_path'];
+            }
+        }
+
+        return null;
     }
 
     /**
