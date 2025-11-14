@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'actualizar_contraseñas' => 'Actualizar contraseñas',
+    'buscar_por_nombre_o_descripción' => 'Search por name or description...',
+    'contraseña' => 'Password *',
+    'contraseñas' => 'Contraseñas',
+    'contraseñas_seguras' => 'Contraseñas seguras',
+    'dejar_en_blanco_para_mantener_la_contras' => 'Dejar in blanco for mantener la password actual',
+    'descripción' => 'Description',
+    'descripción_1' => 'Description',
+    'descripción_2' => 'Description',
+    'descripción_3' => 'Description',
+    'descripción_4' => 'Description',
+    'descripción_5' => 'Description',
+    'descripción_6' => 'Description',
+    'este_es_un_rol_protegido_del_sistema_sol' => 'Este es un role protegido of the system. solo puedes modificar la description and los permissions asignados. el name, slug and nivel están bloqueados for mantener la integridad of the system.',
+    'nombre_de_la_aplicación' => 'Name of the application',
+    'nueva_contraseña' => 'New password',
+    'opcional_proporciona_una_descripción_cla' => 'Opcional: proporciona una description clara of the propósito of the role',
+    'probar_configuración_de_email' => 'Probar configuration de email',
+    'recomienda_a_los_usuarios_cambiar_contra' => 'Recomienda a los users cambiar contraseñas periódicamente.',
+    'sin_descripción' => 'Sin description',
+    'sin_descripción_1' => 'Sin description',
+    'sistema_configurado_con_bcrypt_y_polític' => 'System configurado with bcrypt and políticas de contraseñas fuertes.',
+];

@@ -1,0 +1,2658 @@
+{
+  "metadata": {
+    "extraction_date": "2025-11-14T00:01:10.116562",
+    "base_directory": "/home/user/NexoSupport",
+    "total_files": 40,
+    "total_strings": 150,
+    "unique_strings": 150
+  },
+  "by_category": {
+    "admin": [
+      {
+        "text": "- Configuración de la aplicación",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "- Variables de entorno y configuración principal",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Archivos de Configuración",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Autenticación",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Configuración de Seguridad",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Configuración del Sistema",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Configuración general y parámetros del sistema",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Duración del bloqueo:",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Duración:",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información del Sistema",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "La configuración de seguridad se gestiona a través del archivo",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Longitud mínima:",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Requiere mayúsculas, minúsculas, números y caracteres especiales",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Ubicación de archivos importantes:",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Versión",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Versión de PHP",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Análisis de actividad del sistema",
+        "file": "resources/views/admin/reports.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Dirección IP",
+        "file": "resources/views/admin/reports.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Estadísticas de Login (Últimos 7 Días)",
+        "file": "resources/views/admin/reports.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Reportes y Estadísticas",
+        "file": "resources/views/admin/reports.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Asegúrate de que PHP, dependencias y el sistema operativo estén actualizados.",
+        "file": "resources/views/admin/security.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Dirección IP",
+        "file": "resources/views/admin/security.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "El sistema está seguro",
+        "file": "resources/views/admin/security.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "HttpOnly y SameSite activados para protección contra XSS y CSRF.",
+        "file": "resources/views/admin/security.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Mejores Prácticas",
+        "file": "resources/views/admin/security.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Protección activa contra fuerza bruta (5 intentos = 15 min de bloqueo).",
+        "file": "resources/views/admin/security.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Cerrar Sesión",
+        "file": "resources/views/admin/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Módulos de Administración",
+        "file": "resources/views/admin/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Panel de Administración",
+        "file": "resources/views/admin/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Total del día",
+        "file": "resources/views/admin/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Administración de cuentas de usuario",
+        "file": "resources/views/admin/users.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Usuarios",
+        "file": "resources/views/admin/users.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Altura de Barra de Navegación",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Ancho Máximo del Contenedor",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Configura el diseño general de la interfaz.",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Configuración de Apariencia",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Crea puntos de restauración de tu configuración actual.",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Descarga tu configuración actual o importa una previamente guardada.",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Diseño",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Diseño Predeterminado",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Diseño y Distribución",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Esto restaurará TODA la configuración a los valores predeterminados de fábrica.",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Exportar Configuración (JSON)",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Exportar/Importar Configuración",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Fuente Monoespaciada (Código)",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Fuerza la regeneración del archivo CSS dinámico con la configuración actual.",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Importar Configuración",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "La funcionalidad de carga de logos y favicon estará disponible en la próxima actualización.\n                        Por ahora, puedes configurar URLs directas.",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Navegación Superior",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Personaliza colores, tipografía, marca y diseño del sistema",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Personaliza los colores principales del tema. Los cambios se reflejarán en tiempo real.",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Próximamente:",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Respaldos de Configuración",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Selecciona las fuentes para encabezados, cuerpo y código.",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Tipografía",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Asignación de Roles",
+        "file": "resources/views/admin/users/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información Básica",
+        "file": "resources/views/admin/users/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información Personal",
+        "file": "resources/views/admin/users/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Mínimo 8 caracteres",
+        "file": "resources/views/admin/users/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Selecciona los roles que tendrá este usuario",
+        "file": "resources/views/admin/users/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Asignación de Roles",
+        "file": "resources/views/admin/users/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información Adicional",
+        "file": "resources/views/admin/users/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información Básica",
+        "file": "resources/views/admin/users/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información Personal",
+        "file": "resources/views/admin/users/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Selecciona los roles que tendrá este usuario",
+        "file": "resources/views/admin/users/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Acceso Rápido",
+        "file": "resources/views/admin/users/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Permisos",
+        "file": "resources/views/admin/users/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Roles",
+        "file": "resources/views/admin/users/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Usuarios",
+        "file": "resources/views/admin/users/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información del Rol",
+        "file": "resources/views/admin/roles/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Selecciona los permisos que tendrá este rol. Los usuarios con este rol heredarán estos permisos.",
+        "file": "resources/views/admin/roles/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información del Rol",
+        "file": "resources/views/admin/roles/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "🔒 El slug es un identificador único y no se puede modificar",
+        "file": "resources/views/admin/roles/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Acceso Rápido",
+        "file": "resources/views/admin/roles/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Permisos",
+        "file": "resources/views/admin/roles/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Roles",
+        "file": "resources/views/admin/roles/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Usuarios",
+        "file": "resources/views/admin/roles/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información del Permiso",
+        "file": "resources/views/admin/permissions/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Módulo *",
+        "file": "resources/views/admin/permissions/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Módulo al que pertenece (users, roles, posts, etc.)",
+        "file": "resources/views/admin/permissions/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información Adicional",
+        "file": "resources/views/admin/permissions/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información del Permiso",
+        "file": "resources/views/admin/permissions/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Módulo *",
+        "file": "resources/views/admin/permissions/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Acceso Rápido",
+        "file": "resources/views/admin/permissions/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Administra permisos del sistema agrupados por módulo",
+        "file": "resources/views/admin/permissions/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Permisos",
+        "file": "resources/views/admin/permissions/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Roles",
+        "file": "resources/views/admin/permissions/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Usuarios",
+        "file": "resources/views/admin/permissions/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Autenticación",
+        "file": "resources/views/admin/plugins/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Plugins",
+        "file": "resources/views/admin/plugins/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Usuarios",
+        "file": "resources/views/admin/plugins/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información",
+        "file": "resources/views/admin/plugins/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Integración",
+        "file": "resources/views/admin/plugins/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Módulo",
+        "file": "resources/views/admin/plugins/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Versión:",
+        "file": "resources/views/admin/plugins/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Documentación",
+        "file": "resources/views/admin/plugins/show.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información General",
+        "file": "resources/views/admin/plugins/show.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información de Instalación",
+        "file": "resources/views/admin/plugins/show.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información del Manifiesto",
+        "file": "resources/views/admin/plugins/show.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Versión",
+        "file": "resources/views/admin/plugins/show.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Última actualización",
+        "file": "resources/views/admin/plugins/show.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Cree un nuevo respaldo de la base de datos. Esta operación puede tomar varios minutos según el tamaño de la base de datos.",
+        "file": "resources/views/admin/backup/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de respaldos de base de datos",
+        "file": "resources/views/admin/backup/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "La restauración de respaldos es una operación peligrosa que requiere acceso a la línea de comandos del servidor.",
+        "file": "resources/views/admin/backup/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Tamaño total:",
+        "file": "resources/views/admin/backup/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Cerrar Sesión",
+        "file": "resources/views/admin/logs/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información",
+        "file": "resources/views/admin/logs/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Cerrar Sesión",
+        "file": "resources/views/admin/logs/view.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Dirección IP",
+        "file": "resources/views/admin/logs/view.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Dirección de Prueba",
+        "file": "modules/Admin/templates/admin_settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Versión",
+        "file": "modules/Admin/templates/admin_plugins.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Caché",
+        "file": "modules/Admin/templates/admin_tools.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información del Sistema",
+        "file": "modules/Admin/templates/admin_tools.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Limpiar Caché",
+        "file": "modules/Admin/templates/admin_tools.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Tamaño:",
+        "file": "modules/Admin/templates/admin_tools.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Gestión de Usuarios",
+        "file": "modules/Admin/templates/admin_users.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Acciones Rápidas",
+        "file": "modules/Admin/templates/admin_dashboard.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información del Sistema",
+        "file": "modules/Admin/templates/admin_dashboard.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Versión ISER:",
+        "file": "modules/Admin/templates/admin_dashboard.mustache",
+        "source": "html_content"
+      }
+    ],
+    "forms": [
+      {
+        "text": "Contraseñas",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Nombre de la Aplicación",
+        "file": "resources/views/admin/settings.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Actualizar Contraseñas",
+        "file": "resources/views/admin/security.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Contraseñas Seguras",
+        "file": "resources/views/admin/security.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Recomienda a los usuarios cambiar contraseñas periódicamente.",
+        "file": "resources/views/admin/security.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Sistema configurado con bcrypt y políticas de contraseñas fuertes.",
+        "file": "resources/views/admin/security.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Contraseña *",
+        "file": "resources/views/admin/users/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Dejar en blanco para mantener la contraseña actual",
+        "file": "resources/views/admin/users/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Nueva Contraseña",
+        "file": "resources/views/admin/users/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Descripción",
+        "file": "resources/views/admin/roles/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Opcional: Proporciona una descripción clara del propósito del rol",
+        "file": "resources/views/admin/roles/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Descripción",
+        "file": "resources/views/admin/roles/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Este es un rol protegido del sistema. Solo puedes modificar la descripción y los permisos asignados. El nombre, slug y nivel están bloqueados para mantener la integridad del sistema.",
+        "file": "resources/views/admin/roles/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Descripción",
+        "file": "resources/views/admin/roles/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Sin descripción",
+        "file": "resources/views/admin/roles/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Descripción",
+        "file": "resources/views/admin/permissions/create.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Descripción",
+        "file": "resources/views/admin/permissions/edit.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Descripción",
+        "file": "resources/views/admin/permissions/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Sin descripción",
+        "file": "resources/views/admin/permissions/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Buscar por nombre o descripción...",
+        "file": "resources/views/admin/plugins/index.mustache",
+        "source": "placeholder"
+      },
+      {
+        "text": "Descripción",
+        "file": "resources/views/admin/plugins/show.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Probar Configuración de Email",
+        "file": "modules/Admin/templates/admin_settings.mustache",
+        "source": "html_content"
+      }
+    ],
+    "messages": [
+      {
+        "text": "Tasa de Éxito",
+        "file": "resources/views/admin/reports.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Considera implementar un firewall para IPs con múltiples intentos fallidos.",
+        "file": "resources/views/admin/security.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Mensajes de éxito",
+        "file": "resources/views/admin/appearance.mustache",
+        "source": "html_content"
+      }
+    ],
+    "help": [
+      {
+        "text": "Se recomienda hacer una copia de seguridad del servidor antes de restaurar cualquier respaldo. Contáctese con el administrador del sistema si necesita ayuda.",
+        "file": "resources/views/admin/backup/index.mustache",
+        "source": "html_content"
+      }
+    ],
+    "uncategorized": [
+      {
+        "text": "Correo Electrónico",
+        "file": "resources/views/profile/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Fecha de Creación",
+        "file": "resources/views/profile/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información Personal",
+        "file": "resources/views/profile/index.mustache",
+        "source": "html_content"
+      },
+      {
+        "text": "Información de tu cuenta",
+        "file": "resources/views/profile/index.mustache",
+        "source": "html_content"
+      }
+    ]
+  },
+  "by_file": [
+    {
+      "file": "resources/views/admin/settings.mustache",
+      "strings": [
+        {
+          "text": "- Configuración de la aplicación",
+          "source": "html_content",
+          "length": 32
+        },
+        {
+          "text": "- Variables de entorno y configuración principal",
+          "source": "html_content",
+          "length": 48
+        },
+        {
+          "text": "Archivos de Configuración",
+          "source": "html_content",
+          "length": 25
+        },
+        {
+          "text": "Autenticación",
+          "source": "html_content",
+          "length": 13
+        },
+        {
+          "text": "Configuración de Seguridad",
+          "source": "html_content",
+          "length": 26
+        },
+        {
+          "text": "Configuración del Sistema",
+          "source": "html_content",
+          "length": 25
+        },
+        {
+          "text": "Configuración general y parámetros del sistema",
+          "source": "html_content",
+          "length": 46
+        },
+        {
+          "text": "Contraseñas",
+          "source": "html_content",
+          "length": 11
+        },
+        {
+          "text": "Duración del bloqueo:",
+          "source": "html_content",
+          "length": 21
+        },
+        {
+          "text": "Duración:",
+          "source": "html_content",
+          "length": 9
+        },
+        {
+          "text": "Información del Sistema",
+          "source": "html_content",
+          "length": 23
+        },
+        {
+          "text": "La configuración de seguridad se gestiona a través del archivo",
+          "source": "html_content",
+          "length": 62
+        },
+        {
+          "text": "Longitud mínima:",
+          "source": "html_content",
+          "length": 16
+        },
+        {
+          "text": "Nombre de la Aplicación",
+          "source": "html_content",
+          "length": 23
+        },
+        {
+          "text": "Requiere mayúsculas, minúsculas, números y caracteres especiales",
+          "source": "html_content",
+          "length": 64
+        },
+        {
+          "text": "Ubicación de archivos importantes:",
+          "source": "html_content",
+          "length": 34
+        },
+        {
+          "text": "Versión",
+          "source": "html_content",
+          "length": 7
+        },
+        {
+          "text": "Versión de PHP",
+          "source": "html_content",
+          "length": 14
+        }
+      ],
+      "line_count": 294
+    },
+    {
+      "file": "resources/views/admin/reports.mustache",
+      "strings": [
+        {
+          "text": "Análisis de actividad del sistema",
+          "source": "html_content",
+          "length": 33
+        },
+        {
+          "text": "Dirección IP",
+          "source": "html_content",
+          "length": 12
+        },
+        {
+          "text": "Estadísticas de Login (Últimos 7 Días)",
+          "source": "html_content",
+          "length": 38
+        },
+        {
+          "text": "Reportes y Estadísticas",
+          "source": "html_content",
+          "length": 23
+        },
+        {
+          "text": "Tasa de Éxito",
+          "source": "html_content",
+          "length": 13
+        }
+      ],
+      "line_count": 517
+    },
+    {
+      "file": "resources/views/admin/security.mustache",
+      "strings": [
+        {
+          "text": "Actualizar Contraseñas",
+          "source": "html_content",
+          "length": 22
+        },
+        {
+          "text": "Asegúrate de que PHP, dependencias y el sistema operativo estén actualizados.",
+          "source": "html_content",
+          "length": 77
+        },
+        {
+          "text": "Considera implementar un firewall para IPs con múltiples intentos fallidos.",
+          "source": "html_content",
+          "length": 75
+        },
+        {
+          "text": "Contraseñas Seguras",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Dirección IP",
+          "source": "html_content",
+          "length": 12
+        },
+        {
+          "text": "El sistema está seguro",
+          "source": "html_content",
+          "length": 22
+        },
+        {
+          "text": "HttpOnly y SameSite activados para protección contra XSS y CSRF.",
+          "source": "html_content",
+          "length": 64
+        },
+        {
+          "text": "Mejores Prácticas",
+          "source": "html_content",
+          "length": 17
+        },
+        {
+          "text": "Protección activa contra fuerza bruta (5 intentos = 15 min de bloqueo).",
+          "source": "html_content",
+          "length": 71
+        },
+        {
+          "text": "Recomienda a los usuarios cambiar contraseñas periódicamente.",
+          "source": "html_content",
+          "length": 61
+        },
+        {
+          "text": "Sistema configurado con bcrypt y políticas de contraseñas fuertes.",
+          "source": "html_content",
+          "length": 66
+        }
+      ],
+      "line_count": 570
+    },
+    {
+      "file": "resources/views/admin/index.mustache",
+      "strings": [
+        {
+          "text": "Cerrar Sesión",
+          "source": "html_content",
+          "length": 13
+        },
+        {
+          "text": "Módulos de Administración",
+          "source": "html_content",
+          "length": 25
+        },
+        {
+          "text": "Panel de Administración",
+          "source": "html_content",
+          "length": 23
+        },
+        {
+          "text": "Total del día",
+          "source": "html_content",
+          "length": 13
+        }
+      ],
+      "line_count": 169
+    },
+    {
+      "file": "resources/views/admin/users.mustache",
+      "strings": [
+        {
+          "text": "Administración de cuentas de usuario",
+          "source": "html_content",
+          "length": 36
+        },
+        {
+          "text": "Gestión de Usuarios",
+          "source": "html_content",
+          "length": 19
+        }
+      ],
+      "line_count": 314
+    },
+    {
+      "file": "resources/views/admin/login-history.mustache",
+      "strings": [],
+      "line_count": 782
+    },
+    {
+      "file": "resources/views/admin/appearance.mustache",
+      "strings": [
+        {
+          "text": "Altura de Barra de Navegación",
+          "source": "html_content",
+          "length": 29
+        },
+        {
+          "text": "Ancho Máximo del Contenedor",
+          "source": "html_content",
+          "length": 27
+        },
+        {
+          "text": "Configura el diseño general de la interfaz.",
+          "source": "html_content",
+          "length": 43
+        },
+        {
+          "text": "Configuración de Apariencia",
+          "source": "html_content",
+          "length": 27
+        },
+        {
+          "text": "Crea puntos de restauración de tu configuración actual.",
+          "source": "html_content",
+          "length": 55
+        },
+        {
+          "text": "Descarga tu configuración actual o importa una previamente guardada.",
+          "source": "html_content",
+          "length": 68
+        },
+        {
+          "text": "Diseño",
+          "source": "html_content",
+          "length": 6
+        },
+        {
+          "text": "Diseño Predeterminado",
+          "source": "html_content",
+          "length": 21
+        },
+        {
+          "text": "Diseño y Distribución",
+          "source": "html_content",
+          "length": 21
+        },
+        {
+          "text": "Esto restaurará TODA la configuración a los valores predeterminados de fábrica.",
+          "source": "html_content",
+          "length": 79
+        },
+        {
+          "text": "Exportar Configuración (JSON)",
+          "source": "html_content",
+          "length": 29
+        },
+        {
+          "text": "Exportar/Importar Configuración",
+          "source": "html_content",
+          "length": 31
+        },
+        {
+          "text": "Fuente Monoespaciada (Código)",
+          "source": "html_content",
+          "length": 29
+        },
+        {
+          "text": "Fuerza la regeneración del archivo CSS dinámico con la configuración actual.",
+          "source": "html_content",
+          "length": 76
+        },
+        {
+          "text": "Importar Configuración",
+          "source": "html_content",
+          "length": 22
+        },
+        {
+          "text": "Información",
+          "source": "html_content",
+          "length": 11
+        },
+        {
+          "text": "La funcionalidad de carga de logos y favicon estará disponible en la próxima actualización.\n                        Por ahora, puedes configurar URLs directas.",
+          "source": "html_content",
+          "length": 159
+        },
+        {
+          "text": "Mensajes de éxito",
+          "source": "html_content",
+          "length": 17
+        },
+        {
+          "text": "Navegación Superior",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Personaliza colores, tipografía, marca y diseño del sistema",
+          "source": "html_content",
+          "length": 59
+        },
+        {
+          "text": "Personaliza los colores principales del tema. Los cambios se reflejarán en tiempo real.",
+          "source": "html_content",
+          "length": 87
+        },
+        {
+          "text": "Próximamente:",
+          "source": "html_content",
+          "length": 13
+        },
+        {
+          "text": "Respaldos de Configuración",
+          "source": "html_content",
+          "length": 26
+        },
+        {
+          "text": "Selecciona las fuentes para encabezados, cuerpo y código.",
+          "source": "html_content",
+          "length": 57
+        },
+        {
+          "text": "Tipografía",
+          "source": "html_content",
+          "length": 10
+        }
+      ],
+      "line_count": 819
+    },
+    {
+      "file": "resources/views/admin/users/create.mustache",
+      "strings": [
+        {
+          "text": "Asignación de Roles",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Contraseña *",
+          "source": "html_content",
+          "length": 12
+        },
+        {
+          "text": "Información Básica",
+          "source": "html_content",
+          "length": 18
+        },
+        {
+          "text": "Información Personal",
+          "source": "html_content",
+          "length": 20
+        },
+        {
+          "text": "Mínimo 8 caracteres",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Selecciona los roles que tendrá este usuario",
+          "source": "html_content",
+          "length": 44
+        }
+      ],
+      "line_count": 366
+    },
+    {
+      "file": "resources/views/admin/users/edit.mustache",
+      "strings": [
+        {
+          "text": "Asignación de Roles",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Dejar en blanco para mantener la contraseña actual",
+          "source": "html_content",
+          "length": 50
+        },
+        {
+          "text": "Información Adicional",
+          "source": "html_content",
+          "length": 21
+        },
+        {
+          "text": "Información Básica",
+          "source": "html_content",
+          "length": 18
+        },
+        {
+          "text": "Información Personal",
+          "source": "html_content",
+          "length": 20
+        },
+        {
+          "text": "Nueva Contraseña",
+          "source": "html_content",
+          "length": 16
+        },
+        {
+          "text": "Selecciona los roles que tendrá este usuario",
+          "source": "html_content",
+          "length": 44
+        }
+      ],
+      "line_count": 459
+    },
+    {
+      "file": "resources/views/admin/users/index.mustache",
+      "strings": [
+        {
+          "text": "Acceso Rápido",
+          "source": "html_content",
+          "length": 13
+        },
+        {
+          "text": "Gestión de Permisos",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Gestión de Roles",
+          "source": "html_content",
+          "length": 16
+        },
+        {
+          "text": "Gestión de Usuarios",
+          "source": "html_content",
+          "length": 19
+        }
+      ],
+      "line_count": 607
+    },
+    {
+      "file": "resources/views/admin/roles/create.mustache",
+      "strings": [
+        {
+          "text": "Descripción",
+          "source": "html_content",
+          "length": 11
+        },
+        {
+          "text": "Información del Rol",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Opcional: Proporciona una descripción clara del propósito del rol",
+          "source": "html_content",
+          "length": 65
+        },
+        {
+          "text": "Selecciona los permisos que tendrá este rol. Los usuarios con este rol heredarán estos permisos.",
+          "source": "html_content",
+          "length": 96
+        }
+      ],
+      "line_count": 451
+    },
+    {
+      "file": "resources/views/admin/roles/edit.mustache",
+      "strings": [
+        {
+          "text": "Descripción",
+          "source": "html_content",
+          "length": 11
+        },
+        {
+          "text": "Este es un rol protegido del sistema. Solo puedes modificar la descripción y los permisos asignados. El nombre, slug y nivel están bloqueados para mantener la integridad del sistema.",
+          "source": "html_content",
+          "length": 182
+        },
+        {
+          "text": "Información del Rol",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "🔒 El slug es un identificador único y no se puede modificar",
+          "source": "html_content",
+          "length": 59
+        }
+      ],
+      "line_count": 578
+    },
+    {
+      "file": "resources/views/admin/roles/index.mustache",
+      "strings": [
+        {
+          "text": "Acceso Rápido",
+          "source": "html_content",
+          "length": 13
+        },
+        {
+          "text": "Descripción",
+          "source": "html_content",
+          "length": 11
+        },
+        {
+          "text": "Gestión de Permisos",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Gestión de Roles",
+          "source": "html_content",
+          "length": 16
+        },
+        {
+          "text": "Gestión de Usuarios",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Sin descripción",
+          "source": "html_content",
+          "length": 15
+        }
+      ],
+      "line_count": 590
+    },
+    {
+      "file": "resources/views/admin/permissions/create.mustache",
+      "strings": [
+        {
+          "text": "Descripción",
+          "source": "html_content",
+          "length": 11
+        },
+        {
+          "text": "Información del Permiso",
+          "source": "html_content",
+          "length": 23
+        },
+        {
+          "text": "Módulo *",
+          "source": "html_content",
+          "length": 8
+        },
+        {
+          "text": "Módulo al que pertenece (users, roles, posts, etc.)",
+          "source": "html_content",
+          "length": 51
+        }
+      ],
+      "line_count": 63
+    },
+    {
+      "file": "resources/views/admin/permissions/edit.mustache",
+      "strings": [
+        {
+          "text": "Descripción",
+          "source": "html_content",
+          "length": 11
+        },
+        {
+          "text": "Información Adicional",
+          "source": "html_content",
+          "length": 21
+        },
+        {
+          "text": "Información del Permiso",
+          "source": "html_content",
+          "length": 23
+        },
+        {
+          "text": "Módulo *",
+          "source": "html_content",
+          "length": 8
+        }
+      ],
+      "line_count": 82
+    },
+    {
+      "file": "resources/views/admin/permissions/index.mustache",
+      "strings": [
+        {
+          "text": "Acceso Rápido",
+          "source": "html_content",
+          "length": 13
+        },
+        {
+          "text": "Administra permisos del sistema agrupados por módulo",
+          "source": "html_content",
+          "length": 52
+        },
+        {
+          "text": "Descripción",
+          "source": "html_content",
+          "length": 11
+        },
+        {
+          "text": "Gestión de Permisos",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Gestión de Roles",
+          "source": "html_content",
+          "length": 16
+        },
+        {
+          "text": "Gestión de Usuarios",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Sin descripción",
+          "source": "html_content",
+          "length": 15
+        }
+      ],
+      "line_count": 554
+    },
+    {
+      "file": "resources/views/admin/plugins/index.mustache",
+      "strings": [
+        {
+          "text": "Autenticación",
+          "source": "html_content",
+          "length": 13
+        },
+        {
+          "text": "Buscar por nombre o descripción...",
+          "source": "placeholder",
+          "length": 34
+        },
+        {
+          "text": "Gestión de Plugins",
+          "source": "html_content",
+          "length": 18
+        },
+        {
+          "text": "Gestión de Usuarios",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Información",
+          "source": "html_content",
+          "length": 11
+        },
+        {
+          "text": "Integración",
+          "source": "html_content",
+          "length": 11
+        },
+        {
+          "text": "Módulo",
+          "source": "html_content",
+          "length": 6
+        },
+        {
+          "text": "Versión:",
+          "source": "html_content",
+          "length": 8
+        }
+      ],
+      "line_count": 841
+    },
+    {
+      "file": "resources/views/admin/plugins/upload.mustache",
+      "strings": [],
+      "line_count": 533
+    },
+    {
+      "file": "resources/views/admin/plugins/show.mustache",
+      "strings": [
+        {
+          "text": "Descripción",
+          "source": "html_content",
+          "length": 11
+        },
+        {
+          "text": "Documentación",
+          "source": "html_content",
+          "length": 13
+        },
+        {
+          "text": "Información General",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Información de Instalación",
+          "source": "html_content",
+          "length": 26
+        },
+        {
+          "text": "Información del Manifiesto",
+          "source": "html_content",
+          "length": 26
+        },
+        {
+          "text": "Versión",
+          "source": "html_content",
+          "length": 7
+        },
+        {
+          "text": "Última actualización",
+          "source": "html_content",
+          "length": 20
+        }
+      ],
+      "line_count": 1085
+    },
+    {
+      "file": "resources/views/admin/theme/preview.mustache",
+      "strings": [],
+      "line_count": 653
+    },
+    {
+      "file": "resources/views/admin/settings/index.mustache",
+      "strings": [],
+      "line_count": 814
+    },
+    {
+      "file": "resources/views/admin/email-queue/index.mustache",
+      "strings": [],
+      "line_count": 525
+    },
+    {
+      "file": "resources/views/admin/email-queue/view.mustache",
+      "strings": [],
+      "line_count": 357
+    },
+    {
+      "file": "resources/views/admin/appearance/index.mustache",
+      "strings": [],
+      "line_count": 246
+    },
+    {
+      "file": "resources/views/admin/audit/index.mustache",
+      "strings": [],
+      "line_count": 649
+    },
+    {
+      "file": "resources/views/admin/audit/view.mustache",
+      "strings": [],
+      "line_count": 519
+    },
+    {
+      "file": "resources/views/admin/backup/index.mustache",
+      "strings": [
+        {
+          "text": "Cree un nuevo respaldo de la base de datos. Esta operación puede tomar varios minutos según el tamaño de la base de datos.",
+          "source": "html_content",
+          "length": 122
+        },
+        {
+          "text": "Gestión de respaldos de base de datos",
+          "source": "html_content",
+          "length": 37
+        },
+        {
+          "text": "La restauración de respaldos es una operación peligrosa que requiere acceso a la línea de comandos del servidor.",
+          "source": "html_content",
+          "length": 112
+        },
+        {
+          "text": "Se recomienda hacer una copia de seguridad del servidor antes de restaurar cualquier respaldo. Contáctese con el administrador del sistema si necesita ayuda.",
+          "source": "html_content",
+          "length": 157
+        },
+        {
+          "text": "Tamaño total:",
+          "source": "html_content",
+          "length": 13
+        }
+      ],
+      "line_count": 344
+    },
+    {
+      "file": "resources/views/admin/logs/index.mustache",
+      "strings": [
+        {
+          "text": "Cerrar Sesión",
+          "source": "html_content",
+          "length": 13
+        },
+        {
+          "text": "Información",
+          "source": "html_content",
+          "length": 11
+        }
+      ],
+      "line_count": 375
+    },
+    {
+      "file": "resources/views/admin/logs/view.mustache",
+      "strings": [
+        {
+          "text": "Cerrar Sesión",
+          "source": "html_content",
+          "length": 13
+        },
+        {
+          "text": "Dirección IP",
+          "source": "html_content",
+          "length": 12
+        }
+      ],
+      "line_count": 378
+    },
+    {
+      "file": "resources/views/auth/login.mustache",
+      "strings": [],
+      "line_count": 188
+    },
+    {
+      "file": "resources/views/auth/forgot-password.mustache",
+      "strings": [],
+      "line_count": 168
+    },
+    {
+      "file": "resources/views/auth/reset-password.mustache",
+      "strings": [],
+      "line_count": 230
+    },
+    {
+      "file": "resources/views/dashboard/index.mustache",
+      "strings": [],
+      "line_count": 176
+    },
+    {
+      "file": "resources/views/profile/index.mustache",
+      "strings": [
+        {
+          "text": "Correo Electrónico",
+          "source": "html_content",
+          "length": 18
+        },
+        {
+          "text": "Fecha de Creación",
+          "source": "html_content",
+          "length": 17
+        },
+        {
+          "text": "Información Personal",
+          "source": "html_content",
+          "length": 20
+        },
+        {
+          "text": "Información de tu cuenta",
+          "source": "html_content",
+          "length": 24
+        }
+      ],
+      "line_count": 47
+    },
+    {
+      "file": "modules/Admin/templates/admin_settings.mustache",
+      "strings": [
+        {
+          "text": "Dirección de Prueba",
+          "source": "html_content",
+          "length": 19
+        },
+        {
+          "text": "Probar Configuración de Email",
+          "source": "html_content",
+          "length": 29
+        }
+      ],
+      "line_count": 114
+    },
+    {
+      "file": "modules/Admin/templates/admin_layout.mustache",
+      "strings": [],
+      "line_count": 209
+    },
+    {
+      "file": "modules/Admin/templates/admin_plugins.mustache",
+      "strings": [
+        {
+          "text": "Versión",
+          "source": "html_content",
+          "length": 7
+        }
+      ],
+      "line_count": 91
+    },
+    {
+      "file": "modules/Admin/templates/admin_tools.mustache",
+      "strings": [
+        {
+          "text": "Caché",
+          "source": "html_content",
+          "length": 5
+        },
+        {
+          "text": "Información del Sistema",
+          "source": "html_content",
+          "length": 23
+        },
+        {
+          "text": "Limpiar Caché",
+          "source": "html_content",
+          "length": 13
+        },
+        {
+          "text": "Tamaño:",
+          "source": "html_content",
+          "length": 7
+        }
+      ],
+      "line_count": 64
+    },
+    {
+      "file": "modules/Admin/templates/admin_users.mustache",
+      "strings": [
+        {
+          "text": "Gestión de Usuarios",
+          "source": "html_content",
+          "length": 19
+        }
+      ],
+      "line_count": 140
+    },
+    {
+      "file": "modules/Admin/templates/admin_dashboard.mustache",
+      "strings": [
+        {
+          "text": "Acciones Rápidas",
+          "source": "html_content",
+          "length": 16
+        },
+        {
+          "text": "Información del Sistema",
+          "source": "html_content",
+          "length": 23
+        },
+        {
+          "text": "Versión ISER:",
+          "source": "html_content",
+          "length": 13
+        }
+      ],
+      "line_count": 177
+    }
+  ],
+  "translation_keys": {
+    "admin.configuración_de_la_aplicación": {
+      "spanish": "- Configuración de la aplicación",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.variables_de_entorno_y_configuración_pr": {
+      "spanish": "- Variables de entorno y configuración principal",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.archivos_de_configuración": {
+      "spanish": "Archivos de Configuración",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.autenticación": {
+      "spanish": "Autenticación",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.configuración_de_seguridad": {
+      "spanish": "Configuración de Seguridad",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.configuración_del_sistema": {
+      "spanish": "Configuración del Sistema",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.configuración_general_y_parámetros_del_s": {
+      "spanish": "Configuración general y parámetros del sistema",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.duración_del_bloqueo": {
+      "spanish": "Duración del bloqueo:",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.duración": {
+      "spanish": "Duración:",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.información_del_sistema": {
+      "spanish": "Información del Sistema",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.la_configuración_de_seguridad_se_gestion": {
+      "spanish": "La configuración de seguridad se gestiona a través del archivo",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.longitud_mínima": {
+      "spanish": "Longitud mínima:",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.requiere_mayúsculas_minúsculas_números_y": {
+      "spanish": "Requiere mayúsculas, minúsculas, números y caracteres especiales",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.ubicación_de_archivos_importantes": {
+      "spanish": "Ubicación de archivos importantes:",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.versión": {
+      "spanish": "Versión",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.versión_de_php": {
+      "spanish": "Versión de PHP",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "admin.análisis_de_actividad_del_sistema": {
+      "spanish": "Análisis de actividad del sistema",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/reports.mustache"
+    },
+    "admin.dirección_ip": {
+      "spanish": "Dirección IP",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/reports.mustache"
+    },
+    "admin.estadísticas_de_login_últimos_7_días": {
+      "spanish": "Estadísticas de Login (Últimos 7 Días)",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/reports.mustache"
+    },
+    "admin.reportes_y_estadísticas": {
+      "spanish": "Reportes y Estadísticas",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/reports.mustache"
+    },
+    "admin.asegúrate_de_que_php_dependencias_y_el_s": {
+      "spanish": "Asegúrate de que PHP, dependencias y el sistema operativo estén actualizados.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/security.mustache"
+    },
+    "admin.dirección_ip_1": {
+      "spanish": "Dirección IP",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/security.mustache"
+    },
+    "admin.el_sistema_está_seguro": {
+      "spanish": "El sistema está seguro",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/security.mustache"
+    },
+    "admin.httponly_y_samesite_activados_para_prote": {
+      "spanish": "HttpOnly y SameSite activados para protección contra XSS y CSRF.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/security.mustache"
+    },
+    "admin.mejores_prácticas": {
+      "spanish": "Mejores Prácticas",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/security.mustache"
+    },
+    "admin.protección_activa_contra_fuerza_bruta_5": {
+      "spanish": "Protección activa contra fuerza bruta (5 intentos = 15 min de bloqueo).",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/security.mustache"
+    },
+    "admin.cerrar_sesión": {
+      "spanish": "Cerrar Sesión",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/index.mustache"
+    },
+    "admin.módulos_de_administración": {
+      "spanish": "Módulos de Administración",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/index.mustache"
+    },
+    "admin.panel_de_administración": {
+      "spanish": "Panel de Administración",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/index.mustache"
+    },
+    "admin.total_del_día": {
+      "spanish": "Total del día",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/index.mustache"
+    },
+    "admin.administración_de_cuentas_de_usuario": {
+      "spanish": "Administración de cuentas de usuario",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users.mustache"
+    },
+    "admin.gestión_de_usuarios": {
+      "spanish": "Gestión de Usuarios",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users.mustache"
+    },
+    "admin.altura_de_barra_de_navegación": {
+      "spanish": "Altura de Barra de Navegación",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.ancho_máximo_del_contenedor": {
+      "spanish": "Ancho Máximo del Contenedor",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.configura_el_diseño_general_de_la_interf": {
+      "spanish": "Configura el diseño general de la interfaz.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.configuración_de_apariencia": {
+      "spanish": "Configuración de Apariencia",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.crea_puntos_de_restauración_de_tu_config": {
+      "spanish": "Crea puntos de restauración de tu configuración actual.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.descarga_tu_configuración_actual_o_impor": {
+      "spanish": "Descarga tu configuración actual o importa una previamente guardada.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.diseño": {
+      "spanish": "Diseño",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.diseño_predeterminado": {
+      "spanish": "Diseño Predeterminado",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.diseño_y_distribución": {
+      "spanish": "Diseño y Distribución",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.esto_restaurará_toda_la_configuración_a": {
+      "spanish": "Esto restaurará TODA la configuración a los valores predeterminados de fábrica.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.exportar_configuración_json": {
+      "spanish": "Exportar Configuración (JSON)",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.exportarimportar_configuración": {
+      "spanish": "Exportar/Importar Configuración",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.fuente_monoespaciada_código": {
+      "spanish": "Fuente Monoespaciada (Código)",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.fuerza_la_regeneración_del_archivo_css_d": {
+      "spanish": "Fuerza la regeneración del archivo CSS dinámico con la configuración actual.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.importar_configuración": {
+      "spanish": "Importar Configuración",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.información": {
+      "spanish": "Información",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.la_funcionalidad_de_carga_de_logos_y_fav": {
+      "spanish": "La funcionalidad de carga de logos y favicon estará disponible en la próxima actualización.\n                        Por ahora, puedes configurar URLs directas.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.navegación_superior": {
+      "spanish": "Navegación Superior",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.personaliza_colores_tipografía_marca_y_d": {
+      "spanish": "Personaliza colores, tipografía, marca y diseño del sistema",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.personaliza_los_colores_principales_del": {
+      "spanish": "Personaliza los colores principales del tema. Los cambios se reflejarán en tiempo real.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.próximamente": {
+      "spanish": "Próximamente:",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.respaldos_de_configuración": {
+      "spanish": "Respaldos de Configuración",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.selecciona_las_fuentes_para_encabezados": {
+      "spanish": "Selecciona las fuentes para encabezados, cuerpo y código.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.tipografía": {
+      "spanish": "Tipografía",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "admin.asignación_de_roles": {
+      "spanish": "Asignación de Roles",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/create.mustache"
+    },
+    "admin.información_básica": {
+      "spanish": "Información Básica",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/create.mustache"
+    },
+    "admin.información_personal": {
+      "spanish": "Información Personal",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/create.mustache"
+    },
+    "admin.mínimo_8_caracteres": {
+      "spanish": "Mínimo 8 caracteres",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/create.mustache"
+    },
+    "admin.selecciona_los_roles_que_tendrá_este_usu": {
+      "spanish": "Selecciona los roles que tendrá este usuario",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/create.mustache"
+    },
+    "admin.asignación_de_roles_1": {
+      "spanish": "Asignación de Roles",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/edit.mustache"
+    },
+    "admin.información_adicional": {
+      "spanish": "Información Adicional",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/edit.mustache"
+    },
+    "admin.información_básica_1": {
+      "spanish": "Información Básica",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/edit.mustache"
+    },
+    "admin.información_personal_1": {
+      "spanish": "Información Personal",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/edit.mustache"
+    },
+    "admin.selecciona_los_roles_que_tendrá_este_usu_1": {
+      "spanish": "Selecciona los roles que tendrá este usuario",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/edit.mustache"
+    },
+    "admin.acceso_rápido": {
+      "spanish": "Acceso Rápido",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/index.mustache"
+    },
+    "admin.gestión_de_permisos": {
+      "spanish": "Gestión de Permisos",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/index.mustache"
+    },
+    "admin.gestión_de_roles": {
+      "spanish": "Gestión de Roles",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/index.mustache"
+    },
+    "admin.gestión_de_usuarios_1": {
+      "spanish": "Gestión de Usuarios",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/users/index.mustache"
+    },
+    "admin.información_del_rol": {
+      "spanish": "Información del Rol",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/roles/create.mustache"
+    },
+    "admin.selecciona_los_permisos_que_tendrá_este": {
+      "spanish": "Selecciona los permisos que tendrá este rol. Los usuarios con este rol heredarán estos permisos.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/roles/create.mustache"
+    },
+    "admin.información_del_rol_1": {
+      "spanish": "Información del Rol",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/roles/edit.mustache"
+    },
+    "admin.el_slug_es_un_identificador_único_y_no": {
+      "spanish": "🔒 El slug es un identificador único y no se puede modificar",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/roles/edit.mustache"
+    },
+    "admin.acceso_rápido_1": {
+      "spanish": "Acceso Rápido",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/roles/index.mustache"
+    },
+    "admin.gestión_de_permisos_1": {
+      "spanish": "Gestión de Permisos",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/roles/index.mustache"
+    },
+    "admin.gestión_de_roles_1": {
+      "spanish": "Gestión de Roles",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/roles/index.mustache"
+    },
+    "admin.gestión_de_usuarios_2": {
+      "spanish": "Gestión de Usuarios",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/roles/index.mustache"
+    },
+    "admin.información_del_permiso": {
+      "spanish": "Información del Permiso",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/permissions/create.mustache"
+    },
+    "admin.módulo": {
+      "spanish": "Módulo *",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/permissions/create.mustache"
+    },
+    "admin.módulo_al_que_pertenece_users_roles_post": {
+      "spanish": "Módulo al que pertenece (users, roles, posts, etc.)",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/permissions/create.mustache"
+    },
+    "admin.información_adicional_1": {
+      "spanish": "Información Adicional",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/permissions/edit.mustache"
+    },
+    "admin.información_del_permiso_1": {
+      "spanish": "Información del Permiso",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/permissions/edit.mustache"
+    },
+    "admin.módulo_1": {
+      "spanish": "Módulo *",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/permissions/edit.mustache"
+    },
+    "admin.acceso_rápido_2": {
+      "spanish": "Acceso Rápido",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/permissions/index.mustache"
+    },
+    "admin.administra_permisos_del_sistema_agrupado": {
+      "spanish": "Administra permisos del sistema agrupados por módulo",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/permissions/index.mustache"
+    },
+    "admin.gestión_de_permisos_2": {
+      "spanish": "Gestión de Permisos",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/permissions/index.mustache"
+    },
+    "admin.gestión_de_roles_2": {
+      "spanish": "Gestión de Roles",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/permissions/index.mustache"
+    },
+    "admin.gestión_de_usuarios_3": {
+      "spanish": "Gestión de Usuarios",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/permissions/index.mustache"
+    },
+    "admin.autenticación_1": {
+      "spanish": "Autenticación",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/index.mustache"
+    },
+    "admin.gestión_de_plugins": {
+      "spanish": "Gestión de Plugins",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/index.mustache"
+    },
+    "admin.gestión_de_usuarios_4": {
+      "spanish": "Gestión de Usuarios",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/index.mustache"
+    },
+    "admin.información_1": {
+      "spanish": "Información",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/index.mustache"
+    },
+    "admin.integración": {
+      "spanish": "Integración",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/index.mustache"
+    },
+    "admin.módulo_2": {
+      "spanish": "Módulo",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/index.mustache"
+    },
+    "admin.versión_1": {
+      "spanish": "Versión:",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/index.mustache"
+    },
+    "admin.documentación": {
+      "spanish": "Documentación",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/show.mustache"
+    },
+    "admin.información_general": {
+      "spanish": "Información General",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/show.mustache"
+    },
+    "admin.información_de_instalación": {
+      "spanish": "Información de Instalación",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/show.mustache"
+    },
+    "admin.información_del_manifiesto": {
+      "spanish": "Información del Manifiesto",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/show.mustache"
+    },
+    "admin.versión_2": {
+      "spanish": "Versión",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/show.mustache"
+    },
+    "admin.última_actualización": {
+      "spanish": "Última actualización",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/plugins/show.mustache"
+    },
+    "admin.cree_un_nuevo_respaldo_de_la_base_de_dat": {
+      "spanish": "Cree un nuevo respaldo de la base de datos. Esta operación puede tomar varios minutos según el tamaño de la base de datos.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/backup/index.mustache"
+    },
+    "admin.gestión_de_respaldos_de_base_de_datos": {
+      "spanish": "Gestión de respaldos de base de datos",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/backup/index.mustache"
+    },
+    "admin.la_restauración_de_respaldos_es_una_oper": {
+      "spanish": "La restauración de respaldos es una operación peligrosa que requiere acceso a la línea de comandos del servidor.",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/backup/index.mustache"
+    },
+    "admin.tamaño_total": {
+      "spanish": "Tamaño total:",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/backup/index.mustache"
+    },
+    "admin.cerrar_sesión_1": {
+      "spanish": "Cerrar Sesión",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/logs/index.mustache"
+    },
+    "admin.información_2": {
+      "spanish": "Información",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/logs/index.mustache"
+    },
+    "admin.cerrar_sesión_2": {
+      "spanish": "Cerrar Sesión",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/logs/view.mustache"
+    },
+    "admin.dirección_ip_2": {
+      "spanish": "Dirección IP",
+      "english": "",
+      "category": "admin",
+      "source_file": "resources/views/admin/logs/view.mustache"
+    },
+    "admin.dirección_de_prueba": {
+      "spanish": "Dirección de Prueba",
+      "english": "",
+      "category": "admin",
+      "source_file": "modules/Admin/templates/admin_settings.mustache"
+    },
+    "admin.versión_3": {
+      "spanish": "Versión",
+      "english": "",
+      "category": "admin",
+      "source_file": "modules/Admin/templates/admin_plugins.mustache"
+    },
+    "admin.caché": {
+      "spanish": "Caché",
+      "english": "",
+      "category": "admin",
+      "source_file": "modules/Admin/templates/admin_tools.mustache"
+    },
+    "admin.información_del_sistema_1": {
+      "spanish": "Información del Sistema",
+      "english": "",
+      "category": "admin",
+      "source_file": "modules/Admin/templates/admin_tools.mustache"
+    },
+    "admin.limpiar_caché": {
+      "spanish": "Limpiar Caché",
+      "english": "",
+      "category": "admin",
+      "source_file": "modules/Admin/templates/admin_tools.mustache"
+    },
+    "admin.tamaño": {
+      "spanish": "Tamaño:",
+      "english": "",
+      "category": "admin",
+      "source_file": "modules/Admin/templates/admin_tools.mustache"
+    },
+    "admin.gestión_de_usuarios_5": {
+      "spanish": "Gestión de Usuarios",
+      "english": "",
+      "category": "admin",
+      "source_file": "modules/Admin/templates/admin_users.mustache"
+    },
+    "admin.acciones_rápidas": {
+      "spanish": "Acciones Rápidas",
+      "english": "",
+      "category": "admin",
+      "source_file": "modules/Admin/templates/admin_dashboard.mustache"
+    },
+    "admin.información_del_sistema_2": {
+      "spanish": "Información del Sistema",
+      "english": "",
+      "category": "admin",
+      "source_file": "modules/Admin/templates/admin_dashboard.mustache"
+    },
+    "admin.versión_iser": {
+      "spanish": "Versión ISER:",
+      "english": "",
+      "category": "admin",
+      "source_file": "modules/Admin/templates/admin_dashboard.mustache"
+    },
+    "forms.contraseñas": {
+      "spanish": "Contraseñas",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "forms.nombre_de_la_aplicación": {
+      "spanish": "Nombre de la Aplicación",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/settings.mustache"
+    },
+    "forms.actualizar_contraseñas": {
+      "spanish": "Actualizar Contraseñas",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/security.mustache"
+    },
+    "forms.contraseñas_seguras": {
+      "spanish": "Contraseñas Seguras",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/security.mustache"
+    },
+    "forms.recomienda_a_los_usuarios_cambiar_contra": {
+      "spanish": "Recomienda a los usuarios cambiar contraseñas periódicamente.",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/security.mustache"
+    },
+    "forms.sistema_configurado_con_bcrypt_y_polític": {
+      "spanish": "Sistema configurado con bcrypt y políticas de contraseñas fuertes.",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/security.mustache"
+    },
+    "forms.contraseña": {
+      "spanish": "Contraseña *",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/users/create.mustache"
+    },
+    "forms.dejar_en_blanco_para_mantener_la_contras": {
+      "spanish": "Dejar en blanco para mantener la contraseña actual",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/users/edit.mustache"
+    },
+    "forms.nueva_contraseña": {
+      "spanish": "Nueva Contraseña",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/users/edit.mustache"
+    },
+    "forms.descripción": {
+      "spanish": "Descripción",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/roles/create.mustache"
+    },
+    "forms.opcional_proporciona_una_descripción_cla": {
+      "spanish": "Opcional: Proporciona una descripción clara del propósito del rol",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/roles/create.mustache"
+    },
+    "forms.descripción_1": {
+      "spanish": "Descripción",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/roles/edit.mustache"
+    },
+    "forms.este_es_un_rol_protegido_del_sistema_sol": {
+      "spanish": "Este es un rol protegido del sistema. Solo puedes modificar la descripción y los permisos asignados. El nombre, slug y nivel están bloqueados para mantener la integridad del sistema.",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/roles/edit.mustache"
+    },
+    "forms.descripción_2": {
+      "spanish": "Descripción",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/roles/index.mustache"
+    },
+    "forms.sin_descripción": {
+      "spanish": "Sin descripción",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/roles/index.mustache"
+    },
+    "forms.descripción_3": {
+      "spanish": "Descripción",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/permissions/create.mustache"
+    },
+    "forms.descripción_4": {
+      "spanish": "Descripción",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/permissions/edit.mustache"
+    },
+    "forms.descripción_5": {
+      "spanish": "Descripción",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/permissions/index.mustache"
+    },
+    "forms.sin_descripción_1": {
+      "spanish": "Sin descripción",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/permissions/index.mustache"
+    },
+    "forms.buscar_por_nombre_o_descripción": {
+      "spanish": "Buscar por nombre o descripción...",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/plugins/index.mustache"
+    },
+    "forms.descripción_6": {
+      "spanish": "Descripción",
+      "english": "",
+      "category": "forms",
+      "source_file": "resources/views/admin/plugins/show.mustache"
+    },
+    "forms.probar_configuración_de_email": {
+      "spanish": "Probar Configuración de Email",
+      "english": "",
+      "category": "forms",
+      "source_file": "modules/Admin/templates/admin_settings.mustache"
+    },
+    "messages.tasa_de_éxito": {
+      "spanish": "Tasa de Éxito",
+      "english": "",
+      "category": "messages",
+      "source_file": "resources/views/admin/reports.mustache"
+    },
+    "messages.considera_implementar_un_firewall_para_i": {
+      "spanish": "Considera implementar un firewall para IPs con múltiples intentos fallidos.",
+      "english": "",
+      "category": "messages",
+      "source_file": "resources/views/admin/security.mustache"
+    },
+    "messages.mensajes_de_éxito": {
+      "spanish": "Mensajes de éxito",
+      "english": "",
+      "category": "messages",
+      "source_file": "resources/views/admin/appearance.mustache"
+    },
+    "help.se_recomienda_hacer_una_copia_de_segurid": {
+      "spanish": "Se recomienda hacer una copia de seguridad del servidor antes de restaurar cualquier respaldo. Contáctese con el administrador del sistema si necesita ayuda.",
+      "english": "",
+      "category": "help",
+      "source_file": "resources/views/admin/backup/index.mustache"
+    },
+    "uncategorized.correo_electrónico": {
+      "spanish": "Correo Electrónico",
+      "english": "",
+      "category": "uncategorized",
+      "source_file": "resources/views/profile/index.mustache"
+    },
+    "uncategorized.fecha_de_creación": {
+      "spanish": "Fecha de Creación",
+      "english": "",
+      "category": "uncategorized",
+      "source_file": "resources/views/profile/index.mustache"
+    },
+    "uncategorized.información_personal": {
+      "spanish": "Información Personal",
+      "english": "",
+      "category": "uncategorized",
+      "source_file": "resources/views/profile/index.mustache"
+    },
+    "uncategorized.información_de_tu_cuenta": {
+      "spanish": "Información de tu cuenta",
+      "english": "",
+      "category": "uncategorized",
+      "source_file": "resources/views/profile/index.mustache"
+    }
+  },
+  "category_summary": {
+    "admin": 120,
+    "forms": 22,
+    "messages": 3,
+    "help": 1,
+    "uncategorized": 4
+  }
+}
