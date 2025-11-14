@@ -153,6 +153,16 @@ class PluginManager
                 return false;
             }
 
+            // Check for conflicts before enabling
+            $conflicts = $this->checkPluginConflicts($slug);
+            if ($conflicts['has_conflicts']) {
+                Logger::warning('Plugin has conflicts with enabled plugins', [
+                    'slug' => $slug,
+                    'conflicts' => array_column($conflicts['conflicts'], 'slug')
+                ]);
+                return false;
+            }
+
             // Check dependencies before enabling
             $dependencies = $this->checkDependencies($slug);
             if (!$dependencies['satisfied']) {
@@ -524,6 +534,77 @@ class PluginManager
             '<=' => $cmp === -1 || $cmp === 0,
             default => false
         };
+    }
+
+    /**
+     * Check plugin conflicts
+     *
+     * Returns array with:
+     * - 'has_conflicts' (bool): Whether conflicts exist
+     * - 'conflicts' (array): List of conflicting plugins that are enabled
+     *
+     * @param string $slug Plugin slug identifier
+     * @return array Conflict check results
+     */
+    private function checkPluginConflicts(string $slug): array
+    {
+        $result = [
+            'has_conflicts' => false,
+            'conflicts' => []
+        ];
+
+        try {
+            $plugin = $this->getBySlug($slug);
+
+            if (!$plugin) {
+                return $result;
+            }
+
+            // Parse manifest if available
+            $manifest = [];
+            if (!empty($plugin['manifest'])) {
+                try {
+                    $manifest = json_decode($plugin['manifest'], true) ?? [];
+                } catch (\Exception $e) {
+                    Logger::warning('Failed to parse plugin manifest for conflict check', [
+                        'slug' => $slug,
+                        'error' => $e->getMessage()
+                    ]);
+                    return $result;
+                }
+            }
+
+            // Check conflicts_with field
+            if (!empty($manifest['conflicts_with'])) {
+                foreach ($manifest['conflicts_with'] as $conflictSlug) {
+                    $conflictPlugin = $this->getBySlug($conflictSlug);
+
+                    // Check if conflicting plugin is enabled
+                    if ($conflictPlugin && !empty($conflictPlugin['enabled']) && $conflictPlugin['enabled'] == 1) {
+                        $result['has_conflicts'] = true;
+                        $result['conflicts'][] = [
+                            'slug' => $conflictSlug,
+                            'name' => $conflictPlugin['name'] ?? $conflictSlug
+                        ];
+                    }
+                }
+            }
+
+            if ($result['has_conflicts']) {
+                Logger::system('Plugin conflicts detected', [
+                    'slug' => $slug,
+                    'conflicts' => array_column($result['conflicts'], 'slug')
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Logger::error('Conflict check failed', [
+                'slug' => $slug,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return $result;
     }
 
     /**

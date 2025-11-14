@@ -209,6 +209,19 @@ class PluginInstaller
                 ];
             }
 
+            // Check for conflicts
+            $conflictCheck = $this->checkConflicts($manifest);
+            if ($conflictCheck['has_conflicts']) {
+                $this->cleanupTempDirectory($extractedPath);
+                $conflictNames = array_column($conflictCheck['conflicts'], 'name');
+                $conflictList = implode(', ', $conflictNames);
+                return [
+                    'success' => false,
+                    'message' => 'Plugin conflicts with enabled plugins: ' . $conflictList,
+                    'plugin' => null
+                ];
+            }
+
             // Check dependencies
             $depCheck = $this->checkDependencies($manifest);
             if (!$depCheck['satisfied']) {
@@ -1052,6 +1065,50 @@ class PluginInstaller
 
         } catch (\Exception $e) {
             Logger::warning('Dependency check error', [
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check for plugin conflicts
+     *
+     * Checks if the plugin conflicts with any currently enabled plugins.
+     *
+     * @param array $manifest Plugin manifest
+     * @return array Conflict check results [
+     *   'has_conflicts' => bool,
+     *   'conflicts' => array
+     * ]
+     */
+    private function checkConflicts(array $manifest): array
+    {
+        $result = [
+            'has_conflicts' => false,
+            'conflicts' => []
+        ];
+
+        try {
+            // Check conflicts_with field
+            if (!empty($manifest['conflicts_with'])) {
+                foreach ($manifest['conflicts_with'] as $conflictSlug) {
+                    $conflictPlugin = $this->pluginManager->getBySlug($conflictSlug);
+
+                    // Check if conflicting plugin is enabled
+                    if ($conflictPlugin && !empty($conflictPlugin['enabled']) && $conflictPlugin['enabled'] == 1) {
+                        $result['has_conflicts'] = true;
+                        $result['conflicts'][] = [
+                            'slug' => $conflictSlug,
+                            'name' => $conflictPlugin['name'] ?? $conflictSlug
+                        ];
+                    }
+                }
+            }
+
+        } catch (\Exception $e) {
+            Logger::warning('Conflict check error', [
                 'error' => $e->getMessage()
             ]);
         }
