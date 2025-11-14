@@ -1,9 +1,9 @@
-<!-- {{#__}}admin.configuración_de_apariencia{{/__}} y Tema - Phase 9 -->
+<!-- Configuración de Apariencia y Tema - Phase 9 -->
 <div class="admin-container">
     <div class="admin-header">
         <div>
-            <h2><i class="bi bi-palette"></i> {{#__}}admin.configuración_de_apariencia{{/__}}</h2>
-            <p class="text-muted">{{#__}}admin.personaliza_colores_tipografía_marca_y_d{{/__}}</p>
+            <h2><i class="bi bi-palette"></i> Configuración de Apariencia</h2>
+            <p class="text-muted">Personaliza colores, tipografía, marca y diseño del sistema</p>
         </div>
         <div class="user-actions">
             <button type="button" class="btn btn-sm btn-success" id="save-config-btn">
@@ -27,7 +27,7 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="typography-tab" data-bs-toggle="tab" data-bs-target="#typography" type="button" role="tab">
-                <i class="bi bi-fonts"></i> {{#__}}admin.tipografía{{/__}}
+                <i class="bi bi-fonts"></i> Tipografía
             </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -37,7 +37,7 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="layout-tab" data-bs-toggle="tab" data-bs-target="#layout" type="button" role="tab">
-                <i class="bi bi-layout-sidebar"></i> {{#__}}admin.diseño{{/__}}
+                <i class="bi bi-layout-sidebar"></i> Diseño
             </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -54,7 +54,7 @@
         <div class="tab-pane fade show active" id="colors" role="tabpanel" aria-labelledby="colors-tab">
             <div class="settings-section">
                 <h3><i class="bi bi-palette-fill"></i> Paleta de Colores</h3>
-                <p class="text-muted mb-4">{{#__}}admin.personaliza_los_colores_principales_del{{/__}}</p>
+                <p class="text-muted mb-4">Personaliza los colores principales del tema. Los cambios se reflejarán en tiempo real.</p>
 
                 <div class="colors-grid">
                     {{#colors}}
@@ -109,7 +109,7 @@
                     <div class="color-item">
                         <label for="color-success" class="color-label">
                             <span class="color-name">Success</span>
-                            <span class="color-usage">{{#__}}messages.mensajes_de_éxito{{/__}}</span>
+                            <span class="color-usage">Mensajes de éxito</span>
                         </label>
                         <div class="color-input-group">
                             <input type="color" class="color-picker" id="color-success" name="color-success" value="#00d97e">
@@ -142,7 +142,7 @@
                     <div class="color-item">
                         <label for="color-info" class="color-label">
                             <span class="color-name">Info</span>
-                            <span class="color-usage">{{#__}}admin.información_2{{/__}}</span>
+                            <span class="color-usage">Información</span>
                         </label>
                         <div class="color-input-group">
                             <input type="color" class="color-picker" id="color-info" name="color-info" value="#39afd1">
@@ -186,8 +186,8 @@
         <!-- TYPOGRAPHY TAB -->
         <div class="tab-pane fade" id="typography" role="tabpanel" aria-labelledby="typography-tab">
             <div class="settings-section">
-                <h3><i class="bi bi-fonts"></i> {{#__}}admin.tipografía{{/__}}</h3>
-                <p class="text-muted mb-4">{{#__}}admin.selecciona_las_fuentes_para_encabezados{{/__}}</p>
+                <h3><i class="bi bi-fonts"></i> Tipografía</h3>
+                <p class="text-muted mb-4">Selecciona las fuentes para encabezados, cuerpo y código.</p>
 
                 <div class="typography-grid">
                     <div class="typography-item">
@@ -228,7 +228,7 @@
                     </div>
 
                     <div class="typography-item">
-                        <label for="font-mono" class="form-label">{{#__}}admin.fuente_monoespaciada_código{{/__}}</label>
+                        <label for="font-mono" class="form-label">Fuente Monoespaciada (Código)</label>
                         <select class="form-select" id="font-mono" name="font-mono">
                             <option value="Courier New, monospace" selected>Courier New</option>
                             <option value="Monaco, monospace">Monaco</option>
@@ -251,7 +251,8 @@
                 <div class="info-box info-info mb-4">
                     <i class="bi bi-info-circle"></i>
                     <div>
-                        <strong>{{#__}}admin.próximamente{{/__}}</strong> {{#__}}admin.la_funcionalidad_de_carga_de_logos_y_fav{{/__}}
+                        <strong>Próximamente:</strong> La funcionalidad de carga de logos y favicon estará disponible en la próxima actualización.
+                        Por ahora, puedes configurar URLs directas.
                     </div>
                 </div>
 
@@ -287,16 +288,16 @@
         <!-- LAYOUT TAB -->
         <div class="tab-pane fade" id="layout" role="tabpanel" aria-labelledby="layout-tab">
             <div class="settings-section">
-                <h3><i class="bi bi-layout-sidebar"></i> {{#__}}admin.diseño_y_distribución{{/__}}</h3>
-                <p class="text-muted mb-4">{{#__}}admin.configura_el_diseño_general_de_la_interf{{/__}}</p>
+                <h3><i class="bi bi-layout-sidebar"></i> Diseño y Distribución</h3>
+                <p class="text-muted mb-4">Configura el diseño general de la interfaz.</p>
 
                 <div class="layout-grid">
                     <div class="form-group">
-                        <label for="default-layout">{{#__}}admin.diseño_predeterminado{{/__}}</label>
+                        <label for="default-layout">Diseño Predeterminado</label>
                         <select class="form-select" id="default-layout">
                             <option value="sidebar-left" selected>Barra Lateral Izquierda</option>
                             <option value="sidebar-right">Barra Lateral Derecha</option>
-                            <option value="top-nav">{{#__}}admin.navegación_superior{{/__}}</option>
+                            <option value="top-nav">Navegación Superior</option>
                         </select>
                     </div>
 
@@ -306,12 +307,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="navbar-height">{{#__}}admin.altura_de_barra_de_navegación{{/__}}</label>
+                        <label for="navbar-height">Altura de Barra de Navegación</label>
                         <input type="text" class="form-control" id="navbar-height" placeholder="60px" value="{{config.navbar_height}}">
                     </div>
 
                     <div class="form-group">
-                        <label for="container-width">{{#__}}admin.ancho_máximo_del_contenedor{{/__}}</label>
+                        <label for="container-width">Ancho Máximo del Contenedor</label>
                         <input type="text" class="form-control" id="container-width" placeholder="1400px" value="{{config.container_width}}">
                     </div>
 
@@ -336,15 +337,15 @@
 
                 <!-- Export/Import -->
                 <div class="advanced-section">
-                    <h4><i class="bi bi-download"></i> {{#__}}admin.exportarimportar_configuración{{/__}}</h4>
-                    <p class="text-muted">{{#__}}admin.descarga_tu_configuración_actual_o_impor{{/__}}</p>
+                    <h4><i class="bi bi-download"></i> Exportar/Importar Configuración</h4>
+                    <p class="text-muted">Descarga tu configuración actual o importa una previamente guardada.</p>
 
                     <div class="action-buttons">
                         <button type="button" class="btn btn-primary" id="export-config-btn">
-                            <i class="bi bi-download"></i> {{#__}}admin.exportar_configuración_json{{/__}}
+                            <i class="bi bi-download"></i> Exportar Configuración (JSON)
                         </button>
                         <button type="button" class="btn btn-secondary" id="import-config-btn">
-                            <i class="bi bi-upload"></i> {{#__}}admin.importar_configuración{{/__}}
+                            <i class="bi bi-upload"></i> Importar Configuración
                         </button>
                         <input type="file" id="import-file-input" accept=".json" style="display: none;">
                     </div>
@@ -352,8 +353,8 @@
 
                 <!-- Backups -->
                 <div class="advanced-section mt-5">
-                    <h4><i class="bi bi-clock-history"></i> {{#__}}admin.respaldos_de_configuración{{/__}}</h4>
-                    <p class="text-muted">{{#__}}admin.crea_puntos_de_restauración_de_tu_config{{/__}}</p>
+                    <h4><i class="bi bi-clock-history"></i> Respaldos de Configuración</h4>
+                    <p class="text-muted">Crea puntos de restauración de tu configuración actual.</p>
 
                     <div class="backup-actions mb-3">
                         <div class="input-group" style="max-width: 400px;">
@@ -375,7 +376,7 @@
                 <!-- CSS Regeneration -->
                 <div class="advanced-section mt-5">
                     <h4><i class="bi bi-arrow-clockwise"></i> Regenerar CSS</h4>
-                    <p class="text-muted">{{#__}}admin.fuerza_la_regeneración_del_archivo_css_d{{/__}}</p>
+                    <p class="text-muted">Fuerza la regeneración del archivo CSS dinámico con la configuración actual.</p>
 
                     <button type="button" class="btn btn-warning" id="regenerate-css-btn">
                         <i class="bi bi-arrow-clockwise"></i> Regenerar CSS Ahora
@@ -385,7 +386,7 @@
                 <!-- Reset All -->
                 <div class="advanced-section mt-5">
                     <h4><i class="bi bi-exclamation-triangle"></i> Restaurar Todo</h4>
-                    <p class="text-muted text-danger">{{#__}}admin.esto_restaurará_toda_la_configuración_a{{/__}}</p>
+                    <p class="text-muted text-danger">Esto restaurará TODA la configuración a los valores predeterminados de fábrica.</p>
 
                     <button type="button" class="btn btn-danger" id="reset-all-btn">
                         <i class="bi bi-arrow-counterclockwise"></i> Restaurar a Valores Predeterminados

@@ -1,9 +1,9 @@
-<!-- Crear Usuario -->
+<!-- Editar Usuario -->
 <div class="admin-container">
     <div class="admin-header">
         <div>
             <h2>{{page_title}}</h2>
-            <p class="text-muted">Crear nuevo usuario en el sistema</p>
+            <p class="text-muted">Editar usuario: {{#user}}<strong>{{username}}</strong>{{/user}}</p>
         </div>
         <div class="user-actions">
             <a href="/admin/users" class="btn btn-sm btn-secondary">
@@ -29,51 +29,53 @@
 
     <!-- Formulario -->
     <div class="form-section">
-        <form method="POST" action="/admin/users/store" class="user-form">
+        {{#user}}
+        <form method="POST" action="/admin/users/update" class="user-form">
+            <!-- El ID se maneja en sesión del servidor - no se envía en el formulario -->
             <div class="form-grid">
-                <!-- {{#__}}admin.información_2{{/__}} básica -->
+                <!-- Información básica -->
                 <div class="form-card">
-                    <h3><i class="bi bi-person"></i> {{#__}}admin.información_básica_1{{/__}}</h3>
+                    <h3><i class="bi bi-person"></i> Información Básica</h3>
 
                     <div class="form-group">
                         <label for="username">Nombre de usuario *</label>
                         <input type="text" id="username" name="username" class="form-input"
-                               value="{{form_data.username}}" required>
+                               value="{{username}}" required>
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email *</label>
                         <input type="email" id="email" name="email" class="form-input"
-                               value="{{form_data.email}}" required>
+                               value="{{email}}" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="password">{{#__}}forms.contraseña{{/__}}</label>
-                        <input type="password" id="password" name="password" class="form-input" required>
-                        <small class="form-help">{{#__}}admin.mínimo_8_caracteres{{/__}}</small>
+                        <label for="password">Nueva Contraseña</label>
+                        <input type="password" id="password" name="password" class="form-input">
+                        <small class="form-help">Dejar en blanco para mantener la contraseña actual</small>
                     </div>
                 </div>
 
-                <!-- {{#__}}admin.información_2{{/__}} personal -->
+                <!-- Información personal -->
                 <div class="form-card">
-                    <h3><i class="bi bi-person-vcard"></i> {{#__}}uncategorized.información_personal{{/__}}</h3>
+                    <h3><i class="bi bi-person-vcard"></i> Información Personal</h3>
 
                     <div class="form-group">
                         <label for="first_name">Nombre *</label>
                         <input type="text" id="first_name" name="first_name" class="form-input"
-                               value="{{form_data.first_name}}" required>
+                               value="{{first_name}}" required>
                     </div>
 
                     <div class="form-group">
                         <label for="last_name">Apellido *</label>
                         <input type="text" id="last_name" name="last_name" class="form-input"
-                               value="{{form_data.last_name}}" required>
+                               value="{{last_name}}" required>
                     </div>
 
                     <div class="form-group">
                         <label for="status">Estado</label>
                         <select id="status" name="status" class="form-select">
-                            <option value="active" selected>Activo</option>
+                            <option value="active">Activo</option>
                             <option value="suspended">Suspendido</option>
                         </select>
                     </div>
@@ -82,13 +84,24 @@
 
             <!-- Roles -->
             <div class="form-card">
-                <h3><i class="bi bi-shield-check"></i> {{#__}}admin.asignación_de_roles_1{{/__}}</h3>
-                <p class="text-muted">{{#__}}admin.selecciona_los_roles_que_tendrá_este_usu_1{{/__}}</p>
+                <h3><i class="bi bi-shield-check"></i> Asignación de Roles</h3>
+                <p class="text-muted">Selecciona los roles que tendrá este usuario</p>
+
+                <div class="current-roles">
+                    <strong>Roles actuales:</strong>
+                    {{#user_roles}}
+                    <span class="role-badge">{{name}}</span>
+                    {{/user_roles}}
+                    {{^user_roles}}
+                    <span class="text-muted">Sin roles asignados</span>
+                    {{/user_roles}}
+                </div>
 
                 <div class="roles-grid">
                     {{#all_roles}}
                     <label class="role-checkbox">
-                        <input type="checkbox" name="roles[]" value="{{id}}">
+                        <input type="checkbox" name="roles[]" value="{{id}}"
+                               {{#is_assigned}}checked{{/is_assigned}}>
                         <div class="role-info">
                             <strong>{{name}}</strong>
                             <small>{{description}}</small>
@@ -96,22 +109,45 @@
                         </div>
                     </label>
                     {{/all_roles}}
-                    {{^all_roles}}
-                    <p class="text-muted">No hay roles disponibles en el sistema.</p>
-                    {{/all_roles}}
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="form-card info-card">
+                <h3><i class="bi bi-info-circle"></i> Información Adicional</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">ID:</span>
+                        <span class="info-value">{{id}}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Creado:</span>
+                        <span class="info-value">{{date created_at}}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Actualizado:</span>
+                        <span class="info-value">{{date updated_at}}</span>
+                    </div>
+                    {{#last_login_at}}
+                    <div class="info-item">
+                        <span class="info-label">Último login:</span>
+                        <span class="info-value">{{date last_login_at}}</span>
+                    </div>
+                    {{/last_login_at}}
                 </div>
             </div>
 
             <!-- Botones -->
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-circle"></i> Crear Usuario
+                    <i class="bi bi-check-circle"></i> Guardar Cambios
                 </button>
                 <a href="/admin/users" class="btn btn-secondary">
                     <i class="bi bi-x-circle"></i> Cancelar
                 </a>
             </div>
         </form>
+        {{/user}}
     </div>
 </div>
 
@@ -251,6 +287,31 @@
     font-size: 0.85rem;
 }
 
+/* Current Roles */
+.current-roles {
+    padding: 15px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.current-roles strong {
+    color: var(--text-primary);
+}
+
+.role-badge {
+    background: var(--iser-blue);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
 /* Roles Grid */
 .roles-grid {
     display: grid;
@@ -311,6 +372,36 @@
     font-size: 0.75rem;
 }
 
+/* Info Card */
+.info-card {
+    background: var(--bg-primary);
+    border-left: 4px solid var(--iser-blue);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
 /* Form Actions */
 .form-actions {
     display: flex;
@@ -354,10 +445,12 @@
 </style>
 
 <script>
-// Mantener valor de status si hay errores
+// Establecer valor actual de status
 document.addEventListener('DOMContentLoaded', function() {
     const statusSelect = document.getElementById('status');
-    const statusValue = '{{form_data.status}}';
+    {{#user}}
+    const statusValue = '{{status}}';
+    {{/user}}
     if (statusValue && statusSelect) {
         statusSelect.value = statusValue;
     }

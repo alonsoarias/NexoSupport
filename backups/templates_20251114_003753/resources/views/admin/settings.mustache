@@ -1,9 +1,9 @@
-<!-- {{#__}}admin.configuración_del_sistema{{/__}} -->
+<!-- Configuración del Sistema -->
 <div class="admin-container">
     <div class="admin-header">
         <div>
-            <h2>{{#__}}admin.configuración_del_sistema{{/__}}</h2>
-            <p class="text-muted">{{#__}}admin.configuración_general_y_parámetros_del_s{{/__}}</p>
+            <h2>Configuración del Sistema</h2>
+            <p class="text-muted">Configuración general y parámetros del sistema</p>
         </div>
         <div class="user-actions">
             <a href="/admin" class="btn btn-sm btn-secondary">
@@ -12,22 +12,22 @@
         </div>
     </div>
 
-    <!-- {{#__}}admin.información_del_sistema_2{{/__}} (DATOS REALES) -->
+    <!-- Información del Sistema (DATOS REALES) -->
     <div class="settings-section">
-        <h3><i class="bi bi-info-circle"></i> {{#__}}admin.información_del_sistema_2{{/__}}</h3>
+        <h3><i class="bi bi-info-circle"></i> Información del Sistema</h3>
         <div class="settings-grid">
             <div class="setting-item">
-                <div class="setting-label">{{#__}}forms.nombre_de_la_aplicación{{/__}}</div>
+                <div class="setting-label">Nombre de la Aplicación</div>
                 <div class="setting-value">{{config.app_name}}</div>
             </div>
 
             <div class="setting-item">
-                <div class="setting-label">{{#__}}admin.versión_3{{/__}}</div>
+                <div class="setting-label">Versión</div>
                 <div class="setting-value">{{config.app_version}}</div>
             </div>
 
             <div class="setting-item">
-                <div class="setting-label">{{#__}}admin.versión_de_php{{/__}}</div>
+                <div class="setting-label">Versión de PHP</div>
                 <div class="setting-value">{{config.php_version}}</div>
             </div>
 
@@ -43,13 +43,13 @@
         </div>
     </div>
 
-    <!-- {{#__}}admin.configuración_de_seguridad{{/__}} -->
+    <!-- Configuración de Seguridad -->
     <div class="settings-section">
-        <h3><i class="bi bi-shield-lock"></i> {{#__}}admin.configuración_de_seguridad{{/__}}</h3>
+        <h3><i class="bi bi-shield-lock"></i> Configuración de Seguridad</h3>
         <div class="info-box info-warning">
             <i class="bi bi-exclamation-triangle"></i>
             <div>
-                <strong>Importante:</strong> {{#__}}admin.la_configuración_de_seguridad_se_gestion{{/__}} <code>.env</code>
+                <strong>Importante:</strong> La configuración de seguridad se gestiona a través del archivo <code>.env</code>
                 ubicado en el directorio raíz del proyecto. Edite este archivo con precaución.
             </div>
         </div>
@@ -60,11 +60,11 @@
                     <i class="bi bi-key-fill"></i>
                 </div>
                 <div class="security-content">
-                    <h4>{{#__}}forms.contraseñas{{/__}}</h4>
+                    <h4>Contraseñas</h4>
                     <ul>
                         <li>Algoritmo de hash: <strong>bcrypt</strong></li>
-                        <li>{{#__}}admin.longitud_mínima{{/__}} <strong>8 caracteres</strong></li>
-                        <li>{{#__}}admin.requiere_mayúsculas_minúsculas_números_y{{/__}}</li>
+                        <li>Longitud mínima: <strong>8 caracteres</strong></li>
+                        <li>Requiere mayúsculas, minúsculas, números y caracteres especiales</li>
                     </ul>
                 </div>
             </div>
@@ -74,10 +74,10 @@
                     <i class="bi bi-shield-check"></i>
                 </div>
                 <div class="security-content">
-                    <h4>{{#__}}admin.autenticación_1{{/__}}</h4>
+                    <h4>Autenticación</h4>
                     <ul>
                         <li>Bloqueo de cuenta: <strong>5 intentos fallidos</strong></li>
-                        <li>{{#__}}admin.duración_del_bloqueo{{/__}} <strong>15 minutos</strong></li>
+                        <li>Duración del bloqueo: <strong>15 minutos</strong></li>
                         <li>Registro de intentos de login activo</li>
                     </ul>
                 </div>
@@ -90,7 +90,7 @@
                 <div class="security-content">
                     <h4>Sesiones</h4>
                     <ul>
-                        <li>{{#__}}admin.duración{{/__}} <strong>2 horas</strong></li>
+                        <li>Duración: <strong>2 horas</strong></li>
                         <li>HttpOnly: <strong>Activado</strong></li>
                         <li>SameSite: <strong>Lax</strong></li>
                     </ul>
@@ -99,17 +99,17 @@
         </div>
     </div>
 
-    <!-- {{#__}}admin.archivos_de_configuración{{/__}} -->
+    <!-- Archivos de Configuración -->
     <div class="settings-section">
-        <h3><i class="bi bi-file-earmark-text"></i> {{#__}}admin.archivos_de_configuración{{/__}}</h3>
+        <h3><i class="bi bi-file-earmark-text"></i> Archivos de Configuración</h3>
         <div class="info-box info-info">
             <i class="bi bi-info-circle"></i>
             <div>
-                <p><strong>{{#__}}admin.ubicación_de_archivos_importantes{{/__}}</strong></p>
+                <p><strong>Ubicación de archivos importantes:</strong></p>
                 <ul>
-                    <li><code>.env</code> {{#__}}admin.variables_de_entorno_y_configuración_pr{{/__}}</li>
+                    <li><code>.env</code> - Variables de entorno y configuración principal</li>
                     <li><code>database/schema/schema.xml</code> - Esquema de base de datos</li>
-                    <li><code>config/app.php</code> {{#__}}admin.configuración_de_la_aplicación{{/__}}</li>
+                    <li><code>config/app.php</code> - Configuración de la aplicación</li>
                 </ul>
             </div>
         </div>

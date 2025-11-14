@@ -33,9 +33,9 @@
         <form method="POST" action="/admin/users/update" class="user-form">
             <!-- El ID se maneja en sesión del servidor - no se envía en el formulario -->
             <div class="form-grid">
-                <!-- Información básica -->
+                <!-- {{#__}}admin.información_2{{/__}} básica -->
                 <div class="form-card">
-                    <h3><i class="bi bi-person"></i> Información Básica</h3>
+                    <h3><i class="bi bi-person"></i> {{#__}}admin.información_básica_1{{/__}}</h3>
 
                     <div class="form-group">
                         <label for="username">Nombre de usuario *</label>
@@ -50,15 +50,15 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="password">Nueva Contraseña</label>
+                        <label for="password">{{#__}}forms.nueva_contraseña{{/__}}</label>
                         <input type="password" id="password" name="password" class="form-input">
-                        <small class="form-help">Dejar en blanco para mantener la contraseña actual</small>
+                        <small class="form-help">{{#__}}forms.dejar_en_blanco_para_mantener_la_contras{{/__}}</small>
                     </div>
                 </div>
 
-                <!-- Información personal -->
+                <!-- {{#__}}admin.información_2{{/__}} personal -->
                 <div class="form-card">
-                    <h3><i class="bi bi-person-vcard"></i> Información Personal</h3>
+                    <h3><i class="bi bi-person-vcard"></i> {{#__}}uncategorized.información_personal{{/__}}</h3>
 
                     <div class="form-group">
                         <label for="first_name">Nombre *</label>
@@ -84,8 +84,8 @@
 
             <!-- Roles -->
             <div class="form-card">
-                <h3><i class="bi bi-shield-check"></i> Asignación de Roles</h3>
-                <p class="text-muted">Selecciona los roles que tendrá este usuario</p>
+                <h3><i class="bi bi-shield-check"></i> {{#__}}admin.asignación_de_roles_1{{/__}}</h3>
+                <p class="text-muted">{{#__}}admin.selecciona_los_roles_que_tendrá_este_usu_1{{/__}}</p>
 
                 <div class="current-roles">
                     <strong>Roles actuales:</strong>
@@ -112,9 +112,9 @@
                 </div>
             </div>
 
-            <!-- Información adicional -->
+            <!-- {{#__}}admin.información_2{{/__}} adicional -->
             <div class="form-card info-card">
-                <h3><i class="bi bi-info-circle"></i> Información Adicional</h3>
+                <h3><i class="bi bi-info-circle"></i> {{#__}}admin.información_adicional_1{{/__}}</h3>
                 <div class="info-grid">
                     <div class="info-item">
                         <span class="info-label">ID:</span>

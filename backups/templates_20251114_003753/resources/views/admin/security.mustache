@@ -73,7 +73,7 @@
                 <thead>
                     <tr>
                         <th>Usuario</th>
-                        <th>{{#__}}admin.dirección_ip_2{{/__}}</th>
+                        <th>Dirección IP</th>
                         <th>Fecha/Hora</th>
                         <th>Estado</th>
                     </tr>
@@ -102,7 +102,7 @@
                             <div class="no-data">
                                 <i class="bi bi-check-circle"></i>
                                 <p>No hay intentos fallidos recientes</p>
-                                <span class="text-muted">{{#__}}admin.el_sistema_está_seguro{{/__}}</span>
+                                <span class="text-muted">El sistema está seguro</span>
                             </div>
                         </td>
                     </tr>
@@ -122,8 +122,8 @@
                     <i class="bi bi-check-circle-fill"></i>
                 </div>
                 <div class="recommendation-content">
-                    <h4>{{#__}}forms.contraseñas_seguras{{/__}}</h4>
-                    <p>{{#__}}forms.sistema_configurado_con_bcrypt_y_polític{{/__}}</p>
+                    <h4>Contraseñas Seguras</h4>
+                    <p>Sistema configurado con bcrypt y políticas de contraseñas fuertes.</p>
                 </div>
             </div>
 
@@ -133,7 +133,7 @@
                 </div>
                 <div class="recommendation-content">
                     <h4>Bloqueo de Cuenta</h4>
-                    <p>{{#__}}admin.protección_activa_contra_fuerza_bruta_5{{/__}}</p>
+                    <p>Protección activa contra fuerza bruta (5 intentos = 15 min de bloqueo).</p>
                 </div>
             </div>
 
@@ -153,15 +153,15 @@
                 </div>
                 <div class="recommendation-content">
                     <h4>Sesiones Seguras</h4>
-                    <p>{{#__}}admin.httponly_y_samesite_activados_para_prote{{/__}}</p>
+                    <p>HttpOnly y SameSite activados para protección contra XSS y CSRF.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- {{#__}}admin.mejores_prácticas{{/__}} -->
+    <!-- Mejores Prácticas -->
     <div class="security-section">
-        <h3><i class="bi bi-lightbulb"></i> {{#__}}admin.mejores_prácticas{{/__}}</h3>
+        <h3><i class="bi bi-lightbulb"></i> Mejores Prácticas</h3>
 
         <div class="best-practices">
             <div class="practice-item">
@@ -175,8 +175,8 @@
             <div class="practice-item">
                 <i class="bi bi-2-circle-fill"></i>
                 <div>
-                    <strong>{{#__}}forms.actualizar_contraseñas{{/__}}</strong>
-                    <p>{{#__}}forms.recomienda_a_los_usuarios_cambiar_contra{{/__}}</p>
+                    <strong>Actualizar Contraseñas</strong>
+                    <p>Recomienda a los usuarios cambiar contraseñas periódicamente.</p>
                 </div>
             </div>
 
@@ -184,7 +184,7 @@
                 <i class="bi bi-3-circle-fill"></i>
                 <div>
                     <strong>Bloquear IPs Sospechosas</strong>
-                    <p>{{#__}}messages.considera_implementar_un_firewall_para_i{{/__}}</p>
+                    <p>Considera implementar un firewall para IPs con múltiples intentos fallidos.</p>
                 </div>
             </div>
 
@@ -192,7 +192,7 @@
                 <i class="bi bi-4-circle-fill"></i>
                 <div>
                     <strong>Mantener Sistema Actualizado</strong>
-                    <p>{{#__}}admin.asegúrate_de_que_php_dependencias_y_el_s{{/__}}</p>
+                    <p>Asegúrate de que PHP, dependencias y el sistema operativo estén actualizados.</p>
                 </div>
             </div>
         </div>

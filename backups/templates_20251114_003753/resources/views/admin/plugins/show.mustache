@@ -3,7 +3,7 @@
     <div class="admin-header">
         <div>
             <h2>{{plugin.name}}</h2>
-            <p class="text-muted">{{#__}}admin.versión_3{{/__}} {{plugin.version}} por {{plugin.author}}</p>
+            <p class="text-muted">Versión {{plugin.version}} por {{plugin.author}}</p>
         </div>
         <div class="plugin-actions">
             {{#plugin.enabled}}
@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <!-- {{#__}}messages.mensajes_de_éxito{{/__}}/error -->
+    <!-- Mensajes de éxito/error -->
     {{#success_message}}
     <div class="alert alert-success">
         <i class="bi bi-check-circle"></i>
@@ -49,7 +49,7 @@
         <!-- Main Details Card -->
         <div class="details-card">
             <div class="card-header">
-                <h3><i class="bi bi-info-circle"></i> {{#__}}admin.información_general{{/__}}</h3>
+                <h3><i class="bi bi-info-circle"></i> Información General</h3>
             </div>
 
             <div class="plugin-detail-item">
@@ -63,7 +63,7 @@
             </div>
 
             <div class="plugin-detail-item">
-                <label>{{#__}}admin.versión_3{{/__}}</label>
+                <label>Versión</label>
                 <div class="detail-value">{{plugin.version}}</div>
             </div>
 
@@ -76,11 +76,11 @@
                 <label>Tipo</label>
                 <div class="detail-value">
                     <span class="type-badge {{plugin.type}}">
-                        {{#type_auth}}{{#__}}admin.autenticación_1{{/__}}{{/type_auth}}
+                        {{#type_auth}}Autenticación{{/type_auth}}
                         {{#type_theme}}Tema{{/type_theme}}
                         {{#type_tool}}Herramienta{{/type_tool}}
-                        {{#type_module}}{{#__}}admin.módulo_2{{/__}}{{/type_module}}
-                        {{#type_integration}}{{#__}}admin.integración{{/__}}{{/type_integration}}
+                        {{#type_module}}Módulo{{/type_module}}
+                        {{#type_integration}}Integración{{/type_integration}}
                         {{#type_report}}Reporte{{/type_report}}
                     </span>
                 </div>
@@ -88,7 +88,7 @@
 
             {{#plugin.description}}
             <div class="plugin-detail-item">
-                <label>{{#__}}forms.descripción_6{{/__}}</label>
+                <label>Descripción</label>
                 <div class="detail-value description">{{plugin.description}}</div>
             </div>
             {{/plugin.description}}
@@ -190,7 +190,7 @@
                     <i class="bi bi-arrow-right"></i>
                     <div>
                         <div class="dependency-name">{{name}}</div>
-                        {{#version}}<div class="dependency-version">{{#__}}admin.versión_1{{/__}} {{version}}</div>{{/version}}
+                        {{#version}}<div class="dependency-version">Versión: {{version}}</div>{{/version}}
                     </div>
                 </div>
                 {{/manifest.dependencies}}
@@ -248,7 +248,7 @@
     {{#manifest}}
     <div class="full-width-card">
         <div class="card-header">
-            <h3><i class="bi bi-file-earmark"></i> {{#__}}admin.información_del_manifiesto{{/__}}</h3>
+            <h3><i class="bi bi-file-earmark"></i> Información del Manifiesto</h3>
         </div>
 
         <div class="manifest-info">
@@ -272,7 +272,7 @@
 
             {{#manifest.documentation}}
             <div class="manifest-item">
-                <label>{{#__}}admin.documentación{{/__}}</label>
+                <label>Documentación</label>
                 <div class="value">
                     <a href="{{manifest.documentation}}" target="_blank" rel="noopener noreferrer">
                         Ver documentación <i class="bi bi-box-arrow-up-right"></i>
@@ -298,7 +298,7 @@
     <!-- Installation Info Card -->
     <div class="full-width-card">
         <div class="card-header">
-            <h3><i class="bi bi-calendar"></i> {{#__}}admin.información_de_instalación{{/__}}</h3>
+            <h3><i class="bi bi-calendar"></i> Información de Instalación</h3>
         </div>
 
         <div class="info-grid">
@@ -309,7 +309,7 @@
 
             {{#plugin.updated_at}}
             <div class="info-item">
-                <label>{{#__}}admin.última_actualización{{/__}}</label>
+                <label>Última actualización</label>
                 <div class="value">{{plugin.updated_at}}</div>
             </div>
             {{/plugin.updated_at}}

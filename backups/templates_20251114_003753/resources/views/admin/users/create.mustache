@@ -31,9 +31,9 @@
     <div class="form-section">
         <form method="POST" action="/admin/users/store" class="user-form">
             <div class="form-grid">
-                <!-- {{#__}}admin.información_2{{/__}} básica -->
+                <!-- Información básica -->
                 <div class="form-card">
-                    <h3><i class="bi bi-person"></i> {{#__}}admin.información_básica_1{{/__}}</h3>
+                    <h3><i class="bi bi-person"></i> Información Básica</h3>
 
                     <div class="form-group">
                         <label for="username">Nombre de usuario *</label>
@@ -48,15 +48,15 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="password">{{#__}}forms.contraseña{{/__}}</label>
+                        <label for="password">Contraseña *</label>
                         <input type="password" id="password" name="password" class="form-input" required>
-                        <small class="form-help">{{#__}}admin.mínimo_8_caracteres{{/__}}</small>
+                        <small class="form-help">Mínimo 8 caracteres</small>
                     </div>
                 </div>
 
-                <!-- {{#__}}admin.información_2{{/__}} personal -->
+                <!-- Información personal -->
                 <div class="form-card">
-                    <h3><i class="bi bi-person-vcard"></i> {{#__}}uncategorized.información_personal{{/__}}</h3>
+                    <h3><i class="bi bi-person-vcard"></i> Información Personal</h3>
 
                     <div class="form-group">
                         <label for="first_name">Nombre *</label>
@@ -82,8 +82,8 @@
 
             <!-- Roles -->
             <div class="form-card">
-                <h3><i class="bi bi-shield-check"></i> {{#__}}admin.asignación_de_roles_1{{/__}}</h3>
-                <p class="text-muted">{{#__}}admin.selecciona_los_roles_que_tendrá_este_usu_1{{/__}}</p>
+                <h3><i class="bi bi-shield-check"></i> Asignación de Roles</h3>
+                <p class="text-muted">Selecciona los roles que tendrá este usuario</p>
 
                 <div class="roles-grid">
                     {{#all_roles}}

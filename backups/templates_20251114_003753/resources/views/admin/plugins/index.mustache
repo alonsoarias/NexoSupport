@@ -1,8 +1,8 @@
-<!-- {{#__}}admin.gestión_de_plugins{{/__}} -->
+<!-- Gestión de Plugins -->
 <div class="admin-container">
     <div class="admin-header">
         <div>
-            <h2>{{#__}}admin.gestión_de_plugins{{/__}}</h2>
+            <h2>Gestión de Plugins</h2>
             <p class="text-muted">Administra y controla los plugins del sistema</p>
         </div>
         <div class="plugin-actions">
@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <!-- {{#__}}messages.mensajes_de_éxito{{/__}}/error -->
+    <!-- Mensajes de éxito/error -->
     {{#success_message}}
     <div class="alert alert-success">
         <i class="bi bi-check-circle"></i>
@@ -68,7 +68,7 @@
     <div class="filters-section">
         <form method="GET" action="/admin/plugins" class="filters-form">
             <div class="filter-group">
-                <input type="text" name="search" placeholder="{{#__}}forms.buscar_por_nombre_o_descripción{{/__}}"
+                <input type="text" name="search" placeholder="Buscar por nombre o descripción..."
                        value="{{filters.search}}" class="form-input">
             </div>
             <div class="filter-group">
@@ -81,11 +81,11 @@
             <div class="filter-group">
                 <select name="type" class="form-select">
                     <option value="">Todos los Tipos</option>
-                    <option value="auth">{{#__}}admin.autenticación_1{{/__}}</option>
+                    <option value="auth">Autenticación</option>
                     <option value="theme">Tema</option>
                     <option value="tool">Herramienta</option>
-                    <option value="module">{{#__}}admin.módulo_2{{/__}}</option>
-                    <option value="integration">{{#__}}admin.integración{{/__}}</option>
+                    <option value="module">Módulo</option>
+                    <option value="integration">Integración</option>
                     <option value="report">Reporte</option>
                 </select>
             </div>
@@ -126,18 +126,18 @@
 
                 <div class="plugin-meta">
                     <div class="meta-item">
-                        <span class="meta-label">{{#__}}admin.versión_1{{/__}}</span>
+                        <span class="meta-label">Versión:</span>
                         <span class="meta-value">{{version}}</span>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Tipo:</span>
                         <span class="meta-value">
                             {{#type}}
-                                {{#type_auth}}{{#__}}admin.autenticación_1{{/__}}{{/type_auth}}
+                                {{#type_auth}}Autenticación{{/type_auth}}
                                 {{#type_theme}}Tema{{/type_theme}}
                                 {{#type_tool}}Herramienta{{/type_tool}}
-                                {{#type_module}}{{#__}}admin.módulo_2{{/__}}{{/type_module}}
-                                {{#type_integration}}{{#__}}admin.integración{{/__}}{{/type_integration}}
+                                {{#type_module}}Módulo{{/type_module}}
+                                {{#type_integration}}Integración{{/type_integration}}
                                 {{#type_report}}Reporte{{/type_report}}
                             {{/type}}
                         </span>
@@ -199,7 +199,7 @@
 
     <!-- Quick Links -->
     <div class="quick-links">
-        <h3><i class="bi bi-info-circle"></i> {{#__}}admin.información_2{{/__}}</h3>
+        <h3><i class="bi bi-info-circle"></i> Información</h3>
         <div class="quick-links-grid">
             <a href="/admin" class="quick-link-card">
                 <i class="bi bi-speedometer2"></i>
@@ -211,7 +211,7 @@
             <a href="/admin/users" class="quick-link-card">
                 <i class="bi bi-people"></i>
                 <div>
-                    <strong>{{#__}}admin.gestión_de_usuarios_5{{/__}}</strong>
+                    <strong>Gestión de Usuarios</strong>
                     <p>Administrar usuarios del sistema</p>
                 </div>
             </a>
