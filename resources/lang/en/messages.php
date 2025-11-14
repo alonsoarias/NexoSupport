@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'considera_implementar_un_firewall_para_i' => 'Considera implementar un firewall for ips with múltiples attempts fallidos.',
-    'mensajes_de_éxito' => 'Mensajes de success',
-    'tasa_de_éxito' => 'Tasa de success',
+    'considera_implementar_un_firewall_para_i' => 'Consider implementing a firewall for IPs with multiple failed attempts.',
+    'mensajes_de_éxito' => 'Success messages',
+    'tasa_de_éxito' => 'Success rate',
 ];

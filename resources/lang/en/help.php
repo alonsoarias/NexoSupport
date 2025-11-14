@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'se_recomienda_hacer_una_copia_de_segurid' => 'Se recomienda hacer una copia de security of the servidor antes de restaurar cualquier respaldo. contáctese with el administrator of the system si necesita help.',
+    'se_recomienda_hacer_una_copia_de_segurid' => 'It is recommended to make a server backup before restoring any backup. Contact the system administrator if you need help.',
 ];

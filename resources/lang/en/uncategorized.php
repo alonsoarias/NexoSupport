@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'correo_electrónico' => 'Email electrónico',
-    'fecha_de_creación' => 'Date de creación',
-    'información_de_tu_cuenta' => 'Information de tu cuenta',
-    'información_personal' => 'Information personal',
+    'correo_electrónico' => 'Email',
+    'fecha_de_creación' => 'Creation date',
+    'información_de_tu_cuenta' => 'Your account information',
+    'información_personal' => 'Personal information',
 ];
