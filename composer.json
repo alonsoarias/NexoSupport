@@ -45,6 +45,9 @@
             "tool_dataprivacy\\": "admin/tool/dataprivacy/classes/",
             "factor_email\\": "admin/tool/mfa/factor/email/classes/",
             "factor_iprange\\": "admin/tool/mfa/factor/iprange/classes/",
+            "factor_totp\\": "admin/tool/mfa/factor/totp/classes/",
+            "factor_sms\\": "admin/tool/mfa/factor/sms/classes/",
+            "factor_backupcodes\\": "admin/tool/mfa/factor/backupcodes/classes/",
             "report_log\\": "report/log/classes/",
             "report_security\\": "report/security/classes/"
         },
