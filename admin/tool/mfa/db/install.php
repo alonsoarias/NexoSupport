@@ -87,23 +87,81 @@ function tool_mfa_get_schema(): array
             'description' => 'User-specific MFA factor configuration',
         ],
 
+        'mfa_totp_secrets' => [
+            'columns' => [
+                'id' => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'user_id' => 'INT NOT NULL UNIQUE',
+                'secret' => 'VARCHAR(255) NOT NULL',
+                'verified' => 'BOOLEAN DEFAULT FALSE',
+                'last_counter' => 'BIGINT DEFAULT NULL',
+                'failed_attempts' => 'INT DEFAULT 0',
+                'lockout_until' => 'TIMESTAMP NULL',
+                'last_used_at' => 'TIMESTAMP NULL',
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'updated_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+            ],
+            'indexes' => [
+                'idx_user_id' => 'user_id',
+                'idx_verified' => 'verified',
+                'idx_lockout' => 'lockout_until',
+            ],
+            'description' => 'TOTP secrets for Google Authenticator',
+        ],
+
+        'mfa_sms_codes' => [
+            'columns' => [
+                'id' => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'user_id' => 'INT NOT NULL',
+                'phone_number' => 'VARCHAR(20) NOT NULL',
+                'code_hash' => 'VARCHAR(255) NOT NULL',
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'expires_at' => 'TIMESTAMP NOT NULL',
+                'attempts' => 'INT DEFAULT 0',
+                'verified' => 'BOOLEAN DEFAULT FALSE',
+                'ip_address' => 'VARCHAR(45)',
+            ],
+            'indexes' => [
+                'idx_user_id' => 'user_id',
+                'idx_expires' => 'expires_at',
+                'idx_verified' => 'verified',
+                'idx_phone' => 'phone_number',
+            ],
+            'description' => 'SMS verification codes for MFA',
+        ],
+
+        'mfa_backup_codes' => [
+            'columns' => [
+                'id' => 'INT AUTO_INCREMENT PRIMARY KEY',
+                'user_id' => 'INT NOT NULL',
+                'code_hash' => 'VARCHAR(255) NOT NULL',
+                'used' => 'BOOLEAN DEFAULT FALSE',
+                'used_at' => 'TIMESTAMP NULL',
+                'used_ip' => 'VARCHAR(45) NULL',
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+            ],
+            'indexes' => [
+                'idx_user_id' => 'user_id',
+                'idx_used' => 'used',
+            ],
+            'description' => 'Backup codes for account recovery',
+        ],
+
         'mfa_audit_log' => [
             'columns' => [
                 'id' => 'INT AUTO_INCREMENT PRIMARY KEY',
                 'user_id' => 'INT NOT NULL',
-                'factor' => 'VARCHAR(50) NOT NULL',
-                'action' => 'VARCHAR(100) NOT NULL',
-                'success' => 'BOOLEAN NOT NULL',
+                'factor_type' => 'VARCHAR(50) NOT NULL',
+                'event' => 'VARCHAR(100) NOT NULL',
+                'details' => 'TEXT',
                 'ip_address' => 'VARCHAR(45)',
                 'user_agent' => 'TEXT',
-                'details' => 'TEXT',
-                'timestamp' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
             ],
             'indexes' => [
                 'idx_user_id' => 'user_id',
-                'idx_timestamp' => 'timestamp',
-                'idx_success' => 'success',
-                'idx_factor' => 'factor',
+                'idx_created_at' => 'created_at',
+                'idx_factor_type' => 'factor_type',
+                'idx_event' => 'event',
             ],
             'description' => 'Comprehensive MFA audit trail',
         ],
@@ -172,6 +230,9 @@ function tool_mfa_uninstall_db($pdo): bool
 {
     $tables = [
         'mfa_audit_log',
+        'mfa_backup_codes',
+        'mfa_sms_codes',
+        'mfa_totp_secrets',
         'mfa_user_factors',
         'mfa_ip_logs',
         'mfa_ip_ranges',
