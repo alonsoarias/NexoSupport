@@ -51,7 +51,9 @@
         "files": [
             "core/Autoloader.php",
             "core/I18n/Translator.php",
-            "lib/setup.php"
+            "lib/setup.php",
+            "lib/accesslib.php",
+            "lib/compat/roles_compat.php"
         ]
     },
     "autoload-dev": {
