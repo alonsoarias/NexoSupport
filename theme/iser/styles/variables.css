@@ -1,0 +1,97 @@
+/**
+ * NexoSupport - ISER Theme Variables
+ * Supports light and dark modes
+ */
+
+/* Light Mode (Default) */
+:root {
+    /* ISER Brand Colors */
+    --color-primary: #1e3a8a;
+    --color-secondary: #059669;
+    --color-accent: #dc2626;
+
+    /* Background & Surface */
+    --color-bg: #ffffff;
+    --color-surface: #f9fafb;
+    --color-card: #ffffff;
+
+    /* Text */
+    --color-text: #1f2937;
+    --color-text-secondary: #6b7280;
+    --color-text-muted: #9ca3af;
+
+    /* Borders */
+    --color-border: #e5e7eb;
+    --color-divider: #d1d5db;
+
+    /* States */
+    --color-hover: #f3f4f6;
+    --color-active: #e5e7eb;
+    --color-focus: rgba(30, 58, 138, 0.1);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+    /* Typography */
+    --font-base: "Inter", system-ui, -apple-system, sans-serif;
+    --font-size-base: 16px;
+    --line-height: 1.6;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-base: 250ms ease;
+    --transition-slow: 350ms ease;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+    /* ISER Brand Colors (adjusted for dark) */
+    --color-primary: #3b82f6;
+    --color-secondary: #10b981;
+    --color-accent: #ef4444;
+
+    /* Background & Surface */
+    --color-bg: #111827;
+    --color-surface: #1f2937;
+    --color-card: #374151;
+
+    /* Text */
+    --color-text: #f9fafb;
+    --color-text-secondary: #d1d5db;
+    --color-text-muted: #9ca3af;
+
+    /* Borders */
+    --color-border: #374151;
+    --color-divider: #4b5563;
+
+    /* States */
+    --color-hover: #374151;
+    --color-active: #4b5563;
+    --color-focus: rgba(59, 130, 246, 0.1);
+
+    /* Shadows (lighter for dark mode) */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* Smooth theme transition */
+* {
+    transition: background-color var(--transition-base),
+                color var(--transition-base),
+                border-color var(--transition-base);
+}
