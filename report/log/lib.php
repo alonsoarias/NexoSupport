@@ -64,6 +64,45 @@ function report_log_get_entries(array $filters = [], int $page = 0, int $perpage
 }
 
 /**
+ * Count log entries matching filters
+ *
+ * @param array $filters Filters
+ * @return int Total count
+ */
+function report_log_count_entries(array $filters = []): int
+{
+    global $DB;
+
+    $sql = "SELECT COUNT(*)
+            FROM {audit_logs} l
+            WHERE 1=1";
+
+    $params = [];
+
+    if (!empty($filters['user_id'])) {
+        $sql .= " AND l.user_id = :user_id";
+        $params['user_id'] = $filters['user_id'];
+    }
+
+    if (!empty($filters['action'])) {
+        $sql .= " AND l.action = :action";
+        $params['action'] = $filters['action'];
+    }
+
+    if (!empty($filters['date_from'])) {
+        $sql .= " AND l.created_at >= :date_from";
+        $params['date_from'] = $filters['date_from'];
+    }
+
+    if (!empty($filters['date_to'])) {
+        $sql .= " AND l.created_at <= :date_to";
+        $params['date_to'] = $filters['date_to'];
+    }
+
+    return (int) $DB->count_records_sql($sql, $params);
+}
+
+/**
  * Export logs to CSV
  *
  * @param array $filters Filters
