@@ -1,0 +1,17 @@
+{
+  "plugintypes": {
+    "auth": "auth",
+    "tool": "admin/tool",
+    "factor": "admin/tool/mfa/factor",
+    "theme": "theme",
+    "report": "report"
+  },
+  "subsystems": {
+    "admin": "admin",
+    "user": "user",
+    "login": "login",
+    "lib": "lib",
+    "install": "install",
+    "core": "lib/classes"
+  }
+}

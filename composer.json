@@ -32,11 +32,26 @@
     "autoload": {
         "psr-4": {
             "ISER\\": "modules/",
-            "ISER\\Core\\": "core/"
+            "ISER\\Core\\": "core/",
+            "core\\": "lib/classes/",
+            "auth_manual\\": "auth/manual/classes/",
+            "theme_core\\": "theme/core/classes/",
+            "theme_iser\\": "theme/iser/classes/",
+            "tool_uploaduser\\": "admin/tool/uploaduser/classes/",
+            "tool_installaddon\\": "admin/tool/installaddon/classes/",
+            "tool_mfa\\": "admin/tool/mfa/classes/",
+            "tool_logviewer\\": "admin/tool/logviewer/classes/",
+            "tool_pluginmanager\\": "admin/tool/pluginmanager/classes/",
+            "tool_dataprivacy\\": "admin/tool/dataprivacy/classes/",
+            "factor_email\\": "admin/tool/mfa/factor/email/classes/",
+            "factor_iprange\\": "admin/tool/mfa/factor/iprange/classes/",
+            "report_log\\": "report/log/classes/",
+            "report_security\\": "report/security/classes/"
         },
         "files": [
             "core/Autoloader.php",
-            "core/I18n/Translator.php"
+            "core/I18n/Translator.php",
+            "lib/setup.php"
         ]
     },
     "autoload-dev": {
