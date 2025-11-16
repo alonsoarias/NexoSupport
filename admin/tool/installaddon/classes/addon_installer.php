@@ -115,9 +115,9 @@ class AddonInstaller
         $base = __DIR__ . '/../../../../';
         $destinations = [
             'tool' => 'admin/tool/',
-            'auth' => 'modules/Auth/',
+            'auth' => 'auth/',
             'theme' => 'theme/',
-            'report' => 'modules/Report/',
+            'report' => 'report/',
         ];
 
         if (!isset($destinations[$type])) {
