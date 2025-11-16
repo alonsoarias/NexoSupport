@@ -330,3 +330,39 @@ function require_all_capabilities(array $permissions, ?int $userid = null): void
         );
     }
 }
+
+// ===== HELPER INSTANCE FUNCTIONS =====
+
+/**
+ * Get user helper instance (singleton pattern)
+ *
+ * @return \core\user\user_helper User helper instance
+ */
+function get_user_helper(): \core\user\user_helper
+{
+    static $instance = null;
+
+    if ($instance === null) {
+        $db = Database::getInstance();
+        $instance = new \core\user\user_helper($db);
+    }
+
+    return $instance;
+}
+
+/**
+ * Get role helper instance (singleton pattern)
+ *
+ * @return \core\role\role_helper Role helper instance
+ */
+function get_role_helper(): \core\role\role_helper
+{
+    static $instance = null;
+
+    if ($instance === null) {
+        $db = Database::getInstance();
+        $instance = new \core\role\role_helper($db);
+    }
+
+    return $instance;
+}
