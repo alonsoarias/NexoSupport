@@ -56,7 +56,84 @@ if (!checkInstallation()) {
 }
 
 // ========================================
-// 3. LOAD AUTOLOADER
+// 3. SERVE STATIC ASSETS
+// ========================================
+
+/**
+ * Serve static files from resources/assets/public/
+ * This allows keeping public_html/ clean with only index.php
+ */
+function serveStaticAsset(): void
+{
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $parsedUrl = parse_url($requestUri);
+    $path = $parsedUrl['path'] ?? '';
+
+    // Only handle /assets/* requests
+    if (strpos($path, '/assets/') !== 0) {
+        return;
+    }
+
+    // Remove /assets/ prefix to get relative path
+    $relativePath = substr($path, strlen('/assets/'));
+
+    // Prevent directory traversal attacks
+    if (strpos($relativePath, '..') !== false || strpos($relativePath, './') !== false) {
+        http_response_code(400);
+        exit('Invalid path');
+    }
+
+    // Build absolute file path
+    $filePath = BASE_DIR . '/resources/assets/public/' . $relativePath;
+
+    // Check if file exists and is readable
+    if (!file_exists($filePath) || !is_file($filePath) || !is_readable($filePath)) {
+        http_response_code(404);
+        exit('Asset not found');
+    }
+
+    // Determine MIME type
+    $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    $mimeTypes = [
+        'css'  => 'text/css',
+        'js'   => 'application/javascript',
+        'json' => 'application/json',
+        'png'  => 'image/png',
+        'jpg'  => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif'  => 'image/gif',
+        'svg'  => 'image/svg+xml',
+        'webp' => 'image/webp',
+        'ico'  => 'image/x-icon',
+        'woff' => 'font/woff',
+        'woff2'=> 'font/woff2',
+        'ttf'  => 'font/ttf',
+        'eot'  => 'application/vnd.ms-fontobject',
+    ];
+
+    $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
+
+    // Set headers
+    header('Content-Type: ' . $mimeType);
+    header('Content-Length: ' . filesize($filePath));
+
+    // Cache headers for static assets (1 year for images/fonts, 1 month for CSS/JS)
+    if (in_array($extension, ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico', 'woff', 'woff2', 'ttf', 'eot'])) {
+        header('Cache-Control: public, max-age=31536000, immutable');
+    } else {
+        header('Cache-Control: public, max-age=2592000');
+    }
+
+    // Output file
+    readfile($filePath);
+    exit;
+}
+
+// Serve static assets if requested
+serveStaticAsset();
+
+// ========================================
+// 4. LOAD AUTOLOADER
 // ========================================
 
 if (!file_exists(BASE_DIR . '/vendor/autoload.php')) {
@@ -67,19 +144,19 @@ if (!file_exists(BASE_DIR . '/vendor/autoload.php')) {
 require_once BASE_DIR . '/vendor/autoload.php';
 
 // ========================================
-// 4. LOAD SYSTEM SETUP
+// 5. LOAD SYSTEM SETUP
 // ========================================
 
 require_once BASE_DIR . '/lib/setup.php';
 
 // ========================================
-// 5. START SESSION
+// 6. START SESSION
 // ========================================
 
 session_start();
 
 // ========================================
-// 6. INITIALIZE APPLICATION
+// 7. INITIALIZE APPLICATION
 // ========================================
 
 use ISER\Core\Bootstrap;
@@ -98,19 +175,19 @@ try {
 }
 
 // ========================================
-// 7. GET DATABASE INSTANCE
+// 8. GET DATABASE INSTANCE
 // ========================================
 
 $database = $app->getDatabase();
 
 // ========================================
-// 8. CREATE ROUTER
+// 9. CREATE ROUTER
 // ========================================
 
 $router = new Router();
 
 // ========================================
-// 9. LOAD ROUTE CONFIGURATIONS
+// 10. LOAD ROUTE CONFIGURATIONS
 // ========================================
 
 require BASE_DIR . '/config/routes.php';          // Public and protected routes
@@ -118,7 +195,7 @@ require BASE_DIR . '/config/routes/admin.php';    // Admin routes
 require BASE_DIR . '/config/routes/api.php';      // API routes
 
 // ========================================
-// 10. DISPATCH REQUEST
+// 11. DISPATCH REQUEST
 // ========================================
 
 try {
