@@ -1,0 +1,4 @@
+./.env.example
+./composer.json
+./database/schema/schema.xml
+./phpunit.xml
