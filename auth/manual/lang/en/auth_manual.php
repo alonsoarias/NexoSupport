@@ -1,27 +1,22 @@
 <?php
 /**
- * Strings for component 'auth_manual', language 'en'
+ * Language strings - auth_manual (English)
  *
- * @package    auth_manual
- * @copyright  2025 ISER
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package auth_manual
  */
 
-$string['pluginname'] = 'Manual authentication';
-$string['auth_manualdescription'] = 'Users authenticate using credentials stored in the local database. User accounts must be created manually by an administrator.';
+defined('NEXOSUPPORT_INTERNAL') || die();
 
-// Settings
-$string['expiration'] = 'Enable password expiration';
-$string['expiration_desc'] = 'Allow passwords to expire after a specified time';
-$string['expiration_warning'] = 'Expiration warning days';
-$string['expiration_warning_desc'] = 'Number of days before expiration to warn users';
-$string['minpasswordlength'] = 'Minimum password length';
-$string['minpasswordlength_desc'] = 'Minimum number of characters required for passwords';
-$string['passwordpolicy'] = 'Password policy';
-$string['passwordpolicy_desc'] = 'Require passwords to contain uppercase letters, lowercase letters, numbers and special characters';
+$string['pluginname'] = 'Manual Authentication';
+$string['plugindescription'] = 'Authentication against local database with hashed passwords';
 
-// Capabilities
-$string['auth_manual:manage'] = 'Manage manual user accounts';
+// Password errors
+$string['passwordtooshort'] = 'Password must be at least 8 characters long';
+$string['passwordneedsuppercase'] = 'Password must contain at least one uppercase letter';
+$string['passwordneedslowercase'] = 'Password must contain at least one lowercase letter';
+$string['passwordneedsnumber'] = 'Password must contain at least one number';
+$string['passwordneedsspecial'] = 'Password must contain at least one special character';
 
-// Privacy
-$string['privacy:metadata'] = 'The manual authentication plugin does not store personal data.';
+// Configuration
+$string['allowsignup'] = 'Allow self-registration';
+$string['allowsignup_desc'] = 'Allow users to register themselves';

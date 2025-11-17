@@ -1,27 +1,22 @@
 <?php
 /**
- * Strings for component 'auth_manual', language 'es'
+ * Strings de idioma - auth_manual (Español)
  *
- * @package    auth_manual
- * @copyright  2025 ISER
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package auth_manual
  */
 
-$string['pluginname'] = 'Autenticación manual';
-$string['auth_manualdescription'] = 'Los usuarios se autentican usando credenciales almacenadas en la base de datos local. Las cuentas de usuario deben ser creadas manualmente por un administrador.';
+defined('NEXOSUPPORT_INTERNAL') || die();
 
-// Settings
-$string['expiration'] = 'Habilitar expiración de contraseñas';
-$string['expiration_desc'] = 'Permitir que las contraseñas expiren después de un tiempo especificado';
-$string['expiration_warning'] = 'Días de advertencia de expiración';
-$string['expiration_warning_desc'] = 'Número de días antes de la expiración para advertir a los usuarios';
-$string['minpasswordlength'] = 'Longitud mínima de contraseña';
-$string['minpasswordlength_desc'] = 'Número mínimo de caracteres requeridos para las contraseñas';
-$string['passwordpolicy'] = 'Política de contraseñas';
-$string['passwordpolicy_desc'] = 'Requerir que las contraseñas contengan letras mayúsculas, minúsculas, números y caracteres especiales';
+$string['pluginname'] = 'Autenticación Manual';
+$string['plugindescription'] = 'Autenticación contra base de datos local con contraseñas hash';
 
-// Capabilities
-$string['auth_manual:manage'] = 'Gestionar cuentas de usuario manual';
+// Errores de contraseña
+$string['passwordtooshort'] = 'La contraseña debe tener al menos 8 caracteres';
+$string['passwordneedsuppercase'] = 'La contraseña debe contener al menos una letra mayúscula';
+$string['passwordneedslowercase'] = 'La contraseña debe contener al menos una letra minúscula';
+$string['passwordneedsnumber'] = 'La contraseña debe contener al menos un número';
+$string['passwordneedsspecial'] = 'La contraseña debe contener al menos un carácter especial';
 
-// Privacy
-$string['privacy:metadata'] = 'El plugin de autenticación manual no almacena datos personales.';
+// Configuración
+$string['allowsignup'] = 'Permitir auto-registro';
+$string['allowsignup_desc'] = 'Permitir que los usuarios se registren por sí mismos';

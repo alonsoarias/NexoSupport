@@ -1,7 +1,0 @@
-<svg width="120" height="40" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="120" height="40" fill="#1B9E88" rx="4"/>
-
-  <!-- Text ISER -->
-  <text x="60" y="28" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white" text-anchor="middle">ISER</text>
-</svg>

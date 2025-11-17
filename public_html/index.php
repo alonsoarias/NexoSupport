@@ -1,213 +1,183 @@
 <?php
 /**
- * NexoSupport - Front Controller (Frankenstyle Architecture)
+ * Front Controller - Single Entry Point
  *
- * Single entry point for all requests - Simplified and clean
+ * Este es el ÚNICO archivo en public_html.
+ * Todo el sistema es accesible a través de este punto.
  *
- * @package    NexoSupport
- * @copyright  2024 ISER
- * @license    Proprietary
- * @version    1.0.0
+ * Funciones:
+ * 1. Servir assets de themes (/theme/nombre/...)
+ * 2. Redirigir a instalador si no está instalado
+ * 3. Cargar sistema y despachar rutas
+ *
+ * @package NexoSupport
  */
 
 declare(strict_types=1);
 
-// ========================================
-// 1. DEFINE BASE CONSTANTS
-// ========================================
-
+// Definir constantes
 define('BASE_DIR', dirname(__DIR__));
-define('ENV_FILE', BASE_DIR . '/.env');
 define('NEXOSUPPORT_INTERNAL', true);
 
-// ========================================
-// 2. VERIFY INSTALLATION
-// ========================================
+// Obtener URI solicitada
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$method = $_SERVER['REQUEST_METHOD'];
 
-function checkInstallation(): bool
-{
-    if (!file_exists(ENV_FILE)) {
-        return false;
+// ============================================
+// SERVICIO DE ASSETS DE THEMES
+// Los themes contienen sus propios assets
+// Se sirven directamente sin procesamiento
+// ============================================
+if (preg_match('#^/theme/([a-z0-9_]+)/(.+)$#', $uri, $matches)) {
+    $themename = $matches[1];
+    $resource = $matches[2];
+
+    // Validación de seguridad: evitar path traversal
+    if (strpos($resource, '..') !== false || strpos($themename, '..') !== false) {
+        http_response_code(403);
+        die('Forbidden');
     }
 
-    $envContent = @file_get_contents(ENV_FILE);
-    if ($envContent === false) {
-        return false;
-    }
+    // Construir ruta al archivo
+    $filepath = BASE_DIR . '/theme/' . $themename . '/' . $resource;
 
-    $lines = explode("\n", $envContent);
-    foreach ($lines as $line) {
-        $line = trim($line);
-        if (empty($line) || $line[0] === '#') {
-            continue;
-        }
-        if (strpos($line, 'INSTALLED=') === 0) {
-            $value = trim(str_replace('INSTALLED=', '', $line));
-            return ($value === 'true');
-        }
-    }
-
-    return false;
-}
-
-if (!checkInstallation()) {
-    header('Location: /install.php');
-    exit;
-}
-
-// ========================================
-// 3. SERVE STATIC ASSETS
-// ========================================
-
-/**
- * Serve static files from resources/assets/public/
- * This allows keeping public_html/ clean with only index.php
- */
-function serveStaticAsset(): void
-{
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-    $parsedUrl = parse_url($requestUri);
-    $path = $parsedUrl['path'] ?? '';
-
-    // Only handle /assets/* requests
-    if (strpos($path, '/assets/') !== 0) {
-        return;
-    }
-
-    // Remove /assets/ prefix to get relative path
-    $relativePath = substr($path, strlen('/assets/'));
-
-    // Prevent directory traversal attacks
-    if (strpos($relativePath, '..') !== false || strpos($relativePath, './') !== false) {
-        http_response_code(400);
-        exit('Invalid path');
-    }
-
-    // Build absolute file path
-    $filePath = BASE_DIR . '/resources/assets/public/' . $relativePath;
-
-    // Check if file exists and is readable
-    if (!file_exists($filePath) || !is_file($filePath) || !is_readable($filePath)) {
+    // Verificar que existe
+    if (!file_exists($filepath) || !is_file($filepath)) {
         http_response_code(404);
-        exit('Asset not found');
+        die('Not found');
     }
 
-    // Determine MIME type
-    $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-    $mimeTypes = [
-        'css'  => 'text/css',
-        'js'   => 'application/javascript',
-        'json' => 'application/json',
-        'png'  => 'image/png',
-        'jpg'  => 'image/jpeg',
+    // Determinar MIME type
+    $extension = pathinfo($filepath, PATHINFO_EXTENSION);
+    $mimetypes = [
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
         'jpeg' => 'image/jpeg',
-        'gif'  => 'image/gif',
-        'svg'  => 'image/svg+xml',
-        'webp' => 'image/webp',
-        'ico'  => 'image/x-icon',
+        'gif' => 'image/gif',
+        'svg' => 'image/svg+xml',
+        'ico' => 'image/x-icon',
         'woff' => 'font/woff',
-        'woff2'=> 'font/woff2',
-        'ttf'  => 'font/ttf',
-        'eot'  => 'application/vnd.ms-fontobject',
+        'woff2' => 'font/woff2',
+        'ttf' => 'font/ttf',
+        'eot' => 'application/vnd.ms-fontobject',
     ];
 
-    $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
+    $mime = $mimetypes[$extension] ?? 'application/octet-stream';
 
-    // Set headers
-    header('Content-Type: ' . $mimeType);
-    header('Content-Length: ' . filesize($filePath));
+    // Enviar headers
+    header('Content-Type: ' . $mime);
+    header('Cache-Control: public, max-age=31536000'); // 1 año
+    header('Content-Length: ' . filesize($filepath));
 
-    // Cache headers for static assets (1 year for images/fonts, 1 month for CSS/JS)
-    if (in_array($extension, ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico', 'woff', 'woff2', 'ttf', 'eot'])) {
-        header('Cache-Control: public, max-age=31536000, immutable');
-    } else {
-        header('Cache-Control: public, max-age=2592000');
-    }
-
-    // Output file
-    readfile($filePath);
+    // Enviar archivo
+    readfile($filepath);
     exit;
 }
 
-// Serve static assets if requested
-serveStaticAsset();
+// ============================================
+// SISTEMA PRINCIPAL
+// ============================================
 
-// ========================================
-// 4. LOAD AUTOLOADER
-// ========================================
+// Verificar si está instalado
+$installedFile = BASE_DIR . '/.installed';
 
-if (!file_exists(BASE_DIR . '/vendor/autoload.php')) {
-    http_response_code(500);
-    die('<h1>Dependency Error</h1><p>Composer dependencies not installed. Run: composer install</p>');
+if (!file_exists($installedFile)) {
+    // No instalado, redirigir a instalador
+    if ($uri !== '/install' && !str_starts_with($uri, '/install/')) {
+        header('Location: /install');
+        exit;
+    }
+
+    // Cargar instalador
+    require_once(BASE_DIR . '/install/index.php');
+    exit;
 }
 
-require_once BASE_DIR . '/vendor/autoload.php';
+// ============================================
+// Sistema instalado: cargar normalmente
+// ============================================
 
-// ========================================
-// 5. LOAD SYSTEM SETUP
-// ========================================
+// Cargar setup del sistema
+require_once(BASE_DIR . '/lib/setup.php');
 
-require_once BASE_DIR . '/lib/setup.php';
-
-// ========================================
-// 6. START SESSION
-// ========================================
-
-session_start();
-
-// ========================================
-// 7. INITIALIZE APPLICATION
-// ========================================
-
-use ISER\Core\Bootstrap;
-use ISER\Core\Routing\Router;
-use ISER\Core\Routing\RouteNotFoundException;
-use ISER\Core\Http\Request;
-use ISER\Core\Http\Response;
-
-try {
-    $app = new Bootstrap(BASE_DIR);
-    $app->init();
-} catch (Exception $e) {
-    error_log('Bootstrap Error: ' . $e->getMessage());
+// Verificar que la base de datos está accesible
+if ($DB === null) {
     http_response_code(500);
-    die('<h1>System Error</h1><p>Failed to initialize the application.</p>');
+    echo '<h1>Database Error</h1>';
+    echo '<p>Could not connect to database. Please check your configuration.</p>';
+    exit;
 }
 
-// ========================================
-// 8. GET DATABASE INSTANCE
-// ========================================
+// ============================================
+// ROUTING
+// ============================================
 
-$database = $app->getDatabase();
+use core\routing\router;
 
-// ========================================
-// 9. CREATE ROUTER
-// ========================================
+$router = new router();
 
-$router = new Router();
+// Rutas principales
+$router->get('/', function() {
+    global $USER;
 
-// ========================================
-// 10. LOAD ROUTE CONFIGURATIONS
-// ========================================
+    if (!isset($USER->id) || $USER->id == 0) {
+        redirect('/login');
+    }
 
-require BASE_DIR . '/config/routes.php';          // Public and protected routes
-require BASE_DIR . '/config/routes/admin.php';    // Admin routes
-require BASE_DIR . '/config/routes/api.php';      // API routes
+    // Home page
+    echo '<h1>Welcome to NexoSupport</h1>';
+    echo '<p>User: ' . htmlspecialchars($USER->username ?? 'Guest') . '</p>';
+    echo '<p><a href="/logout">Logout</a></p>';
+    echo '<p><a href="/admin">Administration</a></p>';
+});
 
-// ========================================
-// 11. DISPATCH REQUEST
-// ========================================
+// Login routes
+$router->get('/login', function() {
+    require(BASE_DIR . '/login/index.php');
+});
 
+$router->post('/login', function() {
+    require(BASE_DIR . '/login/index.php');
+});
+
+// Logout
+$router->get('/logout', function() {
+    require(BASE_DIR . '/login/logout.php');
+});
+
+// Admin routes
+$router->get('/admin', function() {
+    require(BASE_DIR . '/admin/index.php');
+});
+
+$router->get('/admin/users', function() {
+    require(BASE_DIR . '/admin/user/index.php');
+});
+
+// User profile
+$router->get('/user/profile', function() {
+    require(BASE_DIR . '/user/profile.php');
+});
+
+// Despachar
 try {
-    $request = Request::createFromGlobals();
-    $response = $router->dispatch($request);
-    $response->send();
-} catch (RouteNotFoundException $e) {
+    $router->dispatch($uri, $method);
+} catch (\core\routing\route_not_found_exception $e) {
     http_response_code(404);
-    echo '<h1>404 - Page Not Found</h1>';
-    echo '<p>The requested URL was not found on this server.</p>';
-} catch (Exception $e) {
-    error_log('Routing Error: ' . $e->getMessage());
+    echo '<h1>404 Not Found</h1>';
+    echo '<p>The requested page was not found.</p>';
+    echo '<p><a href="/">Return to home</a></p>';
+} catch (\Exception $e) {
     http_response_code(500);
-    echo '<h1>500 - Internal Server Error</h1>';
+
+    if ($CFG->debug) {
+        echo '<h1>Error</h1>';
+        echo '<pre>' . htmlspecialchars($e->getMessage()) . '</pre>';
+        echo '<pre>' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
+    } else {
+        echo '<h1>Internal Server Error</h1>';
+        echo '<p>An error occurred. Please try again later.</p>';
+    }
 }

@@ -1,65 +1,148 @@
 <?php
 /**
- * Stage 4: Admin User Creation
+ * Stage: Create Admin User
  */
 
-$username = $_SESSION['admin_username'] ?? '';
-$email = $_SESSION['admin_email'] ?? '';
-$firstname = $_SESSION['admin_firstname'] ?? 'Admin';
-$lastname = $_SESSION['admin_lastname'] ?? 'User';
+$progress = 83;
+$error = null;
+
+session_start();
+
+if (!isset($_SESSION['install_db'])) {
+    header('Location: /install?stage=database');
+    exit;
+}
+
+// Procesar formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $password2 = $_POST['password2'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $firstname = $_POST['firstname'] ?? '';
+    $lastname = $_POST['lastname'] ?? '';
+
+    // Validaciones
+    if (empty($username) || empty($password) || empty($email) || empty($firstname) || empty($lastname)) {
+        $error = 'Todos los campos son obligatorios';
+    } elseif ($password !== $password2) {
+        $error = 'Las contraseñas no coinciden';
+    } elseif (strlen($password) < 8) {
+        $error = 'La contraseña debe tener al menos 8 caracteres';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Email inválido';
+    } else {
+        // Conectar a BD y crear usuario
+        $dbconfig = $_SESSION['install_db'];
+
+        $dsn = $dbconfig['driver'] === 'mysql'
+            ? "mysql:host={$dbconfig['host']};dbname={$dbconfig['name']};charset=utf8mb4"
+            : "pgsql:host={$dbconfig['host']};dbname={$dbconfig['name']}";
+
+        try {
+            $pdo = new PDO($dsn, $dbconfig['user'], $dbconfig['pass']);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            require_once(BASE_DIR . '/lib/classes/db/database.php');
+            $DB = new \core\db\database($pdo, $dbconfig['prefix'], $dbconfig['driver']);
+
+            // Crear usuario admin
+            $userid = $DB->insert_record('users', [
+                'auth' => 'manual',
+                'username' => $username,
+                'password' => password_hash($password, PASSWORD_DEFAULT),
+                'firstname' => $firstname,
+                'lastname' => $lastname,
+                'email' => $email,
+                'suspended' => 0,
+                'deleted' => 0,
+                'timecreated' => time(),
+                'timemodified' => time()
+            ]);
+
+            // Crear rol de administrador
+            $roleid = $DB->insert_record('roles', [
+                'name' => 'Administrador',
+                'shortname' => 'admin',
+                'description' => 'Administrador del sistema',
+                'archetype' => 'admin',
+                'sortorder' => 1
+            ]);
+
+            // Asignar rol al usuario
+            $DB->insert_record('role_assignments', [
+                'roleid' => $roleid,
+                'userid' => $userid,
+                'contextid' => 1,
+                'timemodified' => time()
+            ]);
+
+            // Guardar en sesión
+            $_SESSION['admin_created'] = true;
+
+            // Redirigir a finish
+            header('Location: /install?stage=finish');
+            exit;
+
+        } catch (Exception $e) {
+            $error = 'Error al crear usuario: ' . $e->getMessage();
+        }
+    }
+}
+
+// Valores por defecto
+$username = $_POST['username'] ?? 'admin';
+$email = $_POST['email'] ?? 'soporteplataformas@iser.edu.co';
+$firstname = $_POST['firstname'] ?? 'Administrador';
+$lastname = $_POST['lastname'] ?? 'Sistema';
 ?>
 
-<h3 class="mb-4">Usuario Administrador</h3>
+<h1>Crear Usuario Administrador</h1>
+<h2>Configure la cuenta del administrador del sistema</h2>
 
-<div class="alert alert-warning">
-    <i class="bi bi-exclamation-triangle"></i>
-    <strong>Importante:</strong> Guarde estas credenciales en un lugar seguro.
+<div class="progress">
+    <div class="progress-bar" style="width: <?php echo $progress; ?>%"></div>
 </div>
 
+<?php if ($error): ?>
+    <div class="alert alert-error">
+        <?php echo htmlspecialchars($error); ?>
+    </div>
+<?php endif; ?>
+
 <form method="POST">
-    <input type="hidden" name="stage" value="<?= STAGE_ADMIN ?>">
-
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Nombre de usuario *</label>
-            <input type="text" name="username" class="form-control" value="<?= htmlspecialchars($username) ?>" required pattern="[a-zA-Z0-9_]+" minlength="4">
-            <small class="text-muted">Solo letras, números y guiones bajos</small>
-        </div>
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Email *</label>
-            <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($email) ?>" required>
-        </div>
+    <div class="form-group">
+        <label for="username">Nombre de Usuario</label>
+        <input type="text" name="username" id="username" value="<?php echo htmlspecialchars($username); ?>" required>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Nombre</label>
-            <input type="text" name="first_name" class="form-control" value="<?= htmlspecialchars($firstname) ?>">
-        </div>
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Apellido</label>
-            <input type="text" name="last_name" class="form-control" value="<?= htmlspecialchars($lastname) ?>">
-        </div>
+    <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" name="password" id="password" required>
+        <small style="color: #666;">Mínimo 8 caracteres</small>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Contraseña *</label>
-            <input type="password" name="password" class="form-control" required minlength="8">
-            <small class="text-muted">Mínimo 8 caracteres</small>
-        </div>
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Confirmar contraseña *</label>
-            <input type="password" name="password_confirm" class="form-control" required>
-        </div>
+    <div class="form-group">
+        <label for="password2">Confirmar Contraseña</label>
+        <input type="password" name="password2" id="password2" required>
     </div>
 
-    <div class="d-flex justify-content-between">
-        <button type="submit" name="previous" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Anterior
-        </button>
-        <button type="submit" name="next" class="btn btn-primary">
-            Crear Administrador <i class="bi bi-arrow-right"></i>
-        </button>
+    <div class="form-group">
+        <label for="email">Correo Electrónico</label>
+        <input type="email" name="email" id="email" value="<?php echo htmlspecialchars($email); ?>" required>
+    </div>
+
+    <div class="form-group">
+        <label for="firstname">Nombre</label>
+        <input type="text" name="firstname" id="firstname" value="<?php echo htmlspecialchars($firstname); ?>" required>
+    </div>
+
+    <div class="form-group">
+        <label for="lastname">Apellido</label>
+        <input type="text" name="lastname" id="lastname" value="<?php echo htmlspecialchars($lastname); ?>" required>
+    </div>
+
+    <div class="actions">
+        <button type="submit" class="btn">Crear Administrador</button>
     </div>
 </form>

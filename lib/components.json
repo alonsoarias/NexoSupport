@@ -7,11 +7,9 @@
     "report": "report"
   },
   "subsystems": {
+    "core": "lib/classes",
     "admin": "admin",
     "user": "user",
-    "login": "login",
-    "lib": "lib",
-    "install": "install",
-    "core": "lib/classes"
+    "login": "login"
   }
 }

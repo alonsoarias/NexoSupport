@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="lib/db" VERSION="20250117">
+  <TABLES>
+
+    <!-- Tabla de usuarios -->
+    <TABLE NAME="users">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="auth" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="manual"/>
+        <FIELD NAME="username" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="password" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="firstname" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="lastname" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="email" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="phone" TYPE="char" LENGTH="20"/>
+        <FIELD NAME="suspended" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="deleted" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="lastlogin" TYPE="int" LENGTH="10" DEFAULT="0"/>
+        <FIELD NAME="lastip" TYPE="char" LENGTH="45"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_username" UNIQUE="true" FIELDS="username"/>
+        <INDEX NAME="idx_email" UNIQUE="true" FIELDS="email"/>
+        <INDEX NAME="idx_auth" UNIQUE="false" FIELDS="auth"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de configuración -->
+    <TABLE NAME="config">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="component" TYPE="char" LENGTH="100" NOTNULL="true" DEFAULT="core"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="value" TYPE="text" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_component_name" UNIQUE="true" FIELDS="component,name"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de roles -->
+    <TABLE NAME="roles">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="shortname" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="description" TYPE="text"/>
+        <FIELD NAME="archetype" TYPE="char" LENGTH="30"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_shortname" UNIQUE="true" FIELDS="shortname"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de capabilities -->
+    <TABLE NAME="capabilities">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="captype" TYPE="char" LENGTH="50" NOTNULL="true"/>
+        <FIELD NAME="contextlevel" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="component" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="riskbitmask" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_name" UNIQUE="true" FIELDS="name"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de asignación de roles -->
+    <TABLE NAME="role_assignments">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="roleid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_roleid" UNIQUE="false" FIELDS="roleid"/>
+        <INDEX NAME="idx_userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="idx_contextid" UNIQUE="false" FIELDS="contextid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de permisos de roles -->
+    <TABLE NAME="role_capabilities">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="roleid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="capability" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="permission" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_roleid_capability" UNIQUE="false" FIELDS="roleid,capability"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de contextos -->
+    <TABLE NAME="contexts">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="contextlevel" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="path" TYPE="char" LENGTH="255"/>
+        <FIELD NAME="depth" TYPE="int" LENGTH="2" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_contextlevel_instanceid" UNIQUE="true" FIELDS="contextlevel,instanceid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de sesiones -->
+    <TABLE NAME="sessions">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="char" LENGTH="128" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="data" TYPE="text"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de logs -->
+    <TABLE NAME="logs">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="action" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="target" TYPE="char" LENGTH="100"/>
+        <FIELD NAME="objectid" TYPE="int" LENGTH="10"/>
+        <FIELD NAME="objecttable" TYPE="char" LENGTH="50"/>
+        <FIELD NAME="ip" TYPE="char" LENGTH="45"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="idx_action" UNIQUE="false" FIELDS="action"/>
+        <INDEX NAME="idx_timecreated" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+  </TABLES>
+</XMLDB>

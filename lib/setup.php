@@ -1,114 +1,199 @@
 <?php
 /**
- * NexoSupport - System Setup and Initialization
+ * Setup de NexoSupport
  *
- * This file defines global constants, loads core functions,
- * and initializes the Frankenstyle environment.
+ * Este archivo inicializa el sistema y establece las variables globales.
+ * Debe ser incluido al inicio de cada script.
  *
- * @package    NexoSupport
- * @copyright  2024 ISER
- * @license    Proprietary
+ * @package NexoSupport
  */
 
+// Verificar que se ha definido la constante de seguridad
 defined('NEXOSUPPORT_INTERNAL') || die();
 
-// ========================================
-// SYSTEM CONSTANTS
-// ========================================
+// ============================================
+// PASO 1: Configuración básica de PHP
+// ============================================
 
-/** System version */
-define('NEXOSUPPORT_VERSION', '1.0.0');
+// Timezone
+date_default_timezone_set('America/Bogota');
 
-/** System name */
-define('NEXOSUPPORT_NAME', 'NexoSupport');
+// Error reporting (depende del modo)
+if (getenv('APP_ENV') === 'development') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+} else {
+    error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+    ini_set('display_errors', '0');
+}
 
-/** Base directory (already defined in index.php, but check) */
+// ============================================
+// PASO 2: Definir directorios
+// ============================================
+
 if (!defined('BASE_DIR')) {
     define('BASE_DIR', dirname(__DIR__));
 }
 
-/** Directory paths */
-define('LIB_DIR', BASE_DIR . '/lib');
-define('ADMIN_DIR', BASE_DIR . '/admin');
-define('USER_DIR', BASE_DIR . '/user');
-define('LOGIN_DIR', BASE_DIR . '/login');
-define('THEME_DIR', BASE_DIR . '/theme');
-define('REPORT_DIR', BASE_DIR . '/report');
-define('AUTH_DIR', BASE_DIR . '/auth');
-define('VAR_DIR', BASE_DIR . '/var');
-define('PUBLIC_DIR', BASE_DIR . '/public_html');
+// ============================================
+// PASO 3: Cargar Composer Autoloader
+// ============================================
 
-/** Database table prefix (loaded from .env, default fallback) */
-if (!defined('DB_PREFIX')) {
-    define('DB_PREFIX', getenv('DB_PREFIX') ?: 'iser_');
+if (file_exists(BASE_DIR . '/vendor/autoload.php')) {
+    require_once(BASE_DIR . '/vendor/autoload.php');
 }
 
-// ========================================
-// AUTOLOAD HELPER FUNCTIONS
-// ========================================
+// ============================================
+// PASO 4: Cargar funciones globales
+// ============================================
 
-use ISER\Core\Component\ComponentHelper;
+require_once(__DIR__ . '/functions.php');
 
-/**
- * Load component's lib.php file if exists
- *
- * @deprecated Use ComponentHelper::getInstance()->requireLib() instead
- * @param string $component Component name (e.g., 'auth_manual', 'tool_uploaduser')
- * @return bool True if loaded, false otherwise
- */
-function require_component_lib(string $component): bool
-{
-    return ComponentHelper::getInstance()->requireLib($component);
+// ============================================
+// PASO 5: Inicializar objeto $CFG
+// ============================================
+
+global $CFG;
+
+$CFG = new stdClass();
+
+// Directorios
+$CFG->dirroot = BASE_DIR;
+$CFG->dataroot = BASE_DIR . '/var';
+$CFG->cachedir = BASE_DIR . '/var/cache';
+$CFG->logdir = BASE_DIR . '/var/logs';
+$CFG->sessiondir = BASE_DIR . '/var/sessions';
+
+// Cargar variables de entorno
+if (file_exists(BASE_DIR . '/.env')) {
+    load_environment(BASE_DIR . '/.env');
 }
 
-/**
- * Get component directory path
- *
- * @deprecated Use ComponentHelper::getInstance()->getPath() instead
- * @param string $component Component name (e.g., 'auth_manual', 'tool_uploaduser')
- * @return string|null Path to component directory or null if not found
- */
-function component_get_path(string $component): ?string
-{
-    return ComponentHelper::getInstance()->getPath($component);
-}
+// Configuración de base de datos
+$CFG->dbtype = getenv('DB_DRIVER') ?: 'mysql';
+$CFG->dbhost = getenv('DB_HOST') ?: 'localhost';
+$CFG->dbname = getenv('DB_DATABASE') ?: 'nexosupport';
+$CFG->dbuser = getenv('DB_USERNAME') ?: 'root';
+$CFG->dbpass = getenv('DB_PASSWORD') ?: '';
+$CFG->dbprefix = getenv('DB_PREFIX') ?: 'nxs_';
 
-/**
- * Get list of all installed components of a specific type
- *
- * @deprecated Use ComponentHelper::getInstance()->getComponentsByType() instead
- * @param string $type Component type (e.g., 'auth', 'tool', 'theme')
- * @return array Array of component names
- */
-function get_components_by_type(string $type): array
-{
-    return ComponentHelper::getInstance()->getComponentsByType($type);
-}
+// Configuración general
+$CFG->wwwroot = getenv('APP_URL') ?: 'http://localhost';
+$CFG->debug = getenv('APP_DEBUG') === 'true';
+$CFG->installed = getenv('INSTALLED') === 'true';
 
-// ========================================
-// LOAD CORE HELPER FILES
-// ========================================
+// ============================================
+// PASO 6: Iniciar sesión
+// ============================================
 
-// These will be created in subsequent phases
-// For now, we'll create placeholders
-
-$helperFiles = [
-    // LIB_DIR . '/accesslib.php',     // RBAC functions (Phase 2)
-    // LIB_DIR . '/outputlib.php',     // Output/rendering functions (Phase 7)
-    // LIB_DIR . '/pluginlib.php',     // Plugin management (Phase 4)
-];
-
-foreach ($helperFiles as $helperFile) {
-    if (file_exists($helperFile)) {
-        require_once $helperFile;
+if (!headers_sent()) {
+    if (!isset($_SESSION)) {
+        ini_set('session.save_path', $CFG->sessiondir);
+        session_start();
     }
 }
 
-// ========================================
-// INITIALIZATION COMPLETE
-// ========================================
+// ============================================
+// PASO 7: Inicializar $USER
+// ============================================
 
-// Log setup completion (only if logger is available)
-if (function_exists('error_log')) {
-    error_log('[NexoSupport] System setup completed - Version ' . NEXOSUPPORT_VERSION);
+global $USER;
+
+if (isset($_SESSION['USER'])) {
+    $USER = $_SESSION['USER'];
+} else {
+    $USER = new stdClass();
+    $USER->id = 0;
+}
+
+// ============================================
+// PASO 8: Conectar a base de datos (si está instalado)
+// ============================================
+
+global $DB;
+
+if ($CFG->installed) {
+    try {
+        $dsn = build_dsn($CFG->dbtype, $CFG->dbhost, $CFG->dbname);
+        $pdo = new PDO($dsn, $CFG->dbuser, $CFG->dbpass);
+
+        $DB = new \core\db\database($pdo, $CFG->dbprefix, $CFG->dbtype);
+    } catch (PDOException $e) {
+        debugging("Database connection failed: " . $e->getMessage());
+        $DB = null;
+    }
+} else {
+    $DB = null;
+}
+
+// ============================================
+// PASO 9: Inicializar $LANG
+// ============================================
+
+global $LANG;
+$LANG = [];
+
+// ============================================
+// FUNCIONES HELPER DE SETUP
+// ============================================
+
+/**
+ * Cargar variables de entorno desde archivo .env
+ *
+ * @param string $filepath
+ * @return void
+ */
+function load_environment(string $filepath): void {
+    if (!file_exists($filepath)) {
+        return;
+    }
+
+    $lines = file($filepath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($lines as $line) {
+        // Ignorar comentarios
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+
+        // Parsear línea
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+
+            $name = trim($name);
+            $value = trim($value);
+
+            // Remover comillas
+            $value = trim($value, '"\'');
+
+            // Establecer variable de entorno
+            putenv("$name=$value");
+            $_ENV[$name] = $value;
+            $_SERVER[$name] = $value;
+        }
+    }
+}
+
+/**
+ * Construir DSN para PDO
+ *
+ * @param string $driver
+ * @param string $host
+ * @param string $dbname
+ * @return string
+ */
+function build_dsn(string $driver, string $host, string $dbname): string {
+    switch ($driver) {
+        case 'mysql':
+            return "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
+
+        case 'pgsql':
+            return "pgsql:host=$host;dbname=$dbname";
+
+        case 'sqlite':
+            return "sqlite:$dbname";
+
+        default:
+            throw new coding_exception("Unsupported database driver: $driver");
+    }
 }
