@@ -151,7 +151,7 @@ class Validator
                 return self::validateBoolean($field, $value);
 
             default:
-                return "Unknown validation rule: {$ruleName}";
+                return get_string('unknown_rule', 'validation', ['rule' => $ruleName]);
         }
     }
 
@@ -161,7 +161,7 @@ class Validator
     private static function validateRequired(string $field, $value): ?string
     {
         if ($value === null || $value === '' || (is_array($value) && empty($value))) {
-            return ucfirst($field) . " es requerido";
+            return get_string('required', 'validation', ['field' => ucfirst($field)]);
         }
         return null;
     }
@@ -177,7 +177,7 @@ class Validator
         }
 
         if (filter_var($value, FILTER_VALIDATE_EMAIL) === false) {
-            return ucfirst($field) . " debe ser un email válido";
+            return get_string('email', 'validation', ['field' => ucfirst($field)]);
         }
         return null;
     }
@@ -192,7 +192,7 @@ class Validator
         }
 
         if (filter_var($value, FILTER_VALIDATE_URL) === false) {
-            return ucfirst($field) . " debe ser una URL válida";
+            return get_string('url', 'validation', ['field' => ucfirst($field)]);
         }
         return null;
     }
@@ -207,7 +207,7 @@ class Validator
         }
 
         if (strlen((string)$value) < $min) {
-            return ucfirst($field) . " debe tener al menos {$min} caracteres";
+            return get_string('min', 'validation', ['field' => ucfirst($field), 'min' => $min])['string'];
         }
         return null;
     }
@@ -222,7 +222,7 @@ class Validator
         }
 
         if (strlen((string)$value) > $max) {
-            return ucfirst($field) . " no debe exceder {$max} caracteres";
+            return get_string('max', 'validation', ['field' => ucfirst($field), 'max' => $max])['string'];
         }
         return null;
     }
@@ -237,7 +237,7 @@ class Validator
         }
 
         if (!is_numeric($value) || (float)$value < $min) {
-            return ucfirst($field) . " debe ser al menos {$min}";
+            return get_string('min', 'validation', ['field' => ucfirst($field), 'min' => $min])['numeric'];
         }
         return null;
     }
@@ -252,7 +252,7 @@ class Validator
         }
 
         if (!is_numeric($value) || (float)$value > $max) {
-            return ucfirst($field) . " no debe exceder {$max}";
+            return get_string('max', 'validation', ['field' => ucfirst($field), 'max' => $max])['numeric'];
         }
         return null;
     }
@@ -267,7 +267,7 @@ class Validator
         }
 
         if (!is_numeric($value)) {
-            return ucfirst($field) . " debe ser numérico";
+            return get_string('numeric', 'validation', ['field' => ucfirst($field)]);
         }
         return null;
     }
@@ -282,7 +282,7 @@ class Validator
         }
 
         if (filter_var($value, FILTER_VALIDATE_INT) === false) {
-            return ucfirst($field) . " debe ser un número entero";
+            return get_string('integer', 'validation', ['field' => ucfirst($field)]);
         }
         return null;
     }
@@ -297,7 +297,7 @@ class Validator
         }
 
         if (!ctype_alpha(str_replace(' ', '', (string)$value))) {
-            return ucfirst($field) . " solo debe contener letras";
+            return get_string('alpha', 'validation', ['field' => ucfirst($field)]);
         }
         return null;
     }
@@ -312,7 +312,7 @@ class Validator
         }
 
         if (!ctype_alnum(str_replace(' ', '', (string)$value))) {
-            return ucfirst($field) . " solo debe contener letras y números";
+            return get_string('alpha_num', 'validation', ['field' => ucfirst($field)]);
         }
         return null;
     }
@@ -327,7 +327,7 @@ class Validator
         }
 
         if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', (string)$value)) {
-            return ucfirst($field) . " debe ser un slug válido (solo minúsculas, números y guiones)";
+            return get_string('slug', 'validation', ['field' => ucfirst($field)]);
         }
         return null;
     }
@@ -344,7 +344,7 @@ class Validator
         $otherValue = $allData[$otherField] ?? null;
 
         if ($value !== $otherValue) {
-            return ucfirst($field) . " debe coincidir con " . ucfirst($otherField);
+            return get_string('matches', 'validation', ['field' => ucfirst($field), 'other' => ucfirst($otherField)]);
         }
         return null;
     }
@@ -359,7 +359,7 @@ class Validator
         }
 
         if (!in_array($value, $allowed, true)) {
-            return ucfirst($field) . " debe ser uno de: " . implode(', ', $allowed);
+            return get_string('in_list', 'validation', ['field' => ucfirst($field), 'values' => implode(', ', $allowed)]);
         }
         return null;
     }
@@ -374,7 +374,7 @@ class Validator
         }
 
         if (!preg_match($pattern, (string)$value)) {
-            return ucfirst($field) . " tiene un formato inválido";
+            return get_string('regex', 'validation', ['field' => ucfirst($field)]);
         }
         return null;
     }
@@ -390,7 +390,7 @@ class Validator
 
         $date = \DateTime::createFromFormat('Y-m-d', (string)$value);
         if (!$date || $date->format('Y-m-d') !== $value) {
-            return ucfirst($field) . " debe ser una fecha válida (YYYY-MM-DD)";
+            return get_string('date', 'validation', ['field' => ucfirst($field)]);
         }
         return null;
     }
@@ -405,7 +405,7 @@ class Validator
         }
 
         if (!in_array($value, [true, false, 0, 1, '0', '1', 'true', 'false'], true)) {
-            return ucfirst($field) . " debe ser un valor booleano";
+            return get_string('boolean', 'validation', ['field' => ucfirst($field)]);
         }
         return null;
     }

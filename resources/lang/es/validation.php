@@ -80,9 +80,13 @@ return [
     'alpha' => 'El campo :field solo puede contener letras',
     'alpha_dash' => 'El campo :field solo puede contener letras, números, guiones y guiones bajos',
     'alpha_num' => 'El campo :field solo puede contener letras y números',
+    'slug' => 'El campo :field debe ser un slug válido (solo minúsculas, números y guiones)',
     'starts_with' => 'El campo :field debe comenzar con: :values',
     'ends_with' => 'El campo :field debe terminar con: :values',
     'timezone' => 'El campo :field debe ser una zona horaria válida',
+    'matches' => 'El campo :field debe coincidir con :other',
+    'in_list' => 'El campo :field debe ser uno de: :values',
+    'unknown_rule' => 'Regla de validación desconocida: :rule',
 
     // Contraseñas
     'password' => [

@@ -57,7 +57,10 @@ return [
 
     // Validations
     'name_required' => 'Role name is required',
+    'name_min_length' => 'Role name must be at least :min characters',
     'name_unique' => 'A role with this name already exists',
+    'slug_required' => 'Role slug is required',
+    'slug_format' => 'Slug can only contain lowercase letters, numbers, and underscores',
     'shortname_required' => 'Short name is required',
     'shortname_unique' => 'A role with this short name already exists',
     'shortname_format' => 'Short name can only contain lowercase letters, numbers, and hyphens',

@@ -9,6 +9,8 @@
 
 namespace ISER\Admin\Tool\MFA\Factor\BackupCodes;
 
+use ISER\Core\Database\Database;
+
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
@@ -17,6 +19,15 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  * Provides one-time backup codes for account recovery.
  */
 class factor extends \tool_mfa\local\factor\object_factor_base {
+
+    /**
+     * Get database instance
+     *
+     * @return Database
+     */
+    protected function get_db(): Database {
+        return Database::getInstance();
+    }
 
     /** Number of backup codes to generate */
     const NUM_CODES = 10;
@@ -37,21 +48,22 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
     }
 
     public function has_setup($user): bool {
-        global $DB;
-        return $DB->count_records('tool_mfa_factor_backupcodes', [
+        $db = $this->get_db();
+        return $db->count_records('tool_mfa_factor_backupcodes', [
             'userid' => $user->id,
             'used' => 0,
         ]) > 0;
     }
 
     public function setup_factor_form_definition($mform) {
-        global $USER, $DB;
+        global $USER;
+        $db = $this->get_db();
 
         $mform->addElement('static', 'info', '',
             get_string('setupinfo', 'factor_backupcodes'));
 
         // Count remaining codes
-        $remaining = $DB->count_records('tool_mfa_factor_backupcodes', [
+        $remaining = $db->count_records('tool_mfa_factor_backupcodes', [
             'userid' => $USER->id,
             'used' => 0,
         ]);
@@ -73,11 +85,12 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
     }
 
     public function setup_factor_form_submit($data): bool {
-        global $USER, $DB;
+        global $USER;
+        $db = $this->get_db();
 
         if (!empty($data->generate) || !empty($data->regenerate)) {
             // Delete old codes
-            $DB->delete_records('tool_mfa_factor_backupcodes', ['userid' => $USER->id]);
+            $db->delete_records('tool_mfa_factor_backupcodes', ['userid' => $USER->id]);
 
             // Generate new codes
             $codes = $this->generate_codes($USER->id);
@@ -103,11 +116,11 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
     }
 
     public function verify_factor($user, $data): bool {
-        global $DB;
+        $db = $this->get_db();
 
         $code = strtoupper(str_replace(' ', '', $data->backupcode));
 
-        $record = $DB->get_record('tool_mfa_factor_backupcodes', [
+        $record = $db->get_record('tool_mfa_factor_backupcodes', [
             'userid' => $user->id,
             'code' => $code,
             'used' => 0,
@@ -120,7 +133,7 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
         // Mark code as used
         $record->used = 1;
         $record->timeused = time();
-        $DB->update_record('tool_mfa_factor_backupcodes', $record);
+        $db->update_record('tool_mfa_factor_backupcodes', $record);
 
         return true;
     }
@@ -132,7 +145,7 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
      * @return array Array of generated codes
      */
     protected function generate_codes($userid): array {
-        global $DB;
+        $db = $this->get_db();
 
         $codes = [];
 
@@ -145,7 +158,7 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
             $record->used = 0;
             $record->timecreated = time();
 
-            $DB->insert_record('tool_mfa_factor_backupcodes', $record);
+            $db->insert_record('tool_mfa_factor_backupcodes', $record);
 
             $codes[] = $code;
         }
@@ -177,9 +190,9 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
      * @return array Array of unused codes
      */
     public function get_unused_codes($user): array {
-        global $DB;
+        $db = $this->get_db();
 
-        $records = $DB->get_records('tool_mfa_factor_backupcodes', [
+        $records = $db->get_records('tool_mfa_factor_backupcodes', [
             'userid' => $user->id,
             'used' => 0,
         ]);

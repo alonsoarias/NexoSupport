@@ -90,6 +90,8 @@ return [
 
     // Validaciones
     'username_required' => 'El nombre de usuario es requerido',
+    'username_min_length' => 'El nombre de usuario debe tener al menos :min caracteres',
+    'username_format' => 'El nombre de usuario solo puede contener letras, números y guiones bajos',
     'username_unique' => 'El nombre de usuario ya está en uso',
     'email_required' => 'El correo electrónico es requerido',
     'email_valid' => 'Ingrese un correo electrónico válido',

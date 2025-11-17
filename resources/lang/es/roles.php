@@ -57,7 +57,10 @@ return [
 
     // Validaciones
     'name_required' => 'El nombre del rol es requerido',
+    'name_min_length' => 'El nombre del rol debe tener al menos :min caracteres',
     'name_unique' => 'Ya existe un rol con este nombre',
+    'slug_required' => 'El slug del rol es requerido',
+    'slug_format' => 'El slug solo puede contener letras minúsculas, números y guiones bajos',
     'shortname_required' => 'El nombre corto es requerido',
     'shortname_unique' => 'Ya existe un rol con este nombre corto',
     'shortname_format' => 'El nombre corto solo puede contener letras minúsculas, números y guiones',

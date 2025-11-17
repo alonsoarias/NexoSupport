@@ -80,9 +80,13 @@ return [
     'alpha' => 'The :field field may only contain letters',
     'alpha_dash' => 'The :field field may only contain letters, numbers, hyphens, and underscores',
     'alpha_num' => 'The :field field may only contain letters and numbers',
+    'slug' => 'The :field field must be a valid slug (only lowercase letters, numbers, and hyphens)',
     'starts_with' => 'The :field field must start with: :values',
     'ends_with' => 'The :field field must end with: :values',
     'timezone' => 'The :field field must be a valid timezone',
+    'matches' => 'The :field field must match :other',
+    'in_list' => 'The :field field must be one of: :values',
+    'unknown_rule' => 'Unknown validation rule: :rule',
 
     // Passwords
     'password' => [

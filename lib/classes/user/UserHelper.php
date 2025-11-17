@@ -215,33 +215,33 @@ class UserHelper
         // Username validation
         if (!$isUpdate || isset($data['username'])) {
             if (empty($data['username'])) {
-                $errors['username'] = 'Username is required';
+                $errors['username'] = get_string('username_required', 'users');
             } elseif (strlen($data['username']) < 3) {
-                $errors['username'] = 'Username must be at least 3 characters';
+                $errors['username'] = get_string('username_min_length', 'users', ['min' => 3]);
             } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $data['username'])) {
-                $errors['username'] = 'Username can only contain letters, numbers, and underscores';
+                $errors['username'] = get_string('username_format', 'users');
             }
         }
 
         // Email validation
         if (!$isUpdate || isset($data['email'])) {
             if (empty($data['email'])) {
-                $errors['email'] = 'Email is required';
+                $errors['email'] = get_string('email_required', 'users');
             } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-                $errors['email'] = 'Invalid email format';
+                $errors['email'] = get_string('email_valid', 'users');
             }
         }
 
         // Password validation (only for new users or if password provided)
         if (!$isUpdate) {
             if (empty($data['password'])) {
-                $errors['password'] = 'Password is required';
+                $errors['password'] = get_string('password_required', 'users');
             } elseif (strlen($data['password']) < 8) {
-                $errors['password'] = 'Password must be at least 8 characters';
+                $errors['password'] = get_string('password_min', 'users', ['min' => 8]);
             }
         } elseif (isset($data['password']) && !empty($data['password'])) {
             if (strlen($data['password']) < 8) {
-                $errors['password'] = 'Password must be at least 8 characters';
+                $errors['password'] = get_string('password_min', 'users', ['min' => 8]);
             }
         }
 

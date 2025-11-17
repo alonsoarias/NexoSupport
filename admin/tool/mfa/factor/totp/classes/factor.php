@@ -9,6 +9,8 @@
 
 namespace ISER\Admin\Tool\MFA\Factor\Totp;
 
+use ISER\Core\Database\Database;
+
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
@@ -17,6 +19,15 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  * Implements Time-based One-Time Password authentication.
  */
 class factor extends \tool_mfa\local\factor\object_factor_base {
+
+    /**
+     * Get database instance
+     *
+     * @return Database
+     */
+    protected function get_db(): Database {
+        return Database::getInstance();
+    }
 
     /**
      * Get the factor name
@@ -52,8 +63,8 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
      * @return bool
      */
     public function has_setup($user): bool {
-        global $DB;
-        return $DB->record_exists('tool_mfa_factor_totp', ['userid' => $user->id]);
+        $db = $this->get_db();
+        return $db->record_exists('tool_mfa_factor_totp', ['userid' => $user->id]);
     }
 
     /**
@@ -98,7 +109,8 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
      * @return bool Success
      */
     public function setup_factor_form_submit($data): bool {
-        global $USER, $DB;
+        global $USER;
+        $db = $this->get_db();
 
         $secret = $this->get_or_create_secret($USER->id);
 
@@ -108,10 +120,10 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
         }
 
         // Mark as configured
-        $record = $DB->get_record('tool_mfa_factor_totp', ['userid' => $USER->id]);
+        $record = $db->get_record('tool_mfa_factor_totp', ['userid' => $USER->id]);
         if ($record) {
             $record->confirmed = 1;
-            $DB->update_record('tool_mfa_factor_totp', $record);
+            $db->update_record('tool_mfa_factor_totp', $record);
         }
 
         return true;
@@ -142,9 +154,9 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
      * @return bool True if verification successful
      */
     public function verify_factor($user, $data): bool {
-        global $DB;
+        $db = $this->get_db();
 
-        $record = $DB->get_record('tool_mfa_factor_totp', ['userid' => $user->id]);
+        $record = $db->get_record('tool_mfa_factor_totp', ['userid' => $user->id]);
         if (!$record || !$record->confirmed) {
             return false;
         }
@@ -159,9 +171,9 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
      * @return string Secret key
      */
     protected function get_or_create_secret($userid): string {
-        global $DB;
+        $db = $this->get_db();
 
-        $record = $DB->get_record('tool_mfa_factor_totp', ['userid' => $userid]);
+        $record = $db->get_record('tool_mfa_factor_totp', ['userid' => $userid]);
 
         if ($record) {
             return $record->secret;
@@ -177,7 +189,7 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
         $record->confirmed = 0;
         $record->timecreated = time();
 
-        $DB->insert_record('tool_mfa_factor_totp', $record);
+        $db->insert_record('tool_mfa_factor_totp', $record);
 
         return $secret;
     }

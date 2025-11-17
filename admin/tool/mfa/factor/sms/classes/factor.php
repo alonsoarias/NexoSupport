@@ -9,6 +9,8 @@
 
 namespace ISER\Admin\Tool\MFA\Factor\Sms;
 
+use ISER\Core\Database\Database;
+
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
@@ -17,6 +19,15 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  * Sends verification codes via SMS.
  */
 class factor extends \tool_mfa\local\factor\object_factor_base {
+
+    /**
+     * Get database instance
+     *
+     * @return Database
+     */
+    protected function get_db(): Database {
+        return Database::getInstance();
+    }
 
     public function get_display_name(): string {
         return get_string('pluginname', 'factor_sms');
@@ -31,8 +42,8 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
     }
 
     public function has_setup($user): bool {
-        global $DB;
-        return $DB->record_exists('tool_mfa_factor_sms', ['userid' => $user->id]);
+        $db = $this->get_db();
+        return $db->record_exists('tool_mfa_factor_sms', ['userid' => $user->id]);
     }
 
     public function setup_factor_form_definition($mform) {
@@ -48,22 +59,23 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
     }
 
     public function setup_factor_form_submit($data): bool {
-        global $USER, $DB;
+        global $USER;
+        $db = $this->get_db();
 
         // Normalize phone number
         $phone = preg_replace('/[^0-9+]/', '', $data->phone);
 
         // Store phone number
-        $record = $DB->get_record('tool_mfa_factor_sms', ['userid' => $USER->id]);
+        $record = $db->get_record('tool_mfa_factor_sms', ['userid' => $USER->id]);
         if ($record) {
             $record->phone = $phone;
-            $DB->update_record('tool_mfa_factor_sms', $record);
+            $db->update_record('tool_mfa_factor_sms', $record);
         } else {
             $record = new \stdClass();
             $record->userid = $USER->id;
             $record->phone = $phone;
             $record->timecreated = time();
-            $DB->insert_record('tool_mfa_factor_sms', $record);
+            $db->insert_record('tool_mfa_factor_sms', $record);
         }
 
         return true;
@@ -82,9 +94,9 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
     }
 
     public function verify_factor($user, $data): bool {
-        global $DB;
+        $db = $this->get_db();
 
-        $record = $DB->get_record('tool_mfa_factor_sms_codes', [
+        $record = $db->get_record('tool_mfa_factor_sms_codes', [
             'userid' => $user->id,
         ], '*', IGNORE_MULTIPLE);
 
@@ -100,7 +112,7 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
         $valid = ($data->verificationcode === $record->code);
 
         if ($valid) {
-            $DB->delete_records('tool_mfa_factor_sms_codes', ['id' => $record->id]);
+            $db->delete_records('tool_mfa_factor_sms_codes', ['id' => $record->id]);
         }
 
         return $valid;
@@ -112,7 +124,7 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
     }
 
     protected function generate_code($userid): string {
-        global $DB;
+        $db = $this->get_db();
 
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
@@ -121,16 +133,16 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
         $record->code = $code;
         $record->timecreated = time();
 
-        $DB->delete_records('tool_mfa_factor_sms_codes', ['userid' => $userid]);
-        $DB->insert_record('tool_mfa_factor_sms_codes', $record);
+        $db->delete_records('tool_mfa_factor_sms_codes', ['userid' => $userid]);
+        $db->insert_record('tool_mfa_factor_sms_codes', $record);
 
         return $code;
     }
 
     protected function send_sms($user, $code): bool {
-        global $DB;
+        $db = $this->get_db();
 
-        $userrecord = $DB->get_record('tool_mfa_factor_sms', ['userid' => $user->id]);
+        $userrecord = $db->get_record('tool_mfa_factor_sms', ['userid' => $user->id]);
         if (!$userrecord) {
             return false;
         }

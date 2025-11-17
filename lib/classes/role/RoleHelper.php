@@ -251,18 +251,18 @@ class RoleHelper
         // Name validation
         if (!$isUpdate || isset($data['name'])) {
             if (empty($data['name'])) {
-                $errors['name'] = 'Role name is required';
+                $errors['name'] = get_string('name_required', 'roles');
             } elseif (strlen($data['name']) < 2) {
-                $errors['name'] = 'Role name must be at least 2 characters';
+                $errors['name'] = get_string('name_min_length', 'roles', ['min' => 2]);
             }
         }
 
         // Slug validation
         if (!$isUpdate || isset($data['slug'])) {
             if (empty($data['slug'])) {
-                $errors['slug'] = 'Role slug is required';
+                $errors['slug'] = get_string('slug_required', 'roles');
             } elseif (!preg_match('/^[a-z0-9_]+$/', $data['slug'])) {
-                $errors['slug'] = 'Slug can only contain lowercase letters, numbers, and underscores';
+                $errors['slug'] = get_string('slug_format', 'roles');
             }
         }
 

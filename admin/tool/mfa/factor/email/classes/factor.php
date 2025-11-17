@@ -9,6 +9,8 @@
 
 namespace ISER\Admin\Tool\MFA\Factor\Email;
 
+use ISER\Core\Database\Database;
+
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
@@ -17,6 +19,15 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  * Sends a verification code via email for multi-factor authentication.
  */
 class factor extends \tool_mfa\local\factor\object_factor_base {
+
+    /**
+     * Get database instance
+     *
+     * @return Database
+     */
+    protected function get_db(): Database {
+        return Database::getInstance();
+    }
 
     /**
      * Get the factor name
@@ -54,7 +65,6 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
      * @return bool
      */
     public function has_setup($user): bool {
-        global $DB;
         // Email factor is configured if user has an email
         return !empty($user->email);
     }
@@ -91,7 +101,7 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
      * @return bool Success
      */
     public function setup_factor_form_submit($data): bool {
-        global $USER, $DB;
+        global $USER;
 
         if (!empty($data->sendtestcode)) {
             // Send test code
@@ -128,10 +138,10 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
      * @return bool True if verification successful
      */
     public function verify_factor($user, $data): bool {
-        global $DB;
+        $db = $this->get_db();
 
         // Get the stored code
-        $record = $DB->get_record('tool_mfa_factor_email', [
+        $record = $db->get_record('tool_mfa_factor_email', [
             'userid' => $user->id,
         ], '*', IGNORE_MULTIPLE);
 
@@ -149,7 +159,7 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
 
         // Delete used code
         if ($valid) {
-            $DB->delete_records('tool_mfa_factor_email', ['id' => $record->id]);
+            $db->delete_records('tool_mfa_factor_email', ['id' => $record->id]);
         }
 
         return $valid;
@@ -173,7 +183,7 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
      * @return string 6-digit code
      */
     protected function generate_code($userid): string {
-        global $DB;
+        $db = $this->get_db();
 
         // Generate random 6-digit code
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -185,10 +195,10 @@ class factor extends \tool_mfa\local\factor\object_factor_base {
         $record->timecreated = time();
 
         // Delete old codes for this user
-        $DB->delete_records('tool_mfa_factor_email', ['userid' => $userid]);
+        $db->delete_records('tool_mfa_factor_email', ['userid' => $userid]);
 
         // Insert new code
-        $DB->insert_record('tool_mfa_factor_email', $record);
+        $db->insert_record('tool_mfa_factor_email', $record);
 
         return $code;
     }

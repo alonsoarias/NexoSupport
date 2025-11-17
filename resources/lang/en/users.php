@@ -90,6 +90,8 @@ return [
 
     // Validations
     'username_required' => 'Username is required',
+    'username_min_length' => 'Username must be at least :min characters',
+    'username_format' => 'Username can only contain letters, numbers, and underscores',
     'username_unique' => 'Username is already taken',
     'email_required' => 'Email is required',
     'email_valid' => 'Enter a valid email address',
