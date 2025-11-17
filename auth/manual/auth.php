@@ -7,9 +7,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('NEXOSUPPORT_INTERNAL') || die();
-
 namespace ISER\Auth\Manual;
+
+defined('NEXOSUPPORT_INTERNAL') || die();
 
 use ISER\Core\Auth\AuthPlugin;
 use ISER\Core\Database\Database;

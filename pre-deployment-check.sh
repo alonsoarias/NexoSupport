@@ -3,7 +3,7 @@
 # Frankenstyle Migration - NexoSupport
 # Run this before deploying to production
 
-set -e
+set -o pipefail
 
 echo "=========================================="
 echo "PRE-DEPLOYMENT VALIDATION"
@@ -66,7 +66,7 @@ echo "2. CHECKING PHP EXTENSIONS"
 echo "----------------------------------------"
 
 check_extension() {
-    if php -m | grep -q "^$1$"; then
+    if php -m | grep -qi "^$1$"; then
         print_status 0 "Extension $1 loaded"
     else
         print_status 1 "Extension $1 NOT loaded"
@@ -156,16 +156,15 @@ echo "Found $PHP_FILES PHP files to validate..."
 
 # Check PHP syntax
 SYNTAX_ERRORS=0
-find . -name "*.php" \
-    -not -path "./vendor/*" \
-    -not -path "./var/*" \
-    -type f -print0 | \
 while IFS= read -r -d '' file; do
     if ! php -l "$file" > /dev/null 2>&1; then
         echo -e "${RED}Syntax error in: $file${NC}"
-        ((SYNTAX_ERRORS++))
+        SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
     fi
-done
+done < <(find . -name "*.php" \
+    -not -path "./vendor/*" \
+    -not -path "./var/*" \
+    -type f -print0)
 
 if [ $SYNTAX_ERRORS -eq 0 ]; then
     print_status 0 "All PHP files have valid syntax"
