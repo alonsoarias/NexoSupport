@@ -17,6 +17,22 @@
 // Define testing environment
 define('ISER_TESTING', true);
 define('ISER_BASE_DIR', dirname(__DIR__));
+define('NEXOSUPPORT_INTERNAL', true);
+
+// Define system constants needed by classes
+if (!defined('BASE_DIR')) {
+    define('BASE_DIR', dirname(__DIR__));
+}
+define('LIB_DIR', BASE_DIR . '/lib');
+define('ADMIN_DIR', BASE_DIR . '/admin');
+define('USER_DIR', BASE_DIR . '/user');
+define('LOGIN_DIR', BASE_DIR . '/login');
+define('THEME_DIR', BASE_DIR . '/theme');
+define('REPORT_DIR', BASE_DIR . '/report');
+define('AUTH_DIR', BASE_DIR . '/auth');
+define('VAR_DIR', BASE_DIR . '/var');
+define('PUBLIC_DIR', BASE_DIR . '/public_html');
+define('DB_PREFIX', 'test_');
 
 // Load Composer autoloader
 require_once ISER_BASE_DIR . '/vendor/autoload.php';
