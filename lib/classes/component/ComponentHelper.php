@@ -4,6 +4,7 @@
  *
  * Provides helper methods for component operations (Frankenstyle plugins)
  * Manages component paths, loading, and discovery
+ * Includes persistent caching for component path lookups
  *
  * @package    ISER\Core\Component
  * @copyright  2024 ISER
@@ -12,12 +13,15 @@
 
 namespace ISER\Core\Component;
 
+use ISER\Core\Cache\Cache;
+
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
  * Component Helper - Component management operations
  *
  * Provides convenient methods for working with Frankenstyle components
+ * with persistent caching for improved performance
  */
 class ComponentHelper
 {
@@ -27,11 +31,19 @@ class ComponentHelper
     /** @var ComponentHelper|null Singleton instance */
     private static ?ComponentHelper $instance = null;
 
+    /** @var Cache Path lookup cache */
+    private Cache $pathCache;
+
+    /** @var int Components.json file modification time for cache invalidation */
+    private ?int $componentsJsonMtime = null;
+
     /**
      * Private constructor for singleton pattern
      */
     private function __construct()
     {
+        // Initialize path cache with 1 hour TTL
+        $this->pathCache = new Cache('components', 3600);
         $this->loadComponentsMap();
     }
 
@@ -61,18 +73,70 @@ class ComponentHelper
         if (file_exists($componentsFile)) {
             $json = file_get_contents($componentsFile);
             self::$components = json_decode($json, true) ?? [];
+            // Track file modification time for cache invalidation
+            $this->componentsJsonMtime = filemtime($componentsFile);
         } else {
             self::$components = [];
+            $this->componentsJsonMtime = 0;
         }
+    }
+
+    /**
+     * Check if components.json has been modified
+     *
+     * @return bool True if file has been modified since last load
+     */
+    private function isComponentsJsonModified(): bool
+    {
+        if ($this->componentsJsonMtime === null) {
+            return true;
+        }
+
+        $componentsFile = LIB_DIR . '/components.json';
+        if (!file_exists($componentsFile)) {
+            return true;
+        }
+
+        $currentMtime = filemtime($componentsFile);
+        return $currentMtime !== $this->componentsJsonMtime;
     }
 
     /**
      * Get component directory path
      *
+     * Uses persistent caching for improved performance.
+     * Cache is automatically invalidated when components.json changes.
+     *
      * @param string $component Component name (e.g., 'auth_manual', 'tool_uploaduser')
      * @return string|null Path to component directory or null if not found
      */
     public function getPath(string $component): ?string
+    {
+        // If components.json has been modified, clear cache and reload
+        if ($this->isComponentsJsonModified()) {
+            $this->pathCache->clear();
+            self::$components = null;
+            $this->loadComponentsMap();
+        }
+
+        // Create cache key for this component
+        $cacheKey = 'path_' . $component;
+
+        // Try to get from cache (remember pattern)
+        return $this->pathCache->remember(
+            $cacheKey,
+            fn() => $this->resolveComponentPath($component),
+            3600
+        );
+    }
+
+    /**
+     * Resolve component path (actual lookup logic)
+     *
+     * @param string $component Component name
+     * @return string|null Path or null if not found
+     */
+    private function resolveComponentPath(string $component): ?string
     {
         // Parse component name (e.g., 'auth_manual' => type: 'auth', name: 'manual')
         if (strpos($component, '_') === false) {
@@ -206,11 +270,12 @@ class ComponentHelper
     }
 
     /**
-     * Clear component cache
+     * Clear component cache (both in-memory and persistent cache)
      */
     public function clearCache(): void
     {
         self::$components = null;
+        $this->pathCache->clear();
         $this->loadComponentsMap();
     }
 
@@ -220,5 +285,15 @@ class ComponentHelper
     public function reload(): void
     {
         $this->clearCache();
+    }
+
+    /**
+     * Get path cache statistics
+     *
+     * @return array Cache statistics
+     */
+    public function getCacheStats(): array
+    {
+        return $this->pathCache->getStats();
     }
 }

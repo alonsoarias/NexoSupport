@@ -4,6 +4,7 @@
  *
  * This class provides a unified interface for template rendering,
  * wrapping the MustacheRenderer with plugin-aware template loading.
+ * Includes compiled template caching for improved performance.
  *
  * @package    ISER\Core\View
  * @copyright  2025 ISER
@@ -14,6 +15,7 @@ declare(strict_types=1);
 
 namespace ISER\Core\View;
 
+use ISER\Core\Cache\Cache;
 use Mustache_Engine;
 use Mustache_Loader_FilesystemLoader;
 
@@ -43,12 +45,25 @@ class ViewRenderer
     private array $templatePaths = [];
 
     /**
-     * Constructor - Initialize Mustache engine
+     * @var Cache Template cache instance
+     */
+    private Cache $templateCache;
+
+    /**
+     * @var bool Enable template caching
+     */
+    private bool $cachingEnabled = true;
+
+    /**
+     * Constructor - Initialize Mustache engine and template cache
      */
     private function __construct()
     {
         // Set base path to the root of the application
         $this->basePath = dirname(__DIR__, 2);
+
+        // Initialize template cache
+        $this->templateCache = new Cache('templates', 86400); // 24 hours TTL
 
         // Configure Mustache with custom loader that supports plugin paths
         $this->mustache = new Mustache_Engine([
@@ -83,6 +98,8 @@ class ViewRenderer
      * - "admin_user/list" -> looks in admin/user/templates/list.mustache
      * - "core/header" -> looks in core/templates/header.mustache
      *
+     * Uses caching for compiled templates when enabled.
+     *
      * @param string $template Template name (e.g., "report_log/index")
      * @param array $data Data to pass to template
      * @return string Rendered HTML
@@ -95,11 +112,39 @@ class ViewRenderer
             throw new \RuntimeException("Template not found: {$template} (looked in: {$templatePath})");
         }
 
-        // Load template content
-        $templateContent = file_get_contents($templatePath);
+        // Create cache key based on template path
+        $cacheKey = 'rendered_' . md5($template . '_' . filemtime($templatePath));
+
+        // Check if cached and source hasn't changed
+        if ($this->cachingEnabled) {
+            // Try to get from cache
+            $cached = $this->templateCache->remember(
+                $cacheKey,
+                fn() => $this->compileTemplate($templatePath)
+            );
+
+            if ($cached !== null) {
+                // Use cached compiled template
+                return $this->mustache->render($cached, $data);
+            }
+        }
+
+        // Load and compile template
+        $templateContent = $this->compileTemplate($templatePath);
 
         // Render with Mustache
         return $this->mustache->render($templateContent, $data);
+    }
+
+    /**
+     * Compile template (load from file)
+     *
+     * @param string $templatePath Full filesystem path to template
+     * @return string Template content
+     */
+    private function compileTemplate(string $templatePath): string
+    {
+        return file_get_contents($templatePath);
     }
 
     /**
@@ -190,5 +235,46 @@ class ViewRenderer
     public function addHelper(string $name, callable $helper): void
     {
         $this->mustache->addHelper($name, $helper);
+    }
+
+    /**
+     * Enable or disable template caching
+     *
+     * @param bool $enabled True to enable, false to disable
+     * @return void
+     */
+    public function setCachingEnabled(bool $enabled): void
+    {
+        $this->cachingEnabled = $enabled;
+    }
+
+    /**
+     * Check if template caching is enabled
+     *
+     * @return bool
+     */
+    public function isCachingEnabled(): bool
+    {
+        return $this->cachingEnabled;
+    }
+
+    /**
+     * Clear template cache
+     *
+     * @return bool Success
+     */
+    public function clearCache(): bool
+    {
+        return $this->templateCache->clear();
+    }
+
+    /**
+     * Get template cache statistics
+     *
+     * @return array Cache statistics
+     */
+    public function getCacheStats(): array
+    {
+        return $this->templateCache->getStats();
     }
 }
