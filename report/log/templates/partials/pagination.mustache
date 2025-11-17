@@ -1,0 +1,42 @@
+<nav aria-label="Audit log pagination">
+    <ul class="pagination justify-content-center mb-0">
+        <!-- Previous Button -->
+        <li class="page-item {{^pagination.has_prev}}disabled{{/pagination.has_prev}}">
+            {{#pagination.has_prev}}
+            <a class="page-link" href="{{pagination.prev_url}}" aria-label="{{strings.previous}}">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="visually-hidden">{{strings.previous}}</span>
+            </a>
+            {{/pagination.has_prev}}
+            {{^pagination.has_prev}}
+            <span class="page-link">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="visually-hidden">{{strings.previous}}</span>
+            </span>
+            {{/pagination.has_prev}}
+        </li>
+
+        <!-- Current Page Indicator -->
+        <li class="page-item active" aria-current="page">
+            <span class="page-link">
+                Page {{pagination.current_display}} of {{pagination.total}}
+            </span>
+        </li>
+
+        <!-- Next Button -->
+        <li class="page-item {{^pagination.has_next}}disabled{{/pagination.has_next}}">
+            {{#pagination.has_next}}
+            <a class="page-link" href="{{pagination.next_url}}" aria-label="{{strings.next}}">
+                <span aria-hidden="true">&raquo;</span>
+                <span class="visually-hidden">{{strings.next}}</span>
+            </a>
+            {{/pagination.has_next}}
+            {{^pagination.has_next}}
+            <span class="page-link">
+                <span aria-hidden="true">&raquo;</span>
+                <span class="visually-hidden">{{strings.next}}</span>
+            </span>
+            {{/pagination.has_next}}
+        </li>
+    </ul>
+</nav>

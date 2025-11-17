@@ -109,12 +109,34 @@ class LogController
 
         // Calculate pagination
         $totalpages = ceil($totalcount / $perpage);
+
+        // Build pagination URLs with current filters
+        $paginationParams = [];
+        if ($userid > 0) {
+            $paginationParams[] = 'userid=' . $userid;
+        }
+        if (!empty($action)) {
+            $paginationParams[] = 'action=' . urlencode($action);
+        }
+        if ($datefrom > 0) {
+            $paginationParams[] = 'datefrom=' . date('Y-m-d', $datefrom);
+        }
+        if ($dateto > 0) {
+            $paginationParams[] = 'dateto=' . date('Y-m-d', $dateto);
+        }
+        $baseParams = !empty($paginationParams) ? '&' . implode('&', $paginationParams) : '';
+
         $pagination = [
             'current' => $page,
+            'current_display' => $page + 1, // Display as 1-indexed
             'total' => $totalpages,
             'perpage' => $perpage,
             'has_prev' => $page > 0,
             'has_next' => $page < ($totalpages - 1),
+            'prev_page' => $page - 1,
+            'next_page' => $page + 1,
+            'prev_url' => '?page=' . ($page - 1) . $baseParams,
+            'next_url' => '?page=' . ($page + 1) . $baseParams,
         ];
 
         // Prepare template data
