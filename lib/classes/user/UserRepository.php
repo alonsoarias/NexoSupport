@@ -4,12 +4,12 @@
  *
  * Data access layer for users
  *
- * @package    core\user
+ * @package    ISER\Core\User
  * @copyright  2024 ISER
  * @license    Proprietary
  */
 
-namespace core\user;
+namespace ISER\Core\User;
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
@@ -20,7 +20,7 @@ use ISER\Core\Database\Database;
  *
  * Handles database operations for users
  */
-class user_repository
+class UserRepository
 {
     /** @var Database Database instance */
     private Database $db;
@@ -43,9 +43,9 @@ class user_repository
      * Get user by ID
      *
      * @param int $id User ID
-     * @return user|null User object or null if not found
+     * @return User|null User object or null if not found
      */
-    public function get_by_id(int $id): ?user
+    public function get_by_id(int $id): ?User
     {
         $sql = "SELECT * FROM {$this->table} WHERE id = :id LIMIT 1";
         $result = $this->db->query($sql, ['id' => $id]);
@@ -54,16 +54,16 @@ class user_repository
             return null;
         }
 
-        return new user($result[0]);
+        return new User($result[0]);
     }
 
     /**
      * Get user by username
      *
      * @param string $username Username
-     * @return user|null User object or null if not found
+     * @return User|null User object or null if not found
      */
-    public function get_by_username(string $username): ?user
+    public function get_by_username(string $username): ?User
     {
         $sql = "SELECT * FROM {$this->table} WHERE username = :username LIMIT 1";
         $result = $this->db->query($sql, ['username' => $username]);
@@ -72,16 +72,16 @@ class user_repository
             return null;
         }
 
-        return new user($result[0]);
+        return new User($result[0]);
     }
 
     /**
      * Get user by email
      *
      * @param string $email Email
-     * @return user|null User object or null if not found
+     * @return User|null User object or null if not found
      */
-    public function get_by_email(string $email): ?user
+    public function get_by_email(string $email): ?User
     {
         $sql = "SELECT * FROM {$this->table} WHERE email = :email LIMIT 1";
         $result = $this->db->query($sql, ['email' => $email]);
@@ -90,7 +90,7 @@ class user_repository
             return null;
         }
 
-        return new user($result[0]);
+        return new User($result[0]);
     }
 
     /**
@@ -114,7 +114,7 @@ class user_repository
 
         $users = [];
         foreach ($results as $row) {
-            $users[] = new user($row);
+            $users[] = new User($row);
         }
 
         return $users;

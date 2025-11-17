@@ -2,12 +2,12 @@
 /**
  * Backup Codes MFA Factor
  *
- * @package    factor_backupcodes
+ * @package    ISER\Admin\Tool\MFA\Factor\BackupCodes
  * @copyright  2025 ISER
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace factor_backupcodes;
+namespace ISER\Admin\Tool\MFA\Factor\BackupCodes;
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 

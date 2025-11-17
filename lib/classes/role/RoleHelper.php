@@ -3,14 +3,14 @@
  * NexoSupport - Role Helper Class
  *
  * Provides helper methods for role and permission operations
- * Bridges legacy RoleManager with new core\role classes
+ * Bridges legacy RoleManager with new ISER\Core\Role classes
  *
- * @package    core\role
+ * @package    ISER\Core\Role
  * @copyright  2024 ISER
  * @license    Proprietary
  */
 
-namespace core\role;
+namespace ISER\Core\Role;
 
 use ISER\Core\Database\Database;
 use ISER\Roles\RoleManager as LegacyRoleManager;
@@ -21,16 +21,16 @@ use ISER\Roles\RoleManager as LegacyRoleManager;
  * Provides convenient methods for common role operations
  * while maintaining compatibility with legacy code
  */
-class role_helper
+class RoleHelper
 {
     private Database $db;
-    private access_manager $accessManager;
+    private AccessManager $accessManager;
     private ?LegacyRoleManager $legacyManager = null;
 
     public function __construct(Database $db)
     {
         $this->db = $db;
-        $this->accessManager = new access_manager($db);
+        $this->accessManager = new AccessManager($db);
     }
 
     /**
@@ -123,7 +123,7 @@ class role_helper
      */
     public function assign_permission(int $roleId, int $permissionId): bool
     {
-        // Use new access_manager
+        // Use new AccessManager
         return $this->accessManager->grant_permission($roleId, $permissionId);
     }
 
@@ -136,7 +136,7 @@ class role_helper
      */
     public function remove_permission(int $roleId, int $permissionId): bool
     {
-        // Use new access_manager
+        // Use new AccessManager
         return $this->accessManager->revoke_permission($roleId, $permissionId);
     }
 

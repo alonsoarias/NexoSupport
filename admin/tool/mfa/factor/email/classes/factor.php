@@ -2,12 +2,12 @@
 /**
  * Email MFA Factor
  *
- * @package    factor_email
+ * @package    ISER\Admin\Tool\MFA\Factor\Email
  * @copyright  2025 ISER
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace factor_email;
+namespace ISER\Admin\Tool\MFA\Factor\Email;
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 

@@ -2,12 +2,12 @@
 /**
  * NexoSupport - Theme Core - Core Renderer
  *
- * @package    theme_core
+ * @package    ISER\Theme\Core\Output
  * @copyright  2024 ISER
  * @license    Proprietary
  */
 
-namespace theme_core\output;
+namespace ISER\Theme\Core\Output;
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 

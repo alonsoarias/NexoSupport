@@ -4,23 +4,23 @@
  *
  * Handles CSV file processing and bulk user creation
  *
- * @package    tool_uploaduser
+ * @package    ISER\Admin\Tool\UploadUser
  * @copyright  2024 ISER
  * @license    Proprietary
  */
 
-namespace tool_uploaduser;
+namespace ISER\Admin\Tool\UploadUser;
 
 use ISER\Core\Database\Database;
-use core\user\user_helper;
+use ISER\Core\User\UserHelper;
 
 /**
  * User Uploader - Process CSV files and create users in bulk
  */
-class uploader
+class Uploader
 {
     private Database $db;
-    private user_helper $userHelper;
+    private UserHelper $userHelper;
 
     private array $requiredColumns = ['username', 'email', 'password'];
     private array $optionalColumns = ['firstname', 'lastname', 'status'];
@@ -28,7 +28,7 @@ class uploader
     public function __construct(Database $db)
     {
         $this->db = $db;
-        $this->userHelper = new user_helper($db);
+        $this->userHelper = new UserHelper($db);
     }
 
     /**

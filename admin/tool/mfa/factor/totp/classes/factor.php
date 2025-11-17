@@ -2,12 +2,12 @@
 /**
  * TOTP MFA Factor
  *
- * @package    factor_totp
+ * @package    ISER\Admin\Tool\MFA\Factor\Totp
  * @copyright  2025 ISER
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace factor_totp;
+namespace ISER\Admin\Tool\MFA\Factor\Totp;
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 

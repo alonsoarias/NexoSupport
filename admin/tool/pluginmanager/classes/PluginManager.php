@@ -4,17 +4,17 @@
  *
  * Discovers and manages Frankenstyle plugins
  *
- * @package    tool_pluginmanager
+ * @package    ISER\Admin\Tool\PluginManager
  * @copyright  2024 ISER
  * @license    Proprietary
  */
 
-namespace tool_pluginmanager;
+namespace ISER\Admin\Tool\PluginManager;
 
 /**
  * Plugin Manager - Discover and manage plugins
  */
-class plugin_manager
+class PluginManager
 {
     private array $pluginTypes = [];
     private string $baseDir;

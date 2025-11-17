@@ -5,12 +5,12 @@
  * Central component for Role-Based Access Control
  * Similar to Moodle's access manager
  *
- * @package    core\role
+ * @package    ISER\Core\Role
  * @copyright  2024 ISER
  * @license    Proprietary
  */
 
-namespace core\role;
+namespace ISER\Core\Role;
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
@@ -21,7 +21,7 @@ use ISER\Core\Database\Database;
  *
  * Handles permission checking and role assignment
  */
-class access_manager
+class AccessManager
 {
     /** @var Database Database instance */
     private Database $db;
@@ -126,7 +126,7 @@ class access_manager
 
         $roles = [];
         foreach ($results as $row) {
-            $roles[] = new role($row);
+            $roles[] = new Role($row);
         }
 
         self::$roleCache[$cacheKey] = $roles;

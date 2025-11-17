@@ -1,6 +1,6 @@
 <?php
 /**
- * Audit log report main page
+ * Audit log export to CSV
  *
  * @package    report_log
  * @copyright  2025 ISER
@@ -26,13 +26,11 @@ $controller = new LogController($db, $config, $translator, $renderer);
 
 // Get request parameters
 $params = [
-    'page' => $_GET['page'] ?? 0,
-    'perpage' => $_GET['perpage'] ?? 50,
     'userid' => $_GET['userid'] ?? 0,
     'action' => $_GET['action'] ?? '',
     'datefrom' => !empty($_GET['datefrom']) ? strtotime($_GET['datefrom']) : 0,
     'dateto' => !empty($_GET['dateto']) ? strtotime($_GET['dateto']) : 0,
 ];
 
-// Render page
-echo $controller->index($params);
+// Export (this will send headers and exit)
+$controller->export($params);

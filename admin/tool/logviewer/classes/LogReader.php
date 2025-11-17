@@ -4,19 +4,19 @@
  *
  * Reads and filters system logs from database
  *
- * @package    tool_logviewer
+ * @package    ISER\Admin\Tool\LogViewer
  * @copyright  2024 ISER
  * @license    Proprietary
  */
 
-namespace tool_logviewer;
+namespace ISER\Admin\Tool\LogViewer;
 
 use ISER\Core\Database\Database;
 
 /**
  * Log Reader - Read and filter logs from database
  */
-class log_reader
+class LogReader
 {
     private Database $db;
     private string $logsTable;

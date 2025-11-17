@@ -2,12 +2,12 @@
 /**
  * SMS MFA Factor
  *
- * @package    factor_sms
+ * @package    ISER\Admin\Tool\MFA\Factor\Sms
  * @copyright  2025 ISER
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace factor_sms;
+namespace ISER\Admin\Tool\MFA\Factor\Sms;
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 

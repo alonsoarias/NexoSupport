@@ -4,12 +4,12 @@
  *
  * Represents a user entity in the system
  *
- * @package    core\user
+ * @package    ISER\Core\User
  * @copyright  2024 ISER
  * @license    Proprietary
  */
 
-namespace core\user;
+namespace ISER\Core\User;
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
@@ -18,7 +18,7 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  *
  * Core user entity with basic properties and methods
  */
-class user
+class User
 {
     /** @var int User ID */
     public int $id;

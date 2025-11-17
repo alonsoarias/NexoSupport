@@ -2,12 +2,12 @@
 /**
  * NexoSupport - Theme ISER - Core Renderer
  *
- * @package    theme_iser
+ * @package    ISER\Theme\Iser\Output
  * @copyright  2024 ISER
  * @license    Proprietary
  */
 
-namespace theme_iser\output;
+namespace ISER\Theme\Iser\Output;
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
@@ -16,7 +16,7 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  *
  * Overrides core renderer for ISER branding
  */
-class core_renderer extends \theme_core\output\core_renderer
+class core_renderer extends \ISER\Theme\Core\Output\core_renderer
 {
     /**
      * Render header with ISER branding

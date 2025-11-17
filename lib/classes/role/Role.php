@@ -4,12 +4,12 @@
  *
  * Represents a role in the RBAC system
  *
- * @package    core\role
+ * @package    ISER\Core\Role
  * @copyright  2024 ISER
  * @license    Proprietary
  */
 
-namespace core\role;
+namespace ISER\Core\Role;
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
@@ -18,7 +18,7 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  *
  * Core role entity with permissions
  */
-class role
+class Role
 {
     /** @var int Role ID */
     public int $id;

@@ -3,14 +3,14 @@
  * NexoSupport - User Helper Class
  *
  * Provides helper methods for user operations
- * Bridges legacy UserManager with new core\user classes
+ * Bridges legacy UserManager with new ISER\Core\User classes
  *
- * @package    core\user
+ * @package    ISER\Core\User
  * @copyright  2024 ISER
  * @license    Proprietary
  */
 
-namespace core\user;
+namespace ISER\Core\User;
 
 use ISER\Core\Database\Database;
 use ISER\User\UserManager as LegacyUserManager;
@@ -21,16 +21,16 @@ use ISER\User\UserManager as LegacyUserManager;
  * Provides convenient methods for common user operations
  * while maintaining compatibility with legacy code
  */
-class user_helper
+class UserHelper
 {
     private Database $db;
-    private user_repository $repository;
+    private UserRepository $repository;
     private ?LegacyUserManager $legacyManager = null;
 
     public function __construct(Database $db)
     {
         $this->db = $db;
-        $this->repository = new user_repository($db);
+        $this->repository = new UserRepository($db);
     }
 
     /**
@@ -47,12 +47,12 @@ class user_helper
     }
 
     /**
-     * Get user by ID (returns core\user\user object)
+     * Get user by ID (returns ISER\Core\User\User object)
      *
      * @param int $id User ID
-     * @return user|null User object or null
+     * @return User|null User object or null
      */
-    public function get_user(int $id): ?user
+    public function get_user(int $id): ?User
     {
         return $this->repository->get_by_id($id);
     }
@@ -61,9 +61,9 @@ class user_helper
      * Get user by username
      *
      * @param string $username Username
-     * @return user|null User object or null
+     * @return User|null User object or null
      */
-    public function get_user_by_username(string $username): ?user
+    public function get_user_by_username(string $username): ?User
     {
         return $this->repository->get_by_username($username);
     }
@@ -72,9 +72,9 @@ class user_helper
      * Get user by email
      *
      * @param string $email Email address
-     * @return user|null User object or null
+     * @return User|null User object or null
      */
-    public function get_user_by_email(string $email): ?user
+    public function get_user_by_email(string $email): ?User
     {
         return $this->repository->get_by_email($email);
     }
@@ -173,7 +173,7 @@ class user_helper
     public function get_users_list(int $limit = 20, int $offset = 0, array $filters = []): array
     {
         // Use legacy manager for complex queries
-        // TODO: Migrate this to core\user\user_repository
+        // TODO: Migrate this to ISER\Core\User\UserRepository
         return $this->getLegacyManager()->getUsers($limit, $offset, $filters);
     }
 
@@ -251,9 +251,9 @@ class user_helper
     /**
      * Get current logged in user
      *
-     * @return user|null Current user or null
+     * @return User|null Current user or null
      */
-    public function get_current_user(): ?user
+    public function get_current_user(): ?User
     {
         $userId = get_current_userid();
         if ($userId === 0) {
