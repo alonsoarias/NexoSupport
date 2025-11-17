@@ -1,8 +1,0 @@
-HARDCODED STRINGS EXTRACTION REPORT - NexoSupport
-Generated: 2025-11-13 03:02:10
-================================================
-
-
-=== Admin Templates ===
-
-  Line 2: Plugins del Sistema

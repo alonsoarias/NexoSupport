@@ -1,8 +1,0 @@
-./install/assets/js/installer.js
-./modules/Theme/Iser/assets/js/components/ckeditor-setup.js
-./modules/Theme/Iser/assets/js/core/forms.js
-./modules/Theme/Iser/assets/js/core/navigation.js
-./modules/Theme/Iser/assets/js/main.js
-./public_html/assets/js/appearance-config.js
-./public_html/assets/js/iser-theme.js
-./public_html/assets/js/navigation.js

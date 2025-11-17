@@ -1,8 +1,0 @@
-./install/assets/css/installer.css
-./modules/Theme/Iser/assets/css/theme.css
-./public_html/assets/css/admin-views.css
-./public_html/assets/css/dark-mode.css
-./public_html/assets/css/iser-theme.css
-./public_html/assets/css/navigation.css
-./public_html/assets/css/responsive.css
-./public_html/assets/css/sidebar.css
