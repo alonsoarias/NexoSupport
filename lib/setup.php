@@ -47,106 +47,42 @@ if (!defined('DB_PREFIX')) {
 // AUTOLOAD HELPER FUNCTIONS
 // ========================================
 
+use ISER\Core\Component\ComponentHelper;
+
 /**
  * Load component's lib.php file if exists
  *
+ * @deprecated Use ComponentHelper::getInstance()->requireLib() instead
  * @param string $component Component name (e.g., 'auth_manual', 'tool_uploaduser')
  * @return bool True if loaded, false otherwise
  */
 function require_component_lib(string $component): bool
 {
-    $libfile = component_get_path($component) . '/lib.php';
-
-    if (file_exists($libfile)) {
-        require_once $libfile;
-        return true;
-    }
-
-    return false;
+    return ComponentHelper::getInstance()->requireLib($component);
 }
 
 /**
  * Get component directory path
  *
+ * @deprecated Use ComponentHelper::getInstance()->getPath() instead
  * @param string $component Component name (e.g., 'auth_manual', 'tool_uploaduser')
  * @return string|null Path to component directory or null if not found
  */
 function component_get_path(string $component): ?string
 {
-    static $components = null;
-
-    // Load components map
-    if ($components === null) {
-        $componentsFile = LIB_DIR . '/components.json';
-        if (file_exists($componentsFile)) {
-            $json = file_get_contents($componentsFile);
-            $components = json_decode($json, true);
-        } else {
-            $components = [];
-        }
-    }
-
-    // Parse component name (e.g., 'auth_manual' => type: 'auth', name: 'manual')
-    if (strpos($component, '_') === false) {
-        return null;
-    }
-
-    list($type, $name) = explode('_', $component, 2);
-
-    // Check if type exists in plugintypes
-    if (isset($components['plugintypes'][$type])) {
-        $basePath = BASE_DIR . '/' . $components['plugintypes'][$type];
-        $componentPath = $basePath . '/' . $name;
-
-        if (is_dir($componentPath)) {
-            return $componentPath;
-        }
-    }
-
-    return null;
+    return ComponentHelper::getInstance()->getPath($component);
 }
 
 /**
  * Get list of all installed components of a specific type
  *
+ * @deprecated Use ComponentHelper::getInstance()->getComponentsByType() instead
  * @param string $type Component type (e.g., 'auth', 'tool', 'theme')
  * @return array Array of component names
  */
 function get_components_by_type(string $type): array
 {
-    static $components = null;
-
-    // Load components map
-    if ($components === null) {
-        $componentsFile = LIB_DIR . '/components.json';
-        if (file_exists($componentsFile)) {
-            $json = file_get_contents($componentsFile);
-            $components = json_decode($json, true);
-        } else {
-            return [];
-        }
-    }
-
-    if (!isset($components['plugintypes'][$type])) {
-        return [];
-    }
-
-    $basePath = BASE_DIR . '/' . $components['plugintypes'][$type];
-
-    if (!is_dir($basePath)) {
-        return [];
-    }
-
-    $dirs = array_diff(scandir($basePath), ['.', '..']);
-    $result = [];
-
-    foreach ($dirs as $dir) {
-        if (is_dir($basePath . '/' . $dir)) {
-            $result[] = $type . '_' . $dir;
-        }
-    }
-
-    return $result;
+    return ComponentHelper::getInstance()->getComponentsByType($type);
 }
 
 // ========================================

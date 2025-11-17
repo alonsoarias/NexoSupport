@@ -221,6 +221,7 @@ class PermissionManagerCompat extends LegacyPermissionManager
 /**
  * Factory function to get RoleManager with compatibility
  *
+ * @deprecated Use ISER\Core\Role\RoleHelper or ISER\Core\Role\AccessManager directly
  * @param Database|null $db Database instance (null = get default)
  * @return RoleManagerCompat Role manager instance
  */
@@ -239,6 +240,7 @@ function get_role_manager(?Database $db = null): RoleManagerCompat
 /**
  * Factory function to get PermissionManager with compatibility
  *
+ * @deprecated Use ISER\Core\Role\AccessManager directly
  * @param Database|null $db Database instance (null = get default)
  * @return PermissionManagerCompat Permission manager instance
  */

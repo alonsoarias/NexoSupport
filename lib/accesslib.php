@@ -12,21 +12,23 @@
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
-use core\role\access_manager;
+use ISER\Core\Role\AccessManager;
 use ISER\Core\Database\Database;
+use ISER\Core\Session\SessionHelper;
 
 /**
  * Get access manager instance (singleton pattern)
  *
- * @return access_manager Access manager instance
+ * @deprecated Use AccessManager directly with dependency injection
+ * @return AccessManager Access manager instance
  */
-function get_access_manager(): access_manager
+function get_access_manager(): AccessManager
 {
     static $instance = null;
 
     if ($instance === null) {
         $db = Database::getInstance();
-        $instance = new access_manager($db);
+        $instance = new AccessManager($db);
     }
 
     return $instance;
@@ -35,6 +37,7 @@ function get_access_manager(): access_manager
 /**
  * Check if user has a specific permission (capability)
  *
+ * @deprecated Use AccessManager::user_has_permission() instead
  * @param string $permission Permission slug (e.g., 'users.view', 'roles.create')
  * @param int|null $userid User ID (null = current user)
  * @return bool True if user has permission
@@ -53,6 +56,7 @@ function has_capability(string $permission, ?int $userid = null): bool
  * Require user to have a specific permission (capability)
  * Throws exception if user doesn't have permission
  *
+ * @deprecated Use AccessManager::user_has_permission() with manual exception handling
  * @param string $permission Permission slug
  * @param int|null $userid User ID (null = current user)
  * @throws Exception If user doesn't have permission
@@ -70,6 +74,7 @@ function require_capability(string $permission, ?int $userid = null): void
 /**
  * Check if user has a specific role
  *
+ * @deprecated Use AccessManager::user_has_role() instead
  * @param string $roleslug Role slug (e.g., 'admin', 'moderator')
  * @param int|null $userid User ID (null = current user)
  * @return bool True if user has role
@@ -88,6 +93,7 @@ function user_has_role(string $roleslug, ?int $userid = null): bool
  * Require user to have a specific role
  * Throws exception if user doesn't have role
  *
+ * @deprecated Use AccessManager::user_has_role() with manual exception handling
  * @param string $roleslug Role slug
  * @param int|null $userid User ID (null = current user)
  * @throws Exception If user doesn't have role
@@ -105,6 +111,7 @@ function require_role(string $roleslug, ?int $userid = null): void
 /**
  * Get all roles for a user
  *
+ * @deprecated Use AccessManager::get_user_roles() instead
  * @param int|null $userid User ID (null = current user)
  * @return array Array of role objects
  */
@@ -121,6 +128,7 @@ function get_user_roles(?int $userid = null): array
 /**
  * Get all permissions for a user
  *
+ * @deprecated Use AccessManager::get_user_permissions() instead
  * @param int|null $userid User ID (null = current user)
  * @return array Array of permission slugs
  */
@@ -137,6 +145,7 @@ function get_user_permissions(?int $userid = null): array
 /**
  * Assign role to user
  *
+ * @deprecated Use AccessManager::assign_role() instead
  * @param int $userid User ID
  * @param int $roleid Role ID
  * @param int|null $assignedby User ID who assigned (for audit)
@@ -156,6 +165,7 @@ function assign_user_role(int $userid, int $roleid, ?int $assignedby = null, ?in
 /**
  * Unassign role from user
  *
+ * @deprecated Use AccessManager::unassign_role() instead
  * @param int $userid User ID
  * @param int $roleid Role ID
  * @return bool Success
@@ -169,6 +179,7 @@ function unassign_user_role(int $userid, int $roleid): bool
 /**
  * Grant permission to role
  *
+ * @deprecated Use AccessManager::grant_permission() instead
  * @param int $roleid Role ID
  * @param int $permissionid Permission ID
  * @return bool Success
@@ -182,6 +193,7 @@ function grant_role_permission(int $roleid, int $permissionid): bool
 /**
  * Revoke permission from role
  *
+ * @deprecated Use AccessManager::revoke_permission() instead
  * @param int $roleid Role ID
  * @param int $permissionid Permission ID
  * @return bool Success
@@ -195,6 +207,7 @@ function revoke_role_permission(int $roleid, int $permissionid): bool
 /**
  * Check if user is admin
  *
+ * @deprecated Use AccessManager::user_has_role($userid, 'admin') instead
  * @param int|null $userid User ID (null = current user)
  * @return bool True if user is admin
  */
@@ -207,6 +220,7 @@ function is_admin(?int $userid = null): bool
  * Require admin access
  * Throws exception if user is not admin
  *
+ * @deprecated Use AccessManager::user_has_role() with manual exception handling
  * @param int|null $userid User ID (null = current user)
  * @throws Exception If user is not admin
  */
@@ -223,39 +237,42 @@ function require_admin(?int $userid = null): void
 /**
  * Check if user is logged in
  *
+ * @deprecated Use SessionHelper::getInstance()->isLoggedIn() instead
  * @return bool True if user is logged in
  */
 function is_logged_in(): bool
 {
-    return isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0;
+    return SessionHelper::getInstance()->isLoggedIn();
 }
 
 /**
  * Require user to be logged in
  * Throws exception if user is not logged in
  *
+ * @deprecated Use SessionHelper::getInstance()->requireLogin() instead
  * @throws Exception If user is not logged in
  */
 function require_login(): void
 {
-    if (!is_logged_in()) {
-        throw new Exception("Login required. Please authenticate.");
-    }
+    SessionHelper::getInstance()->requireLogin();
 }
 
 /**
  * Get current user ID from session
  *
+ * @deprecated Use SessionHelper::getInstance()->getCurrentUserId() instead
  * @return int Current user ID (0 if not logged in)
  */
 function get_current_userid(): int
 {
-    return (int)($_SESSION['user_id'] ?? 0);
+    return SessionHelper::getInstance()->getCurrentUserId();
 }
 
 /**
  * Clear all RBAC caches
  * Useful after bulk role/permission changes
+ *
+ * @deprecated Use AccessManager::clear_all_caches() instead
  */
 function clear_access_caches(): void
 {
@@ -266,6 +283,7 @@ function clear_access_caches(): void
 /**
  * Check if a role has a specific permission
  *
+ * @deprecated Use AccessManager::role_has_permission() instead
  * @param int $roleid Role ID
  * @param string $permission Permission slug
  * @return bool True if role has permission
@@ -280,6 +298,7 @@ function role_has_permission(int $roleid, string $permission): bool
  * Convenience function: Check multiple permissions (ANY logic)
  * Returns true if user has ANY of the specified permissions
  *
+ * @deprecated Loop through permissions manually using AccessManager::user_has_permission()
  * @param array $permissions Array of permission slugs
  * @param int|null $userid User ID (null = current user)
  * @return bool True if user has at least one permission
@@ -298,6 +317,7 @@ function has_any_capability(array $permissions, ?int $userid = null): bool
  * Convenience function: Check multiple permissions (ALL logic)
  * Returns true if user has ALL of the specified permissions
  *
+ * @deprecated Loop through permissions manually using AccessManager::user_has_permission()
  * @param array $permissions Array of permission slugs
  * @param int|null $userid User ID (null = current user)
  * @return bool True if user has all permissions
@@ -316,6 +336,7 @@ function has_all_capabilities(array $permissions, ?int $userid = null): bool
  * Convenience function: Require multiple permissions (ALL logic)
  * Throws exception if user doesn't have all permissions
  *
+ * @deprecated Loop through permissions manually using AccessManager::user_has_permission()
  * @param array $permissions Array of permission slugs
  * @param int|null $userid User ID (null = current user)
  * @throws Exception If user doesn't have all permissions
@@ -336,15 +357,16 @@ function require_all_capabilities(array $permissions, ?int $userid = null): void
 /**
  * Get user helper instance (singleton pattern)
  *
- * @return \core\user\user_helper User helper instance
+ * @deprecated Use UserHelper directly with dependency injection
+ * @return \ISER\Core\User\UserHelper User helper instance
  */
-function get_user_helper(): \core\user\user_helper
+function get_user_helper(): \ISER\Core\User\UserHelper
 {
     static $instance = null;
 
     if ($instance === null) {
         $db = Database::getInstance();
-        $instance = new \core\user\user_helper($db);
+        $instance = new \ISER\Core\User\UserHelper($db);
     }
 
     return $instance;
@@ -353,15 +375,16 @@ function get_user_helper(): \core\user\user_helper
 /**
  * Get role helper instance (singleton pattern)
  *
- * @return \core\role\role_helper Role helper instance
+ * @deprecated Use RoleHelper directly with dependency injection
+ * @return \ISER\Core\Role\RoleHelper Role helper instance
  */
-function get_role_helper(): \core\role\role_helper
+function get_role_helper(): \ISER\Core\Role\RoleHelper
 {
     static $instance = null;
 
     if ($instance === null) {
         $db = Database::getInstance();
-        $instance = new \core\role\role_helper($db);
+        $instance = new \ISER\Core\Role\RoleHelper($db);
     }
 
     return $instance;
