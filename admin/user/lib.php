@@ -12,6 +12,11 @@
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
+// Autoload classes
+require_once(__DIR__ . '/classes/UserViewHelper.php');
+
+use ISER\Admin\User\UserViewHelper;
+
 /**
  * User status constants
  */
@@ -65,60 +70,34 @@ function admin_user_get_capabilities(): array
 /**
  * Format user full name
  *
+ * @deprecated Use ISER\Admin\User\UserViewHelper::formatFullName() instead
  * @param array|object $user User data
  * @return string Full name
  */
 function admin_user_fullname($user): string
 {
-    if (is_array($user)) {
-        $firstname = trim($user['firstname'] ?? '');
-        $lastname = trim($user['lastname'] ?? '');
-    } else {
-        $firstname = trim($user->firstname ?? '');
-        $lastname = trim($user->lastname ?? '');
-    }
-
-    if (empty($firstname) && empty($lastname)) {
-        return is_array($user) ? ($user['username'] ?? 'Unknown') : ($user->username ?? 'Unknown');
-    }
-
-    return trim("$firstname $lastname");
+    return UserViewHelper::formatFullName($user);
 }
 
 /**
  * Get user status badge HTML
  *
+ * @deprecated Use ISER\Admin\User\UserViewHelper::renderStatusBadge() instead
  * @param string $status User status
  * @return string HTML badge
  */
 function admin_user_status_badge(string $status): string
 {
-    $badges = [
-        'active' => '<span class="badge badge-success">Active</span>',
-        'suspended' => '<span class="badge badge-warning">Suspended</span>',
-        'pending' => '<span class="badge badge-info">Pending</span>',
-    ];
-
-    return $badges[strtolower($status)] ?? '<span class="badge badge-secondary">Unknown</span>';
+    return UserViewHelper::renderStatusBadge($status);
 }
 
 /**
  * Get user menu items for admin panel
  *
+ * @deprecated Use ISER\Admin\User\UserViewHelper::getMenuItems() instead
  * @return array Menu items
  */
 function admin_user_get_menu_items(): array
 {
-    $items = [];
-
-    if (has_capability('users.view')) {
-        $items[] = [
-            'title' => 'Users',
-            'url' => '/admin/users',
-            'icon' => 'users',
-            'active' => strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/users') === 0,
-        ];
-    }
-
-    return $items;
+    return UserViewHelper::getMenuItems();
 }

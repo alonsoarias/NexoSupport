@@ -12,6 +12,11 @@
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
+// Autoload classes
+require_once(__DIR__ . '/classes/RoleViewHelper.php');
+
+use ISER\Admin\Roles\RoleViewHelper;
+
 /**
  * Get role management capabilities required
  *
@@ -95,100 +100,58 @@ function admin_roles_get_all_capabilities(): array
 /**
  * Check if role is system role
  *
+ * @deprecated Use ISER\Admin\Roles\RoleViewHelper::isSystemRole() instead
  * @param array|object $role Role data
  * @return bool True if system role
  */
 function admin_roles_is_system_role($role): bool
 {
-    if (is_array($role)) {
-        return !empty($role['is_system']);
-    }
-    return !empty($role->issystem);
+    return RoleViewHelper::isSystemRole($role);
 }
 
 /**
  * Get role badge HTML
  *
+ * @deprecated Use ISER\Admin\Roles\RoleViewHelper::renderBadge() instead
  * @param array|object $role Role data
  * @return string HTML badge
  */
 function admin_roles_badge($role): string
 {
-    $isSystem = admin_roles_is_system_role($role);
-    $name = is_array($role) ? ($role['name'] ?? 'Unknown') : ($role->name ?? 'Unknown');
-
-    if ($isSystem) {
-        return '<span class="badge badge-primary">' . htmlspecialchars($name) . ' (System)</span>';
-    }
-
-    return '<span class="badge badge-secondary">' . htmlspecialchars($name) . '</span>';
+    return RoleViewHelper::renderBadge($role);
 }
 
 /**
  * Format permission count for display
  *
+ * @deprecated Use ISER\Admin\Roles\RoleViewHelper::renderPermissionCount() instead
  * @param int $count Permission count
  * @return string Formatted count
  */
 function admin_roles_permission_count(int $count): string
 {
-    if ($count === 0) {
-        return '<span class="text-muted">No permissions</span>';
-    } elseif ($count === 1) {
-        return '<span class="text-info">1 permission</span>';
-    } else {
-        return '<span class="text-info">' . $count . ' permissions</span>';
-    }
+    return RoleViewHelper::renderPermissionCount($count);
 }
 
 /**
  * Get role menu items for admin panel
  *
+ * @deprecated Use ISER\Admin\Roles\RoleViewHelper::getMenuItems() instead
  * @return array Menu items
  */
 function admin_roles_get_menu_items(): array
 {
-    $items = [];
-
-    if (has_capability('roles.view')) {
-        $items[] = [
-            'title' => 'Roles',
-            'url' => '/admin/roles',
-            'icon' => 'shield',
-            'active' => strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/roles') === 0,
-        ];
-    }
-
-    if (has_capability('permissions.view')) {
-        $items[] = [
-            'title' => 'Permissions',
-            'url' => '/admin/permissions',
-            'icon' => 'key',
-            'active' => strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/permissions') === 0,
-        ];
-    }
-
-    return $items;
+    return RoleViewHelper::getMenuItems();
 }
 
 /**
  * Group permissions by module
  *
+ * @deprecated Use ISER\Admin\Roles\RoleViewHelper::groupPermissionsByModule() instead
  * @param array $permissions Array of permissions
  * @return array Grouped permissions
  */
 function admin_roles_group_permissions_by_module(array $permissions): array
 {
-    $grouped = [];
-
-    foreach ($permissions as $permission) {
-        $module = $permission['module'] ?? 'core';
-        if (!isset($grouped[$module])) {
-            $grouped[$module] = [];
-        }
-        $grouped[$module][] = $permission;
-    }
-
-    ksort($grouped);
-    return $grouped;
+    return RoleViewHelper::groupPermissionsByModule($permissions);
 }
