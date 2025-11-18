@@ -16,6 +16,9 @@ abstract class admin_setting {
     /** @var string Unique name for the setting (component/name format) */
     public string $name;
 
+    /** @var string Setting name without component prefix */
+    public string $settingname;
+
     /** @var string Visible name for display */
     public string $visiblename;
 
@@ -37,6 +40,7 @@ abstract class admin_setting {
      * @param mixed $defaultsetting Default value
      */
     public function __construct(string $name, string $visiblename, string $description, $defaultsetting) {
+        // Store full name for form field names
         $this->name = $name;
         $this->visiblename = $visiblename;
         $this->description = $description;
@@ -44,9 +48,10 @@ abstract class admin_setting {
 
         // Extract plugin name from setting name (format: plugin/settingname)
         if (strpos($name, '/') !== false) {
-            list($this->plugin, ) = explode('/', $name, 2);
+            list($this->plugin, $this->settingname) = explode('/', $name, 2);
         } else {
             $this->plugin = 'core';
+            $this->settingname = $name;
         }
     }
 
@@ -61,7 +66,7 @@ abstract class admin_setting {
         try {
             $record = $DB->get_record('config', [
                 'component' => $this->plugin,
-                'name' => $this->name
+                'name' => $this->settingname
             ]);
 
             if ($record) {
@@ -95,7 +100,7 @@ abstract class admin_setting {
         try {
             $existing = $DB->get_record('config', [
                 'component' => $this->plugin,
-                'name' => $this->name
+                'name' => $this->settingname
             ]);
 
             if ($existing) {
@@ -106,7 +111,7 @@ abstract class admin_setting {
                 // Insert
                 $record = new \stdClass();
                 $record->component = $this->plugin;
-                $record->name = $this->name;
+                $record->name = $this->settingname;
                 $record->value = $value;
                 $DB->insert_record('config', $record);
             }
