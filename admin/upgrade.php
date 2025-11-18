@@ -8,7 +8,10 @@
  * @package NexoSupport
  */
 
-defined('NEXOSUPPORT_INTERNAL') || die();
+require_once(__DIR__ . '/../config.php');
+
+require_login();
+require_capability('nexosupport/admin:manage');
 
 require_once(__DIR__ . '/../lib/upgrade.php');
 

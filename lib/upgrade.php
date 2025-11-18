@@ -305,6 +305,145 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // Upgrade to v1.1.6 (2025011806) - Logging System & User Preferences
+    // =========================================================
+    if ($oldversion < 2025011806) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">📊 Upgrading to NexoSupport v1.1.6</h2>';
+        echo '<p><strong>Comprehensive Logging System & User Preferences</strong></p>';
+        echo '<p>This upgrade adds a complete event logging system following Moodle\'s logstore architecture:</p>';
+        echo '<ul>';
+        echo '<li><strong>Event Logging:</strong> logstore_standard_log table for complete action tracking</li>';
+        echo '<li><strong>User Preferences:</strong> user_preferences table for storing user settings</li>';
+        echo '<li><strong>Password Security:</strong> Password history and reset token tables</li>';
+        echo '<li><strong>Site Configuration:</strong> siteadmin configuration in config table</li>';
+        echo '</ul>';
+        echo '<p><strong>🗄️ Database Changes:</strong></p>';
+        echo '<ul>';
+        echo '<li>Creating logstore_standard_log table (Moodle-compatible event logging)...</li>';
+        echo '<li>Creating user_preferences table...</li>';
+        echo '<li>Creating user_password_history table...</li>';
+        echo '<li>Creating user_password_resets table...</li>';
+        echo '<li>Setting siteadmin configuration...</li>';
+        echo '</ul>';
+        echo '</div>';
+
+        try {
+            $ddl = new \core\db\ddl_manager($DB);
+
+            // Create logstore_standard_log table
+            $table = new \core\db\xmldb_table('logstore_standard_log');
+            $table->add_field('id', 'int', '10', null, true, true);
+            $table->add_field('eventname', 'char', '255', null, true, null);
+            $table->add_field('component', 'char', '100', null, true, null);
+            $table->add_field('action', 'char', '100', null, true, null);
+            $table->add_field('target', 'char', '100', null, true, null);
+            $table->add_field('objecttable', 'char', '50', null, false, null);
+            $table->add_field('objectid', 'int', '10', null, false, null);
+            $table->add_field('crud', 'char', '1', null, true, null);
+            $table->add_field('edulevel', 'int', '1', null, true, null);
+            $table->add_field('contextid', 'int', '10', null, true, null);
+            $table->add_field('contextlevel', 'int', '10', null, true, null);
+            $table->add_field('contextinstanceid', 'int', '10', null, true, null);
+            $table->add_field('userid', 'int', '10', null, true, null);
+            $table->add_field('courseid', 'int', '10', null, false, null);
+            $table->add_field('relateduserid', 'int', '10', null, false, null);
+            $table->add_field('anonymous', 'int', '1', null, true, 0);
+            $table->add_field('other', 'text', null, null, false, null);
+            $table->add_field('timecreated', 'int', '10', null, true, null);
+            $table->add_field('origin', 'char', '10', null, false, null);
+            $table->add_field('ip', 'char', '45', null, false, null);
+            $table->add_field('realuserid', 'int', '10', null, false, null);
+            $table->add_key('primary', 'primary', ['id']);
+            $table->add_index('idx_timecreated', 'notunique', ['timecreated']);
+            $table->add_index('idx_userid', 'notunique', ['userid']);
+            $table->add_index('idx_contextid', 'notunique', ['contextid']);
+            $table->add_index('idx_eventname', 'notunique', ['eventname']);
+
+            if (!$ddl->table_exists($table)) {
+                $ddl->create_table($table);
+                echo '<p style="color: green;">✓ Created logstore_standard_log table</p>';
+            } else {
+                echo '<p style="color: blue;">ℹ logstore_standard_log table already exists</p>';
+            }
+
+            // Create user_preferences table
+            $table = new \core\db\xmldb_table('user_preferences');
+            $table->add_field('id', 'int', '10', null, true, true);
+            $table->add_field('userid', 'int', '10', null, true, null);
+            $table->add_field('name', 'char', '255', null, true, null);
+            $table->add_field('value', 'text', null, null, true, null);
+            $table->add_field('timemodified', 'int', '10', null, true, null);
+            $table->add_key('primary', 'primary', ['id']);
+            $table->add_index('idx_userid_name', 'unique', ['userid', 'name']);
+
+            if (!$ddl->table_exists($table)) {
+                $ddl->create_table($table);
+                echo '<p style="color: green;">✓ Created user_preferences table</p>';
+            } else {
+                echo '<p style="color: blue;">ℹ user_preferences table already exists</p>';
+            }
+
+            // Create user_password_history table
+            $table = new \core\db\xmldb_table('user_password_history');
+            $table->add_field('id', 'int', '10', null, true, true);
+            $table->add_field('userid', 'int', '10', null, true, null);
+            $table->add_field('hash', 'char', '255', null, true, null);
+            $table->add_field('timecreated', 'int', '10', null, true, null);
+            $table->add_key('primary', 'primary', ['id']);
+            $table->add_index('idx_userid', 'notunique', ['userid']);
+
+            if (!$ddl->table_exists($table)) {
+                $ddl->create_table($table);
+                echo '<p style="color: green;">✓ Created user_password_history table</p>';
+            } else {
+                echo '<p style="color: blue;">ℹ user_password_history table already exists</p>';
+            }
+
+            // Create user_password_resets table
+            $table = new \core\db\xmldb_table('user_password_resets');
+            $table->add_field('id', 'int', '10', null, true, true);
+            $table->add_field('userid', 'int', '10', null, true, null);
+            $table->add_field('token', 'char', '32', null, true, null);
+            $table->add_field('timerequested', 'int', '10', null, true, null);
+            $table->add_field('timererequested', 'int', '10', null, false, 0);
+            $table->add_key('primary', 'primary', ['id']);
+            $table->add_index('idx_token', 'notunique', ['token']);
+            $table->add_index('idx_userid', 'notunique', ['userid']);
+
+            if (!$ddl->table_exists($table)) {
+                $ddl->create_table($table);
+                echo '<p style="color: green;">✓ Created user_password_resets table</p>';
+            } else {
+                echo '<p style="color: blue;">ℹ user_password_resets table already exists</p>';
+            }
+
+            // Set siteadmin configuration
+            $adminuser = $DB->get_record_sql('SELECT * FROM {users} WHERE deleted = 0 ORDER BY id ASC LIMIT 1');
+            if ($adminuser) {
+                // Check if siteadmin config exists
+                if (!$DB->record_exists('config', ['name' => 'siteadmin'])) {
+                    $record = new \stdClass();
+                    $record->name = 'siteadmin';
+                    $record->value = (string)$adminuser->id;
+                    $DB->insert_record('config', $record);
+                    echo '<p style="color: green;">✓ Set siteadmin configuration (user ID: ' . $adminuser->id . ')</p>';
+                } else {
+                    echo '<p style="color: blue;">ℹ siteadmin configuration already exists</p>';
+                }
+            }
+
+        } catch (\Exception $e) {
+            debugging('Error in v1.1.6 upgrade: ' . $e->getMessage());
+            echo '<p style="color: red;">✗ Error: ' . htmlspecialchars($e->getMessage()) . '</p>';
+        }
+
+        echo '<p style="color: green; font-weight: bold;">✓ Upgrade to v1.1.6 completed successfully!</p>';
+
+        upgrade_core_savepoint(true, 2025011806);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 

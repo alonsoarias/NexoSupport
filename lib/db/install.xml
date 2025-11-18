@@ -155,7 +155,7 @@
       </INDEXES>
     </TABLE>
 
-    <!-- Tabla de logs -->
+    <!-- Tabla de logs (legacy - deprecated, use logstore_standard_log) -->
     <TABLE NAME="logs">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -174,6 +174,94 @@
         <INDEX NAME="idx_userid" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="idx_action" UNIQUE="false" FIELDS="action"/>
         <INDEX NAME="idx_timecreated" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de logs completa (Moodle-compatible) -->
+    <TABLE NAME="logstore_standard_log">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="eventname" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="component" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="action" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="target" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="objecttable" TYPE="char" LENGTH="50"/>
+        <FIELD NAME="objectid" TYPE="int" LENGTH="10"/>
+        <FIELD NAME="crud" TYPE="char" LENGTH="1" NOTNULL="true"/>
+        <FIELD NAME="edulevel" TYPE="int" LENGTH="1" NOTNULL="true"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="contextlevel" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="contextinstanceid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10"/>
+        <FIELD NAME="relateduserid" TYPE="int" LENGTH="10"/>
+        <FIELD NAME="anonymous" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="other" TYPE="text"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="origin" TYPE="char" LENGTH="10"/>
+        <FIELD NAME="ip" TYPE="char" LENGTH="45"/>
+        <FIELD NAME="realuserid" TYPE="int" LENGTH="10"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_timecreated" UNIQUE="false" FIELDS="timecreated"/>
+        <INDEX NAME="idx_userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="idx_contextid" UNIQUE="false" FIELDS="contextid"/>
+        <INDEX NAME="idx_eventname" UNIQUE="false" FIELDS="eventname"/>
+        <INDEX NAME="idx_component_action_target" UNIQUE="false" FIELDS="component,action,target"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de preferencias de usuario -->
+    <TABLE NAME="user_preferences">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="value" TYPE="text" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid_name" UNIQUE="true" FIELDS="userid,name"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de historial de contraseñas -->
+    <TABLE NAME="user_password_history">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="hash" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de tokens de reset de contraseña -->
+    <TABLE NAME="user_password_resets">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="token" TYPE="char" LENGTH="32" NOTNULL="true"/>
+        <FIELD NAME="timerequested" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timererequested" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_token" UNIQUE="false" FIELDS="token"/>
+        <INDEX NAME="idx_userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
 
