@@ -108,4 +108,6 @@ $context = [
 ];
 
 // Render and output
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
 echo render_template('admin/user_edit', $context);

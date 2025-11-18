@@ -132,4 +132,6 @@ if ($userid > 0) {
     redirect('/admin/users', get_string('mustselectuserrole'));
 }
 
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
 echo render_template('admin/role_assign', $context);

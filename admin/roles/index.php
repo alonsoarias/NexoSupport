@@ -87,6 +87,8 @@ if ($delete && confirm_sesskey()) {
             'sesskey' => sesskey(),
         ];
 
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
         echo render_template('admin/role_delete_confirm', $context);
         exit;
     } else {
@@ -150,4 +152,6 @@ $context = [
 ];
 
 // Render and output
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
 echo render_template('admin/role_list', $context);

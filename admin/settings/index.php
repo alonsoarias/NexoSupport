@@ -97,4 +97,6 @@ $context = [
 ];
 
 // Render template
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
 echo render_template('admin/settings_page', $context);
