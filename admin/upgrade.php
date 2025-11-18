@@ -14,8 +14,19 @@ require_login();
 
 // Verify user is site administrator
 global $USER;
+
+// Check if user is logged in
+if (!isset($USER->id) || $USER->id == 0) {
+    // Usuario no está logueado, redirigir a login
+    $returnurl = urlencode($_SERVER['REQUEST_URI']);
+    redirect("/login?returnurl={$returnurl}", get_string('pleaselogin', 'core'), 3);
+    exit;
+}
+
+// Check if user is site administrator
 if (!is_siteadmin($USER->id)) {
-    throw new \access_exception('Only site administrators can access this page');
+    // Usuario logueado pero no es administrador
+    print_error('nopermissions', 'core');
 }
 
 require_once(__DIR__ . '/../lib/upgrade.php');

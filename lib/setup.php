@@ -187,7 +187,12 @@ if ($CFG->installed && $DB !== null) {
         str_contains($uri, '/logout')
     );
 
-    if (!$skip_upgrade_check) {
+    // IMPORTANTE: Solo verificar upgrades si hay un usuario logueado
+    // Esto previene redirecciones a upgrade.php justo después de instalar
+    // cuando el usuario aún no ha iniciado sesión
+    $has_logged_user = isset($USER->id) && $USER->id > 0;
+
+    if (!$skip_upgrade_check && $has_logged_user) {
         require_once(__DIR__ . '/upgrade.php');
 
         if (core_upgrade_required()) {
