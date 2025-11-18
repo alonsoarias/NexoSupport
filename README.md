@@ -1,8 +1,8 @@
 # NexoSupport - Sistema de Gestión con Arquitectura Frankenstyle
 
-**Versión:** 1.0.0 (Fase 1 - Sistema Base)
+**Versión:** 1.1.3 (User & Role Management)
 **Fecha:** Enero 2025
-**Licencia:** Propietaria - Instituto Superior de Educación Rural (ISER)
+**Licencia:** GNU GPL v3 or later
 
 ## Equipo de Desarrollo
 
@@ -23,6 +23,65 @@ NexoSupport es un sistema de gestión moderno construido **desde cero** utilizan
 - **Seguro**: RBAC completo, MFA, y validación estricta de inputs
 - **Mantenible**: Código limpio siguiendo PSR-4 y mejores prácticas
 - **Escalable**: Arquitectura modular que permite crecer según necesidades
+
+## Estado Actual (v1.1.3)
+
+### ✅ Funcionalidades Implementadas
+
+**Gestión de Usuarios:**
+- Crear, editar, eliminar usuarios (soft delete con anonimización)
+- Suspender/reactivar cuentas
+- Confirmar emails de usuarios
+- Desbloquear cuentas
+- Protección: No se puede eliminar/suspender administradores o a uno mismo
+
+**Gestión de Roles:**
+- Crear, editar, eliminar roles personalizados
+- Mover roles arriba/abajo (reordenamiento)
+- Asignar capabilities a roles
+- Asignar roles a usuarios
+- Protección: Roles del sistema no pueden eliminarse
+
+**Sistema de Autenticación:**
+- Plugin auth_manual implementado
+- Validación de políticas de contraseñas
+- Hooks de autenticación (pre/post login)
+- Actualización de lastlogin y lastip
+
+**Internacionalización (i18n):**
+- Soporte completo multi-idioma
+- 300+ strings en Español e Inglés
+- Sistema string_manager siguiendo patrón Moodle
+- Plugin i18n (auth_manual/lang/*/auth_manual.php)
+
+**Templates Mustache:**
+- 13+ templates core/admin migradas
+- Separación completa lógica/presentación
+- Sistema template_manager
+- Soporte para helpers y partials
+
+**Base de Datos:**
+- Sistema XMLDB para gestión de schema
+- DDL Manager para modificaciones
+- Sistema de upgrade automático
+- Transacciones y rollback
+
+### 📋 Roadmap
+
+**v1.2.0** - Operaciones Masivas
+- Bulk delete, suspend, confirm
+- Selección de usuarios
+- Acciones en lote
+
+**v1.3.0** - Autenticación Avanzada
+- OAuth2 support
+- Two-factor authentication
+- Multiple auth plugins
+
+**v1.4.0** - RBAC Avanzado
+- Context-aware permissions
+- Role inheritance
+- Custom contexts
 
 ## Filosofía del Proyecto
 
