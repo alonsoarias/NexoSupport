@@ -84,15 +84,110 @@ if (preg_match('#^/theme/([a-z0-9_]+)/(.+)$#', $uri, $matches)) {
 $installedFile = BASE_DIR . '/.installed';
 
 if (!file_exists($installedFile)) {
-    // No instalado, redirigir a instalador
-    if ($uri !== '/install' && !str_starts_with($uri, '/install/')) {
-        header('Location: /install');
-        exit;
+    // Archivo .installed no existe
+    // PERO: antes de redirigir al instalador, verificar si hay una BD con datos
+    // (similar a como Moodle detecta instalaciones existentes)
+
+    $hasExistingInstallation = false;
+    $dbConfig = [];
+
+    // Estrategia 1: Intentar leer desde .env si existe
+    if (file_exists(BASE_DIR . '/.env')) {
+        $envContent = file_get_contents(BASE_DIR . '/.env');
+
+        if (preg_match('/DB_HOST=(.+)/', $envContent, $matches)) {
+            $dbConfig['host'] = trim($matches[1]);
+        }
+        if (preg_match('/DB_DATABASE=(.+)/', $envContent, $matches)) {
+            $dbConfig['database'] = trim($matches[1]);
+        }
+        if (preg_match('/DB_USERNAME=(.+)/', $envContent, $matches)) {
+            $dbConfig['username'] = trim($matches[1]);
+        }
+        if (preg_match('/DB_PASSWORD=(.+)/', $envContent, $matches)) {
+            $dbConfig['password'] = trim($matches[1]);
+        }
+        if (preg_match('/DB_PREFIX=(.+)/', $envContent, $matches)) {
+            $dbConfig['prefix'] = trim($matches[1]);
+        }
     }
 
-    // Cargar instalador
-    require_once(BASE_DIR . '/install/index.php');
-    exit;
+    // Estrategia 2: Si no hay .env, intentar con valores por defecto de .env.example
+    if (empty($dbConfig) && file_exists(BASE_DIR . '/.env.example')) {
+        $envExampleContent = file_get_contents(BASE_DIR . '/.env.example');
+
+        if (preg_match('/DB_HOST=(.+)/', $envExampleContent, $matches)) {
+            $dbConfig['host'] = trim($matches[1]);
+        }
+        if (preg_match('/DB_DATABASE=(.+)/', $envExampleContent, $matches)) {
+            $dbConfig['database'] = trim($matches[1]);
+        }
+        if (preg_match('/DB_USERNAME=(.+)/', $envExampleContent, $matches)) {
+            $dbConfig['username'] = trim($matches[1]);
+        }
+        if (preg_match('/DB_PASSWORD=(.+)/', $envExampleContent, $matches)) {
+            $dbConfig['password'] = trim($matches[1]);
+        }
+        if (preg_match('/DB_PREFIX=(.+)/', $envExampleContent, $matches)) {
+            $dbConfig['prefix'] = trim($matches[1]);
+        }
+    }
+
+    // Estrategia 3: Asegurar valores por defecto mínimos
+    $dbConfig = array_merge([
+        'host' => 'localhost',
+        'database' => 'nexosupport',
+        'username' => 'root',
+        'password' => '',
+        'prefix' => 'nxs_'
+    ], $dbConfig);
+
+    // Intentar conectar y verificar si existen tablas del sistema
+    if (isset($dbConfig['host'], $dbConfig['database'], $dbConfig['username'], $dbConfig['prefix'])) {
+        try {
+            $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['database']};charset=utf8mb4";
+            $password = $dbConfig['password'] ?? '';
+
+            $testPdo = new PDO($dsn, $dbConfig['username'], $password);
+            $testPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            // Verificar si existe la tabla de configuración
+            $stmt = $testPdo->query("SHOW TABLES LIKE '{$dbConfig['prefix']}config'");
+            if ($stmt->rowCount() > 0) {
+                // Existe la tabla config, hay una instalación
+                $hasExistingInstallation = true;
+            }
+
+            unset($testPdo);
+        } catch (PDOException $e) {
+            // No se pudo conectar o verificar, continuar al instalador normal
+            $hasExistingInstallation = false;
+        }
+    }
+
+    // Decidir qué hacer
+    if ($hasExistingInstallation) {
+        // Hay instalación en BD pero falta archivo .installed
+        // Redirigir a recuperación (excepto si ya estamos allí)
+        if ($uri !== '/install/recovery.php' && !str_starts_with($uri, '/install/recovery')) {
+            header('Location: /install/recovery.php');
+            exit;
+        }
+
+        // Cargar página de recuperación
+        require_once(BASE_DIR . '/install/recovery.php');
+        exit;
+    } else {
+        // No hay instalación existente, proceder con instalación normal
+        if ($uri !== '/install' && !str_starts_with($uri, '/install/')) {
+            header('Location: /install');
+            exit;
+        }
+
+        // Cargar instalador
+        require_once(BASE_DIR . '/install/index.php');
+        exit;
+    }
 }
 
 // ============================================

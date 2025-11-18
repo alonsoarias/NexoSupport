@@ -35,17 +35,47 @@ try {
     $DB = new \core\db\database($pdo, $dbconfig['prefix'], $dbconfig['driver']);
     $installer = new \core\db\schema_installer($DB);
 
+    // Verificar si ya existe una instalación
+    $existingInstall = false;
+    try {
+        // Intentar verificar si la tabla config ya existe con datos
+        $stmt = $pdo->query("SELECT COUNT(*) as count FROM {$dbconfig['prefix']}config");
+        $configCount = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        if ($configCount > 0) {
+            $existingInstall = true;
+        }
+    } catch (PDOException $e) {
+        // La tabla no existe, continuar con instalación
+        $existingInstall = false;
+    }
+
+    if ($existingInstall) {
+        // Ya existe una instalación, redirigir a recuperación
+        throw new Exception(
+            'Se detectó una instalación existente en la base de datos. ' .
+            'Por favor, utilice el modo de recuperación en lugar de reinstalar. ' .
+            '<a href="/install/recovery.php">Ir a Recuperación</a>'
+        );
+    }
+
     // Instalar schema del core
     $installer->install_from_xmlfile(BASE_DIR . '/lib/db/install.xml');
 
     // Instalar datos iniciales
-    // Crear contexto raíz
-    $DB->insert_record('contexts', [
+    // Crear contexto raíz (verificar que no exista primero)
+    $existingContext = $DB->get_record('contexts', [
         'contextlevel' => 10,
-        'instanceid' => 0,
-        'path' => '/1',
-        'depth' => 1
+        'instanceid' => 0
     ]);
+
+    if (!$existingContext) {
+        $DB->insert_record('contexts', [
+            'contextlevel' => 10,
+            'instanceid' => 0,
+            'path' => '/1',
+            'depth' => 1
+        ]);
+    }
 
     // Redirigir al siguiente stage
     header('Location: /install?stage=admin');
