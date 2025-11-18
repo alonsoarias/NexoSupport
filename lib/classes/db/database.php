@@ -447,7 +447,11 @@ class database {
      * @return int Count of records
      */
     public function count_records_sql(string $sql, array $params = []): int {
-        $sql = $this->fix_sql_params($sql);
+        // Replace {table} placeholders with actual table names
+        $sql = preg_replace_callback('/\{([a-z_]+)\}/', function($matches) {
+            return $this->add_prefix($matches[1]);
+        }, $sql);
+
         $stmt = $this->execute($sql, $params);
         $result = $stmt->fetch(\PDO::FETCH_NUM);
         return $result ? (int)$result[0] : 0;
