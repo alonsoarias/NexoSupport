@@ -56,67 +56,63 @@ if (!get_config('auth_manual', 'requirespecialchars')) {
 }
 
 // ============================================================================
-// Future implementation with admin_setting_* classes (Phase 3)
+// Admin Settings Implementation (Phase 3 - ACTIVE)
 // ============================================================================
-// When we implement the admin settings tree system in Phase 3, this section
-// will be uncommented and will work exactly like Moodle:
-/*
-if ($ADMIN->fulltree) {
+// Settings are loaded dynamically by lib/adminlib.php
+// This follows exactly the Moodle pattern, adapted to NexoSupport's architecture
+
+if (isset($fulltree) && $fulltree) {
 
     // Password policy settings heading
-    $settings->add(new admin_setting_heading(
+    $settings->add(new \core\admin\admin_setting_heading(
         'auth_manual/passwordpolicy',
-        new lang_string('passwordpolicy', 'auth_manual'),
-        new lang_string('auth_manualdescription', 'auth_manual')
+        get_string('passwordpolicy', 'auth_manual'),
+        get_string('auth_manualdescription', 'auth_manual')
     ));
 
     // Minimum password length
-    $settings->add(new admin_setting_configtext(
+    $settings->add(new \core\admin\admin_setting_configtext(
         'auth_manual/minpasswordlength',
-        new lang_string('minpasswordlength', 'auth_manual'),
-        new lang_string('minpasswordlength_help', 'auth_manual'),
-        8,
-        PARAM_INT
+        get_string('minpasswordlength', 'auth_manual'),
+        get_string('minpasswordlength_help', 'auth_manual'),
+        '8',
+        10,
+        'text'
     ));
 
     // Require uppercase letters
-    $settings->add(new admin_setting_configcheckbox(
+    $settings->add(new \core\admin\admin_setting_configcheckbox(
         'auth_manual/requireuppercase',
-        new lang_string('requireuppercase', 'auth_manual'),
-        new lang_string('requireuppercase_help', 'auth_manual'),
+        get_string('requireuppercase', 'auth_manual'),
+        get_string('requireuppercase_help', 'auth_manual'),
         0
     ));
 
     // Require lowercase letters
-    $settings->add(new admin_setting_configcheckbox(
+    $settings->add(new \core\admin\admin_setting_configcheckbox(
         'auth_manual/requirelowercase',
-        new lang_string('requirelowercase', 'auth_manual'),
-        new lang_string('requirelowercase_help', 'auth_manual'),
+        get_string('requirelowercase', 'auth_manual'),
+        get_string('requirelowercase_help', 'auth_manual'),
         0
     ));
 
     // Require numbers
-    $settings->add(new admin_setting_configcheckbox(
+    $settings->add(new \core\admin\admin_setting_configcheckbox(
         'auth_manual/requirenumbers',
-        new lang_string('requirenumbers', 'auth_manual'),
-        new lang_string('requirenumbers_help', 'auth_manual'),
+        get_string('requirenumbers', 'auth_manual'),
+        get_string('requirenumbers_help', 'auth_manual'),
         0
     ));
 
     // Require special characters
-    $settings->add(new admin_setting_configcheckbox(
+    $settings->add(new \core\admin\admin_setting_configcheckbox(
         'auth_manual/requirespecialchars',
-        new lang_string('requirespecialchars', 'auth_manual'),
-        new lang_string('requirespecialchars_help', 'auth_manual'),
+        get_string('requirespecialchars', 'auth_manual'),
+        get_string('requirespecialchars_help', 'auth_manual'),
         0
     ));
 
-    // Display locking / mapping of profile fields
-    // This is a Moodle feature to control which fields can be updated locally
-    // vs synced from external auth source
-    // $authplugin = get_auth_plugin('manual');
-    // display_auth_lock_options($settings, $authplugin->authtype,
-    //     $authplugin->userfields, get_string('auth_fieldlocks_help', 'auth'),
-    //     false, false);
+    // Note: Profile field locking is a Moodle feature for controlling which fields
+    // can be updated locally vs synced from external auth sources.
+    // This will be implemented in a future version if needed.
 }
-*/

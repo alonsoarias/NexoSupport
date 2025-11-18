@@ -216,6 +216,48 @@ function admin_get_root(): \core\admin\admin_category {
     $development->add_page($debugsettings);
     $root->add_category($development);
 
+    // ========== PLUGINS CATEGORY ==========
+    $plugins = new \core\admin\admin_category('plugins', get_string('plugins', 'core'));
+
+    // Authentication plugins
+    $auth = new \core\admin\admin_category('authentication', get_string('authentication', 'core'));
+
+    // Load auth plugin settings
+    $authplugins = get_enabled_auth_plugins();
+    foreach ($authplugins as $authplugin) {
+        $settingsfile = BASE_DIR . "/auth/{$authplugin}/settings.php";
+        if (file_exists($settingsfile)) {
+            // Create settings page for this plugin
+            $settings = new \core\admin\admin_settingpage(
+                "auth_{$authplugin}",
+                get_string('pluginname', "auth_{$authplugin}"),
+                'nexosupport/admin:manageconfig'
+            );
+
+            // Set fulltree flag (Moodle compatibility)
+            $fulltree = true;
+
+            // Load the settings file
+            // This file will add settings to $settings object
+            include($settingsfile);
+
+            // Only add the page if it has settings
+            if (!empty($settings->settings)) {
+                $auth->add_page($settings);
+            }
+        }
+    }
+
+    // Add authentication category if it has pages
+    if (!empty($auth->get_pages())) {
+        $plugins->add_category($auth);
+    }
+
+    // Add plugins category if it has content
+    if (!empty($plugins->get_categories())) {
+        $root->add_category($plugins);
+    }
+
     // Cache for future calls
     $ADMIN = $root;
 
