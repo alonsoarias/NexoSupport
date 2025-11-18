@@ -168,11 +168,13 @@ function xmldb_core_upgrade(int $oldversion): bool {
     //    * Complete separation: PHP = logic, Mustache = presentation
     //
     // 3. NEW FEATURES:
-    //    * Created auth/manual/settings.php from scratch
+    //    * Created auth/manual/settings.php following Moodle pattern
+    //      - Settings definitions file (NOT a web page)
     //      - Password policy configuration (length, uppercase, lowercase, numbers, special chars)
-    //      - Full validation and error handling
-    //      - Uses Mustache template + i18n
-    //    * Added route /auth/manual/settings in public_html/index.php
+    //      - Will integrate with admin settings tree in future
+    //      - Uses Frankenstyle plugin lang files
+    //    * Plugin internationalization support in string_manager
+    //      - auth_manual → auth/manual/lang/*/auth_manual.php
     //    * Dynamic HTML lang attribute based on current language
     //
     // 4. BUG FIXES:
@@ -199,7 +201,7 @@ function xmldb_core_upgrade(int $oldversion): bool {
         echo '<li><strong>Internationalization (i18n):</strong> Complete multi-language support with 300+ strings in Spanish and English</li>';
         echo '<li><strong>Mustache Templates:</strong> 13 core/admin pages migrated to modern, maintainable template system</li>';
         echo '<li><strong>Clean Architecture:</strong> Complete separation of logic (PHP) and presentation (Mustache)</li>';
-        echo '<li><strong>Auth Settings:</strong> New password policy configuration page for manual authentication</li>';
+        echo '<li><strong>Plugin System:</strong> auth_manual settings.php following Moodle pattern (settings definitions, not web page)</li>';
         echo '<li><strong>Plugin i18n:</strong> Frankenstyle plugin language files (auth_manual/lang/*/auth_manual.php)</li>';
         echo '</ul>';
         echo '<p><strong>📝 Templates Created:</strong></p>';
