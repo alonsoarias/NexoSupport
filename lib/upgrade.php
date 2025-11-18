@@ -250,6 +250,61 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // Upgrade to v1.1.3 (2025011803) - User Management Enhancements
+    // =========================================================
+    if ($oldversion < 2025011803) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🚀 Upgrading to NexoSupport v1.1.3</h2>';
+        echo '<p><strong>User Management Enhancements</strong></p>';
+        echo '<p>This upgrade adds complete user lifecycle management following Moodle\'s architecture:</p>';
+        echo '<ul>';
+        echo '<li><strong>User Operations:</strong> Delete, suspend, unsuspend, unlock, confirm users</li>';
+        echo '<li><strong>Email Confirmation:</strong> Support for user email confirmation workflow</li>';
+        echo '<li><strong>Safety Features:</strong> Protected operations (cannot delete/suspend admins or self)</li>';
+        echo '<li><strong>Session Management:</strong> Auto-logout on suspend/delete operations</li>';
+        echo '<li><strong>Soft Delete:</strong> Users marked as deleted with data anonymization</li>';
+        echo '</ul>';
+        echo '<p><strong>📝 New Features:</strong></p>';
+        echo '<ul>';
+        echo '<li>lib/userlib.php - Complete user management functions</li>';
+        echo '<li>admin/user/index.php - Enhanced with all operations</li>';
+        echo '<li>templates/admin/user_delete_confirm.mustache - Delete confirmation page</li>';
+        echo '<li>Updated user list template with action buttons</li>';
+        echo '</ul>';
+        echo '<p><strong>🗄️ Database Changes:</strong></p>';
+        echo '<ul>';
+        echo '<li>Adding \'confirmed\' field to users table for email confirmation tracking...</li>';
+        echo '</ul>';
+        echo '</div>';
+
+        try {
+            $ddl = new \core\db\ddl_manager($DB);
+
+            // Add confirmed field to users table
+            $table = new \core\db\xmldb_table('users');
+            $field = (new \core\db\xmldb_field('confirmed', 'int'))
+                ->set_length(1)
+                ->set_notnull(true)
+                ->set_default(1);
+
+            if (!$ddl->field_exists($table, $field)) {
+                $ddl->add_field($table, $field, 'phone');
+                debugging('Added confirmed field to users table', DEBUG_DEVELOPER);
+                echo '<p style="color: green;">✓ Successfully added confirmed field to users table</p>';
+            } else {
+                echo '<p style="color: blue;">ℹ Confirmed field already exists in users table</p>';
+            }
+        } catch (Exception $e) {
+            debugging('Error adding confirmed field: ' . $e->getMessage());
+            echo '<p style="color: red;">✗ Error adding confirmed field: ' . htmlspecialchars($e->getMessage()) . '</p>';
+        }
+
+        echo '<p style="color: green; font-weight: bold;">✓ Upgrade to v1.1.3 completed successfully!</p>';
+
+        upgrade_core_savepoint(true, 2025011803);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 

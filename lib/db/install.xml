@@ -13,8 +13,10 @@
         <FIELD NAME="lastname" TYPE="char" LENGTH="100" NOTNULL="true"/>
         <FIELD NAME="email" TYPE="char" LENGTH="100" NOTNULL="true"/>
         <FIELD NAME="phone" TYPE="char" LENGTH="20"/>
+        <FIELD NAME="confirmed" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
         <FIELD NAME="suspended" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
         <FIELD NAME="deleted" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="lang" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="es"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
         <FIELD NAME="lastlogin" TYPE="int" LENGTH="10" DEFAULT="0"/>

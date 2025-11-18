@@ -288,6 +288,18 @@ class manager {
     }
 
     /**
+     * Kill all sessions for a user (alias for terminate_user_sessions)
+     *
+     * Compatible with Moodle's API
+     *
+     * @param int $userid User ID
+     * @return void
+     */
+    public static function kill_user_sessions(int $userid): void {
+        self::terminate_user_sessions($userid);
+    }
+
+    /**
      * Contar sesiones activas
      *
      * @return int

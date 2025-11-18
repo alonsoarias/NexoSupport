@@ -297,3 +297,23 @@ $string['backtoroles'] = 'Volver a Roles';
 $string['assignuserinfo'] = 'Información del usuario';
 $string['roleassignments'] = 'Asignaciones de Roles';
 $string['close'] = 'Cerrar';
+
+// User management actions (v1.1.3)
+$string['usernotfound'] = 'Usuario no encontrado';
+$string['userconfirmed'] = 'Usuario confirmado exitosamente';
+$string['usernotconfirmed'] = 'No se pudo confirmar el usuario';
+$string['alreadyconfirmed'] = 'El usuario ya está confirmado';
+$string['emailconfirmsent'] = 'Email de confirmación enviado';
+$string['emailconfirmsentfailure'] = 'Error al enviar email de confirmación';
+$string['userdeleted'] = 'Usuario eliminado correctamente';
+$string['cannotdeleteadmin'] = 'No se puede eliminar el administrador del sistema';
+$string['userdeletionerror'] = 'Error al eliminar el usuario';
+$string['usersuspended'] = 'Usuario suspendido correctamente';
+$string['cannotsuspenduser'] = 'No se puede suspender este usuario';
+$string['userunsuspended'] = 'Usuario reactivado correctamente';
+$string['cannotunsuspenduser'] = 'No se puede reactivar este usuario';
+$string['userunlocked'] = 'Cuenta de usuario desbloqueada';
+$string['cannotunlockuser'] = 'No se puede desbloquear este usuario';
+$string['confirmdelete'] = '¿Está seguro de que desea eliminar este usuario?';
+$string['confirmdeleteuser'] = '¿Está seguro de que desea eliminar permanentemente al usuario {$a}?';
+$string['never'] = 'Nunca';
