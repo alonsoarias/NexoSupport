@@ -8,6 +8,7 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  *
  * Manages different types of caches in NexoSupport:
  * - OPcache (PHP bytecode cache)
+ * - Mustache templates (compiled templates)
  * - Application cache (RBAC, config, etc.)
  * - Session cache
  *
@@ -24,6 +25,7 @@ class cache_manager {
         $results = [];
 
         $results['opcache'] = self::purge_opcache();
+        $results['mustache'] = self::purge_mustache_cache();
         $results['application'] = self::purge_application_cache();
         $results['rbac'] = self::purge_rbac_cache();
 
@@ -58,6 +60,55 @@ class cache_manager {
             'success' => $result,
             'message' => $result ? 'OPcache purged successfully' : 'Failed to purge OPcache',
         ];
+    }
+
+    /**
+     * Purge Mustache template cache
+     *
+     * This clears compiled Mustache templates, forcing them to be recompiled
+     * on next use. Useful after template changes or updates.
+     *
+     * @return array Status and message
+     */
+    public static function purge_mustache_cache(): array {
+        try {
+            if (class_exists('\core\output\template_manager')) {
+                \core\output\template_manager::clear_cache();
+
+                global $CFG;
+                $cachedir = $CFG->cachedir . '/mustache';
+
+                // Count files that were in cache (approximate)
+                $count = 0;
+                if (file_exists($cachedir)) {
+                    $files = new \RecursiveIteratorIterator(
+                        new \RecursiveDirectoryIterator($cachedir, \RecursiveDirectoryIterator::SKIP_DOTS),
+                        \RecursiveIteratorIterator::LEAVES_ONLY
+                    );
+                    foreach ($files as $file) {
+                        $count++;
+                    }
+                }
+
+                return [
+                    'success' => true,
+                    'message' => $count > 0
+                        ? "Mustache cache purged successfully ($count compiled templates cleared)"
+                        : 'Mustache cache purged successfully (cache was empty)',
+                    'count' => $count,
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Template manager class not found',
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error purging Mustache cache: ' . $e->getMessage(),
+            ];
+        }
     }
 
     /**
@@ -133,6 +184,41 @@ class cache_manager {
             }
         } else {
             $status['opcache'] = ['enabled' => false, 'available' => false];
+        }
+
+        // Mustache cache status
+        global $CFG;
+        $cachedir = $CFG->cachedir . '/mustache';
+        $status['mustache'] = [
+            'enabled' => true,
+            'cache_dir' => $cachedir,
+            'num_cached_templates' => 0,
+            'cache_size' => 0,
+        ];
+
+        if (file_exists($cachedir)) {
+            $count = 0;
+            $size = 0;
+
+            try {
+                $files = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($cachedir, \RecursiveDirectoryIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::LEAVES_ONLY
+                );
+
+                foreach ($files as $file) {
+                    if ($file->isFile()) {
+                        $count++;
+                        $size += $file->getSize();
+                    }
+                }
+
+                $status['mustache']['num_cached_templates'] = $count;
+                $status['mustache']['cache_size'] = $size;
+            } catch (\Exception $e) {
+                // Silently fail if directory is not readable
+                $status['mustache']['error'] = 'Cannot read cache directory';
+            }
         }
 
         return $status;

@@ -33,6 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
                 $success = get_string('cachepurgedopcache', 'core');
                 break;
 
+            case 'mustache':
+                $purge_results['mustache'] = \core\cache\cache_manager::purge_mustache_cache();
+                $success = get_string('cachepurgedmustache', 'core');
+                break;
+
             case 'application':
                 $purge_results['application'] = \core\cache\cache_manager::purge_application_cache();
                 $success = get_string('cachepurgedapp', 'core');
@@ -85,6 +90,16 @@ if (isset($cache_status['opcache']) && $cache_status['opcache']['enabled']) {
     }
 } else {
     $context['opcache_enabled'] = false;
+}
+
+// Format Mustache cache status
+if (isset($cache_status['mustache'])) {
+    $context['mustache_enabled'] = true;
+    $context['mustache_templates'] = $cache_status['mustache']['num_cached_templates'];
+    $context['mustache_cache_size'] = \core\cache\cache_manager::format_bytes($cache_status['mustache']['cache_size']);
+    $context['mustache_cache_dir'] = $cache_status['mustache']['cache_dir'];
+} else {
+    $context['mustache_enabled'] = false;
 }
 
 // Render and output

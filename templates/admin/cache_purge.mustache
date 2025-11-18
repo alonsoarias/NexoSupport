@@ -40,6 +40,12 @@
                     </div>
                     {{/purge_results.opcache}}
 
+                    {{#purge_results.mustache}}
+                    <div class="purge-result {{#success}}text-success{{/success}}{{^success}}text-danger{{/success}}">
+                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{ strings.mustachecache }}:</strong> {{message}}
+                    </div>
+                    {{/purge_results.mustache}}
+
                     {{#purge_results.application}}
                     <div class="purge-result {{#success}}text-success{{/success}}{{^success}}text-danger{{/success}}">
                         {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{ strings.applicationcache }}:</strong> {{message}}
@@ -56,13 +62,12 @@
             {{/has_purge_results}}
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h3>{{ strings.cachestatus }}</h3>
+                            <h3>OPcache {{ strings.status }}</h3>
                         </div>
                         <div class="card-body">
-                            <h4>OPcache</h4>
                             {{#opcache_enabled}}
                             <table class="table table-sm">
                                 <tr>
@@ -108,7 +113,36 @@
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3>{{ strings.mustachecache }} {{ strings.status }}</h3>
+                        </div>
+                        <div class="card-body">
+                            {{#mustache_enabled}}
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>{{ strings.status }}</th>
+                                    <td><span class="badge badge-success">{{ strings.enabled }}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>{{ strings.cachedtemplates }}</th>
+                                    <td>{{mustache_templates}}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ strings.cachesize }}</th>
+                                    <td>{{mustache_cache_size}}</td>
+                                </tr>
+                            </table>
+                            {{/mustache_enabled}}
+                            {{^mustache_enabled}}
+                            <p class="text-muted">Mustache cache disabled</p>
+                            {{/mustache_enabled}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
                             <h3>{{ strings.purgecache }}</h3>
@@ -134,6 +168,16 @@
                             </form>
                             {{/opcache_enabled}}
 
+                            {{#mustache_enabled}}
+                            <form method="POST" action="" class="mb-3">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="purge_type" value="mustache">
+                                <button type="submit" class="btn btn-warning btn-block">
+                                    🔄 {{ strings.purgemustachecache }}
+                                </button>
+                            </form>
+                            {{/mustache_enabled}}
+
                             <form method="POST" action="" class="mb-3">
                                 <input type="hidden" name="sesskey" value="{{sesskey}}">
                                 <input type="hidden" name="purge_type" value="application">
@@ -158,6 +202,7 @@
                 <h4>ℹ️ {{ strings.aboutcaches }}</h4>
                 <ul>
                     <li><strong>OPcache:</strong> {{ strings.opcachehelp }}</li>
+                    <li><strong>{{ strings.mustachecache }}:</strong> {{ strings.mustachecachehelp }}</li>
                     <li><strong>{{ strings.applicationcache }}:</strong> {{ strings.appcachehelp }}</li>
                     <li><strong>RBAC {{ strings.cache }}:</strong> {{ strings.rbaccachehelp }}</li>
                 </ul>

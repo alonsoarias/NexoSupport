@@ -619,6 +619,13 @@ function xmldb_core_upgrade(int $oldversion): bool {
                 echo '<li style="color: orange;">⚠ ' . htmlspecialchars($purge_results['opcache']['message']) . '</li>';
             }
 
+            if (isset($purge_results['mustache']) && $purge_results['mustache']['success']) {
+                $count = $purge_results['mustache']['count'] ?? 0;
+                echo '<li style="color: green;">✓ Caché de Mustache purgado exitosamente (' . $count . ' templates compilados)</li>';
+            } else if (isset($purge_results['mustache'])) {
+                echo '<li style="color: orange;">⚠ ' . htmlspecialchars($purge_results['mustache']['message']) . '</li>';
+            }
+
             if (isset($purge_results['application']) && $purge_results['application']['success']) {
                 $items = $purge_results['application']['items'] ?? [];
                 echo '<li style="color: green;">✓ Caché de aplicación purgado: ' . htmlspecialchars(implode(', ', $items)) . '</li>';
