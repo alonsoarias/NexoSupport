@@ -25,11 +25,6 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  */
 abstract class base {
 
-    /** Create operation */
-    const LEVEL_TEACHING = 1;
-    const LEVEL_PARTICIPATING = 2;
-    const LEVEL_OTHER = 3;
-
     /** CRUD constants */
     const ACTION_CREATED = 'c';
     const ACTION_UPDATED = 'u';
@@ -74,12 +69,10 @@ abstract class base {
             'objecttable' => static::get_objecttable(),
             'objectid' => null,
             'crud' => static::get_crud(),
-            'edulevel' => static::get_edulevel(),
             'contextid' => \core\rbac\context::system()->id,
             'contextlevel' => CONTEXT_SYSTEM,
             'contextinstanceid' => 0,
             'userid' => isset($USER->id) ? $USER->id : 0,
-            'courseid' => null,
             'relateduserid' => null,
             'anonymous' => 0,
             'other' => null,
@@ -203,15 +196,6 @@ abstract class base {
      * @return string CRUD (c=create, r=read, u=update, d=delete)
      */
     abstract protected static function get_crud();
-
-    /**
-     * Get educational level.
-     *
-     * @return int Level (LEVEL_TEACHING, LEVEL_PARTICIPATING, LEVEL_OTHER)
-     */
-    protected static function get_edulevel() {
-        return self::LEVEL_OTHER;
-    }
 
     /**
      * Get event data.

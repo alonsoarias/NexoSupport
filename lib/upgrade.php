@@ -341,12 +341,10 @@ function xmldb_core_upgrade(int $oldversion): bool {
             $table->add_field((new \core\db\xmldb_field('objecttable', 'char'))->set_length(50)->set_notnull(false));
             $table->add_field((new \core\db\xmldb_field('objectid', 'int'))->set_length(10)->set_notnull(false));
             $table->add_field((new \core\db\xmldb_field('crud', 'char'))->set_length(1)->set_notnull(true));
-            $table->add_field((new \core\db\xmldb_field('edulevel', 'int'))->set_length(1)->set_notnull(true));
             $table->add_field((new \core\db\xmldb_field('contextid', 'int'))->set_length(10)->set_notnull(true));
             $table->add_field((new \core\db\xmldb_field('contextlevel', 'int'))->set_length(10)->set_notnull(true));
             $table->add_field((new \core\db\xmldb_field('contextinstanceid', 'int'))->set_length(10)->set_notnull(true));
             $table->add_field((new \core\db\xmldb_field('userid', 'int'))->set_length(10)->set_notnull(true));
-            $table->add_field((new \core\db\xmldb_field('courseid', 'int'))->set_length(10)->set_notnull(false));
             $table->add_field((new \core\db\xmldb_field('relateduserid', 'int'))->set_length(10)->set_notnull(false));
             $table->add_field((new \core\db\xmldb_field('anonymous', 'int'))->set_length(1)->set_notnull(true)->set_default(0));
             $table->add_field((new \core\db\xmldb_field('other', 'text'))->set_notnull(false));

@@ -24,10 +24,6 @@ class role_assigned extends \core\event\base {
      *
      * @return void
      */
-    protected function init($data = null) {
-        $this->data['edulevel'] = self::LEVEL_OTHER;
-        parent::init($data);
-    }
 
     /**
      * Returns localised general event name.
