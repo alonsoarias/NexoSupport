@@ -310,7 +310,7 @@ class role {
      * @param object $roledata Object with id and fields to update
      * @return bool
      */
-    public static function update(object $roledata): bool {
+    public static function update_role(object $roledata): bool {
         global $DB;
 
         if (!isset($roledata->id)) {

@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'delete') {
                 }
 
                 if (empty($errors)) {
-                    \core\rbac\role::update($role);
+                    \core\rbac\role::update_role($role);
                     $success = 'Rol actualizado exitosamente';
                     $role = \core\rbac\role::get_by_id($roleid);
                 }

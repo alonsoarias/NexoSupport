@@ -1,0 +1,21 @@
+{{!
+    Notification Component
+
+    Context:
+    * message - Notification message (required)
+    * type - Notification type: success, error, warning, info (default: info)
+    * dismissible - Can be dismissed (boolean)
+
+    Example:
+    {{> core/notification }}
+}}
+<div class="notification notification-{{type}}{{#dismissible}} dismissible{{/dismissible}}" role="alert">
+    {{#dismissible}}
+    <button type="button" class="notification-close" aria-label="{{#str}}close{{/str}}">
+        ×
+    </button>
+    {{/dismissible}}
+    <div class="notification-content">
+        {{{message}}}
+    </div>
+</div>

@@ -1,0 +1,27 @@
+{{!
+    Card Component
+
+    Context:
+    * title - Card title (optional)
+    * content - Card content (required)
+    * footer - Card footer (optional)
+    * classes - Additional CSS classes
+
+    Example:
+    {{> core/card }}
+}}
+<div class="card {{classes}}">
+    {{#title}}
+    <div class="card-header">
+        <h3 class="card-title">{{title}}</h3>
+    </div>
+    {{/title}}
+    <div class="card-body">
+        {{{content}}}
+    </div>
+    {{#footer}}
+    <div class="card-footer">
+        {{{footer}}}
+    </div>
+    {{/footer}}
+</div>

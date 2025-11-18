@@ -122,12 +122,46 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
-    // Upgrade to v1.2.0 (2025011802) - Add i18n Support
+    // Upgrade to v1.1.2 (2025011802) - i18n & Mustache Templates
+    // =========================================================
+    // Changes in this version:
+    // - Internationalization (i18n) System:
+    //   * Added string_manager class for multi-language support
+    //   * Created lang/es/core.php and lang/en/core.php with 200+ strings
+    //   * Added 'lang' field to users table (CHAR(10), default 'es')
+    //   * Integrated i18n into lib/setup.php
+    //   * Updated dashboard.php to use get_string()
+    //
+    // - Mustache Template Engine:
+    //   * Installed mustache/mustache via Composer
+    //   * Created template_manager class for template rendering
+    //   * Added render_template() global function
+    //   * Created templates/core directory structure
+    //   * Added example templates: notification, button, card
+    //
+    // - Bug Fixes:
+    //   * Fixed role::update() method conflict (renamed static version to update_role())
+    //   * Updated admin/roles/edit.php to use role::update_role()
     // =========================================================
     if ($oldversion < 2025011802) {
         require_once(__DIR__ . '/classes/db/xmldb_table.php');
         require_once(__DIR__ . '/classes/db/xmldb_field.php');
         require_once(__DIR__ . '/classes/db/ddl_manager.php');
+
+        echo '<div class="upgrade-info">';
+        echo '<h3>Upgrading to v1.1.2 (2025011802)</h3>';
+        echo '<p><strong>New Features:</strong></p>';
+        echo '<ul>';
+        echo '<li>Internationalization (i18n) system with Spanish and English support</li>';
+        echo '<li>Mustache template engine for modern, maintainable UI</li>';
+        echo '<li>200+ translated strings in lang/es and lang/en</li>';
+        echo '<li>Template components: notification, button, card</li>';
+        echo '</ul>';
+        echo '<p><strong>Database Changes:</strong></p>';
+        echo '<ul>';
+        echo '<li>Adding \'lang\' field to users table...</li>';
+        echo '</ul>';
+        echo '</div>';
 
         try {
             $ddl = new \core\db\ddl_manager($DB);
@@ -139,10 +173,16 @@ function xmldb_core_upgrade(int $oldversion): bool {
             if (!$ddl->field_exists($table, $field)) {
                 $ddl->add_field($table, $field);
                 debugging('Added lang field to users table', DEBUG_DEVELOPER);
+                echo '<p style="color: green;">✓ Successfully added lang field to users table</p>';
+            } else {
+                echo '<p style="color: blue;">ℹ Lang field already exists in users table</p>';
             }
         } catch (Exception $e) {
             debugging('Error adding lang field: ' . $e->getMessage());
+            echo '<p style="color: red;">✗ Error adding lang field: ' . htmlspecialchars($e->getMessage()) . '</p>';
         }
+
+        echo '<p style="color: green; font-weight: bold;">✓ Upgrade to v1.1.2 completed successfully!</p>';
 
         upgrade_core_savepoint(true, 2025011802);
     }

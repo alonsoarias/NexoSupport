@@ -10,8 +10,8 @@ defined('NEXOSUPPORT_INTERNAL') || die();
 $plugin = new stdClass();
 
 // Información del core
-$plugin->version  = 2025011802;      // YYYYMMDDXX - v1.2.0: i18n System
-$plugin->release  = '1.2.0';         // Versión semántica
+$plugin->version  = 2025011802;      // YYYYMMDDXX - v1.1.2: i18n & Mustache
+$plugin->release  = '1.1.2';         // Versión semántica
 $plugin->maturity = MATURITY_STABLE; // Nivel de madurez
 $plugin->component = 'core';         // Componente
 

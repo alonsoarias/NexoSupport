@@ -1,0 +1,20 @@
+{{!
+    Button Component
+
+    Context:
+    * text - Button text (required)
+    * url - Button URL
+    * type - Button type: primary, secondary, danger, success (default: primary)
+    * size - Button size: sm, md, lg (default: md)
+    * icon - Icon class (optional)
+    * disabled - Disabled state (boolean)
+
+    Example:
+    {{> core/button }}
+}}
+<a href="{{url}}"
+   class="btn btn-{{type}} btn-{{size}}{{#disabled}} disabled{{/disabled}}"
+   {{#disabled}}aria-disabled="true"{{/disabled}}>
+    {{#icon}}<span class="btn-icon {{icon}}"></span>{{/icon}}
+    {{text}}
+</a>

@@ -474,6 +474,17 @@ function get_page(): \core\output\page {
 }
 
 /**
+ * Render a template
+ *
+ * @param string $templatename Template name (component/name)
+ * @param array|object $context Template context
+ * @return string Rendered HTML
+ */
+function render_template(string $templatename, $context = []): string {
+    return \core\output\template_manager::render($templatename, $context);
+}
+
+/**
  * Coding exception
  */
 class coding_exception extends \Exception {
