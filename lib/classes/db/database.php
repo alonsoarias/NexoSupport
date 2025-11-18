@@ -268,6 +268,125 @@ class database {
     }
 
     /**
+     * Ejecutar SQL personalizado y obtener un campo
+     *
+     * @param string $sql
+     * @param array $params
+     * @return mixed|null
+     */
+    public function get_field_sql(string $sql, array $params = []): mixed {
+        $sql = $this->replace_prefix($sql);
+
+        $stmt = $this->execute($sql, $params);
+        $result = $stmt->fetch();
+
+        if ($result === false) {
+            return null;
+        }
+
+        // Obtener el primer campo del resultado
+        $values = get_object_vars($result);
+        return reset($values);
+    }
+
+    /**
+     * Ejecutar SQL personalizado y obtener un registro
+     *
+     * @param string $sql
+     * @param array $params
+     * @return object|null
+     */
+    public function get_record_sql(string $sql, array $params = []): ?object {
+        $sql = $this->replace_prefix($sql);
+
+        $stmt = $this->execute($sql, $params);
+        $result = $stmt->fetch();
+
+        return $result !== false ? $result : null;
+    }
+
+    /**
+     * Ejecutar SQL personalizado y obtener múltiples registros
+     *
+     * @param string $sql
+     * @param array $params
+     * @return array
+     */
+    public function get_records_sql(string $sql, array $params = []): array {
+        $sql = $this->replace_prefix($sql);
+
+        $stmt = $this->execute($sql, $params);
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Obtener registros con condición WHERE personalizada
+     *
+     * @param string $table
+     * @param string $select WHERE condition
+     * @param array $params
+     * @param string $sort ORDER BY clause
+     * @return array
+     */
+    public function get_records_select(string $table, string $select, array $params = [], string $sort = ''): array {
+        $table = $this->add_prefix($table);
+
+        $sql = "SELECT * FROM $table";
+
+        if (!empty($select)) {
+            $sql .= " WHERE $select";
+        }
+
+        if (!empty($sort)) {
+            $sql .= " ORDER BY $sort";
+        }
+
+        $stmt = $this->execute($sql, $params);
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Helper para generar IN (...) en SQL
+     *
+     * Similar a Moodle's get_in_or_equal
+     *
+     * @param array $items
+     * @param int $type SQL_PARAMS_NAMED o SQL_PARAMS_QM
+     * @param string $prefix Prefix for named params
+     * @return array [sql_fragment, params_array]
+     */
+    public function get_in_or_equal(array $items, int $type = SQL_PARAMS_QM, string $prefix = 'param'): array {
+        if (empty($items)) {
+            // Empty IN clause
+            return ['= ?', [null]];
+        }
+
+        if ($type == SQL_PARAMS_NAMED) {
+            // Named parameters :param0, :param1, etc.
+            $params = [];
+            $placeholders = [];
+
+            foreach ($items as $i => $item) {
+                $paramname = ":{$prefix}{$i}";
+                $placeholders[] = $paramname;
+                $params[$paramname] = $item;
+            }
+
+            $sql = 'IN (' . implode(',', $placeholders) . ')';
+
+            return [$sql, $params];
+        } else {
+            // Question mark placeholders
+            $placeholders = array_fill(0, count($items), '?');
+            $sql = 'IN (' . implode(',', $placeholders) . ')';
+
+            return [$sql, array_values($items)];
+        }
+    }
+
+    /**
      * Obtener manager de DDL
      *
      * @return ddl_manager
