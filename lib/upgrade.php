@@ -333,32 +333,32 @@ function xmldb_core_upgrade(int $oldversion): bool {
 
             // Create logstore_standard_log table
             $table = new \core\db\xmldb_table('logstore_standard_log');
-            $table->add_field('id', 'int', '10', null, true, true);
-            $table->add_field('eventname', 'char', '255', null, true, null);
-            $table->add_field('component', 'char', '100', null, true, null);
-            $table->add_field('action', 'char', '100', null, true, null);
-            $table->add_field('target', 'char', '100', null, true, null);
-            $table->add_field('objecttable', 'char', '50', null, false, null);
-            $table->add_field('objectid', 'int', '10', null, false, null);
-            $table->add_field('crud', 'char', '1', null, true, null);
-            $table->add_field('edulevel', 'int', '1', null, true, null);
-            $table->add_field('contextid', 'int', '10', null, true, null);
-            $table->add_field('contextlevel', 'int', '10', null, true, null);
-            $table->add_field('contextinstanceid', 'int', '10', null, true, null);
-            $table->add_field('userid', 'int', '10', null, true, null);
-            $table->add_field('courseid', 'int', '10', null, false, null);
-            $table->add_field('relateduserid', 'int', '10', null, false, null);
-            $table->add_field('anonymous', 'int', '1', null, true, 0);
-            $table->add_field('other', 'text', null, null, false, null);
-            $table->add_field('timecreated', 'int', '10', null, true, null);
-            $table->add_field('origin', 'char', '10', null, false, null);
-            $table->add_field('ip', 'char', '45', null, false, null);
-            $table->add_field('realuserid', 'int', '10', null, false, null);
-            $table->add_key('primary', 'primary', ['id']);
-            $table->add_index('idx_timecreated', 'notunique', ['timecreated']);
-            $table->add_index('idx_userid', 'notunique', ['userid']);
-            $table->add_index('idx_contextid', 'notunique', ['contextid']);
-            $table->add_index('idx_eventname', 'notunique', ['eventname']);
+            $table->add_field((new \core\db\xmldb_field('id', 'int'))->set_length(10)->set_notnull(true)->set_sequence(true));
+            $table->add_field((new \core\db\xmldb_field('eventname', 'char'))->set_length(255)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('component', 'char'))->set_length(100)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('action', 'char'))->set_length(100)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('target', 'char'))->set_length(100)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('objecttable', 'char'))->set_length(50)->set_notnull(false));
+            $table->add_field((new \core\db\xmldb_field('objectid', 'int'))->set_length(10)->set_notnull(false));
+            $table->add_field((new \core\db\xmldb_field('crud', 'char'))->set_length(1)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('edulevel', 'int'))->set_length(1)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('contextid', 'int'))->set_length(10)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('contextlevel', 'int'))->set_length(10)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('contextinstanceid', 'int'))->set_length(10)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('userid', 'int'))->set_length(10)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('courseid', 'int'))->set_length(10)->set_notnull(false));
+            $table->add_field((new \core\db\xmldb_field('relateduserid', 'int'))->set_length(10)->set_notnull(false));
+            $table->add_field((new \core\db\xmldb_field('anonymous', 'int'))->set_length(1)->set_notnull(true)->set_default(0));
+            $table->add_field((new \core\db\xmldb_field('other', 'text'))->set_notnull(false));
+            $table->add_field((new \core\db\xmldb_field('timecreated', 'int'))->set_length(10)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('origin', 'char'))->set_length(10)->set_notnull(false));
+            $table->add_field((new \core\db\xmldb_field('ip', 'char'))->set_length(45)->set_notnull(false));
+            $table->add_field((new \core\db\xmldb_field('realuserid', 'int'))->set_length(10)->set_notnull(false));
+            $table->add_key((new \core\db\xmldb_key('primary', 'primary', ['id'])));
+            $table->add_index((new \core\db\xmldb_index('idx_timecreated', 'notunique', ['timecreated'])));
+            $table->add_index((new \core\db\xmldb_index('idx_userid', 'notunique', ['userid'])));
+            $table->add_index((new \core\db\xmldb_index('idx_contextid', 'notunique', ['contextid'])));
+            $table->add_index((new \core\db\xmldb_index('idx_eventname', 'notunique', ['eventname'])));
 
             if (!$ddl->table_exists($table)) {
                 $ddl->create_table($table);
@@ -369,13 +369,13 @@ function xmldb_core_upgrade(int $oldversion): bool {
 
             // Create user_preferences table
             $table = new \core\db\xmldb_table('user_preferences');
-            $table->add_field('id', 'int', '10', null, true, true);
-            $table->add_field('userid', 'int', '10', null, true, null);
-            $table->add_field('name', 'char', '255', null, true, null);
-            $table->add_field('value', 'text', null, null, true, null);
-            $table->add_field('timemodified', 'int', '10', null, true, null);
-            $table->add_key('primary', 'primary', ['id']);
-            $table->add_index('idx_userid_name', 'unique', ['userid', 'name']);
+            $table->add_field((new \core\db\xmldb_field('id', 'int'))->set_length(10)->set_notnull(true)->set_sequence(true));
+            $table->add_field((new \core\db\xmldb_field('userid', 'int'))->set_length(10)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('name', 'char'))->set_length(255)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('value', 'text'))->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('timemodified', 'int'))->set_length(10)->set_notnull(true));
+            $table->add_key((new \core\db\xmldb_key('primary', 'primary', ['id'])));
+            $table->add_index((new \core\db\xmldb_index('idx_userid_name', 'unique', ['userid', 'name'])));
 
             if (!$ddl->table_exists($table)) {
                 $ddl->create_table($table);
@@ -386,12 +386,12 @@ function xmldb_core_upgrade(int $oldversion): bool {
 
             // Create user_password_history table
             $table = new \core\db\xmldb_table('user_password_history');
-            $table->add_field('id', 'int', '10', null, true, true);
-            $table->add_field('userid', 'int', '10', null, true, null);
-            $table->add_field('hash', 'char', '255', null, true, null);
-            $table->add_field('timecreated', 'int', '10', null, true, null);
-            $table->add_key('primary', 'primary', ['id']);
-            $table->add_index('idx_userid', 'notunique', ['userid']);
+            $table->add_field((new \core\db\xmldb_field('id', 'int'))->set_length(10)->set_notnull(true)->set_sequence(true));
+            $table->add_field((new \core\db\xmldb_field('userid', 'int'))->set_length(10)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('hash', 'char'))->set_length(255)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('timecreated', 'int'))->set_length(10)->set_notnull(true));
+            $table->add_key((new \core\db\xmldb_key('primary', 'primary', ['id'])));
+            $table->add_index((new \core\db\xmldb_index('idx_userid', 'notunique', ['userid'])));
 
             if (!$ddl->table_exists($table)) {
                 $ddl->create_table($table);
@@ -402,14 +402,14 @@ function xmldb_core_upgrade(int $oldversion): bool {
 
             // Create user_password_resets table
             $table = new \core\db\xmldb_table('user_password_resets');
-            $table->add_field('id', 'int', '10', null, true, true);
-            $table->add_field('userid', 'int', '10', null, true, null);
-            $table->add_field('token', 'char', '32', null, true, null);
-            $table->add_field('timerequested', 'int', '10', null, true, null);
-            $table->add_field('timererequested', 'int', '10', null, false, 0);
-            $table->add_key('primary', 'primary', ['id']);
-            $table->add_index('idx_token', 'notunique', ['token']);
-            $table->add_index('idx_userid', 'notunique', ['userid']);
+            $table->add_field((new \core\db\xmldb_field('id', 'int'))->set_length(10)->set_notnull(true)->set_sequence(true));
+            $table->add_field((new \core\db\xmldb_field('userid', 'int'))->set_length(10)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('token', 'char'))->set_length(32)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('timerequested', 'int'))->set_length(10)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('timererequested', 'int'))->set_length(10)->set_notnull(false)->set_default(0));
+            $table->add_key((new \core\db\xmldb_key('primary', 'primary', ['id'])));
+            $table->add_index((new \core\db\xmldb_index('idx_token', 'notunique', ['token'])));
+            $table->add_index((new \core\db\xmldb_index('idx_userid', 'notunique', ['userid'])));
 
             if (!$ddl->table_exists($table)) {
                 $ddl->create_table($table);
