@@ -442,11 +442,11 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
-    // Upgrade to v1.1.8 (2025011808) - Site Administrators (config.siteadmins)
+    // Upgrade to v1.1.6 (2025011806) - Site Administrators (config.siteadmins)
     // =========================================================
-    if ($oldversion < 2025011808) {
+    if ($oldversion < 2025011806) {
         echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
-        echo '<h2 style="color: #667eea; margin-top: 0;">🔐 Upgrading to NexoSupport v1.1.8</h2>';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🔐 Upgrading to NexoSupport v1.1.6</h2>';
         echo '<p><strong>Site Administrators System (Moodle Pattern)</strong></p>';
         echo '<p>This upgrade implements the exact Moodle pattern for site administrators:</p>';
         echo '<ul>';
@@ -534,13 +534,13 @@ function xmldb_core_upgrade(int $oldversion): bool {
             }
 
         } catch (\Exception $e) {
-            debugging('Error in v1.1.8 upgrade: ' . $e->getMessage());
+            debugging('Error in v1.1.6 upgrade: ' . $e->getMessage());
             echo '<p style="color: red;">✗ Error: ' . htmlspecialchars($e->getMessage()) . '</p>';
         }
 
-        echo '<p style="color: green; font-weight: bold;">✓ Upgrade to v1.1.8 completed successfully!</p>';
+        echo '<p style="color: green; font-weight: bold;">✓ Upgrade to v1.1.6 completed successfully!</p>';
 
-        upgrade_core_savepoint(true, 2025011808);
+        upgrade_core_savepoint(true, 2025011806);
     }
 
     // =========================================================
