@@ -30,6 +30,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['USER'] = $user;
         $USER = $user;
 
+        // Trigger user logged in event
+        $event = \core\event\user_loggedin::create([
+            'objectid' => $user->id,
+            'userid' => $user->id,
+            'relateduserid' => $user->id,
+        ]);
+        $event->trigger();
+
         // Redirect to home
         redirect('/');
     } else {

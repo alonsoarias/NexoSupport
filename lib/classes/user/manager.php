@@ -62,6 +62,13 @@ class manager {
             }
         }
 
+        // Trigger user created event
+        $event = \core\event\user_created::create([
+            'objectid' => $userid,
+            'relateduserid' => $userid,
+        ]);
+        $event->trigger();
+
         return $userid;
     }
 
@@ -108,6 +115,13 @@ class manager {
                 throw new \coding_exception('Failed to update user password - does not meet password policy');
             }
         }
+
+        // Trigger user updated event
+        $event = \core\event\user_updated::create([
+            'objectid' => $user->id,
+            'relateduserid' => $user->id,
+        ]);
+        $event->trigger();
 
         return $result;
     }

@@ -206,10 +206,24 @@ class role {
 
         if ($existing) {
             // Update
+            $oldpermission = $existing->permission;
             $existing->permission = $permission;
             $existing->timemodified = time();
             $DB->update_record('role_capabilities', $existing);
             access::clear_all_cache();
+
+            // Trigger capability updated event
+            $event = \core\event\capability_updated::create([
+                'objectid' => $this->id,
+                'contextid' => $context->id,
+                'other' => [
+                    'capability' => $capability,
+                    'oldpermission' => $oldpermission,
+                    'newpermission' => $permission,
+                ],
+            ]);
+            $event->trigger();
+
             return $existing->id;
         }
 
@@ -225,6 +239,17 @@ class role {
 
         // Clear cache
         access::clear_all_cache();
+
+        // Trigger capability assigned event
+        $event = \core\event\capability_assigned::create([
+            'objectid' => $this->id,
+            'contextid' => $context->id,
+            'other' => [
+                'capability' => $capability,
+                'permission' => $permission,
+            ],
+        ]);
+        $event->trigger();
 
         return $id;
     }

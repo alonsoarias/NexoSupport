@@ -65,6 +65,13 @@ function delete_user($user) {
 
         $transaction->allow_commit();
 
+        // Trigger user deleted event
+        $event = \core\event\user_deleted::create([
+            'objectid' => $user->id,
+            'relateduserid' => $user->id,
+        ]);
+        $event->trigger();
+
         debugging("User {$user->id} deleted successfully", DEBUG_DEVELOPER);
         return true;
 
@@ -112,6 +119,13 @@ function suspend_user($user) {
     // Destroy user sessions (force logout)
     \core\session\manager::kill_user_sessions($user->id);
 
+    // Trigger user suspended event
+    $event = \core\event\user_suspended::create([
+        'objectid' => $user->id,
+        'relateduserid' => $user->id,
+    ]);
+    $event->trigger();
+
     debugging("User {$user->id} suspended", DEBUG_DEVELOPER);
     return true;
 }
@@ -137,6 +151,13 @@ function unsuspend_user($user) {
     $updateuser->timemodified = time();
 
     $DB->update_record('users', $updateuser);
+
+    // Trigger user unsuspended event
+    $event = \core\event\user_unsuspended::create([
+        'objectid' => $user->id,
+        'relateduserid' => $user->id,
+    ]);
+    $event->trigger();
 
     debugging("User {$user->id} unsuspended", DEBUG_DEVELOPER);
     return true;

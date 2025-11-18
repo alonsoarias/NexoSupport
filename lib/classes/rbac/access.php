@@ -201,6 +201,14 @@ class access {
         // Clear cache for this user
         self::clear_user_cache($userid);
 
+        // Trigger role assigned event
+        $event = \core\event\role_assigned::create([
+            'objectid' => $roleid,
+            'contextid' => $context->id,
+            'relateduserid' => $userid,
+        ]);
+        $event->trigger();
+
         return $id;
     }
 
@@ -223,6 +231,16 @@ class access {
 
         // Clear cache
         self::clear_user_cache($userid);
+
+        // Trigger role unassigned event
+        if ($result) {
+            $event = \core\event\role_unassigned::create([
+                'objectid' => $roleid,
+                'contextid' => $context->id,
+                'relateduserid' => $userid,
+            ]);
+            $event->trigger();
+        }
 
         return $result;
     }
