@@ -151,8 +151,7 @@ function xmldb_core_upgrade(int $oldversion): bool {
     //      - Admin templates: dashboard, user_list, user_edit, role_list,
     //        role_edit, role_define, role_assign, settings, upgrade
     //      - Component templates: notification, button, card
-    //      - Auth templates: manual_settings
-    //    * Migrated ALL 14 pages to use Mustache templates:
+    //    * Migrated ALL 13 core/admin pages to use Mustache templates:
     //      - login/index.php → templates/core/login.mustache
     //      - dashboard.php → templates/core/dashboard.mustache
     //      - admin/index.php → templates/admin/dashboard.mustache
@@ -164,7 +163,7 @@ function xmldb_core_upgrade(int $oldversion): bool {
     //      - admin/roles/assign.php → templates/admin/role_assign.mustache
     //      - admin/settings/index.php → templates/admin/settings.mustache
     //      - admin/upgrade.php → templates/admin/upgrade.mustache
-    //      - auth/manual/settings.php → templates/auth/manual_settings.mustache
+    //    * NOTE: auth/manual/settings.php uses inline HTML (Moodle pattern)
     //    * All templates use {{#str}} for internationalization
     //    * Complete separation: PHP = logic, Mustache = presentation
     //
@@ -198,16 +197,16 @@ function xmldb_core_upgrade(int $oldversion): bool {
         echo '<p><strong>📢 Major New Features:</strong></p>';
         echo '<ul>';
         echo '<li><strong>Internationalization (i18n):</strong> Complete multi-language support with 300+ strings in Spanish and English</li>';
-        echo '<li><strong>Mustache Templates:</strong> All 14 pages migrated to modern, maintainable template system</li>';
+        echo '<li><strong>Mustache Templates:</strong> 13 core/admin pages migrated to modern, maintainable template system</li>';
         echo '<li><strong>Clean Architecture:</strong> Complete separation of logic (PHP) and presentation (Mustache)</li>';
         echo '<li><strong>Auth Settings:</strong> New password policy configuration page for manual authentication</li>';
+        echo '<li><strong>Plugin i18n:</strong> Frankenstyle plugin language files (auth_manual/lang/*/auth_manual.php)</li>';
         echo '</ul>';
         echo '<p><strong>📝 Templates Created:</strong></p>';
         echo '<ul>';
         echo '<li>Base: header, nav, footer</li>';
         echo '<li>Core: login, dashboard</li>';
         echo '<li>Admin: dashboard, user management (list, edit), role management (list, edit, define, assign), settings, upgrade</li>';
-        echo '<li>Auth: manual authentication settings</li>';
         echo '<li>Components: notification, button, card</li>';
         echo '</ul>';
         echo '<p><strong>🌍 Languages Supported:</strong></p>';

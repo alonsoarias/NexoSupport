@@ -178,7 +178,7 @@ Date: January 18, 2025
 - [x] i18n helper: {{#str}}identifier,component{{/str}}
 - [x] render_template() function
 - [x] Auto-escape for security
-- [x] **ALL 14 pages migrated to Mustache templates:**
+- [x] **ALL 13 core/admin pages migrated to Mustache templates:**
   - templates/core/header.mustache (base header with CSS)
   - templates/core/nav.mustache (navigation bar)
   - templates/core/footer.mustache (base footer)
@@ -193,12 +193,13 @@ Date: January 18, 2025
   - templates/admin/role_assign.mustache (role assignment)
   - templates/admin/settings.mustache (system settings)
   - templates/admin/upgrade.mustache (upgrade page)
-  - templates/auth/manual_settings.mustache (auth plugin settings)
   - templates/core/notification.mustache (component)
   - templates/core/button.mustache (component)
   - templates/core/card.mustache (component)
-- [x] **Complete separation: PHP = logic, Mustache = presentation**
-- [x] **Zero HTML in PHP files (all in templates)**
+- [x] **Complete separation: PHP = logic, Mustache = presentation (for core/admin)**
+- [x] **Plugin pages use inline HTML following Moodle architecture**
+  - auth/manual/settings.php uses inline HTML (NOT Mustache)
+  - Plugin lang files in plugin directories: auth/manual/lang/*/auth_manual.php
 
 ### Output/Rendering System ✓
 - [x] core\output\renderer class
@@ -233,9 +234,11 @@ Date: January 18, 2025
   - [x] Require numbers
   - [x] Require special characters
 - [x] Full validation and error handling
-- [x] Uses Mustache template (templates/auth/manual_settings.mustache)
-- [x] Fully internationalized (10+ new string IDs)
+- [x] Uses inline HTML (following Moodle auth plugin pattern)
+- [x] Fully internationalized using Frankenstyle lang files
+- [x] Plugin lang files: auth/manual/lang/es/auth_manual.php & auth/manual/lang/en/auth_manual.php
 - [x] Route added: /auth/manual/settings (GET and POST)
+- [x] string_manager supports plugin lang files (auth_*, mod_*, block_*, etc.)
 
 ### Upgrade System ✓
 - [x] lib/upgrade.php with core_upgrade()
@@ -297,7 +300,12 @@ NexoSupport/
 ├── dashboard.php                 ✓ Main dashboard
 ├── auth/
 │   └── manual/
-│       └── settings.php          ✓ Auth plugin settings
+│       ├── settings.php          ✓ Auth plugin settings (inline HTML)
+│       └── lang/
+│           ├── es/
+│           │   └── auth_manual.php ✓ Spanish strings
+│           └── en/
+│               └── auth_manual.php ✓ English strings
 ├── lang/
 │   ├── es/
 │   │   └── core.php              ✓ Spanish strings (300+)
@@ -313,18 +321,16 @@ NexoSupport/
 │   │   ├── notification.mustache ✓ Alert component
 │   │   ├── button.mustache       ✓ Button component
 │   │   └── card.mustache         ✓ Card component
-│   ├── admin/
-│   │   ├── dashboard.mustache    ✓ Admin dashboard
-│   │   ├── user_list.mustache    ✓ User management
-│   │   ├── user_edit.mustache    ✓ User edit form
-│   │   ├── role_list.mustache    ✓ Role list
-│   │   ├── role_edit.mustache    ✓ Role edit form
-│   │   ├── role_define.mustache  ✓ Capability matrix
-│   │   ├── role_assign.mustache  ✓ Role assignment
-│   │   ├── settings.mustache     ✓ System settings
-│   │   └── upgrade.mustache      ✓ Upgrade page
-│   └── auth/
-│       └── manual_settings.mustache ✓ Auth settings
+│   └── admin/
+│       ├── dashboard.mustache    ✓ Admin dashboard
+│       ├── user_list.mustache    ✓ User management
+│       ├── user_edit.mustache    ✓ User edit form
+│       ├── role_list.mustache    ✓ Role list
+│       ├── role_edit.mustache    ✓ Role edit form
+│       ├── role_define.mustache  ✓ Capability matrix
+│       ├── role_assign.mustache  ✓ Role assignment
+│       ├── settings.mustache     ✓ System settings
+│       └── upgrade.mustache      ✓ Upgrade page
 └── var/
     ├── cache/
     │   └── mustache/             ✓ Template cache
@@ -417,13 +423,14 @@ NexoSupport/
 - **Database Tables**: 8 core tables
 - **Capabilities**: 7 defined
 - **Roles**: 4 default roles
-- **Language Strings**: 300+ per language (2 languages)
-- **Mustache Templates**: 18 templates (15 pages + 3 components)
-- **Admin Pages**: 11+
-- **Pages Migrated to Mustache**: 14/14 (100%)
+- **Language Strings**: 300+ per language (2 languages: es, en)
+- **Mustache Templates**: 17 templates (14 pages + 3 components)
+- **Core/Admin Pages with Mustache**: 13/13 (100%)
+- **Plugin Pages with Inline HTML**: 1 (auth/manual/settings.php)
 - **Pages with i18n**: 14/14 (100%)
+- **Plugin Lang Files**: auth/manual/lang/*/auth_manual.php
 - **Hardcoded Text**: 0 instances
-- **Commits**: 12+ major commits
+- **Commits**: 14+ major commits
 
 ---
 
@@ -449,12 +456,13 @@ NexoSupport/
 ### Templates
 - [x] Mustache engine installed
 - [x] Template manager functional
-- [x] ALL 14 pages migrated to Mustache (100%)
-- [x] 18 templates created (15 pages + 3 components)
+- [x] ALL 13 core/admin pages migrated to Mustache (100%)
+- [x] 17 templates created (14 pages + 3 components)
 - [x] Base templates (header, nav, footer)
 - [x] Caching works
 - [x] i18n helper works
-- [x] Zero HTML in PHP files
+- [x] Zero HTML in core/admin PHP files
+- [x] Plugin pages use inline HTML (Moodle pattern)
 
 ### Admin Interface
 - [x] Dashboard accessible
@@ -483,18 +491,22 @@ NexoSupport/
   - All pages fully internationalized
 
 **Mustache Templates**: ✅ 100% COMPLETE
-  - 14/14 pages migrated to Mustache (100%)
-  - 18 total templates (15 pages + 3 components)
-  - Zero HTML in PHP files
-  - Complete MVC separation achieved
+  - 13/13 core/admin pages migrated to Mustache (100%)
+  - 17 total templates (14 pages + 3 components)
+  - Zero HTML in core/admin PHP files
+  - Complete MVC separation achieved for core/admin
+  - Plugin pages use inline HTML (following Moodle architecture)
 
 **Auth Plugin Settings**: ✅ 100% COMPLETE
   - auth/manual/settings.php created from scratch
   - Password policy configuration
+  - Uses inline HTML (Moodle pattern)
+  - Frankenstyle lang files in auth/manual/lang/*/auth_manual.php
+  - string_manager supports plugin lang files
   - Route added to router
 
 **Version**: v1.1.2 (2025011802)
 
 **Status**: ✅ READY FOR PHASE 3
 
-All requirements for Phase 1 and Phase 2 have been met. The system is fully functional, secure, modern, and ready for Phase 3 development. Complete separation of concerns has been achieved with PHP handling logic and Mustache handling presentation. All user-facing text is internationalized with no hardcoded strings.
+All requirements for Phase 1 and Phase 2 have been met. The system is fully functional, secure, modern, and ready for Phase 3 development. Complete separation of concerns has been achieved with PHP handling logic and Mustache handling presentation for core/admin pages. Plugin pages follow Moodle's architecture using inline HTML with Frankenstyle lang files. All user-facing text is internationalized with no hardcoded strings. The string_manager correctly supports both core and plugin internationalization.
