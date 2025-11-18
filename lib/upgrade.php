@@ -500,9 +500,10 @@ function upgrade_core_savepoint(bool $result, int $version): void {
 
     if ($result) {
         // Update core version in config
-        $DB->delete_records('config', ['name' => 'version']);
+        $DB->delete_records('config', ['name' => 'version', 'component' => 'core']);
 
         $record = new stdClass();
+        $record->component = 'core';  // IMPORTANT: specify component
         $record->name = 'version';
         $record->value = (string)$version;
 
@@ -521,7 +522,15 @@ function get_core_version_from_db(): ?int {
     global $DB;
 
     try {
-        $record = $DB->get_record('config', ['name' => 'version']);
+        // Try with component='core' first (correct way)
+        $sql = "SELECT * FROM {config} WHERE name = ? AND component = ? LIMIT 1";
+        $record = $DB->get_record_sql($sql, ['version', 'core']);
+
+        // Fallback to old way (without component) for compatibility
+        if (!$record) {
+            $record = $DB->get_record('config', ['name' => 'version']);
+        }
+
         return $record ? (int)$record->value : null;
     } catch (Exception $e) {
         return null;

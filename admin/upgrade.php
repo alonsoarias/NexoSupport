@@ -24,9 +24,45 @@ if (!isset($USER->id) || $USER->id == 0) {
 }
 
 // Check if user is site administrator
-if (!is_siteadmin($USER->id)) {
-    // Usuario logueado pero no es administrador
-    print_error('nopermissions', 'core');
+// SPECIAL CASE: If siteadmins is not configured yet (first upgrade), allow any logged-in user
+// to proceed with upgrade. This solves the chicken-and-egg problem where upgrade creates siteadmins.
+global $DB;
+$siteadmins_config = null;
+try {
+    $sql = "SELECT * FROM {config} WHERE name = ? AND component = ? LIMIT 1";
+    $siteadmins_config = $DB->get_record_sql($sql, ['siteadmins', 'core']);
+} catch (\Exception $e) {
+    // Table might not exist yet, continue
+}
+
+if ($siteadmins_config && !empty($siteadmins_config->value)) {
+    // siteadmins is configured, enforce it
+    if (!is_siteadmin($USER->id)) {
+        print_error('nopermissions', 'core');
+    }
+} else {
+    // siteadmins not configured yet - allow if user has administrator role
+    try {
+        $syscontext = \core\rbac\context::system();
+        $adminrole = \core\rbac\role::get_by_shortname('administrator');
+
+        if ($adminrole) {
+            $has_admin_role = \core\rbac\access::user_has_role($USER->id, $adminrole->id, $syscontext);
+            if (!$has_admin_role) {
+                // Not administrator, check if first user
+                $firstuser = $DB->get_record_sql('SELECT * FROM {users} WHERE deleted = 0 ORDER BY id ASC LIMIT 1');
+                if (!$firstuser || $firstuser->id != $USER->id) {
+                    print_error('nopermissions', 'core');
+                }
+            }
+        }
+    } catch (\Exception $e) {
+        // If we can't check, allow the first user only
+        $firstuser = $DB->get_record_sql('SELECT * FROM {users} WHERE deleted = 0 ORDER BY id ASC LIMIT 1');
+        if (!$firstuser || $firstuser->id != $USER->id) {
+            print_error('nopermissions', 'core');
+        }
+    }
 }
 
 require_once(__DIR__ . '/../lib/upgrade.php');

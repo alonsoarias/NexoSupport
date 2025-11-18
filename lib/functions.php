@@ -269,6 +269,62 @@ function redirect(string $url, ?string $message = null, int $delay = 0): void {
 }
 
 /**
+ * Print error and terminate execution
+ *
+ * Similar to Moodle's print_error() function.
+ * Displays an error message and stops execution.
+ *
+ * @param string $errorcode Error string identifier
+ * @param string $module Module name (default 'core')
+ * @param string $link Optional link to redirect to
+ * @param mixed $a Optional additional data for string
+ * @return void
+ */
+function print_error(string $errorcode, string $module = 'core', string $link = '', $a = null): void {
+    global $CFG;
+
+    $message = get_string($errorcode, $module, $a);
+
+    // If debug mode, show more details
+    if ($CFG->debug) {
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5);
+        $caller = isset($backtrace[1]) ? $backtrace[1] : [];
+        $file = $caller['file'] ?? 'unknown';
+        $line = $caller['line'] ?? 0;
+
+        echo '<div style="background: #ffebee; border: 2px solid #c62828; padding: 20px; margin: 20px; font-family: monospace;">';
+        echo '<h1 style="color: #c62828; margin: 0 0 10px 0;">Error</h1>';
+        echo '<p><strong>Message:</strong> ' . htmlspecialchars($message) . '</p>';
+        echo '<p><strong>Error code:</strong> ' . htmlspecialchars($errorcode) . '</p>';
+        echo '<p><strong>Module:</strong> ' . htmlspecialchars($module) . '</p>';
+        echo '<p><strong>Called from:</strong> ' . htmlspecialchars($file) . ':' . $line . '</p>';
+
+        if (!empty($link)) {
+            echo '<p><a href="' . htmlspecialchars($link) . '">Continue</a></p>';
+        } else {
+            echo '<p><a href="/">Return to home</a></p>';
+        }
+
+        echo '</div>';
+    } else {
+        // Production mode - show minimal error
+        echo '<div style="background: #ffebee; border: 2px solid #c62828; padding: 20px; margin: 20px; text-align: center;">';
+        echo '<h1 style="color: #c62828;">Error</h1>';
+        echo '<p>' . htmlspecialchars($message) . '</p>';
+
+        if (!empty($link)) {
+            echo '<p><a href="' . htmlspecialchars($link) . '">Continue</a></p>';
+        } else {
+            echo '<p><a href="/">Return to home</a></p>';
+        }
+
+        echo '</div>';
+    }
+
+    exit;
+}
+
+/**
  * Required param from request
  *
  * @param string $name
