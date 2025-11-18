@@ -297,3 +297,15 @@ $string['backtoroles'] = 'Back to Roles';
 $string['assignuserinfo'] = 'User information';
 $string['roleassignments'] = 'Role Assignments';
 $string['close'] = 'Close';
+
+// Auth manual settings
+$string['auth_manual_settings'] = 'Manual Authentication Settings';
+$string['minpasswordlength'] = 'Minimum password length';
+$string['minpasswordlength_help'] = 'Minimum number of characters required in password';
+$string['minpasswordlengtherror'] = 'Minimum password length must be at least 6 characters';
+$string['minpasswordlengthmaxerror'] = 'Minimum password length cannot exceed 64 characters';
+$string['passwordpolicy'] = 'Password Policy';
+$string['requireuppercase'] = 'Require uppercase';
+$string['requirelowercase'] = 'Require lowercase';
+$string['requirenumbers'] = 'Require numbers';
+$string['requirespecialchars'] = 'Require special characters';

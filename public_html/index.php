@@ -198,6 +198,15 @@ $router->post('/admin/settings', function() {
     require(BASE_DIR . '/admin/settings/index.php');
 });
 
+// Auth plugin settings
+$router->get('/auth/manual/settings', function() {
+    require(BASE_DIR . '/auth/manual/settings.php');
+});
+
+$router->post('/auth/manual/settings', function() {
+    require(BASE_DIR . '/auth/manual/settings.php');
+});
+
 // User profile
 $router->get('/user/profile', function() {
     require(BASE_DIR . '/user/profile.php');

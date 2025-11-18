@@ -1,0 +1,15 @@
+{{!
+    Navigation Menu Template
+
+    Context:
+    * user - Current user object
+    * showadmin - Boolean to show admin link
+}}
+<div class="nav">
+    <a href="/">{{#str}}home,core{{/str}}</a>
+    {{#showadmin}}
+        <a href="/admin">{{#str}}administration,core{{/str}}</a>
+    {{/showadmin}}
+    <a href="/user/profile">{{#str}}profile,core{{/str}}</a>
+    <a href="/logout">{{#str}}logout,core{{/str}}</a>
+</div>

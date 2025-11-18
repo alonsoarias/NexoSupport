@@ -297,3 +297,15 @@ $string['backtoroles'] = 'Volver a Roles';
 $string['assignuserinfo'] = 'Información del usuario';
 $string['roleassignments'] = 'Asignaciones de Roles';
 $string['close'] = 'Cerrar';
+
+// Auth manual settings
+$string['auth_manual_settings'] = 'Configuración de Autenticación Manual';
+$string['minpasswordlength'] = 'Longitud mínima de contraseña';
+$string['minpasswordlength_help'] = 'Número mínimo de caracteres requeridos en la contraseña';
+$string['minpasswordlengtherror'] = 'La longitud mínima de contraseña debe ser al menos 6 caracteres';
+$string['minpasswordlengthmaxerror'] = 'La longitud mínima de contraseña no puede exceder 64 caracteres';
+$string['passwordpolicy'] = 'Política de Contraseñas';
+$string['requireuppercase'] = 'Requiere mayúsculas';
+$string['requirelowercase'] = 'Requiere minúsculas';
+$string['requirenumbers'] = 'Requiere números';
+$string['requirespecialchars'] = 'Requiere caracteres especiales';

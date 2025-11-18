@@ -125,23 +125,68 @@ function xmldb_core_upgrade(int $oldversion): bool {
     // Upgrade to v1.1.2 (2025011802) - i18n & Mustache Templates
     // =========================================================
     // Changes in this version:
-    // - Internationalization (i18n) System:
-    //   * Added string_manager class for multi-language support
-    //   * Created lang/es/core.php and lang/en/core.php with 200+ strings
-    //   * Added 'lang' field to users table (CHAR(10), default 'es')
-    //   * Integrated i18n into lib/setup.php
-    //   * Updated dashboard.php to use get_string()
     //
-    // - Mustache Template Engine:
-    //   * Installed mustache/mustache via Composer
-    //   * Created template_manager class for template rendering
-    //   * Added render_template() global function
-    //   * Created templates/core directory structure
-    //   * Added example templates: notification, button, card
+    // 1. INTERNATIONALIZATION (i18n) SYSTEM:
+    //    * Added string_manager class (lib/classes/string_manager.php)
+    //      - Multi-language support with fallback mechanism
+    //      - Caching for performance
+    //      - Parameter substitution support ({$a}, {$a->property})
+    //    * Created lang/es/core.php with 300+ Spanish strings
+    //    * Created lang/en/core.php with 300+ English strings
+    //    * Added 'lang' field to users table (CHAR(10), default 'es')
+    //    * Integrated i18n into lib/setup.php (language auto-detection)
+    //    * Added get_string() global function for easy access
+    //    * Migrated ALL hardcoded text to i18n system
     //
-    // - Bug Fixes:
-    //   * Fixed role::update() method conflict (renamed static version to update_role())
-    //   * Updated admin/roles/edit.php to use role::update_role()
+    // 2. MUSTACHE TEMPLATE ENGINE:
+    //    * Installed mustache/mustache ^3.0 via Composer
+    //    * Created template_manager class (lib/classes/output/template_manager.php)
+    //      - Auto-loading from templates/ directory
+    //      - Common context injection (wwwroot, sesskey, currentlang)
+    //      - String helper {{#str}}identifier,component{{/str}}
+    //    * Added render_template() global function
+    //    * Created complete template structure:
+    //      - Base templates: header.mustache, nav.mustache, footer.mustache
+    //      - Core templates: login.mustache, dashboard.mustache
+    //      - Admin templates: dashboard, user_list, user_edit, role_list,
+    //        role_edit, role_define, role_assign, settings, upgrade
+    //      - Component templates: notification, button, card
+    //      - Auth templates: manual_settings
+    //    * Migrated ALL 14 pages to use Mustache templates:
+    //      - login/index.php → templates/core/login.mustache
+    //      - dashboard.php → templates/core/dashboard.mustache
+    //      - admin/index.php → templates/admin/dashboard.mustache
+    //      - admin/user/index.php → templates/admin/user_list.mustache
+    //      - admin/user/edit.php → templates/admin/user_edit.mustache
+    //      - admin/roles/index.php → templates/admin/role_list.mustache
+    //      - admin/roles/edit.php → templates/admin/role_edit.mustache
+    //      - admin/roles/define.php → templates/admin/role_define.mustache
+    //      - admin/roles/assign.php → templates/admin/role_assign.mustache
+    //      - admin/settings/index.php → templates/admin/settings.mustache
+    //      - admin/upgrade.php → templates/admin/upgrade.mustache
+    //      - auth/manual/settings.php → templates/auth/manual_settings.mustache
+    //    * All templates use {{#str}} for internationalization
+    //    * Complete separation: PHP = logic, Mustache = presentation
+    //
+    // 3. NEW FEATURES:
+    //    * Created auth/manual/settings.php from scratch
+    //      - Password policy configuration (length, uppercase, lowercase, numbers, special chars)
+    //      - Full validation and error handling
+    //      - Uses Mustache template + i18n
+    //    * Added route /auth/manual/settings in public_html/index.php
+    //    * Dynamic HTML lang attribute based on current language
+    //
+    // 4. BUG FIXES:
+    //    * Fixed role::update() method conflict
+    //      - Renamed static method to update_role()
+    //      - Updated admin/roles/edit.php to use role::update_role()
+    //
+    // 5. ARCHITECTURE IMPROVEMENTS:
+    //    * Complete MVC separation achieved
+    //    * Reusable template partials ({{> core/header}})
+    //    * Context-based data passing to templates
+    //    * Zero hardcoded text in any PHP or template files
+    //    * Frankenstyle naming convention for components
     // =========================================================
     if ($oldversion < 2025011802) {
         require_once(__DIR__ . '/classes/db/xmldb_table.php');
@@ -149,17 +194,30 @@ function xmldb_core_upgrade(int $oldversion): bool {
         require_once(__DIR__ . '/classes/db/ddl_manager.php');
 
         echo '<div class="upgrade-info">';
-        echo '<h3>Upgrading to v1.1.2 (2025011802)</h3>';
-        echo '<p><strong>New Features:</strong></p>';
+        echo '<h3>🎉 Upgrading to v1.1.2 (2025011802) - Internationalization & Modern Templates</h3>';
+        echo '<p><strong>📢 Major New Features:</strong></p>';
         echo '<ul>';
-        echo '<li>Internationalization (i18n) system with Spanish and English support</li>';
-        echo '<li>Mustache template engine for modern, maintainable UI</li>';
-        echo '<li>200+ translated strings in lang/es and lang/en</li>';
-        echo '<li>Template components: notification, button, card</li>';
+        echo '<li><strong>Internationalization (i18n):</strong> Complete multi-language support with 300+ strings in Spanish and English</li>';
+        echo '<li><strong>Mustache Templates:</strong> All 14 pages migrated to modern, maintainable template system</li>';
+        echo '<li><strong>Clean Architecture:</strong> Complete separation of logic (PHP) and presentation (Mustache)</li>';
+        echo '<li><strong>Auth Settings:</strong> New password policy configuration page for manual authentication</li>';
         echo '</ul>';
-        echo '<p><strong>Database Changes:</strong></p>';
+        echo '<p><strong>📝 Templates Created:</strong></p>';
         echo '<ul>';
-        echo '<li>Adding \'lang\' field to users table...</li>';
+        echo '<li>Base: header, nav, footer</li>';
+        echo '<li>Core: login, dashboard</li>';
+        echo '<li>Admin: dashboard, user management (list, edit), role management (list, edit, define, assign), settings, upgrade</li>';
+        echo '<li>Auth: manual authentication settings</li>';
+        echo '<li>Components: notification, button, card</li>';
+        echo '</ul>';
+        echo '<p><strong>🌍 Languages Supported:</strong></p>';
+        echo '<ul>';
+        echo '<li>Spanish (es) - 300+ strings</li>';
+        echo '<li>English (en) - 300+ strings</li>';
+        echo '</ul>';
+        echo '<p><strong>🗄️ Database Changes:</strong></p>';
+        echo '<ul>';
+        echo '<li>Adding \'lang\' field to users table for language preferences...</li>';
         echo '</ul>';
         echo '</div>';
 

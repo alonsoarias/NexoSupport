@@ -19,206 +19,42 @@ use core\rbac\context;
 $roles = role::get_all();
 $syscontext = context::system();
 
-?>
-<!DOCTYPE html>
-<html lang="<?php echo \core\string_manager::get_language(); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo get_string('rolemanagement'); ?> - <?php echo get_string('sitename'); ?></title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
+// Format roles for template
+$rolesformatted = [];
+foreach ($roles as $role) {
+    $capabilities = $role->get_capabilities($syscontext);
+    $users = $role->get_users($syscontext);
 
-        h1 {
-            color: #333;
-        }
+    $capsformatted = [];
+    foreach ($capabilities as $capname => $permission) {
+        $capsformatted[] = [
+            'name' => htmlspecialchars($capname),
+            'permissionclass' => $permission == 1 ? 'allow' : 'prevent',
+            'permissiontext' => $permission == 1 ? get_string('allow', 'core') : get_string('prevent', 'core'),
+        ];
+    }
 
-        .nav {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #e0e0e0;
-        }
+    $rolesformatted[] = [
+        'id' => $role->id,
+        'name' => htmlspecialchars($role->name),
+        'shortname' => htmlspecialchars($role->shortname),
+        'description' => htmlspecialchars($role->description),
+        'hasdescription' => !empty($role->description),
+        'capabilities' => $capsformatted,
+        'hascapabilities' => !empty($capsformatted),
+        'usercount' => count($users),
+    ];
+}
 
-        .nav a {
-            margin-right: 20px;
-            color: #667eea;
-            text-decoration: none;
-        }
+// Prepare context for template
+$context = [
+    'user' => $USER,
+    'showadmin' => true,
+    'fullname' => htmlspecialchars($USER->firstname . ' ' . $USER->lastname),
+    'roles' => $rolesformatted,
+    'hasroles' => !empty($rolesformatted),
+    'canmanageroles' => has_capability('nexosupport/admin:manageroles'),
+];
 
-        .roles-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .role-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .role-card h3 {
-            margin-top: 0;
-            color: #667eea;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .role-card .shortname {
-            color: #666;
-            font-size: 14px;
-            margin-top: -10px;
-            margin-bottom: 15px;
-        }
-
-        .role-card .description {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .capability-list {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 6px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .capability-item {
-            padding: 8px;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 13px;
-            font-family: monospace;
-        }
-
-        .capability-item:last-child {
-            border-bottom: none;
-        }
-
-        .capability-item .permission {
-            float: right;
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .permission-allow {
-            background: #4caf50;
-            color: white;
-        }
-
-        .permission-prevent {
-            background: #f44336;
-            color: white;
-        }
-
-        .user-count {
-            background: #e3f2fd;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 15px;
-            text-align: center;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            margin-right: 10px;
-        }
-
-        .btn:hover {
-            background: #5568d3;
-        }
-    </style>
-</head>
-<body>
-    <div class="nav">
-        <a href="/"><?php echo get_string('home'); ?></a>
-        <a href="/admin"><?php echo get_string('administration'); ?></a>
-        <a href="/admin/roles"><?php echo get_string('roles'); ?></a>
-        <a href="/admin/users"><?php echo get_string('users'); ?></a>
-        <a href="/user/profile"><?php echo get_string('profile'); ?></a>
-        <a href="/logout"><?php echo get_string('logout'); ?></a>
-    </div>
-
-    <h1><?php echo get_string('rolemanagement'); ?></h1>
-    <p><?php echo get_string('user'); ?>: <?php echo htmlspecialchars($USER->firstname . ' ' . $USER->lastname); ?></p>
-
-    <?php if (has_capability('nexosupport/admin:manageroles')): ?>
-    <div style="margin-bottom: 20px;">
-        <a href="/admin/roles/edit?id=0" class="btn"><?php echo get_string('createrole'); ?></a>
-    </div>
-    <?php endif; ?>
-
-    <div class="roles-grid">
-        <?php foreach ($roles as $role): ?>
-            <div class="role-card">
-                <h3><?php echo htmlspecialchars($role->name); ?></h3>
-                <div class="shortname"><?php echo get_string('code'); ?>: <?php echo htmlspecialchars($role->shortname); ?></div>
-
-                <?php if ($role->description): ?>
-                <div class="description">
-                    <?php echo htmlspecialchars($role->description); ?>
-                </div>
-                <?php endif; ?>
-
-                <h4><?php echo get_string('capabilities'); ?>:</h4>
-                <div class="capability-list">
-                    <?php
-                    $capabilities = $role->get_capabilities($syscontext);
-                    if (empty($capabilities)):
-                    ?>
-                        <p style="color: #999; text-align: center; margin: 10px 0;"><?php echo get_string('nocapabilities'); ?></p>
-                    <?php else: ?>
-                        <?php foreach ($capabilities as $capname => $permission): ?>
-                            <div class="capability-item">
-                                <?php echo htmlspecialchars($capname); ?>
-                                <span class="permission permission-<?php echo $permission == 1 ? 'allow' : 'prevent'; ?>">
-                                    <?php echo $permission == 1 ? get_string('allow') : get_string('prevent'); ?>
-                                </span>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-
-                <?php
-                $users = $role->get_users($syscontext);
-                $usercount = count($users);
-                ?>
-                <div class="user-count">
-                    <?php echo get_string('usercount', 'core', $usercount); ?>
-                </div>
-
-                <?php if (has_capability('nexosupport/admin:manageroles')): ?>
-                <div style="margin-top: 15px;">
-                    <a href="/admin/roles/edit?id=<?php echo $role->id; ?>" class="btn"><?php echo get_string('editrole'); ?></a>
-                    <a href="/admin/roles/define?roleid=<?php echo $role->id; ?>" class="btn"><?php echo get_string('capabilities'); ?></a>
-                    <a href="/admin/roles/assign?roleid=<?php echo $role->id; ?>" class="btn"><?php echo get_string('users'); ?></a>
-                </div>
-                <?php endif; ?>
-            </div>
-        <?php endforeach; ?>
-    </div>
-
-    <?php if (empty($roles)): ?>
-        <div style="background: white; padding: 40px; text-align: center; border-radius: 8px;">
-            <p style="font-size: 18px; color: #999;"><?php echo get_string('noroles'); ?></p>
-            <a href="/admin/roles/edit?id=0" class="btn"><?php echo get_string('createfirstrole'); ?></a>
-        </div>
-    <?php endif; ?>
-</body>
-</html>
+// Render and output
+echo render_template('admin/role_list', $context);

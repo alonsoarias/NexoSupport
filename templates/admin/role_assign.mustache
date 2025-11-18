@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="{{lang}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{#str}}assignroles{{/str}} - {{#str}}sitename{{/str}}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .nav {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .nav a {
+            margin-right: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        h1, h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .user-info, .role-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .role-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            transition: all 0.2s;
+        }
+
+        .role-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .role-card.assigned {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .role-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+
+        .role-card p {
+            margin: 0 0 15px 0;
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">{{#str}}home{{/str}}</a>
+        <a href="/admin">{{#str}}administration{{/str}}</a>
+        <a href="/admin/users">{{#str}}users{{/str}}</a>
+        <a href="/admin/roles">{{#str}}roles{{/str}}</a>
+        <a href="/logout">{{#str}}logout{{/str}}</a>
+    </div>
+
+    {{#user_view}}
+        <!-- Vista por usuario -->
+        <div class="card">
+            <h1>{{#str}}assignroles{{/str}}</h1>
+
+            <div class="user-info">
+                <strong>{{#str}}user{{/str}}:</strong> {{user_username}}<br>
+                <strong>{{#str}}name{{/str}}:</strong> {{user_fullname}}<br>
+                <strong>{{#str}}email{{/str}}:</strong> {{user_email}}
+            </div>
+
+            {{#success}}
+                <div class="alert alert-success">
+                    {{{success}}}
+                </div>
+            {{/success}}
+
+            {{#has_errors}}
+                <div class="alert alert-danger">
+                    <ul style="margin: 0; padding-left: 20px;">
+                        {{#errors}}
+                            <li>{{{.}}}</li>
+                        {{/errors}}
+                    </ul>
+                </div>
+            {{/has_errors}}
+
+            <h2>{{#str}}availableroles{{/str}}</h2>
+
+            <div class="roles-grid">
+                {{#roles}}
+                    <div class="role-card {{#is_assigned}}assigned{{/is_assigned}}">
+                        <h3>{{role_name}}</h3>
+                        <p>{{role_description}}</p>
+
+                        {{#is_assigned}}
+                            <form method="POST" style="display: inline;">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="assignroleid" value="{{role_id}}">
+                                <input type="hidden" name="assignaction" value="unassign">
+                                <button type="submit" class="btn btn-sm btn-danger">{{#str}}removerole{{/str}}</button>
+                            </form>
+                        {{/is_assigned}}
+                        {{^is_assigned}}
+                            <form method="POST" style="display: inline;">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="assignroleid" value="{{role_id}}">
+                                <input type="hidden" name="assignaction" value="assign">
+                                <button type="submit" class="btn btn-sm btn-success">{{#str}}assignrole{{/str}}</button>
+                            </form>
+                        {{/is_assigned}}
+                    </div>
+                {{/roles}}
+            </div>
+        </div>
+    {{/user_view}}
+
+    {{#role_view}}
+        <!-- Vista por rol -->
+        <div class="card">
+            <h1>{{#str}}userswithrol{{/str}}</h1>
+
+            <div class="role-info">
+                <strong>{{#str}}role{{/str}}:</strong> {{role_name}}<br>
+                <strong>{{#str}}roleshortname{{/str}}:</strong> {{role_shortname}}<br>
+                {{#role_description}}
+                    <strong>{{#str}}description{{/str}}:</strong> {{role_description}}
+                {{/role_description}}
+            </div>
+
+            {{#has_no_users}}
+                <div class="empty-state">
+                    <h3>{{#str}}nouserswithcriteria{{/str}}</h3>
+                    <p>{{#str}}nouserswithrole{{/str}}</p>
+                </div>
+            {{/has_no_users}}
+
+            {{#has_users}}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{#str}}username{{/str}}</th>
+                            <th>{{#str}}name{{/str}}</th>
+                            <th>{{#str}}email{{/str}}</th>
+                            <th>{{#str}}actions{{/str}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#users}}
+                            <tr>
+                                <td>{{user_username}}</td>
+                                <td>{{user_fullname}}</td>
+                                <td>{{user_email}}</td>
+                                <td>
+                                    <a href="/admin/user/edit?id={{user_id}}" class="btn btn-sm btn-secondary">
+                                        {{#str}}seeuser{{/str}}
+                                    </a>
+                                </td>
+                            </tr>
+                        {{/users}}
+                    </tbody>
+                </table>
+            {{/has_users}}
+        </div>
+    {{/role_view}}
+</body>
+</html>

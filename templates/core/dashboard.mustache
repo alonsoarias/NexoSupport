@@ -1,0 +1,252 @@
+{{!
+    Dashboard Template
+
+    Context:
+    * user - Current user object
+    * showadmin - Show admin menu
+    * fullname - User's full name
+    * totalusers - Total users count
+    * activeusers - Active users count
+    * totalroles - Total roles count
+    * activesessions - Active sessions count
+    * showquickactions - Show quick actions section
+    * canmanageusers - Can manage users
+    * canmanageroles - Can manage roles
+    * canmanageconfig - Can manage config
+    * recentlogins - Array of recent login users
+    * hasrecentlogins - Boolean for recent logins
+}}
+<!DOCTYPE html>
+<html lang="{{currentlang}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{#str}}dashboard,core{{/str}} - {{#str}}sitename,core{{/str}}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .nav {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .nav a {
+            margin-right: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .welcome-msg {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .action-card h3 {
+            color: #667eea;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .action-card p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .recent-activity {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .recent-activity h2 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .activity-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .activity-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-user {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .activity-time {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    {{> core/nav}}
+
+    <h1>{{#str}}dashboard,core{{/str}}</h1>
+    <p class="welcome-msg">{{#str}}welcomeback,core{{/str}} {{fullname}}</p>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{totalusers}}</div>
+            <div class="stat-label">{{#str}}totalusers,core{{/str}}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value">{{activeusers}}</div>
+            <div class="stat-label">{{#str}}activeusers,core{{/str}}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value">{{totalroles}}</div>
+            <div class="stat-label">{{#str}}totalroles,core{{/str}}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value">{{activesessions}}</div>
+            <div class="stat-label">{{#str}}activesessions,core{{/str}}</div>
+        </div>
+    </div>
+
+    {{#showquickactions}}
+        <h2 style="margin-bottom: 20px;">{{#str}}quickactions,core{{/str}}</h2>
+        <div class="actions-grid">
+            {{#canmanageusers}}
+                <a href="/admin/users" class="action-card">
+                    <h3>{{#str}}manageusers,core{{/str}}</h3>
+                    <p>{{#str}}manageusers_desc,core{{/str}}</p>
+                </a>
+            {{/canmanageusers}}
+
+            {{#canmanageroles}}
+                <a href="/admin/roles" class="action-card">
+                    <h3>{{#str}}manageroles,core{{/str}}</h3>
+                    <p>{{#str}}manageroles_desc,core{{/str}}</p>
+                </a>
+            {{/canmanageroles}}
+
+            {{#canmanageconfig}}
+                <a href="/admin/settings" class="action-card">
+                    <h3>{{#str}}settings,core{{/str}}</h3>
+                    <p>{{#str}}managesettings_desc,core{{/str}}</p>
+                </a>
+            {{/canmanageconfig}}
+
+            <a href="/user/profile" class="action-card">
+                <h3>{{#str}}profile,core{{/str}}</h3>
+                <p>{{#str}}myprofile_desc,core{{/str}}</p>
+            </a>
+        </div>
+    {{/showquickactions}}
+
+    <div class="recent-activity">
+        <h2>{{#str}}recentactivity,core{{/str}}</h2>
+
+        {{^hasrecentlogins}}
+            <div class="empty-state">
+                <p>{{#str}}norecentactivity,core{{/str}}</p>
+            </div>
+        {{/hasrecentlogins}}
+
+        {{#hasrecentlogins}}
+            <ul class="activity-list">
+                {{#recentlogins}}
+                    <li class="activity-item">
+                        <div>
+                            <span class="activity-user">{{{fullname}}}</span>
+                            <span style="color: #999;"> ({{{username}}})</span>
+                        </div>
+                        <span class="activity-time">
+                            {{#str}}lastlogin,core{{/str}}: {{{lastloginformatted}}}
+                        </span>
+                    </li>
+                {{/recentlogins}}
+            </ul>
+        {{/hasrecentlogins}}
+    </div>
+
+{{> core/footer}}
