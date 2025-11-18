@@ -163,6 +163,102 @@ class ddl_manager {
     }
 
     /**
+     * Verificar si un campo existe en una tabla
+     *
+     * @param xmldb_table $table Table object or table name
+     * @param string|xmldb_field $field Field name or field object
+     * @return bool
+     */
+    public function field_exists($table, $field): bool {
+        $tablename = is_object($table) ? $table->get_name() : $table;
+        $fieldname = is_object($field) ? $field->get_name() : $field;
+
+        $tablename = $this->db->get_prefix() . $tablename;
+
+        try {
+            $pdo = $this->db->get_pdo();
+            $stmt = $pdo->query("SHOW COLUMNS FROM $tablename LIKE '$fieldname'");
+            return $stmt->rowCount() > 0;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Agregar un campo a una tabla existente
+     *
+     * @param xmldb_table $table Table object or table name
+     * @param xmldb_field $field Field object to add
+     * @param string|null $after Add after this field (optional)
+     * @return bool
+     */
+    public function add_field($table, xmldb_field $field, $after = null): bool {
+        $tablename = is_object($table) ? $table->get_name() : $table;
+        $tablename = $this->db->get_prefix() . $tablename;
+
+        $fieldsql = $this->get_field_sql($field);
+
+        $sql = "ALTER TABLE $tablename ADD COLUMN $fieldsql";
+
+        if ($after !== null) {
+            $sql .= " AFTER $after";
+        }
+
+        try {
+            $this->db->get_pdo()->exec($sql);
+            return true;
+        } catch (\PDOException $e) {
+            throw new \coding_exception("Error adding field: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Eliminar un campo de una tabla
+     *
+     * @param xmldb_table $table Table object or table name
+     * @param xmldb_field $field Field object or field name
+     * @return bool
+     */
+    public function drop_field($table, $field): bool {
+        $tablename = is_object($table) ? $table->get_name() : $table;
+        $fieldname = is_object($field) ? $field->get_name() : $field;
+
+        $tablename = $this->db->get_prefix() . $tablename;
+
+        $sql = "ALTER TABLE $tablename DROP COLUMN $fieldname";
+
+        try {
+            $this->db->get_pdo()->exec($sql);
+            return true;
+        } catch (\PDOException $e) {
+            throw new \coding_exception("Error dropping field: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Modificar un campo en una tabla
+     *
+     * @param xmldb_table $table Table object or table name
+     * @param xmldb_field $field Field object with new definition
+     * @return bool
+     */
+    public function change_field_type($table, xmldb_field $field): bool {
+        $tablename = is_object($table) ? $table->get_name() : $table;
+        $tablename = $this->db->get_prefix() . $tablename;
+
+        $fieldsql = $this->get_field_sql($field);
+
+        $sql = "ALTER TABLE $tablename MODIFY COLUMN $fieldsql";
+
+        try {
+            $this->db->get_pdo()->exec($sql);
+            return true;
+        } catch (\PDOException $e) {
+            throw new \coding_exception("Error changing field type: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Eliminar tabla
      *
      * @param string $tablename
