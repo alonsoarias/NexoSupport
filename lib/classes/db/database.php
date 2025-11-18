@@ -102,9 +102,10 @@ class database {
      *
      * @param string $table
      * @param array $conditions
+     * @param string $fields Campos a seleccionar (default '*')
      * @return object|null
      */
-    public function get_record(string $table, array $conditions): ?object {
+    public function get_record(string $table, array $conditions, string $fields = '*'): ?object {
         $table = $this->add_prefix($table);
 
         $where = [];
@@ -115,7 +116,7 @@ class database {
             $params[] = $value;
         }
 
-        $sql = "SELECT * FROM $table WHERE " . implode(' AND ', $where) . " LIMIT 1";
+        $sql = "SELECT $fields FROM $table WHERE " . implode(' AND ', $where) . " LIMIT 1";
 
         $stmt = $this->execute($sql, $params);
         $result = $stmt->fetch();
@@ -127,17 +128,21 @@ class database {
      * Obtener múltiples registros
      *
      * @param string $table
-     * @param array $conditions
+     * @param array|null $conditions
+     * @param string $sort ORDER BY clause (e.g., 'sortorder ASC, id DESC')
+     * @param string $fields Campos a seleccionar (default '*')
+     * @param int $limitfrom Offset for LIMIT
+     * @param int $limitnum Number of records for LIMIT
      * @return array
      */
-    public function get_records(string $table, array $conditions = []): array {
+    public function get_records(string $table, ?array $conditions = [], string $sort = '', string $fields = '*', int $limitfrom = 0, int $limitnum = 0): array {
         $table = $this->add_prefix($table);
 
-        $sql = "SELECT * FROM $table";
+        $sql = "SELECT $fields FROM $table";
+        $params = [];
 
         if (!empty($conditions)) {
             $where = [];
-            $params = [];
 
             foreach ($conditions as $field => $value) {
                 $where[] = "$field = ?";
@@ -145,11 +150,20 @@ class database {
             }
 
             $sql .= " WHERE " . implode(' AND ', $where);
-
-            $stmt = $this->execute($sql, $params);
-        } else {
-            $stmt = $this->execute($sql);
         }
+
+        if (!empty($sort)) {
+            $sql .= " ORDER BY $sort";
+        }
+
+        if ($limitnum > 0) {
+            $sql .= " LIMIT $limitnum";
+            if ($limitfrom > 0) {
+                $sql .= " OFFSET $limitfrom";
+            }
+        }
+
+        $stmt = $this->execute($sql, $params);
 
         return $stmt->fetchAll();
     }
