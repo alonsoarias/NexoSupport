@@ -1,6 +1,6 @@
 <?php
 /**
- * Language strings - auth_manual (English)
+ * Strings for component 'auth_manual', language 'en'
  *
  * @package auth_manual
  */
@@ -8,15 +8,20 @@
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 $string['pluginname'] = 'Manual Authentication';
-$string['plugindescription'] = 'Authentication against local database with hashed passwords';
+$string['auth_manualdescription'] = 'Users are created manually and authenticate against the internal database.';
 
-// Password errors
-$string['passwordtooshort'] = 'Password must be at least 8 characters long';
-$string['passwordneedsuppercase'] = 'Password must contain at least one uppercase letter';
-$string['passwordneedslowercase'] = 'Password must contain at least one lowercase letter';
-$string['passwordneedsnumber'] = 'Password must contain at least one number';
-$string['passwordneedsspecial'] = 'Password must contain at least one special character';
-
-// Configuration
-$string['allowsignup'] = 'Allow self-registration';
-$string['allowsignup_desc'] = 'Allow users to register themselves';
+// Settings page
+$string['auth_manual_settings'] = 'Manual Authentication Settings';
+$string['passwordpolicy'] = 'Password Policy';
+$string['minpasswordlength'] = 'Minimum password length';
+$string['minpasswordlength_help'] = 'Minimum number of characters required for user passwords.';
+$string['minpasswordlengtherror'] = 'Minimum length must be at least 6 characters.';
+$string['minpasswordlengthmaxerror'] = 'Minimum length cannot exceed 64 characters.';
+$string['requireuppercase'] = 'Require uppercase';
+$string['requireuppercase_help'] = 'Passwords must contain at least one uppercase letter.';
+$string['requirelowercase'] = 'Require lowercase';
+$string['requirelowercase_help'] = 'Passwords must contain at least one lowercase letter.';
+$string['requirenumbers'] = 'Require numbers';
+$string['requirenumbers_help'] = 'Passwords must contain at least one number.';
+$string['requirespecialchars'] = 'Require special characters';
+$string['requirespecialchars_help'] = 'Passwords must contain at least one special character (!@#$%^&*).';

@@ -107,7 +107,7 @@ class string_manager {
     /**
      * Load strings for a component
      *
-     * @param string $component Component name
+     * @param string $component Component name (e.g., 'core', 'auth_manual', 'mod_forum')
      * @param string $lang Language code
      * @return void
      */
@@ -123,10 +123,32 @@ class string_manager {
 
         // Determine file path based on component
         if ($component === 'core') {
+            // Core strings: lang/es/core.php
             $filepath = BASE_DIR . "/lang/{$lang}/core.php";
         } else {
-            // For plugins: lang/es/mod_forum.php, lang/es/block_navigation.php, etc.
-            $filepath = BASE_DIR . "/lang/{$lang}/{$component}.php";
+            // Plugin strings follow Frankenstyle naming: type_name
+            // Examples:
+            // - auth_manual → auth/manual/lang/es/auth_manual.php
+            // - mod_forum → mod/forum/lang/es/mod_forum.php
+            // - block_navigation → blocks/navigation/lang/es/block_navigation.php
+
+            if (strpos($component, '_') !== false) {
+                list($plugintype, $pluginname) = explode('_', $component, 2);
+
+                // Map plugin types to directories
+                $typedir = $plugintype;
+                if ($plugintype === 'block') {
+                    $typedir = 'blocks';
+                } elseif ($plugintype === 'mod') {
+                    $typedir = 'mod';
+                }
+
+                // Plugin lang file: auth/manual/lang/es/auth_manual.php
+                $filepath = BASE_DIR . "/{$typedir}/{$pluginname}/lang/{$lang}/{$component}.php";
+            } else {
+                // Fallback: try core lang directory for non-frankenstyle components
+                $filepath = BASE_DIR . "/lang/{$lang}/{$component}.php";
+            }
         }
 
         // Load strings from file
