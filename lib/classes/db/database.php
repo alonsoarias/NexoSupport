@@ -71,6 +71,20 @@ class database {
     }
 
     /**
+     * Reemplazar placeholders {tablename} con nombres de tabla prefijados
+     *
+     * Similar a Moodle's replace_prefix_sql
+     *
+     * @param string $sql
+     * @return string
+     */
+    private function replace_prefix(string $sql): string {
+        return preg_replace_callback('/\{([a-z][a-z0-9_]*)\}/', function($matches) {
+            return $this->add_prefix($matches[1]);
+        }, $sql);
+    }
+
+    /**
      * Ejecutar query SQL
      *
      * @param string $sql
