@@ -23,6 +23,11 @@ define('NEXOSUPPORT_INTERNAL', true);
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
+// Debug logging
+error_log("Front Controller: REQUEST_URI = " . ($_SERVER['REQUEST_URI'] ?? 'undefined'));
+error_log("Front Controller: Parsed URI = $uri");
+error_log("Front Controller: Method = $method");
+
 // ============================================
 // SERVICIO DE ASSETS DE THEMES
 // Los themes contienen sus propios assets

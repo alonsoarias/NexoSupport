@@ -61,6 +61,9 @@ class router {
      * @return mixed
      */
     public function dispatch(string $uri, string $method = 'GET'): mixed {
+        debugging("Router: Dispatching $method $uri", DEBUG_DEVELOPER);
+        debugging("Router: Total routes registered: " . count($this->routes), DEBUG_DEVELOPER);
+
         foreach ($this->routes as $route) {
             if ($route['method'] !== $method) {
                 continue;
@@ -68,10 +71,12 @@ class router {
 
             $params = [];
             if ($this->match_path($route['path'], $uri, $params)) {
+                debugging("Router: Matched route {$route['path']}", DEBUG_DEVELOPER);
                 return $this->call_handler($route['handler'], $params);
             }
         }
 
+        debugging("Router: No route matched for $method $uri", DEBUG_DEVELOPER);
         throw new route_not_found_exception("Route not found: $method $uri");
     }
 
