@@ -70,16 +70,10 @@ try {
     error_log('Error saving core version: ' . $e->getMessage());
 }
 
-// Marcar como instalado
-$envPath = BASE_DIR . '/.env';
-if (file_exists($envPath)) {
-    $envContent = file_get_contents($envPath);
-    $envContent = str_replace('INSTALLED=false', 'INSTALLED=true', $envContent);
-    file_put_contents($envPath, $envContent);
-}
-
-// Crear archivo .installed
-file_put_contents(BASE_DIR . '/.installed', date('Y-m-d H:i:s'));
+// La instalación está completa cuando:
+// 1. Existe el archivo .env (creado en stage database)
+// 2. La BD tiene la tabla config con datos
+// No se requiere archivo .installed adicional (estilo Moodle)
 
 // Limpiar sesión
 session_destroy();

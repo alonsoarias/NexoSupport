@@ -83,26 +83,34 @@ $CFG->dbprefix = getenv('DB_PREFIX') ?: 'nxs_';
 // Configuración general
 $CFG->wwwroot = getenv('APP_URL') ?: 'http://localhost';
 $CFG->debug = getenv('APP_DEBUG') === 'true';
-$CFG->installed = getenv('INSTALLED') === 'true';
 
 // ============================================
-// PASO 6: Conectar a base de datos (si está instalado)
+// PASO 6: Conectar a base de datos
 // ============================================
+// Intentar conectar siempre que tengamos configuración de BD
+// El front controller ya verificó que .env existe
 
 global $DB;
 
-if ($CFG->installed) {
-    try {
-        $dsn = build_dsn($CFG->dbtype, $CFG->dbhost, $CFG->dbname);
-        $pdo = new PDO($dsn, $CFG->dbuser, $CFG->dbpass);
+try {
+    $dsn = build_dsn($CFG->dbtype, $CFG->dbhost, $CFG->dbname);
+    $pdo = new PDO($dsn, $CFG->dbuser, $CFG->dbpass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $DB = new \core\db\database($pdo, $CFG->dbprefix, $CFG->dbtype);
+    $DB = new \core\db\database($pdo, $CFG->dbprefix, $CFG->dbtype);
+
+    // Determinar si está instalado verificando si existe la tabla config
+    // (Similar a como Moodle detecta instalación)
+    try {
+        $stmt = $pdo->query("SHOW TABLES LIKE '{$CFG->dbprefix}config'");
+        $CFG->installed = ($stmt->rowCount() > 0);
     } catch (PDOException $e) {
-        debugging("Database connection failed: " . $e->getMessage());
-        $DB = null;
+        $CFG->installed = false;
     }
-} else {
+} catch (PDOException $e) {
+    debugging("Database connection failed: " . $e->getMessage());
     $DB = null;
+    $CFG->installed = false;
 }
 
 // ============================================

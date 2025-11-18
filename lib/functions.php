@@ -501,6 +501,15 @@ class moodle_exception extends \Exception {
 }
 
 /**
+ * Access exception - thrown when user doesn't have permission
+ */
+class access_exception extends \Exception {
+    public function __construct($message = 'Access denied', $code = 403) {
+        parent::__construct($message, $code);
+    }
+}
+
+/**
  * Constantes de tipo de parámetro
  */
 // Parameter type constants
