@@ -200,13 +200,38 @@ function has_capability(string $capability, ?int $userid = null, ?\core\rbac\con
 /**
  * Require login
  *
+ * CRITICAL: This function MUST prevent access to pages without authentication.
+ * If user is not logged in (id=0 or not set), redirect to login page.
+ *
  * @return void
  */
 function require_login(): void {
     global $USER;
 
-    if (!isset($USER->id)) {
+    // Check if user is logged in
+    // User is NOT logged in if:
+    // - $USER->id is not set
+    // - $USER->id is 0 (guest)
+    // - $USER->id is empty
+    if (!isset($USER->id) || empty($USER->id)) {
+        // User not logged in, redirect to login page
         redirect('/login');
+        exit; // Ensure script stops
+    }
+
+    // Additional security: verify user still exists and is active
+    if (isset($USER->deleted) && $USER->deleted) {
+        // User is deleted, force logout
+        unset($_SESSION['USER']);
+        redirect('/login');
+        exit;
+    }
+
+    if (isset($USER->suspended) && $USER->suspended) {
+        // User is suspended, force logout
+        unset($_SESSION['USER']);
+        redirect('/login?error=suspended');
+        exit;
     }
 }
 

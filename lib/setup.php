@@ -113,15 +113,24 @@ try {
 // ============================================
 
 if (!headers_sent()) {
-    if ($CFG->installed && $DB !== null) {
-        // Usar session manager con BD
-        \core\session\manager::start();
-    } else {
-        // Usar sesión de archivo para instalador
-        if (!isset($_SESSION)) {
-            ini_set('session.save_path', $CFG->sessiondir);
-            session_start();
-        }
+    // CRITICAL: Always use file-based sessions for reliability
+    // Database sessions can cause issues during installation/upgrade
+    if (session_status() === PHP_SESSION_NONE) {
+        // Configure session settings
+        ini_set('session.use_cookies', '1');
+        ini_set('session.use_only_cookies', '1');
+        ini_set('session.use_strict_mode', '1');
+        ini_set('session.cookie_httponly', '1');
+        ini_set('session.cookie_secure', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? '1' : '0');
+        ini_set('session.cookie_samesite', 'Lax');
+        ini_set('session.gc_maxlifetime', '7200'); // 2 hours
+        ini_set('session.save_path', $CFG->sessiondir);
+
+        // Set session name
+        session_name('NEXOSUPPORT_SESSION');
+
+        // Start session
+        session_start();
     }
 }
 
