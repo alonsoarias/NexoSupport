@@ -152,8 +152,20 @@ $router->get('/admin', function() {
     require(BASE_DIR . '/admin/index.php');
 });
 
+$router->get('/admin/upgrade.php', function() {
+    require(BASE_DIR . '/admin/upgrade.php');
+});
+
+$router->post('/admin/upgrade.php', function() {
+    require(BASE_DIR . '/admin/upgrade.php');
+});
+
 $router->get('/admin/users', function() {
     require(BASE_DIR . '/admin/user/index.php');
+});
+
+$router->get('/admin/roles', function() {
+    require(BASE_DIR . '/admin/roles/index.php');
 });
 
 // User profile

@@ -217,6 +217,85 @@ Contraseña: <tu contraseña>
 URL: http://localhost/admin
 ```
 
+## Actualización del Sistema
+
+NexoSupport incluye un sistema de actualización automática similar a Moodle.
+
+### Actualización Automática (Recomendado)
+
+1. **Actualizar el código:**
+   ```bash
+   git pull origin main
+   composer dump-autoload
+   ```
+
+2. **Acceder al sistema:**
+   Al acceder a cualquier página del sistema, serás **redirigido automáticamente** a:
+   ```
+   http://localhost/admin/upgrade.php
+   ```
+
+3. **Ejecutar actualización:**
+   - La página mostrará la versión actual y la nueva versión
+   - Mostrará los cambios que se aplicarán
+   - Hacer clic en "Actualizar Ahora"
+
+4. **Completar:**
+   - El sistema ejecutará los scripts de upgrade necesarios
+   - Te mostrará un mensaje de confirmación
+   - Podrás acceder al sistema actualizado
+
+### Actualización Manual (Avanzado)
+
+Si prefieres ejecutar la actualización desde línea de comandos:
+
+```bash
+# 1. Actualizar código
+git pull origin main
+composer dump-autoload
+
+# 2. Crear script temporal: upgrade_manual.php
+<?php
+define('NEXOSUPPORT_INTERNAL', true);
+require_once('lib/setup.php');
+require_once('lib/upgrade.php');
+
+$dbversion = get_core_version_from_db();
+$codeversion = get_core_version_from_code();
+
+echo "Versión BD: $dbversion\n";
+echo "Versión Código: $codeversion\n";
+
+if (core_upgrade_required()) {
+    echo "Ejecutando upgrade...\n";
+    if (xmldb_core_upgrade($dbversion ?? 0)) {
+        echo "✅ Upgrade completado\n";
+    } else {
+        echo "❌ Error en upgrade\n";
+    }
+} else {
+    echo "✅ Sistema actualizado\n";
+}
+?>
+
+# 3. Ejecutar
+php upgrade_manual.php
+```
+
+### Historial de Versiones
+
+- **v1.1.0 (2025011800)** - Sistema RBAC Completo
+  - Roles y permisos granulares
+  - Contextos jerárquicos
+  - 3 roles predefinidos
+  - 13 capabilities del sistema
+
+- **v1.0.0 (2025011700)** - Sistema Base
+  - Core Frankenstyle
+  - Sistema de plugins
+  - Instalador web
+  - Autenticación básica
+
 ## Características Implementadas (Fase 1)
 
 ### ✅ Core del Sistema

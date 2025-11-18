@@ -134,6 +134,36 @@ global $LANG;
 $LANG = [];
 
 // ============================================
+// PASO 10: Verificar si hay actualizaciones pendientes
+// ============================================
+
+if ($CFG->installed && $DB !== null) {
+    // Solo verificar si no estamos ya en upgrade o instalador
+    $uri = $_SERVER['REQUEST_URI'] ?? '';
+
+    $skip_upgrade_check = (
+        str_contains($uri, '/install') ||
+        str_contains($uri, '/admin/upgrade.php') ||
+        str_contains($uri, '/login') ||
+        str_contains($uri, '/logout')
+    );
+
+    if (!$skip_upgrade_check) {
+        require_once(__DIR__ . '/upgrade.php');
+
+        if (core_upgrade_required()) {
+            // Redirect to upgrade page
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'];
+            $upgradeUrl = $protocol . '://' . $host . '/admin/upgrade.php';
+
+            header('Location: ' . $upgradeUrl);
+            exit;
+        }
+    }
+}
+
+// ============================================
 // FUNCIONES HELPER DE SETUP
 // ============================================
 

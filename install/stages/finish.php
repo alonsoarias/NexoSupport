@@ -55,6 +55,21 @@ try {
     error_log('RBAC installation error: ' . $e->getMessage());
 }
 
+// Guardar versión del core en config
+try {
+    require_once(BASE_DIR . '/lib/version.php');
+
+    $versionRecord = new stdClass();
+    $versionRecord->name = 'version';
+    $versionRecord->value = (string)$plugin->version;
+
+    $GLOBALS['DB']->insert_record('config', $versionRecord);
+
+    debugging("Core version saved: {$plugin->version} ({$plugin->release})", DEBUG_DEVELOPER);
+} catch (Exception $e) {
+    error_log('Error saving core version: ' . $e->getMessage());
+}
+
 // Marcar como instalado
 $envPath = BASE_DIR . '/.env';
 if (file_exists($envPath)) {
