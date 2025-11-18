@@ -83,31 +83,7 @@ $CFG->debug = getenv('APP_DEBUG') === 'true';
 $CFG->installed = getenv('INSTALLED') === 'true';
 
 // ============================================
-// PASO 6: Iniciar sesión
-// ============================================
-
-if (!headers_sent()) {
-    if (!isset($_SESSION)) {
-        ini_set('session.save_path', $CFG->sessiondir);
-        session_start();
-    }
-}
-
-// ============================================
-// PASO 7: Inicializar $USER
-// ============================================
-
-global $USER;
-
-if (isset($_SESSION['USER'])) {
-    $USER = $_SESSION['USER'];
-} else {
-    $USER = new stdClass();
-    $USER->id = 0;
-}
-
-// ============================================
-// PASO 8: Conectar a base de datos (si está instalado)
+// PASO 6: Conectar a base de datos (si está instalado)
 // ============================================
 
 global $DB;
@@ -124,6 +100,36 @@ if ($CFG->installed) {
     }
 } else {
     $DB = null;
+}
+
+// ============================================
+// PASO 7: Iniciar sesión
+// ============================================
+
+if (!headers_sent()) {
+    if ($CFG->installed && $DB !== null) {
+        // Usar session manager con BD
+        \core\session\manager::start();
+    } else {
+        // Usar sesión de archivo para instalador
+        if (!isset($_SESSION)) {
+            ini_set('session.save_path', $CFG->sessiondir);
+            session_start();
+        }
+    }
+}
+
+// ============================================
+// PASO 8: Inicializar $USER
+// ============================================
+
+global $USER;
+
+if (isset($_SESSION['USER'])) {
+    $USER = $_SESSION['USER'];
+} else {
+    $USER = new stdClass();
+    $USER->id = 0;
 }
 
 // ============================================

@@ -382,11 +382,7 @@ function require_sesskey(): void {
  * @return string
  */
 function sesskey(): string {
-    if (!isset($_SESSION['sesskey'])) {
-        $_SESSION['sesskey'] = bin2hex(random_bytes(16));
-    }
-
-    return $_SESSION['sesskey'];
+    return \core\session\manager::get_sesskey();
 }
 
 /**
