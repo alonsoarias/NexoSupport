@@ -60,6 +60,7 @@ try {
     require_once(BASE_DIR . '/lib/version.php');
 
     $versionRecord = new stdClass();
+    $versionRecord->component = 'core';  // IMPORTANTE: especificar component
     $versionRecord->name = 'version';
     $versionRecord->value = (string)$plugin->version;
 
@@ -77,6 +78,7 @@ try {
         $adminuserid = $_SESSION['admin_userid'];
 
         $siteadminsRecord = new stdClass();
+        $siteadminsRecord->component = 'core';  // IMPORTANTE: especificar component
         $siteadminsRecord->name = 'siteadmins';
         $siteadminsRecord->value = (string)$adminuserid; // ID del primer admin
 

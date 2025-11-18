@@ -131,9 +131,32 @@ if (!headers_sent()) {
 
 global $USER;
 
-if (isset($_SESSION['USER'])) {
+// Si hay usuario en sesión, recargar desde BD para tener datos frescos
+if ($CFG->installed && $DB !== null && isset($_SESSION['USER']) && isset($_SESSION['USER']->id) && $_SESSION['USER']->id > 0) {
+    try {
+        // Recargar usuario desde BD para tener todos los campos actualizados
+        $userid = $_SESSION['USER']->id;
+        $USER = $DB->get_record('users', ['id' => $userid]);
+
+        if (!$USER || $USER->deleted) {
+            // Usuario eliminado o no existe, cerrar sesión
+            unset($_SESSION['USER']);
+            $USER = new stdClass();
+            $USER->id = 0;
+        } else {
+            // Actualizar sesión con datos frescos
+            $_SESSION['USER'] = $USER;
+        }
+    } catch (Exception $e) {
+        debugging('Error loading user from database: ' . $e->getMessage());
+        // Si falla, usar datos de sesión
+        $USER = $_SESSION['USER'];
+    }
+} else if (isset($_SESSION['USER'])) {
+    // Base de datos no disponible, usar datos de sesión
     $USER = $_SESSION['USER'];
 } else {
+    // Usuario no logueado
     $USER = new stdClass();
     $USER->id = 0;
 }

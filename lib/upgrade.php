@@ -435,8 +435,12 @@ function xmldb_core_upgrade(int $oldversion): bool {
                 $siteadmins_value = implode(',', $userids);
 
                 // Check if siteadmins config exists
-                if (!$DB->record_exists('config', ['name' => 'siteadmins'])) {
+                $sql = "SELECT * FROM {config} WHERE name = ? LIMIT 1";
+                $existing = $DB->get_record_sql($sql, ['siteadmins']);
+
+                if (!$existing) {
                     $record = new \stdClass();
+                    $record->component = 'core';  // IMPORTANTE: especificar component
                     $record->name = 'siteadmins';
                     $record->value = $siteadmins_value;
                     $DB->insert_record('config', $record);
@@ -448,8 +452,12 @@ function xmldb_core_upgrade(int $oldversion): bool {
                 // No administrator role found, use first user as fallback
                 $firstuser = $DB->get_record_sql('SELECT * FROM {users} WHERE deleted = 0 ORDER BY id ASC LIMIT 1');
                 if ($firstuser) {
-                    if (!$DB->record_exists('config', ['name' => 'siteadmins'])) {
+                    $sql = "SELECT * FROM {config} WHERE name = ? LIMIT 1";
+                    $existing = $DB->get_record_sql($sql, ['siteadmins']);
+
+                    if (!$existing) {
                         $record = new \stdClass();
+                        $record->component = 'core';  // IMPORTANTE: especificar component
                         $record->name = 'siteadmins';
                         $record->value = (string)$firstuser->id;
                         $DB->insert_record('config', $record);

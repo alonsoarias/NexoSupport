@@ -644,21 +644,32 @@ function is_siteadmin(?int $userid = null): bool {
 
     if ($siteadmins === null) {
         try {
-            $config = $DB->get_record('config', ['name' => 'siteadmins']);
+            // Query config table - component defaults to 'core' in database
+            // But we'll query by name only since config might not have component field
+            $sql = "SELECT * FROM {config} WHERE name = ? LIMIT 1";
+            $config = $DB->get_record_sql($sql, ['siteadmins']);
+
             if ($config && !empty($config->value)) {
                 // Convert comma-separated string to array of integers
                 $siteadmins = array_map('intval', explode(',', $config->value));
+                debugging("Loaded siteadmins from config: " . implode(',', $siteadmins), DEBUG_DEVELOPER);
             } else {
+                // Config not found or empty
+                debugging("WARNING: config.siteadmins not found or empty in database", DEBUG_DEVELOPER);
                 $siteadmins = [];
             }
         } catch (Exception $e) {
             // If config table doesn't exist or query fails, fallback to empty
+            debugging("ERROR loading siteadmins from config: " . $e->getMessage(), DEBUG_DEVELOPER);
             $siteadmins = [];
         }
     }
 
     // Check if user ID is in siteadmins list
-    return in_array($userid, $siteadmins, true);
+    $result = in_array($userid, $siteadmins, true);
+    debugging("is_siteadmin($userid) = " . ($result ? 'true' : 'false'), DEBUG_DEVELOPER);
+
+    return $result;
 }
 
 /**
