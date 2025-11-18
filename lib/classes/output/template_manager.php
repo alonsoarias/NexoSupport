@@ -13,8 +13,8 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  */
 class template_manager {
 
-    /** @var \Mustache_Engine Mustache engine instance */
-    private static ?\Mustache_Engine $engine = null;
+    /** @var \Mustache\Engine Mustache engine instance */
+    private static ?\Mustache\Engine $engine = null;
 
     /** @var array Template cache */
     private static array $cache = [];
@@ -22,9 +22,9 @@ class template_manager {
     /**
      * Get Mustache engine instance
      *
-     * @return \Mustache_Engine
+     * @return \Mustache\Engine
      */
-    private static function get_engine(): \Mustache_Engine {
+    private static function get_engine(): \Mustache\Engine {
         if (self::$engine === null) {
             global $CFG;
 
@@ -34,17 +34,17 @@ class template_manager {
                     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
                 },
                 'strict_callables' => true,
-                'pragmas' => [\Mustache_Engine::PRAGMA_BLOCKS],
+                'pragmas' => [\Mustache\Engine::PRAGMA_BLOCKS],
             ];
 
             // Add template loader
-            $options['loader'] = new \Mustache_Loader_FilesystemLoader(
+            $options['loader'] = new \Mustache\Loader\FilesystemLoader(
                 BASE_DIR . '/templates',
                 ['extension' => '.mustache']
             );
 
             // Add partials loader (for {{> partial }})
-            $options['partials_loader'] = new \Mustache_Loader_FilesystemLoader(
+            $options['partials_loader'] = new \Mustache\Loader\FilesystemLoader(
                 BASE_DIR . '/templates',
                 ['extension' => '.mustache']
             );
@@ -54,7 +54,7 @@ class template_manager {
                 mkdir($options['cache'], 0755, true);
             }
 
-            self::$engine = new \Mustache_Engine($options);
+            self::$engine = new \Mustache\Engine($options);
         }
 
         return self::$engine;
