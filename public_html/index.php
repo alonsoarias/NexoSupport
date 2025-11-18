@@ -82,92 +82,24 @@ if (preg_match('#^/theme/([a-z0-9_]+)/(.+)$#', $uri, $matches)) {
 // Similar a Moodle: verifica si existe config.php (.env en nuestro caso)
 // y si la BD tiene las tablas del sistema
 
-// PASO 1: Verificar si existe archivo de configuración (.env)
-if (!file_exists(BASE_DIR . '/.env')) {
-    // No existe .env, redirigir a instalador
-    // (Equivalente a Moodle cuando no existe config.php)
+// Cargar autoloader para usar environment_checker
+// (necesario antes de cargar setup.php)
+if (file_exists(BASE_DIR . '/vendor/autoload.php')) {
+    require_once(BASE_DIR . '/vendor/autoload.php');
+}
+
+// Usar environment_checker para determinar estado del sistema
+$envChecker = new \core\install\environment_checker();
+
+// ¿Necesita instalación?
+if ($envChecker->needs_install()) {
+    // Sistema no instalado, redirigir a instalador
     if ($uri !== '/install' && !str_starts_with($uri, '/install/')) {
         header('Location: /install');
         exit;
     }
 
     // Cargar instalador
-    require_once(BASE_DIR . '/install/index.php');
-    exit;
-}
-
-// PASO 2: Existe .env, leer configuración de BD
-$envContent = file_get_contents(BASE_DIR . '/.env');
-$dbConfig = [];
-
-if (preg_match('/DB_HOST=(.+)/', $envContent, $matches)) {
-    $dbConfig['host'] = trim($matches[1]);
-}
-if (preg_match('/DB_DATABASE=(.+)/', $envContent, $matches)) {
-    $dbConfig['database'] = trim($matches[1]);
-}
-if (preg_match('/DB_USERNAME=(.+)/', $envContent, $matches)) {
-    $dbConfig['username'] = trim($matches[1]);
-}
-if (preg_match('/DB_PASSWORD=(.+)/', $envContent, $matches)) {
-    $dbConfig['password'] = trim($matches[1]);
-}
-if (preg_match('/DB_PREFIX=(.+)/', $envContent, $matches)) {
-    $dbConfig['prefix'] = trim($matches[1]);
-}
-
-// PASO 3: Verificar que la configuración sea válida
-if (empty($dbConfig['host']) || empty($dbConfig['database']) ||
-    empty($dbConfig['username']) || empty($dbConfig['prefix'])) {
-    // Configuración incompleta, redirigir a instalador
-    if ($uri !== '/install' && !str_starts_with($uri, '/install/')) {
-        header('Location: /install');
-        exit;
-    }
-
-    require_once(BASE_DIR . '/install/index.php');
-    exit;
-}
-
-// PASO 4: Intentar conectar a BD y verificar si está instalado
-$isInstalled = false;
-try {
-    $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['database']};charset=utf8mb4";
-    $password = $dbConfig['password'] ?? '';
-
-    $testPdo = new PDO($dsn, $dbConfig['username'], $password);
-    $testPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // Verificar si existe la tabla de configuración
-    // (Equivalente a como Moodle verifica mdl_config)
-    $stmt = $testPdo->query("SHOW TABLES LIKE '{$dbConfig['prefix']}config'");
-
-    if ($stmt->rowCount() > 0) {
-        // La tabla config existe, el sistema está instalado
-        $isInstalled = true;
-    }
-
-    unset($testPdo);
-} catch (PDOException $e) {
-    // No se pudo conectar a la BD
-    // Esto puede ser porque:
-    // 1. La BD no existe
-    // 2. Las credenciales son incorrectas
-    // 3. El servidor de BD no está disponible
-
-    // En cualquier caso, redirigir a instalador
-    $isInstalled = false;
-}
-
-// PASO 5: Decidir qué hacer según estado de instalación
-if (!$isInstalled) {
-    // .env existe pero BD no tiene tablas (o no se pudo conectar)
-    // Redirigir a instalador para completar instalación
-    if ($uri !== '/install' && !str_starts_with($uri, '/install/')) {
-        header('Location: /install');
-        exit;
-    }
-
     require_once(BASE_DIR . '/install/index.php');
     exit;
 }

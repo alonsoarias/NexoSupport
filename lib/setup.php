@@ -87,8 +87,8 @@ $CFG->debug = getenv('APP_DEBUG') === 'true';
 // ============================================
 // PASO 6: Conectar a base de datos
 // ============================================
-// Intentar conectar siempre que tengamos configuración de BD
-// El front controller ya verificó que .env existe
+// El front controller ya verificó con environment_checker que el sistema está instalado
+// Aquí solo conectamos a la BD
 
 global $DB;
 
@@ -99,14 +99,9 @@ try {
 
     $DB = new \core\db\database($pdo, $CFG->dbprefix, $CFG->dbtype);
 
-    // Determinar si está instalado verificando si existe la tabla config
-    // (Similar a como Moodle detecta instalación)
-    try {
-        $stmt = $pdo->query("SHOW TABLES LIKE '{$CFG->dbprefix}config'");
-        $CFG->installed = ($stmt->rowCount() > 0);
-    } catch (PDOException $e) {
-        $CFG->installed = false;
-    }
+    // Marcar como instalado (el front controller ya lo verificó)
+    $CFG->installed = true;
+
 } catch (PDOException $e) {
     debugging("Database connection failed: " . $e->getMessage());
     $DB = null;
@@ -175,34 +170,49 @@ $LANG = [];
 // ============================================
 // PASO 10: Verificar si hay actualizaciones pendientes
 // ============================================
+// Similar a Moodle: verifica si la versión del código es mayor que la versión en BD
+// y redirige a /admin/upgrade.php si es necesario
 
 if ($CFG->installed && $DB !== null) {
-    // Solo verificar si no estamos ya en upgrade o instalador
+    // Solo verificar si no estamos ya en upgrade, instalador, o páginas públicas
     $uri = $_SERVER['REQUEST_URI'] ?? '';
 
     $skip_upgrade_check = (
         str_contains($uri, '/install') ||
         str_contains($uri, '/admin/upgrade.php') ||
         str_contains($uri, '/login') ||
-        str_contains($uri, '/logout')
+        str_contains($uri, '/logout') ||
+        str_contains($uri, '/theme/') // Assets de themes
     );
 
-    // IMPORTANTE: Solo verificar upgrades si hay un usuario logueado
-    // Esto previene redirecciones a upgrade.php justo después de instalar
-    // cuando el usuario aún no ha iniciado sesión
+    // IMPORTANTE: Solo verificar upgrades si hay un usuario logueado Y es siteadmin
+    // Esto previene:
+    // 1. Redirecciones a upgrade.php justo después de instalar (usuario no logueado)
+    // 2. Usuarios normales viendo página de upgrade (solo siteadmins pueden actualizar)
     $has_logged_user = isset($USER->id) && $USER->id > 0;
+    $is_admin = $has_logged_user && is_siteadmin($USER->id);
 
-    if (!$skip_upgrade_check && $has_logged_user) {
+    if (!$skip_upgrade_check && $is_admin) {
         require_once(__DIR__ . '/upgrade.php');
 
         if (core_upgrade_required()) {
-            // Redirect to upgrade page
+            // Mostrar notificación en lugar de redirección forzada
+            // El administrador debe ir manualmente a /admin/upgrade.php
+            // Esto es más seguro y da control al administrador
+
+            // OPCIONAL: Si queremos redirección automática (como Moodle)
+            // descomentamos las siguientes líneas:
+            /*
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
             $host = $_SERVER['HTTP_HOST'];
             $upgradeUrl = $protocol . '://' . $host . '/admin/upgrade.php';
 
             header('Location: ' . $upgradeUrl);
             exit;
+            */
+
+            // Por ahora, solo marcamos que hay upgrade pendiente
+            $CFG->upgrade_pending = true;
         }
     }
 }
