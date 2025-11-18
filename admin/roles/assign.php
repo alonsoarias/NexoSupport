@@ -12,9 +12,9 @@ require_capability('nexosupport/admin:assignroles');
 
 global $USER, $DB;
 
-$userid = optional_param('userid', 0, 'int');
-$roleid = optional_param('roleid', 0, 'int');
-$action = optional_param('action', '', 'text');
+$userid = optional_param('userid', 0, PARAM_INT);
+$roleid = optional_param('roleid', 0, PARAM_INT);
+$action = optional_param('action', '', PARAM_TEXT);
 
 $errors = [];
 $success = null;
@@ -38,8 +38,8 @@ if ($userid > 0) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         require_sesskey();
 
-        $assignroleid = required_param('assignroleid', 'int');
-        $assignaction = required_param('assignaction', 'text');
+        $assignroleid = required_param('assignroleid', PARAM_INT);
+        $assignaction = required_param('assignaction', PARAM_TEXT);
 
         try {
             if ($assignaction === 'assign') {

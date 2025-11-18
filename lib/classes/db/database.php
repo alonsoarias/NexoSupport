@@ -438,6 +438,46 @@ class database {
     }
 
     /**
+     * Execute custom SQL and count results
+     *
+     * Similar to Moodle's count_records_sql()
+     *
+     * @param string $sql SQL query (must start with SELECT COUNT(*))
+     * @param array $params Parameters for the query
+     * @return int Count of records
+     */
+    public function count_records_sql(string $sql, array $params = []): int {
+        $sql = $this->fix_sql_params($sql);
+        $stmt = $this->execute($sql, $params);
+        $result = $stmt->fetch(\PDO::FETCH_NUM);
+        return $result ? (int)$result[0] : 0;
+    }
+
+    /**
+     * Delete records matching WHERE clause
+     *
+     * Similar to Moodle's delete_records_select()
+     *
+     * @param string $table Table name (without prefix)
+     * @param string $select WHERE clause (without WHERE keyword)
+     * @param array $params Parameters for the WHERE clause
+     * @return bool True if successful
+     */
+    public function delete_records_select(string $table, string $select = '', array $params = []): bool {
+        $table = $this->add_prefix($table);
+
+        $sql = "DELETE FROM $table";
+
+        if (!empty($select)) {
+            $sql .= " WHERE $select";
+        }
+
+        $stmt = $this->execute($sql, $params);
+
+        return $stmt->rowCount() >= 0;
+    }
+
+    /**
      * Obtener manager de DDL
      *
      * @return ddl_manager
