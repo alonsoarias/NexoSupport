@@ -227,7 +227,10 @@ function xmldb_core_upgrade(int $oldversion): bool {
 
             // Add lang field to users table
             $table = new \core\db\xmldb_table('users');
-            $field = new \core\db\xmldb_field('lang', \core\db\xmldb_field::TYPE_CHAR, 10, null, true, null, 'es', 'lastip');
+            $field = (new \core\db\xmldb_field('lang', 'char'))
+                ->set_length(10)
+                ->set_notnull(true)
+                ->set_default('es');
 
             if (!$ddl->field_exists($table, $field)) {
                 $ddl->add_field($table, $field);
