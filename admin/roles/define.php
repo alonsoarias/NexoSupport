@@ -114,8 +114,8 @@ $context = [
     'success' => $success,
     'sesskey' => sesskey(),
     'components' => $components,
-];
-
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
+];
+
 echo render_template('admin/role_define', $context);

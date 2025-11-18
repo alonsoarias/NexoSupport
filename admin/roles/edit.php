@@ -118,8 +118,8 @@ $context = [
     'role_description' => htmlspecialchars($role->description),
     'show_define_button' => !$isNew,
     'show_delete_button' => !$isNew && !$isSystemRole,
-];
-
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
+];
+
 echo render_template('admin/role_edit', $context);

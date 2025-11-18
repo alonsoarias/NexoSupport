@@ -105,9 +105,9 @@ $context = [
     'errors' => array_map('htmlspecialchars', $errors),
     'haserrors' => !empty($errors),
     'sesskey' => sesskey(),
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
 ];
 
 // Render and output
-    'has_navigation' => true,
-    'navigation_html' => get_navigation_html(),
 echo render_template('admin/user_edit', $context);

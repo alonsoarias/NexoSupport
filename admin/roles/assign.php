@@ -92,6 +92,8 @@ if ($userid > 0) {
         'has_errors' => !empty($errors),
         'errors' => $errors,
         'roles' => $roles,
+        'has_navigation' => true,
+        'navigation_html' => get_navigation_html(),
     ];
 
 } elseif ($roleid > 0) {
@@ -126,12 +128,12 @@ if ($userid > 0) {
         'has_no_users' => empty($roleusers),
         'has_users' => !empty($roleusers),
         'users' => $users,
+        'has_navigation' => true,
+        'navigation_html' => get_navigation_html(),
     ];
 
 } else {
     redirect('/admin/users', get_string('mustselectuserrole'));
 }
 
-    'has_navigation' => true,
-    'navigation_html' => get_navigation_html(),
 echo render_template('admin/role_assign', $context);

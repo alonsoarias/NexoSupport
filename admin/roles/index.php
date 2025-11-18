@@ -85,10 +85,10 @@ if ($delete && confirm_sesskey()) {
             'confirmhash' => md5($delete),
             'returnurl' => $returnurl,
             'sesskey' => sesskey(),
+            'has_navigation' => true,
+            'navigation_html' => get_navigation_html(),
         ];
 
-    'has_navigation' => true,
-    'navigation_html' => get_navigation_html(),
         echo render_template('admin/role_delete_confirm', $context);
         exit;
     } else {
@@ -149,9 +149,9 @@ $context = [
     'roles' => $rolesformatted,
     'hasroles' => !empty($rolesformatted),
     'canmanageroles' => has_capability('nexosupport/admin:manageroles'),
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
 ];
 
 // Render and output
-    'has_navigation' => true,
-    'navigation_html' => get_navigation_html(),
 echo render_template('admin/role_list', $context);
