@@ -70,6 +70,24 @@ try {
     error_log('Error saving core version: ' . $e->getMessage());
 }
 
+// Guardar site administrators en config
+// Similar a Moodle: config.siteadmins contiene IDs de usuarios super administradores
+try {
+    if (isset($_SESSION['admin_userid'])) {
+        $adminuserid = $_SESSION['admin_userid'];
+
+        $siteadminsRecord = new stdClass();
+        $siteadminsRecord->name = 'siteadmins';
+        $siteadminsRecord->value = (string)$adminuserid; // ID del primer admin
+
+        $GLOBALS['DB']->insert_record('config', $siteadminsRecord);
+
+        debugging("Site administrator set: userid={$adminuserid}", DEBUG_DEVELOPER);
+    }
+} catch (Exception $e) {
+    error_log('Error saving site administrators: ' . $e->getMessage());
+}
+
 // La instalación está completa cuando:
 // 1. Existe el archivo .env (creado en stage database)
 // 2. La BD tiene la tabla config con datos
