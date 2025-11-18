@@ -250,4 +250,24 @@ class access {
     public static function clear_all_cache(): void {
         self::$cache = [];
     }
+
+    /**
+     * Get all roles assigned to a user in a context
+     *
+     * @param int $userid
+     * @param context $context
+     * @return array Array of role objects
+     */
+    public static function get_user_roles(int $userid, context $context): array {
+        global $DB;
+
+        $sql = "SELECT r.*
+                FROM {roles} r
+                JOIN {role_assignments} ra ON ra.roleid = r.id
+                WHERE ra.userid = ?
+                  AND ra.contextid = ?
+                ORDER BY r.sortorder";
+
+        return $DB->get_records_sql($sql, [$userid, $context->id]);
+    }
 }

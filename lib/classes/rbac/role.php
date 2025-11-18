@@ -303,4 +303,59 @@ class role {
 
         return $DB->get_records_sql($sql, [$this->id, $context->id]);
     }
+
+    /**
+     * Update role (static wrapper)
+     *
+     * @param object $roledata Object with id and fields to update
+     * @return bool
+     */
+    public static function update(object $roledata): bool {
+        global $DB;
+
+        if (!isset($roledata->id)) {
+            throw new \coding_exception('Role ID is required');
+        }
+
+        $role = self::get_by_id($roledata->id);
+        if (!$role) {
+            throw new \coding_exception('Role not found');
+        }
+
+        $record = new \stdClass();
+        $record->id = $roledata->id;
+
+        if (isset($roledata->name)) {
+            $record->name = $roledata->name;
+        }
+
+        if (isset($roledata->description)) {
+            $record->description = $roledata->description;
+        }
+
+        if (isset($roledata->shortname)) {
+            $record->shortname = $roledata->shortname;
+        }
+
+        if (isset($roledata->archetype)) {
+            $record->archetype = $roledata->archetype;
+        }
+
+        return $DB->update_record('roles', $record);
+    }
+
+    /**
+     * Delete role by ID (static wrapper)
+     *
+     * @param int $roleid
+     * @return bool
+     */
+    public static function delete(int $roleid): bool {
+        $role = self::get_by_id($roleid);
+        if (!$role) {
+            return false;
+        }
+
+        return $role->delete();
+    }
 }

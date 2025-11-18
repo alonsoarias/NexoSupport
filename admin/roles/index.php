@@ -8,11 +8,7 @@
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 require_login();
-
-// Check permission
-if (!has_capability('nexosupport/role:view')) {
-    throw new moodle_exception('nopermissions');
-}
+require_capability('nexosupport/admin:manageroles');
 
 global $USER;
 
@@ -162,9 +158,9 @@ $syscontext = context::system();
     <h1>Gestión de Roles y Permisos</h1>
     <p>Usuario: <?php echo htmlspecialchars($USER->firstname . ' ' . $USER->lastname); ?></p>
 
-    <?php if (has_capability('nexosupport/role:manage')): ?>
+    <?php if (has_capability('nexosupport/admin:manageroles')): ?>
     <div style="margin-bottom: 20px;">
-        <a href="/admin/roles/define.php" class="btn">Crear Nuevo Rol</a>
+        <a href="/admin/roles/edit?id=0" class="btn">Crear Nuevo Rol</a>
     </div>
     <?php endif; ?>
 
@@ -207,9 +203,11 @@ $syscontext = context::system();
                     <strong><?php echo $usercount; ?></strong> usuario(s) con este rol
                 </div>
 
-                <?php if (has_capability('nexosupport/role:manage')): ?>
+                <?php if (has_capability('nexosupport/admin:manageroles')): ?>
                 <div style="margin-top: 15px;">
-                    <a href="/admin/roles/define.php?roleid=<?php echo $role->id; ?>" class="btn">Editar</a>
+                    <a href="/admin/roles/edit?id=<?php echo $role->id; ?>" class="btn">Editar Rol</a>
+                    <a href="/admin/roles/define?roleid=<?php echo $role->id; ?>" class="btn">Capabilities</a>
+                    <a href="/admin/roles/assign?roleid=<?php echo $role->id; ?>" class="btn">Ver Usuarios</a>
                 </div>
                 <?php endif; ?>
             </div>
@@ -219,9 +217,7 @@ $syscontext = context::system();
     <?php if (empty($roles)): ?>
         <div style="background: white; padding: 40px; text-align: center; border-radius: 8px;">
             <p style="font-size: 18px; color: #999;">No hay roles definidos en el sistema</p>
-            <?php if (has_capability('nexosupport/role:manage')): ?>
-                <a href="/admin/roles/define.php" class="btn">Crear Primer Rol</a>
-            <?php endif; ?>
+            <a href="/admin/roles/edit?id=0" class="btn">Crear Primer Rol</a>
         </div>
     <?php endif; ?>
 </body>
