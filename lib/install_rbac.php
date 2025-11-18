@@ -40,6 +40,8 @@ function install_rbac_system(): bool {
             if (!$existing) {
                 $record = new stdClass();
                 $record->name = $cap['name'];
+                $record->captype = $cap['captype'];
+                $record->contextlevel = $cap['contextlevel'];
                 $record->component = $cap['component'];
                 $record->riskbitmask = $cap['riskbitmask'];
 
@@ -148,11 +150,36 @@ function get_system_capabilities(): array {
         // Admin capabilities
         [
             'name' => 'nexosupport/admin:viewdashboard',
+            'captype' => 'read',
+            'contextlevel' => 10, // CONTEXT_SYSTEM
             'component' => 'core',
             'riskbitmask' => 0
         ],
         [
             'name' => 'nexosupport/admin:manageconfig',
+            'captype' => 'write',
+            'contextlevel' => 10,
+            'component' => 'core',
+            'riskbitmask' => 8 // RISK_CONFIG
+        ],
+        [
+            'name' => 'nexosupport/admin:manageusers',
+            'captype' => 'write',
+            'contextlevel' => 10,
+            'component' => 'core',
+            'riskbitmask' => 8 // RISK_CONFIG
+        ],
+        [
+            'name' => 'nexosupport/admin:manageroles',
+            'captype' => 'write',
+            'contextlevel' => 10,
+            'component' => 'core',
+            'riskbitmask' => 8 // RISK_CONFIG
+        ],
+        [
+            'name' => 'nexosupport/admin:assignroles',
+            'captype' => 'write',
+            'contextlevel' => 10,
             'component' => 'core',
             'riskbitmask' => 8 // RISK_CONFIG
         ],
@@ -160,31 +187,43 @@ function get_system_capabilities(): array {
         // User capabilities
         [
             'name' => 'nexosupport/user:view',
+            'captype' => 'read',
+            'contextlevel' => 10,
             'component' => 'core',
             'riskbitmask' => 0
         ],
         [
             'name' => 'nexosupport/user:viewown',
+            'captype' => 'read',
+            'contextlevel' => 30, // CONTEXT_USER
             'component' => 'core',
             'riskbitmask' => 0
         ],
         [
             'name' => 'nexosupport/user:create',
+            'captype' => 'write',
+            'contextlevel' => 10,
             'component' => 'core',
             'riskbitmask' => 4 // RISK_SPAM
         ],
         [
             'name' => 'nexosupport/user:update',
+            'captype' => 'write',
+            'contextlevel' => 10,
             'component' => 'core',
             'riskbitmask' => 4
         ],
         [
             'name' => 'nexosupport/user:updateown',
+            'captype' => 'write',
+            'contextlevel' => 30,
             'component' => 'core',
             'riskbitmask' => 0
         ],
         [
             'name' => 'nexosupport/user:delete',
+            'captype' => 'write',
+            'contextlevel' => 10,
             'component' => 'core',
             'riskbitmask' => 16 // RISK_DATALOSS
         ],
@@ -192,16 +231,22 @@ function get_system_capabilities(): array {
         // Role capabilities
         [
             'name' => 'nexosupport/role:view',
+            'captype' => 'read',
+            'contextlevel' => 10,
             'component' => 'core',
             'riskbitmask' => 0
         ],
         [
             'name' => 'nexosupport/role:manage',
+            'captype' => 'write',
+            'contextlevel' => 10,
             'component' => 'core',
             'riskbitmask' => 8
         ],
         [
             'name' => 'nexosupport/role:assign',
+            'captype' => 'write',
+            'contextlevel' => 10,
             'component' => 'core',
             'riskbitmask' => 8
         ],
@@ -209,6 +254,8 @@ function get_system_capabilities(): array {
         // Log capabilities
         [
             'name' => 'nexosupport/log:view',
+            'captype' => 'read',
+            'contextlevel' => 10,
             'component' => 'core',
             'riskbitmask' => 0
         ],
@@ -216,6 +263,8 @@ function get_system_capabilities(): array {
         // System capabilities
         [
             'name' => 'nexosupport/system:manage',
+            'captype' => 'write',
+            'contextlevel' => 10,
             'component' => 'core',
             'riskbitmask' => 8
         ],

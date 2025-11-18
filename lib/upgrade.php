@@ -65,6 +65,63 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // Upgrade to v1.1.1 (2025011801) - Fix Missing Capabilities
+    // =========================================================
+    if ($oldversion < 2025011801) {
+
+        require_once(__DIR__ . '/install_rbac.php');
+
+        try {
+            $syscontext = \core\rbac\context::system();
+            $adminrole = \core\rbac\role::get_by_shortname('administrator');
+
+            if ($adminrole) {
+                // Get all capabilities from system
+                $capabilities = get_system_capabilities();
+
+                // Install any missing capabilities and assign to administrator
+                foreach ($capabilities as $cap) {
+                    // Check if capability exists
+                    $existing = $DB->get_record('capabilities', ['name' => $cap['name']]);
+
+                    if (!$existing) {
+                        // Insert new capability
+                        $record = new stdClass();
+                        $record->name = $cap['name'];
+                        $record->captype = $cap['captype'];
+                        $record->contextlevel = $cap['contextlevel'];
+                        $record->component = $cap['component'];
+                        $record->riskbitmask = $cap['riskbitmask'];
+
+                        $DB->insert_record('capabilities', $record);
+                        debugging("Installed missing capability: {$cap['name']}", DEBUG_DEVELOPER);
+                    }
+
+                    // Assign to administrator if not already assigned
+                    $existing_perm = $DB->get_record('role_capabilities', [
+                        'roleid' => $adminrole->id,
+                        'capability' => $cap['name'],
+                        'contextid' => $syscontext->id
+                    ]);
+
+                    if (!$existing_perm) {
+                        $adminrole->assign_capability(
+                            $cap['name'],
+                            \core\rbac\access::PERMISSION_ALLOW,
+                            $syscontext
+                        );
+                        debugging("Assigned capability {$cap['name']} to administrator", DEBUG_DEVELOPER);
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            debugging('Error installing missing capabilities: ' . $e->getMessage());
+        }
+
+        upgrade_core_savepoint(true, 2025011801);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 
