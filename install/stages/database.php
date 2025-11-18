@@ -80,7 +80,7 @@ $dbprefix = $_POST['dbprefix'] ?? 'nxs_';
 <h2>Configure la conexión a la base de datos</h2>
 
 <div class="progress">
-    <div class="progress-bar" style="width: <?php echo $progress; %>%"></div>
+    <div class="progress-bar" style="width: <?php echo $progress . '%'; ?>"></div>
 </div>
 
 <?php if ($error): ?>
