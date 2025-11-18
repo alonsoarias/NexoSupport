@@ -1092,3 +1092,16 @@ function s($var) {
     }
     return htmlspecialchars((string)$var, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
+
+/**
+ * Get navigation HTML
+ *
+ * Renders the Moodle-style navigation sidebar for the current page.
+ * This function initializes and renders the navigation manager.
+ *
+ * @return string Navigation HTML
+ */
+function get_navigation_html(): string {
+    \core\navigation\nav_manager::init();
+    return \core\navigation\nav_manager::render();
+}
