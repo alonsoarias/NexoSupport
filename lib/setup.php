@@ -217,33 +217,17 @@ if ($CFG->installed && $DB !== null) {
         str_contains($uri, '/theme/') // Assets de themes
     );
 
-    // IMPORTANTE: Solo verificar upgrades si hay un usuario logueado Y es siteadmin
-    // Esto previene:
-    // 1. Redirecciones a upgrade.php justo después de instalar (usuario no logueado)
-    // 2. Usuarios normales viendo página de upgrade (solo siteadmins pueden actualizar)
-    $has_logged_user = isset($USER->id) && $USER->id > 0;
-    $is_admin = $has_logged_user && is_siteadmin($USER->id);
+    // NOTE: Upgrade detection is now handled in public_html/index.php
+    // using environment_checker BEFORE loading this file.
+    // This ensures upgrade happens regardless of login status.
+    //
+    // We only mark upgrade_pending flag here for templates to show notifications.
 
-    if (!$skip_upgrade_check && $is_admin) {
+    if (!$skip_upgrade_check) {
         require_once(__DIR__ . '/upgrade.php');
 
         if (core_upgrade_required()) {
-            // Mostrar notificación en lugar de redirección forzada
-            // El administrador debe ir manualmente a /admin/upgrade.php
-            // Esto es más seguro y da control al administrador
-
-            // OPCIONAL: Si queremos redirección automática (como Moodle)
-            // descomentamos las siguientes líneas:
-            /*
-            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-            $host = $_SERVER['HTTP_HOST'];
-            $upgradeUrl = $protocol . '://' . $host . '/admin/upgrade.php';
-
-            header('Location: ' . $upgradeUrl);
-            exit;
-            */
-
-            // Por ahora, solo marcamos que hay upgrade pendiente
+            // Mark that upgrade is pending (for notifications in templates)
             $CFG->upgrade_pending = true;
         }
     }

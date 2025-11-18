@@ -120,6 +120,23 @@ if ($DB === null) {
 }
 
 // ============================================
+// VERIFICAR SI NECESITA ACTUALIZACIÓN (Patrón Moodle)
+// ============================================
+// CRITICAL: Must check if upgrade is needed BEFORE routing
+// Similar to Moodle: if upgrade needed, redirect to upgrade page
+
+if ($envChecker->needs_upgrade()) {
+    // Upgrade needed - only allow access to upgrade page
+    if ($uri !== '/admin/upgrade.php' && !str_starts_with($uri, '/admin/upgrade.php')) {
+        // Redirect to upgrade page
+        header('Location: /admin/upgrade.php');
+        exit;
+    }
+
+    // If accessing upgrade page, let it through (will be handled by routing)
+}
+
+// ============================================
 // ROUTING
 // ============================================
 
