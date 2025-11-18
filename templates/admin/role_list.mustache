@@ -132,6 +132,45 @@
         .btn:hover {
             background: #5568d3;
         }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .system-role-badge {
+            background: #ffc107;
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -149,7 +188,12 @@
     <div class="roles-grid">
         {{#roles}}
             <div class="role-card">
-                <h3>{{{name}}}</h3>
+                <h3>
+                    {{{name}}}
+                    {{#issystemrole}}
+                        <span class="system-role-badge">{{#str}}systemrole,core{{/str}}</span>
+                    {{/issystemrole}}
+                </h3>
                 <div class="shortname">{{#str}}code,core{{/str}}: {{{shortname}}}</div>
 
                 {{#hasdescription}}
@@ -180,10 +224,22 @@
                 </div>
 
                 {{#canmanageroles}}
-                <div style="margin-top: 15px;">
-                    <a href="/admin/roles/edit?id={{id}}" class="btn">{{#str}}editrole,core{{/str}}</a>
-                    <a href="/admin/roles/define?roleid={{id}}" class="btn">{{#str}}capabilities,core{{/str}}</a>
-                    <a href="/admin/roles/assign?roleid={{id}}" class="btn">{{#str}}users,core{{/str}}</a>
+                <div class="action-buttons">
+                    <a href="/admin/roles/edit?id={{id}}" class="btn btn-sm">{{#str}}edit,core{{/str}}</a>
+                    <a href="/admin/roles/define?roleid={{id}}" class="btn btn-sm">{{#str}}capabilities,core{{/str}}</a>
+                    <a href="/admin/roles/assign?roleid={{id}}" class="btn btn-sm">{{#str}}users,core{{/str}}</a>
+
+                    {{#canmoveup}}
+                        <a href="/admin/roles?moveup={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-secondary">↑ {{#str}}moveup,core{{/str}}</a>
+                    {{/canmoveup}}
+
+                    {{#canmovedown}}
+                        <a href="/admin/roles?movedown={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-secondary">↓ {{#str}}movedown,core{{/str}}</a>
+                    {{/canmovedown}}
+
+                    {{#candelete}}
+                        <a href="/admin/roles?delete={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-danger" onclick="return confirm('{{#str}}confirmdeleterole,core{{/str}}');">{{#str}}delete,core{{/str}}</a>
+                    {{/candelete}}
                 </div>
                 {{/canmanageroles}}
             </div>

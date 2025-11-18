@@ -358,4 +358,103 @@ class role {
 
         return $role->delete();
     }
+
+    /**
+     * Move role up in sort order
+     *
+     * @return bool
+     */
+    public function move_up(): bool {
+        global $DB;
+
+        // Get role with lower sortorder (the one above this one)
+        $sql = "SELECT * FROM {roles}
+                WHERE sortorder < ?
+                ORDER BY sortorder DESC
+                LIMIT 1";
+
+        $previousrole = $DB->get_record_sql($sql, [$this->sortorder]);
+
+        if (!$previousrole) {
+            // Already at top
+            return false;
+        }
+
+        // Swap sortorder
+        return $this->switch_with_role($previousrole->id);
+    }
+
+    /**
+     * Move role down in sort order
+     *
+     * @return bool
+     */
+    public function move_down(): bool {
+        global $DB;
+
+        // Get role with higher sortorder (the one below this one)
+        $sql = "SELECT * FROM {roles}
+                WHERE sortorder > ?
+                ORDER BY sortorder ASC
+                LIMIT 1";
+
+        $nextrole = $DB->get_record_sql($sql, [$this->sortorder]);
+
+        if (!$nextrole) {
+            // Already at bottom
+            return false;
+        }
+
+        // Swap sortorder
+        return $this->switch_with_role($nextrole->id);
+    }
+
+    /**
+     * Switch sortorder with another role
+     *
+     * @param int $otherrole ID of role to switch with
+     * @return bool
+     */
+    private function switch_with_role(int $otherroleid): bool {
+        global $DB;
+
+        $otherrole = $DB->get_record('roles', ['id' => $otherroleid]);
+
+        if (!$otherrole) {
+            return false;
+        }
+
+        // Swap sortorders
+        $mysortorder = $this->sortorder;
+        $othersortorder = $otherrole->sortorder;
+
+        // Update other role first
+        $DB->update_record('roles', [
+            'id' => $otherrole->id,
+            'sortorder' => $mysortorder
+        ]);
+
+        // Update this role
+        $DB->update_record('roles', [
+            'id' => $this->id,
+            'sortorder' => $othersortorder
+        ]);
+
+        // Update local sortorder
+        $this->sortorder = $othersortorder;
+
+        return true;
+    }
+
+    /**
+     * Check if role is a system role (cannot be deleted)
+     *
+     * System roles are: administrator, manager, user, guest
+     *
+     * @return bool
+     */
+    public function is_system_role(): bool {
+        $systemroles = ['administrator', 'manager', 'user', 'guest'];
+        return in_array($this->shortname, $systemroles);
+    }
 }

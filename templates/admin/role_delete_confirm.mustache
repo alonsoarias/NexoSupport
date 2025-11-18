@@ -1,0 +1,173 @@
+{{!
+    Role Delete Confirmation Template
+
+    Context:
+    * user - Current logged in user
+    * showadmin - Show admin link
+    * targetrole - Role to be deleted
+    * confirmhash - MD5 hash for confirmation
+    * returnurl - URL to return to
+    * sesskey - Session key
+}}
+<!DOCTYPE html>
+<html lang="{{currentlang}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{#str}}confirmdelete,core{{/str}} - {{#str}}sitename,core{{/str}}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .nav {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .nav a {
+            margin-right: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .confirm-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+
+        .confirm-box h2 {
+            color: #856404;
+            margin-top: 0;
+        }
+
+        .role-info {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .role-info dl {
+            margin: 0;
+        }
+
+        .role-info dt {
+            font-weight: 600;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .role-info dd {
+            margin: 5px 0 0 0;
+            color: #666;
+        }
+
+        .warning {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        .warning strong {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    {{> core/nav}}
+
+    <div class="confirm-box">
+        <h2>{{#str}}confirmdelete,core{{/str}}</h2>
+
+        <p>{{#str}}confirmdeleterole,core{{/str}}</p>
+
+        <div class="role-info">
+            <dl>
+                <dt>ID:</dt>
+                <dd>{{targetrole.id}}</dd>
+
+                <dt>{{#str}}name,core{{/str}}:</dt>
+                <dd>{{targetrole.name}}</dd>
+
+                <dt>{{#str}}roleshortname,core{{/str}}:</dt>
+                <dd>{{targetrole.shortname}}</dd>
+
+                {{#targetrole.description}}
+                <dt>{{#str}}description,core{{/str}}:</dt>
+                <dd>{{targetrole.description}}</dd>
+                {{/targetrole.description}}
+
+                <dt>{{#str}}users,core{{/str}}:</dt>
+                <dd>{{targetrole.usercount}} {{#str}}users,core{{/str}}</dd>
+            </dl>
+        </div>
+
+        <div class="warning">
+            <strong>{{#str}}warning,core{{/str}}:</strong>
+            <ul>
+                <li>Se eliminará el rol del sistema</li>
+                <li>Se removerán todas las asignaciones de este rol ({{targetrole.usercount}} usuarios)</li>
+                <li>Se eliminarán todos los permisos asociados al rol</li>
+                <li>Esta acción no se puede deshacer</li>
+            </ul>
+        </div>
+
+        <div class="actions">
+            <a href="/admin/roles?delete={{targetrole.id}}&confirm={{confirmhash}}&sesskey={{sesskey}}"
+               class="btn btn-danger">
+                {{#str}}delete,core{{/str}}
+            </a>
+            <a href="{{returnurl}}" class="btn btn-secondary">
+                {{#str}}cancel,core{{/str}}
+            </a>
+        </div>
+    </div>
+
+{{> core/footer}}

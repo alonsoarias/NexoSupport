@@ -317,3 +317,10 @@ $string['cannotunlockuser'] = 'Cannot unlock this user';
 $string['confirmdelete'] = 'Are you sure you want to delete this user?';
 $string['confirmdeleteuser'] = 'Are you sure you want to permanently delete user {$a}?';
 $string['never'] = 'Never';
+
+// Role management actions (v1.1.3)
+$string['moveup'] = 'Move up';
+$string['movedown'] = 'Move down';
+$string['confirmdeleterole'] = 'Are you sure you want to delete this role?';
+$string['cannotdeletesystemrole'] = 'Cannot delete a system role';
+$string['errordeletingrole'] = 'Error deleting role';

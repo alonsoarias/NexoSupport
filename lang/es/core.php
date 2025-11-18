@@ -317,3 +317,10 @@ $string['cannotunlockuser'] = 'No se puede desbloquear este usuario';
 $string['confirmdelete'] = '¿Está seguro de que desea eliminar este usuario?';
 $string['confirmdeleteuser'] = '¿Está seguro de que desea eliminar permanentemente al usuario {$a}?';
 $string['never'] = 'Nunca';
+
+// Role management actions (v1.1.3)
+$string['moveup'] = 'Subir';
+$string['movedown'] = 'Bajar';
+$string['confirmdeleterole'] = '¿Está seguro de que desea eliminar este rol?';
+$string['cannotdeletesystemrole'] = 'No se puede eliminar un rol del sistema';
+$string['errordeletingrole'] = 'Error al eliminar el rol';
