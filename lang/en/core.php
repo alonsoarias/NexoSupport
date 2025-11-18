@@ -377,3 +377,67 @@ $string['validateerror'] = 'Validation error';
 $string['notnumeric'] = 'Value must be numeric';
 $string['numbertoosmall'] = 'Number is too small (minimum: {$a})';
 $string['numbertoobig'] = 'Number is too large (maximum: {$a})';
+
+// Password management (v1.1.4)
+$string['changepassword'] = 'Change password';
+$string['oldpassword'] = 'Current password';
+$string['newpassword'] = 'New password';
+$string['passwordchanged'] = 'Password changed';
+$string['passwordsdiffer'] = 'These passwords do not match';
+$string['mustchangepassword'] = 'The new password must be different from the current one';
+$string['logoutothersessions'] = 'Log out of other devices';
+$string['forcepasswordchangenotice'] = 'You must change your password to proceed';
+$string['passwordforgotten'] = 'Forgotten password';
+$string['passwordforgotteninstructions2'] = 'To reset your password, submit your username or email address. If we can find you in the database, an email will be sent to your email address with instructions on how to get access again.';
+$string['searchbyusername'] = 'Search by username';
+$string['searchbyemail'] = 'Search by email address';
+$string['usernameoremail'] = 'Enter either username or email address';
+$string['emailnotfound'] = 'The email address is not registered in the system';
+$string['usernamenotfound'] = 'The username does not exist in the database';
+$string['confirmednot'] = 'Your account has not been confirmed yet. Please check your email.';
+$string['emailpasswordconfirmmaybesent'] = 'If the information you provided is correct, an email has been sent to your address.';
+$string['emailpasswordconfirmnotsent'] = 'The data you provided does not match any account. Please check and try again.';
+$string['emailpasswordconfirmnoemail'] = 'The account has no email address registered.';
+$string['emailalreadysent'] = 'A password reset email has already been sent recently. Please check your inbox.';
+$string['emailpasswordconfirmsent'] = 'An email has been sent to ******@{$a}';
+$string['emailresetconfirmsent'] = 'An email has been sent to ******@{$a} with instructions to reset your password.';
+$string['emailresetconfirmation'] = 'Hi {$a->firstname} {$a->lastname},
+
+A password reset has been requested for your account at {$a->sitename}.
+
+To confirm this change and set a new password, go to the following web address:
+
+{$a->link}
+
+If you did not request this, please ignore this message.
+
+In most mail programs, this should appear as a blue link which you can just click on. If that does not work, then cut and paste the address into the address line at the top of your web browser window.
+
+If you need help, please contact the site administrator.';
+$string['emailresetconfirmationsubject'] = '{$a}: Password change confirmation';
+$string['emailpasswordchangeinfo'] = 'Hi {$a->firstname} {$a->lastname},
+
+A password reset has been requested for your account at \'{$a->sitename}\'.
+
+To change your password, please contact the site administrator:
+
+{$a->supportemail}';
+$string['emailpasswordchangeinfosubject'] = '{$a}: Password change information';
+$string['setpassword'] = 'Set password';
+$string['setpasswordinstructions'] = 'Please enter your new password below, then click "Save changes".';
+$string['passwordset'] = 'Your password has been set';
+$string['noresetrecord'] = 'There is no record of this password reset request. Please start a new request.';
+$string['resetrecordexpired'] = 'The password reset link you used has expired. The link is valid for only {$a} minutes. Please start a new request.';
+$string['cannotresetguestpwd'] = 'You cannot reset the guest user password';
+$string['cannotmailconfirm'] = 'Could not send the confirmation email';
+$string['alreadyconfirmed'] = 'Your account has already been confirmed';
+$string['confirmed'] = 'Your account has been confirmed';
+$string['invalidconfirmdata'] = 'Invalid confirmation data';
+$string['errorwhenconfirming'] = 'Error confirming account';
+$string['thanks'] = 'Thanks';
+$string['participants'] = 'Participants';
+$string['again'] = 'again';
+$string['continue'] = 'Continue';
+$string['required'] = 'Required';
+$string['loginalready'] = 'You are already logged in';
+$string['administrator'] = 'Administrator';

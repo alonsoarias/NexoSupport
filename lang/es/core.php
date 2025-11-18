@@ -377,3 +377,67 @@ $string['validateerror'] = 'Error de validación';
 $string['notnumeric'] = 'El valor debe ser numérico';
 $string['numbertoosmall'] = 'El número es muy pequeño (mínimo: {$a})';
 $string['numbertoobig'] = 'El número es muy grande (máximo: {$a})';
+
+// Password management (v1.1.4)
+$string['changepassword'] = 'Cambiar contraseña';
+$string['oldpassword'] = 'Contraseña actual';
+$string['newpassword'] = 'Nueva contraseña';
+$string['passwordchanged'] = 'Contraseña cambiada';
+$string['passwordsdiffer'] = 'Las contraseñas no coinciden';
+$string['mustchangepassword'] = 'La nueva contraseña debe ser diferente de la actual';
+$string['logoutothersessions'] = 'Cerrar sesión en otros dispositivos';
+$string['forcepasswordchangenotice'] = 'Debe cambiar su contraseña para continuar';
+$string['passwordforgotten'] = 'Contraseña olvidada';
+$string['passwordforgotteninstructions2'] = 'Para restablecer su contraseña, envíe su nombre de usuario o dirección de correo electrónico. Si lo encontramos en la base de datos, le enviaremos un correo electrónico con instrucciones sobre cómo obtener acceso nuevamente.';
+$string['searchbyusername'] = 'Buscar por nombre de usuario';
+$string['searchbyemail'] = 'Buscar por dirección de correo';
+$string['usernameoremail'] = 'Ingrese su nombre de usuario o correo electrónico';
+$string['emailnotfound'] = 'La dirección de correo no está registrada en el sistema';
+$string['usernamenotfound'] = 'El nombre de usuario no existe en la base de datos';
+$string['confirmednot'] = 'Su cuenta aún no ha sido confirmada. Revise su correo electrónico.';
+$string['emailpasswordconfirmmaybesent'] = 'Si la información proporcionada es correcta, se ha enviado un correo a su dirección.';
+$string['emailpasswordconfirmnotsent'] = 'Los datos que proporcionó no coinciden con ninguna cuenta. Verifique e intente nuevamente.';
+$string['emailpasswordconfirmnoemail'] = 'La cuenta no tiene dirección de correo registrada.';
+$string['emailalreadysent'] = 'Ya se ha enviado un correo de restablecimiento de contraseña recientemente. Por favor revise su bandeja de entrada.';
+$string['emailpasswordconfirmsent'] = 'Se ha enviado un correo a ******@{$a}';
+$string['emailresetconfirmsent'] = 'Se ha enviado un correo a ******@{$a} con instrucciones para restablecer su contraseña.';
+$string['emailresetconfirmation'] = 'Hola {$a->firstname} {$a->lastname},
+
+Se ha solicitado un restablecimiento de contraseña para su cuenta en {$a->sitename}.
+
+Para confirmar este cambio y establecer una nueva contraseña, haga clic en el siguiente enlace:
+
+{$a->link}
+
+Si no solicitó esto, por favor ignore este mensaje.
+
+En la mayoría de programas de correo, esto debería aparecer como un enlace en el que puede hacer clic. Si no funciona, copie y pegue la dirección en la barra de direcciones de su navegador.
+
+Si necesita ayuda, póngase en contacto con el administrador del sitio.';
+$string['emailresetconfirmationsubject'] = '{$a}: Confirmación de cambio de contraseña';
+$string['emailpasswordchangeinfo'] = 'Hola {$a->firstname} {$a->lastname},
+
+Se ha solicitado un restablecimiento de contraseña para su cuenta en \'{$a->sitename}\'.
+
+Para cambiar su contraseña, póngase en contacto con el administrador del sitio:
+
+{$a->supportemail}';
+$string['emailpasswordchangeinfosubject'] = '{$a}: Información de cambio de contraseña';
+$string['setpassword'] = 'Establecer contraseña';
+$string['setpasswordinstructions'] = 'Ingrese su nueva contraseña a continuación y luego haga clic en "Guardar cambios".';
+$string['passwordset'] = 'Su contraseña ha sido establecida';
+$string['noresetrecord'] = 'No hay registro de esta solicitud de restablecimiento de contraseña. Por favor inicie una nueva solicitud.';
+$string['resetrecordexpired'] = 'El enlace de restablecimiento de contraseña que utilizó ha expirado. El enlace es válido solo por {$a} minutos. Por favor inicie una nueva solicitud.';
+$string['cannotresetguestpwd'] = 'No puede restablecer la contraseña del usuario invitado';
+$string['cannotmailconfirm'] = 'No se pudo enviar el correo de confirmación';
+$string['alreadyconfirmed'] = 'Su cuenta ya ha sido confirmada';
+$string['confirmed'] = 'Su cuenta ha sido confirmada';
+$string['invalidconfirmdata'] = 'Datos de confirmación inválidos';
+$string['errorwhenconfirming'] = 'Error al confirmar la cuenta';
+$string['thanks'] = 'Gracias';
+$string['participants'] = 'Participantes';
+$string['again'] = 'otra vez';
+$string['continue'] = 'Continuar';
+$string['required'] = 'Requerido';
+$string['loginalready'] = 'Ya ha iniciado sesión';
+$string['administrator'] = 'Administrador';

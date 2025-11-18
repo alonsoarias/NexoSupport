@@ -1,11 +1,35 @@
 # NexoSupport Changelog
 
-## Version 1.1.4 (2025-01-18) - Admin Settings System + Routing Fix
+## Version 1.1.4 (2025-01-18) - Admin Settings + Routing + Password Management
 
 ### 🎯 Overview
-Complete implementation of Moodle-compatible admin settings system with hierarchical categories and dynamic settings pages. Critical routing fix to enable direct access to all admin pages.
+Complete implementation of Moodle-compatible admin settings system with hierarchical categories and dynamic settings pages. Critical routing fix to enable direct access to all admin pages. Full password management system with change password, forgot password, and email confirmation features.
 
 ### ✨ New Features
+
+#### Password Management System
+- **Change Password**: Authenticated users can change their password
+  - Current password verification
+  - Password policy enforcement
+  - Option to logout other sessions
+  - Password history tracking
+- **Forgot Password**: Token-based password reset workflow
+  - Search by username or email
+  - Secure token generation (32 characters)
+  - Email confirmation with reset link
+  - Token expiration (1800 seconds default)
+  - Rate limiting protection
+- **Email Confirmation**: User account email verification
+  - Confirmation link sent to email
+  - Secret token validation
+  - Automatic login after confirmation
+  - Already confirmed detection
+- **Security Features**:
+  - Password hashing with PASSWORD_DEFAULT
+  - CSRF protection with sesskey
+  - Session management (logout other sessions)
+  - Account enumeration protection
+  - Token expiration and validation
 
 #### Admin Settings System
 - **Hierarchical Settings Tree**: Categories with pages and subsections
@@ -25,6 +49,24 @@ Complete implementation of Moodle-compatible admin settings system with hierarch
 4. **Development** - Debug mode, error display
 
 ### 📁 New Files
+
+#### Password Management (login/)
+- `login/lib.php` (370 lines) - Core password management functions
+  - core_login_process_password_reset_request() - Display forgot password form
+  - core_login_process_password_reset() - Process password reset
+  - core_login_process_password_set() - Set new password from token
+  - core_login_generate_password_reset() - Generate reset token
+  - core_login_get_return_url() - Get redirect URL after login
+  - send_password_change_confirmation_email() - Send reset email
+  - send_password_change_info() - Send password changed notification
+  - core_login_validate_forgot_password_data() - Validate form data
+  - user_add_password_history() - Track password history
+- `login/change_password_form.php` - Change password form with validation
+- `login/forgot_password_form.php` - Forgot password search form (username/email)
+- `login/set_password_form.php` - Set new password from reset token form
+- `login/change_password.php` - Change password page handler
+- `login/forgot_password.php` - Forgot password workflow handler
+- `login/confirm.php` - Email confirmation page handler
 
 #### Admin Setting Classes (lib/classes/admin/)
 - `admin_setting.php` - Base abstract class (150 lines)
@@ -83,13 +125,34 @@ Complete implementation of Moodle-compatible admin settings system with hierarch
 
 ### 🔧 Modified Files
 
+#### Password Management
+- `public_html/index.php` - Added password management routes
+  - GET/POST `/login/change_password`
+  - GET/POST `/login/forgot_password`
+  - GET `/login/confirm`
+
 #### Admin Pages
 - `admin/settings/index.php` - Complete rewrite using admin_setting classes
 - `lib/setup.php` - Added require for adminlib.php
 
 ### 🌍 Internationalization
 
-#### New Strings (52 total = 26 ES + 26 EN)
+#### New Strings (84 total = 42 ES + 42 EN)
+
+**Password Management (32 strings per language):**
+- changepassword, oldpassword, newpassword, passwordchanged
+- passwordsdiffer, passwordforgotten, passwordforgotteninstructions2
+- emailresetconfirmation, emailresetconfirmationsubject
+- emailpasswordchangeinfo, emailpasswordchangeinfosubject
+- setpassword, passwordset, invalidtoken, noresetrecord
+- logoutothersessions, passwordpolicynot, passwordpolicyinfocombined
+- mustchangepassword, invalidusernameupdate, cannotmailconfirm
+- invalidconfirmdata, errorwhenconfirming, alreadyconfirmed
+- emailconfirmation, emailconfirmationsubject
+- emailconfirmsent, emailconfirmsentfailure
+- policy_too_short, policy_missing_digit, policy_missing_upper, policy_missing_lower
+
+**Admin UI (26 strings per language):**
 - Admin UI: systemsettings, administration, savechanges, configsaved, pagenotfound, nopermission
 - Categories: generalsettings, usersettings, security, sessions, developmentsettings, passwordpolicy
 - Settings: sitename/help, sitedescription/help, defaultlang/help, etc.
@@ -123,15 +186,32 @@ Complete implementation of Moodle-compatible admin settings system with hierarch
 
 ### 📊 Statistics
 
-- **Classes Created**: 10 (admin_setting hierarchy)
-- **Functions Created**: 4 (adminlib.php)
+- **Classes Created**: 13 (10 admin_setting + 3 password forms)
+- **Functions Created**: 13 (4 adminlib.php + 9 login/lib.php)
 - **Templates Created**: 1 (settings_page.mustache)
-- **Files Modified**: 14 (config.php integration)
-- **New Files Total**: 16
-- **Language Strings Added**: 52 (26 per language)
-- **Lines of Code**: ~2,100+
+- **Pages Created**: 3 (change_password, forgot_password, confirm)
+- **Files Modified**: 15 (14 config.php integration + router)
+- **New Files Total**: 23 (16 admin + 7 password management)
+- **Language Strings Added**: 84 (42 per language)
+- **Lines of Code**: ~2,900+
 
 ### 🧪 Testing Checklist
+
+#### Password Management
+- [ ] Access `/login/change_password` while logged in
+- [ ] Change password with correct current password
+- [ ] Verify password policy validation (length, digits, upper/lower)
+- [ ] Test "logout other sessions" checkbox
+- [ ] Access `/login/forgot_password`
+- [ ] Submit password reset by username
+- [ ] Submit password reset by email
+- [ ] Check email for reset link
+- [ ] Click reset link and set new password
+- [ ] Verify token expiration (after 1800 seconds)
+- [ ] Test invalid token handling
+- [ ] Access `/login/confirm?data=secret/username`
+- [ ] Verify email confirmation workflow
+- [ ] Test already confirmed detection
 
 #### Admin Settings
 - [x] Access `/admin/settings`

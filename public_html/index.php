@@ -137,6 +137,27 @@ $router->get('/logout', function() {
     require(BASE_DIR . '/login/logout.php');
 });
 
+// Password management routes
+$router->get('/login/change_password', function() {
+    require(BASE_DIR . '/login/change_password.php');
+});
+
+$router->post('/login/change_password', function() {
+    require(BASE_DIR . '/login/change_password.php');
+});
+
+$router->get('/login/forgot_password', function() {
+    require(BASE_DIR . '/login/forgot_password.php');
+});
+
+$router->post('/login/forgot_password', function() {
+    require(BASE_DIR . '/login/forgot_password.php');
+});
+
+$router->get('/login/confirm', function() {
+    require(BASE_DIR . '/login/confirm.php');
+});
+
 // Admin routes
 $router->get('/admin', function() {
     require(BASE_DIR . '/admin/index.php');
