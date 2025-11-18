@@ -626,6 +626,12 @@ function xmldb_core_upgrade(int $oldversion): bool {
                 echo '<li style="color: orange;">⚠ ' . htmlspecialchars($purge_results['mustache']['message']) . '</li>';
             }
 
+            if (isset($purge_results['i18n']) && $purge_results['i18n']['success']) {
+                echo '<li style="color: green;">✓ Caché de i18n purgado exitosamente</li>';
+            } else if (isset($purge_results['i18n'])) {
+                echo '<li style="color: orange;">⚠ ' . htmlspecialchars($purge_results['i18n']['message']) . '</li>';
+            }
+
             if (isset($purge_results['application']) && $purge_results['application']['success']) {
                 $items = $purge_results['application']['items'] ?? [];
                 echo '<li style="color: green;">✓ Caché de aplicación purgado: ' . htmlspecialchars(implode(', ', $items)) . '</li>';

@@ -9,6 +9,7 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  * Manages different types of caches in NexoSupport:
  * - OPcache (PHP bytecode cache)
  * - Mustache templates (compiled templates)
+ * - i18n strings (language strings)
  * - Application cache (RBAC, config, etc.)
  * - Session cache
  *
@@ -26,6 +27,7 @@ class cache_manager {
 
         $results['opcache'] = self::purge_opcache();
         $results['mustache'] = self::purge_mustache_cache();
+        $results['i18n'] = self::purge_i18n_cache();
         $results['application'] = self::purge_application_cache();
         $results['rbac'] = self::purge_rbac_cache();
 
@@ -107,6 +109,37 @@ class cache_manager {
             return [
                 'success' => false,
                 'message' => 'Error purging Mustache cache: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Purge i18n string cache
+     *
+     * This clears the in-memory language string cache, forcing strings to be
+     * reloaded from disk. Useful after language file changes or updates.
+     *
+     * @return array Status and message
+     */
+    public static function purge_i18n_cache(): array {
+        try {
+            if (class_exists('\core\string_manager')) {
+                \core\string_manager::clear_cache();
+
+                return [
+                    'success' => true,
+                    'message' => 'i18n string cache purged successfully',
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'String manager class not found',
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error purging i18n cache: ' . $e->getMessage(),
             ];
         }
     }

@@ -38,6 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
                 $success = get_string('cachepurgedmustache', 'core');
                 break;
 
+            case 'i18n':
+                $purge_results['i18n'] = \core\cache\cache_manager::purge_i18n_cache();
+                $success = get_string('cachepurgedi18n', 'core');
+                break;
+
             case 'application':
                 $purge_results['application'] = \core\cache\cache_manager::purge_application_cache();
                 $success = get_string('cachepurgedapp', 'core');

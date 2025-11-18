@@ -46,6 +46,12 @@
                     </div>
                     {{/purge_results.mustache}}
 
+                    {{#purge_results.i18n}}
+                    <div class="purge-result {{#success}}text-success{{/success}}{{^success}}text-danger{{/success}}">
+                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{ strings.i18ncache }}:</strong> {{message}}
+                    </div>
+                    {{/purge_results.i18n}}
+
                     {{#purge_results.application}}
                     <div class="purge-result {{#success}}text-success{{/success}}{{^success}}text-danger{{/success}}">
                         {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{ strings.applicationcache }}:</strong> {{message}}
@@ -180,6 +186,14 @@
 
                             <form method="POST" action="" class="mb-3">
                                 <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="purge_type" value="i18n">
+                                <button type="submit" class="btn btn-warning btn-block">
+                                    🔄 {{ strings.purgei18ncache }}
+                                </button>
+                            </form>
+
+                            <form method="POST" action="" class="mb-3">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
                                 <input type="hidden" name="purge_type" value="application">
                                 <button type="submit" class="btn btn-warning btn-block">
                                     🔄 {{ strings.purgeappcache }}
@@ -203,6 +217,7 @@
                 <ul>
                     <li><strong>OPcache:</strong> {{ strings.opcachehelp }}</li>
                     <li><strong>{{ strings.mustachecache }}:</strong> {{ strings.mustachecachehelp }}</li>
+                    <li><strong>{{ strings.i18ncache }}:</strong> {{ strings.i18ncachehelp }}</li>
                     <li><strong>{{ strings.applicationcache }}:</strong> {{ strings.appcachehelp }}</li>
                     <li><strong>RBAC {{ strings.cache }}:</strong> {{ strings.rbaccachehelp }}</li>
                 </ul>
