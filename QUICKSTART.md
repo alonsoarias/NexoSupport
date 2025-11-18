@@ -75,8 +75,18 @@ chmod -R 777 var/
 php check.php
 ```
 
+## Problemas Después de la Instalación
+
+### Advertencias de mbstring en logs
+
+Si ves advertencias sobre `mbstring.http_input`, `mbstring.http_output`, etc.:
+- Ver `INSTALL.md` sección "Advertencias de mbstring deprecadas"
+- O consultar `.php.ini.recommended` para configuración completa
+- **Nota:** No afectan el funcionamiento, solo ensucian los logs
+
 ## ¿Necesitas más ayuda?
 
 - Guía completa: `INSTALL.md`
 - Documentación: `README.md`
+- Configuración PHP recomendada: `.php.ini.recommended`
 - Soporte: soporteplataformas@iser.edu.co

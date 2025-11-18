@@ -66,6 +66,7 @@ class router {
                 continue;
             }
 
+            $params = [];
             if ($this->match_path($route['path'], $uri, $params)) {
                 return $this->call_handler($route['handler'], $params);
             }

@@ -1,0 +1,96 @@
+; ================================================
+; NexoSupport - Configuración Recomendada de PHP
+; ================================================
+;
+; Este archivo contiene las configuraciones recomendadas
+; de PHP para NexoSupport.
+;
+; Para aplicar estas configuraciones:
+; 1. Localizar tu archivo php.ini
+; 2. Agregar/modificar estas directivas
+; 3. Reiniciar el servidor web
+;
+; ================================================
+
+; ----------------------------------------
+; Configuración Básica
+; ----------------------------------------
+memory_limit = 256M
+max_execution_time = 300
+max_input_time = 300
+post_max_size = 50M
+upload_max_filesize = 50M
+
+; ----------------------------------------
+; Zona Horaria
+; ----------------------------------------
+date.timezone = America/Bogota
+
+; ----------------------------------------
+; Errores y Logging
+; ----------------------------------------
+; Desarrollo:
+; error_reporting = E_ALL
+; display_errors = On
+; display_startup_errors = On
+
+; Producción:
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
+display_errors = Off
+display_startup_errors = Off
+log_errors = On
+error_log = /ruta/a/logs/php_errors.log
+
+; ----------------------------------------
+; Sesiones
+; ----------------------------------------
+session.save_handler = files
+session.save_path = "/tmp"
+session.gc_maxlifetime = 1440
+session.cookie_httponly = 1
+session.cookie_secure = 0  ; Cambiar a 1 en producción con HTTPS
+
+; ----------------------------------------
+; Seguridad
+; ----------------------------------------
+expose_php = Off
+allow_url_fopen = On
+allow_url_include = Off
+
+; ----------------------------------------
+; mbstring (PHP 8.x)
+; ----------------------------------------
+; IMPORTANTE: Comentar estas líneas obsoletas en PHP 8.x
+; para evitar advertencias de deprecación
+
+;mbstring.http_input = pass
+;mbstring.http_output = pass
+;mbstring.internal_encoding = UTF-8
+
+; En su lugar, usar:
+default_charset = "UTF-8"
+
+; ----------------------------------------
+; Extensiones Requeridas
+; ----------------------------------------
+; Verificar que estas extensiones estén habilitadas:
+; - extension=pdo
+; - extension=pdo_mysql
+; - extension=mbstring
+; - extension=json
+; - extension=openssl
+; - extension=curl
+
+; ----------------------------------------
+; OPcache (Recomendado para Producción)
+; ----------------------------------------
+opcache.enable=1
+opcache.memory_consumption=128
+opcache.interned_strings_buffer=8
+opcache.max_accelerated_files=10000
+opcache.revalidate_freq=2
+opcache.fast_shutdown=1
+
+; ================================================
+; Fin de Configuración Recomendada
+; ================================================

@@ -211,6 +211,52 @@ Verificar:
 composer dump-autoload
 ```
 
+### Advertencias de mbstring deprecadas (PHP 8.x)
+
+**Síntoma:** Mensajes en el log como:
+```
+PHP Deprecated: PHP Startup: Use of mbstring.http_input is deprecated
+PHP Deprecated: PHP Startup: Use of mbstring.http_output is deprecated
+PHP Deprecated: PHP Startup: Use of mbstring.internal_encoding is deprecated
+```
+
+**Causa:** Configuraciones obsoletas en `php.ini`
+
+**Solución:**
+
+**MAMP (Windows/Mac):**
+1. Abrir el archivo `php.ini`:
+   - MAMP: `/Applications/MAMP/bin/php/php8.x.x/conf/php.ini`
+   - MAMP Windows: `C:\MAMP\bin\php\php8.x.x\php.ini`
+
+2. Buscar y comentar (agregar `;` al inicio) estas líneas:
+```ini
+;mbstring.http_input = pass
+;mbstring.http_output = pass
+;mbstring.internal_encoding = UTF-8
+```
+
+3. Reiniciar MAMP/Apache
+
+**Linux (Apache/Nginx):**
+1. Editar php.ini:
+```bash
+sudo nano /etc/php/8.x/apache2/php.ini
+# o
+sudo nano /etc/php/8.x/fpm/php.ini
+```
+
+2. Comentar las mismas líneas
+
+3. Reiniciar servicio:
+```bash
+sudo systemctl restart apache2
+# o
+sudo systemctl restart php8.x-fpm
+```
+
+> **Nota:** Estas advertencias no afectan el funcionamiento del sistema, solo ensucian los logs.
+
 ## Configuración de Producción
 
 ### 1. Cambiar modo a producción
