@@ -43,7 +43,7 @@ if ($action === 'delete' && !$isNew) {
         $errors[] = get_string('systemrolewarning');
     } else {
         try {
-            \core\rbac\role::delete($roleid);
+            \core\rbac\role::delete_role($roleid);
             redirect('/admin/roles', get_string('roledeleted'));
         } catch (\Exception $e) {
             $errors[] = get_string('error') . ': ' . $e->getMessage();

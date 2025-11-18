@@ -350,7 +350,7 @@ class role {
      * @param int $roleid
      * @return bool
      */
-    public static function delete(int $roleid): bool {
+    public static function delete_role(int $roleid): bool {
         $role = self::get_by_id($roleid);
         if (!$role) {
             return false;
