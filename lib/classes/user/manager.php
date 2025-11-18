@@ -27,10 +27,9 @@ class manager {
         // Validaciones
         self::validate_user($user, true);
 
-        // Hash password si está presente
-        if (isset($user->password)) {
-            $user->password = password_hash($user->password, PASSWORD_DEFAULT);
-        }
+        // Extract password for separate processing
+        $password = $user->password ?? null;
+        unset($user->password);
 
         // Campos por defecto
         if (!isset($user->auth)) {
@@ -42,11 +41,26 @@ class manager {
         if (!isset($user->deleted)) {
             $user->deleted = 0;
         }
+        if (!isset($user->lang)) {
+            $user->lang = 'es';
+        }
 
         $user->timecreated = time();
         $user->timemodified = time();
 
+        // Create user record first (without password)
+        $user->password = ''; // Temporary empty password
         $userid = $DB->insert_record('users', $user);
+        $user->id = $userid;
+
+        // Now set the password using the auth system (applies password policy)
+        if ($password !== null) {
+            if (!update_user_password($user, $password)) {
+                // If password update fails, delete the user and throw exception
+                $DB->delete_records('users', ['id' => $userid]);
+                throw new \coding_exception('Failed to set user password - does not meet password policy');
+            }
+        }
 
         return $userid;
     }
@@ -66,19 +80,36 @@ class manager {
             throw new \coding_exception('User ID is required for update');
         }
 
+        // Get existing user for auth method
+        $existinguser = $DB->get_record('users', ['id' => $user->id]);
+        if (!$existinguser) {
+            throw new \coding_exception('User not found');
+        }
+
         // Validaciones
         self::validate_user($user, false);
 
-        // Hash password si está presente y ha cambiado
+        // Extract password for separate processing
+        $password = null;
         if (isset($user->password) && !empty($user->password)) {
-            $user->password = password_hash($user->password, PASSWORD_DEFAULT);
-        } else {
-            unset($user->password); // No actualizar si está vacío
+            $password = $user->password;
+        }
+        unset($user->password);
+
+        // Update user record (without password)
+        $user->timemodified = time();
+        $result = $DB->update_record('users', $user);
+
+        // Update password separately if provided (applies password policy)
+        if ($password !== null) {
+            // Reload user to get updated auth method if changed
+            $updateduser = $DB->get_record('users', ['id' => $user->id]);
+            if (!update_user_password($updateduser, $password)) {
+                throw new \coding_exception('Failed to update user password - does not meet password policy');
+            }
         }
 
-        $user->timemodified = time();
-
-        return $DB->update_record('users', $user);
+        return $result;
     }
 
     /**

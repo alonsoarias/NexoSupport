@@ -21,29 +21,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = required_param('username', PARAM_ALPHANUMEXT);
     $password = required_param('password', PARAM_RAW);
 
-    // Obtener plugin de autenticación configurado
-    $authmethod = get_config('core', 'auth') ?? 'manual';
-    $authplugin = \core\plugin\manager::get_auth_plugin($authmethod);
+    // Authenticate user using the auth plugin system
+    // If no specific auth method is set for the user, manual auth will be used
+    $user = authenticate_user_login($username, $password);
 
-    if (!$authplugin) {
-        $error = get_string('authpluginnotfound');
+    if ($user) {
+        // Login successful - create session
+        $_SESSION['USER'] = $user;
+        $USER = $user;
+
+        // Redirect to home
+        redirect('/');
     } else {
-        // Intentar autenticar
-        $user = $authplugin->authenticate($username, $password);
-
-        if ($user) {
-            // Login exitoso
-            $_SESSION['USER'] = $user;
-            $USER = $user;
-
-            // Hook post-login del plugin
-            $authplugin->post_login_hook($user);
-
-            // Redirigir al home
-            redirect('/');
-        } else {
-            $error = get_string('invalidlogin', 'core');
-        }
+        $error = get_string('invalidlogin', 'core');
     }
 }
 

@@ -55,10 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($password) || $isNew) {
         if ($password !== $password2) {
             $errors[] = get_string('passwordmismatch');
-        } elseif (strlen($password) < 8) {
-            $errors[] = get_string('passwordtooshort');
         } else {
-            $data->password = $password;
+            // Validate against password policy
+            $error = '';
+            if (!check_password_policy($password, $data->auth, $error)) {
+                $errors[] = $error;
+            } else {
+                $data->password = $password;
+            }
         }
     }
 

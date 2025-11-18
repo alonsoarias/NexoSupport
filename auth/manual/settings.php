@@ -1,6 +1,12 @@
 <?php
 /**
- * Admin settings and defaults
+ * Admin settings and defaults for auth_manual
+ *
+ * This file defines the settings for the manual authentication plugin.
+ * Following Moodle's pattern, this is a SETTINGS DEFINITION FILE, not a web page.
+ *
+ * In Moodle, this file is loaded by admin/settings/plugins.php and provides
+ * the $settings object where configuration options are added.
  *
  * @package auth_manual
  * @copyright NexoSupport
@@ -9,68 +15,108 @@
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
-// NOTE: In Moodle, this file is loaded by the admin settings system
-// and $settings is provided. For now, we define settings directly.
+// ============================================================================
+// IMPORTANT: This is a settings definition file, NOT a web page
+// ============================================================================
+// This file should NOT:
+// - Output any HTML directly
+// - Process POST data
+// - Have its own URL route
 //
-// TODO: Implement full admin_setting_* classes and admin settings tree
-// like Moodle for better plugin configuration management.
+// This file SHOULD:
+// - Define configuration options using $settings->add()
+// - Set default values
+// - Provide lang string references
+//
+// Pattern from Moodle's auth/manual/settings.php:
+//
+// if ($ADMIN->fulltree) {
+//     $settings->add(new admin_setting_heading(...));
+//     $settings->add(new admin_setting_configtext(...));
+//     $settings->add(new admin_setting_configcheckbox(...));
+// }
+// ============================================================================
 
-if (!isset($settings)) {
-    // If $settings doesn't exist, we're in standalone mode
-    // This is a temporary implementation until we have the full admin settings system
-
-    // For now, we store plugin config directly
-    $config = [
-        'minpasswordlength' => get_config('auth_manual', 'minpasswordlength') ?? 8,
-        'requireuppercase' => get_config('auth_manual', 'requireuppercase') ?? 0,
-        'requirelowercase' => get_config('auth_manual', 'requirelowercase') ?? 0,
-        'requirenumbers' => get_config('auth_manual', 'requirenumbers') ?? 0,
-        'requirespecialchars' => get_config('auth_manual', 'requirespecialchars') ?? 0,
-    ];
-
-    // In the future, this will be replaced with:
-    // $settings->add(new admin_setting_configtext('auth_manual/minpasswordlength', ...));
-    // $settings->add(new admin_setting_configcheckbox('auth_manual/requireuppercase', ...));
-    // etc.
+// Set default configuration values if not already set
+// This ensures the plugin works even before settings are configured
+if (!get_config('auth_manual', 'minpasswordlength')) {
+    set_config('minpasswordlength', 8, 'auth_manual');
+}
+if (!get_config('auth_manual', 'requireuppercase')) {
+    set_config('requireuppercase', 0, 'auth_manual');
+}
+if (!get_config('auth_manual', 'requirelowercase')) {
+    set_config('requirelowercase', 0, 'auth_manual');
+}
+if (!get_config('auth_manual', 'requirenumbers')) {
+    set_config('requirenumbers', 0, 'auth_manual');
+}
+if (!get_config('auth_manual', 'requirespecialchars')) {
+    set_config('requirespecialchars', 0, 'auth_manual');
 }
 
-// Future implementation (like Moodle):
+// ============================================================================
+// Future implementation with admin_setting_* classes (Phase 3)
+// ============================================================================
+// When we implement the admin settings tree system in Phase 3, this section
+// will be uncommented and will work exactly like Moodle:
 /*
 if ($ADMIN->fulltree) {
 
-    // Introductory explanation
-    $settings->add(new admin_setting_heading('auth_manual/pluginname',
-        get_string('passwordpolicy', 'auth_manual'),
-        get_string('auth_manualdescription', 'auth_manual')));
+    // Password policy settings heading
+    $settings->add(new admin_setting_heading(
+        'auth_manual/passwordpolicy',
+        new lang_string('passwordpolicy', 'auth_manual'),
+        new lang_string('auth_manualdescription', 'auth_manual')
+    ));
 
     // Minimum password length
-    $settings->add(new admin_setting_configtext('auth_manual/minpasswordlength',
-        get_string('minpasswordlength', 'auth_manual'),
-        get_string('minpasswordlength_help', 'auth_manual'),
-        8, PARAM_INT));
+    $settings->add(new admin_setting_configtext(
+        'auth_manual/minpasswordlength',
+        new lang_string('minpasswordlength', 'auth_manual'),
+        new lang_string('minpasswordlength_help', 'auth_manual'),
+        8,
+        PARAM_INT
+    ));
 
-    // Require uppercase
-    $settings->add(new admin_setting_configcheckbox('auth_manual/requireuppercase',
-        get_string('requireuppercase', 'auth_manual'),
-        get_string('requireuppercase_help', 'auth_manual'),
-        0));
+    // Require uppercase letters
+    $settings->add(new admin_setting_configcheckbox(
+        'auth_manual/requireuppercase',
+        new lang_string('requireuppercase', 'auth_manual'),
+        new lang_string('requireuppercase_help', 'auth_manual'),
+        0
+    ));
 
-    // Require lowercase
-    $settings->add(new admin_setting_configcheckbox('auth_manual/requirelowercase',
-        get_string('requirelowercase', 'auth_manual'),
-        get_string('requirelowercase_help', 'auth_manual'),
-        0));
+    // Require lowercase letters
+    $settings->add(new admin_setting_configcheckbox(
+        'auth_manual/requirelowercase',
+        new lang_string('requirelowercase', 'auth_manual'),
+        new lang_string('requirelowercase_help', 'auth_manual'),
+        0
+    ));
 
     // Require numbers
-    $settings->add(new admin_setting_configcheckbox('auth_manual/requirenumbers',
-        get_string('requirenumbers', 'auth_manual'),
-        get_string('requirenumbers_help', 'auth_manual'),
-        0));
+    $settings->add(new admin_setting_configcheckbox(
+        'auth_manual/requirenumbers',
+        new lang_string('requirenumbers', 'auth_manual'),
+        new lang_string('requirenumbers_help', 'auth_manual'),
+        0
+    ));
 
     // Require special characters
-    $settings->add(new admin_setting_configcheckbox('auth_manual/requirespecialchars',
-        get_string('requirespecialchars', 'auth_manual'),
-        get_string('requirespecialchars_help', 'auth_manual'),
-        0));
+    $settings->add(new admin_setting_configcheckbox(
+        'auth_manual/requirespecialchars',
+        new lang_string('requirespecialchars', 'auth_manual'),
+        new lang_string('requirespecialchars_help', 'auth_manual'),
+        0
+    ));
+
+    // Display locking / mapping of profile fields
+    // This is a Moodle feature to control which fields can be updated locally
+    // vs synced from external auth source
+    // $authplugin = get_auth_plugin('manual');
+    // display_auth_lock_options($settings, $authplugin->authtype,
+    //     $authplugin->userfields, get_string('auth_fieldlocks_help', 'auth'),
+    //     false, false);
 }
 */

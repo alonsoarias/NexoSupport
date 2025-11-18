@@ -25,3 +25,10 @@ $string['requirenumbers'] = 'Require numbers';
 $string['requirenumbers_help'] = 'Passwords must contain at least one number.';
 $string['requirespecialchars'] = 'Require special characters';
 $string['requirespecialchars_help'] = 'Passwords must contain at least one special character (!@#$%^&*).';
+
+// Password validation errors
+$string['passwordminlength'] = 'Password must be at least {$a} characters long.';
+$string['passwordrequireuppercase'] = 'Password must contain at least one uppercase letter.';
+$string['passwordrequirelowercase'] = 'Password must contain at least one lowercase letter.';
+$string['passwordrequirenumbers'] = 'Password must contain at least one number.';
+$string['passwordrequirespecialchars'] = 'Password must contain at least one special character.';
