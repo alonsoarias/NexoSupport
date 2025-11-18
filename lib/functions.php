@@ -607,13 +607,16 @@ function get_user_roles(int $userid, ?\core\rbac\context $context = null): array
 }
 
 /**
- * Check if user is admin (has any role in system context)
+ * Check if user is a site administrator
  *
- * @param int|null $userid
- * @return bool
+ * Similar to Moodle's is_siteadmin() - checks if user has 'administrator' role
+ * in system context.
+ *
+ * @param int|null $userid User ID to check (null = current user)
+ * @return bool True if user is site administrator
  */
 function is_siteadmin(?int $userid = null): bool {
-    global $USER;
+    global $USER, $DB;
 
     if ($userid === null) {
         $userid = $USER->id ?? 0;
@@ -623,7 +626,17 @@ function is_siteadmin(?int $userid = null): bool {
         return false;
     }
 
-    $roles = get_user_roles($userid, \core\rbac\context::system());
+    // Check if user has administrator role in system context
+    $syscontext = \core\rbac\context::system();
 
-    return !empty($roles);
+    $sql = "SELECT COUNT(*)
+            FROM {role_assignments} ra
+            JOIN {roles} r ON r.id = ra.roleid
+            WHERE ra.userid = ?
+            AND ra.contextid = ?
+            AND r.shortname = 'administrator'";
+
+    $count = $DB->count_records_sql($sql, [$userid, $syscontext->id]);
+
+    return $count > 0;
 }

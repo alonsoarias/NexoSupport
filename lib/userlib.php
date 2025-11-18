@@ -233,34 +233,4 @@ function count_users($where = '', $params = []) {
     return $DB->count_records_select('users', $sql, $params);
 }
 
-/**
- * Check if a user is a site administrator
- *
- * @param int $userid User ID
- * @return bool True if user is admin
- */
-function is_siteadmin($userid = null) {
-    global $USER, $DB;
-
-    if ($userid === null) {
-        $userid = $USER->id ?? 0;
-    }
-
-    if ($userid == 0) {
-        return false;
-    }
-
-    // Check if user has administrator role in system context
-    $syscontext = \core\rbac\context::system();
-
-    $sql = "SELECT COUNT(*)
-            FROM {role_assignments} ra
-            JOIN {roles} r ON r.id = ra.roleid
-            WHERE ra.userid = ?
-            AND ra.contextid = ?
-            AND r.shortname = 'administrator'";
-
-    $count = $DB->count_records_sql($sql, [$userid, $syscontext->id]);
-
-    return $count > 0;
-}
+// Note: is_siteadmin() is defined in lib/functions.php
