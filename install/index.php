@@ -38,6 +38,10 @@ if (!file_exists($stagefile)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NexoSupport Installation</title>
+
+    <!-- Font Awesome 6 - Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <style>
         * {
             margin: 0;
@@ -192,6 +196,68 @@ if (!file_exists($stagefile)) {
             display: flex;
             gap: 10px;
             justify-content: flex-end;
+        }
+
+        /* Font Awesome Icons */
+        .icon {
+            margin-right: 8px;
+        }
+
+        h1 .icon, h2 .icon {
+            color: #667eea;
+        }
+
+        .requirement .icon {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        .stage-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stage-indicator .icon {
+            font-size: 24px;
+            color: #667eea;
+        }
+
+        .stage-indicator .text {
+            flex: 1;
+        }
+
+        .stage-indicator .step-number {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 20px 0;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            padding-left: 35px;
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #2e7d32;
         }
     </style>
 </head>
