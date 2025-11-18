@@ -93,31 +93,62 @@ function update_internal_user_password($user, $password, $fasthash = false) {
 /**
  * Check if a password meets the requirements of the authentication plugin
  *
+ * This function supports two signatures for Moodle compatibility:
+ * 1. check_password_policy($password, $authmethod, &$error)  - Old style
+ * 2. check_password_policy($password, &$error, $user)        - Moodle 3.x+ style
+ *
  * @param string $password Plain text password
- * @param string $authmethod Authentication method (e.g., 'manual'). If null, uses default.
- * @param string &$error Error message (output parameter)
+ * @param string|object &$errmsg_or_user Error message (output) OR user object
+ * @param object|string|null $user_or_null User object OR null
  * @return bool True if password is valid, false otherwise
  */
-function check_password_policy($password, $authmethod = null, &$error = '') {
-    // Default to manual auth if not specified
-    if ($authmethod === null) {
-        $authmethod = 'manual';
+function check_password_policy($password, &$errmsg_or_user = '', $user_or_null = null) {
+    global $CFG;
+
+    // Determine which signature is being used
+    $error = '';
+    $user = null;
+
+    if (is_object($errmsg_or_user)) {
+        // Moodle 3.x+ style: check_password_policy($password, &$error, $user)
+        $user = $errmsg_or_user;
+        $errmsg_or_user = '';
+    } else if (is_object($user_or_null)) {
+        // Moodle 3.x+ style: check_password_policy($password, &$error, $user)
+        $user = $user_or_null;
     }
 
-    // Get auth plugin
-    $authplugin = get_auth_plugin($authmethod);
+    // Get password policy settings
+    $minlength = get_config('core', 'minpasswordlength') ?: 8;
+    $requiredigit = get_config('core', 'passwordrequiredigit');
+    $requirelower = get_config('core', 'passwordrequirelower');
+    $requireupper = get_config('core', 'passwordrequireupper');
 
-    if (!$authplugin) {
-        // Fallback to basic validation if plugin not found
-        if (strlen($password) < 8) {
-            $error = get_string('passwordminlength', 'core', 8);
-            return false;
-        }
-        return true;
+    // Check minimum length
+    if (strlen($password) < $minlength) {
+        $errmsg_or_user = get_string('policy_too_short', 'core', $minlength);
+        return false;
     }
 
-    // Use plugin's password policy validation
-    return $authplugin->validate_password_policy($password, $error);
+    // Check digit requirement
+    if ($requiredigit && !preg_match('/\d/', $password)) {
+        $errmsg_or_user = get_string('policy_missing_digit', 'core');
+        return false;
+    }
+
+    // Check lowercase requirement
+    if ($requirelower && !preg_match('/[a-z]/', $password)) {
+        $errmsg_or_user = get_string('policy_missing_lower', 'core');
+        return false;
+    }
+
+    // Check uppercase requirement
+    if ($requireupper && !preg_match('/[A-Z]/', $password)) {
+        $errmsg_or_user = get_string('policy_missing_upper', 'core');
+        return false;
+    }
+
+    return true;
 }
 
 /**

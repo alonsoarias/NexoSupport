@@ -640,3 +640,194 @@ function is_siteadmin(?int $userid = null): bool {
 
     return $count > 0;
 }
+
+/**
+ * Get a user preference value
+ *
+ * Similar to Moodle's get_user_preferences() - retrieves a user preference
+ * from the database or returns default value if not set.
+ *
+ * @param string $name Preference name
+ * @param mixed $default Default value if preference doesn't exist
+ * @param int|null $userid User ID (null = current user)
+ * @return mixed Preference value or default
+ */
+function get_user_preferences($name, $default = null, $userid = null) {
+    global $USER, $DB;
+
+    if ($userid === null) {
+        $userid = $USER->id ?? 0;
+    }
+
+    if ($userid == 0) {
+        return $default;
+    }
+
+    // Check if user_preferences table exists
+    try {
+        $record = $DB->get_record('user_preferences', [
+            'userid' => $userid,
+            'name' => $name
+        ]);
+
+        if ($record) {
+            return $record->value;
+        }
+    } catch (Exception $e) {
+        // Table doesn't exist yet or other error
+        return $default;
+    }
+
+    return $default;
+}
+
+/**
+ * Set a user preference value
+ *
+ * Similar to Moodle's set_user_preference() - stores a user preference
+ * in the database.
+ *
+ * @param string $name Preference name
+ * @param mixed $value Preference value
+ * @param int|null $userid User ID (null = current user)
+ * @return bool True on success
+ */
+function set_user_preference($name, $value, $userid = null) {
+    global $USER, $DB;
+
+    if ($userid === null) {
+        $userid = $USER->id ?? 0;
+    }
+
+    if ($userid == 0) {
+        return false;
+    }
+
+    // Check if user_preferences table exists
+    try {
+        $existing = $DB->get_record('user_preferences', [
+            'userid' => $userid,
+            'name' => $name
+        ]);
+
+        if ($existing) {
+            // Update existing preference
+            $existing->value = $value;
+            $existing->timemodified = time();
+            return $DB->update_record('user_preferences', $existing);
+        } else {
+            // Insert new preference
+            $record = new stdClass();
+            $record->userid = $userid;
+            $record->name = $name;
+            $record->value = $value;
+            $record->timemodified = time();
+            return $DB->insert_record('user_preferences', $record);
+        }
+    } catch (Exception $e) {
+        // Table doesn't exist yet or other error
+        return false;
+    }
+}
+
+/**
+ * Unset a user preference
+ *
+ * Similar to Moodle's unset_user_preference() - removes a user preference
+ * from the database.
+ *
+ * @param string $name Preference name
+ * @param int|null $userid User ID (null = current user)
+ * @return bool True on success
+ */
+function unset_user_preference($name, $userid = null) {
+    global $USER, $DB;
+
+    if ($userid === null) {
+        $userid = $USER->id ?? 0;
+    }
+
+    if ($userid == 0) {
+        return false;
+    }
+
+    try {
+        return $DB->delete_records('user_preferences', [
+            'userid' => $userid,
+            'name' => $name
+        ]);
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+/**
+ * Generate a random string
+ *
+ * @param int $length Length of string to generate
+ * @return string Random string
+ */
+function random_string($length = 15) {
+    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $count = strlen($chars);
+    $random = '';
+    for ($i = 0; $i < $length; $i++) {
+        $random .= $chars[random_int(0, $count - 1)];
+    }
+    return $random;
+}
+
+/**
+ * Strip query string from URL
+ *
+ * @param string $url URL to strip
+ * @return string URL without query string
+ */
+function strip_querystring($url) {
+    if ($pos = strpos($url, '?')) {
+        return substr($url, 0, $pos);
+    }
+    return $url;
+}
+
+/**
+ * Get current URL
+ *
+ * @return string Current URL
+ */
+function qualified_me() {
+    global $CFG;
+
+    $url = $_SERVER['REQUEST_URI'] ?? '/';
+
+    // Remove CFG->wwwroot from beginning if present
+    if (isset($CFG->wwwroot)) {
+        $parsed = parse_url($CFG->wwwroot);
+        if (isset($parsed['path'])) {
+            $basepath = rtrim($parsed['path'], '/');
+            if (strpos($url, $basepath) === 0) {
+                $url = substr($url, strlen($basepath));
+            }
+        }
+    }
+
+    return $CFG->wwwroot . $url;
+}
+
+/**
+ * Escape HTML special characters
+ *
+ * Similar to Moodle's s() function - shortcut for htmlspecialchars
+ *
+ * @param string|mixed $var Variable to escape
+ * @return string Escaped string
+ */
+function s($var) {
+    if ($var === null || $var === false) {
+        return '';
+    }
+    if (is_object($var) || is_array($var)) {
+        return '';
+    }
+    return htmlspecialchars((string)$var, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}

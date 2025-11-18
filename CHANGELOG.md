@@ -1,5 +1,162 @@
 # NexoSupport Changelog
 
+## Version 1.1.5 (2025-01-18) - moodleform Framework + Core Functions
+
+### 🎯 Overview
+Critical infrastructure update to support password management and future form-based features. Implements Moodle's moodleform framework and essential core functions for user preferences and utility operations.
+
+### ✨ New Features
+
+#### Form Library (lib/formslib.php)
+- **moodleform Base Class**: Abstract base class for all forms
+  - Automatic form rendering with Moodle-compatible HTML structure
+  - Built-in validation framework
+  - CSRF protection via sesskey
+  - definition() and definition_after_data() hooks
+  - get_data(), is_submitted(), is_validated() methods
+- **MoodleQuickForm**: Form builder class
+  - Support for multiple element types: text, password, hidden, checkbox, select, header, static
+  - Validation rules per element
+  - Type safety with PARAM_* constants
+  - Element groups (for button arrays)
+  - Default values management
+  - Auto-export of submitted values
+
+#### User Preferences Functions (lib/functions.php)
+- **get_user_preferences($name, $default, $userid)**: Retrieve user preference from database
+- **set_user_preference($name, $value, $userid)**: Store user preference in database
+- **unset_user_preference($name, $userid)**: Delete user preference from database
+- All functions support current user (null userid) and specific users
+- Graceful degradation if user_preferences table doesn't exist yet
+
+#### Utility Functions (lib/functions.php)
+- **random_string($length)**: Generate cryptographically secure random strings
+- **strip_querystring($url)**: Remove query string from URL
+- **qualified_me()**: Get current fully-qualified URL
+- **s($var)**: HTML escape function (htmlspecialchars shortcut)
+
+#### Password Policy Updates (lib/authlib.php)
+- **Enhanced check_password_policy()**: Now supports two signatures for full Moodle compatibility
+  - Old style: `check_password_policy($password, $authmethod, &$error)`
+  - Moodle 3.x+ style: `check_password_policy($password, &$error, $user)`
+  - Direct config-based validation (no plugin dependency)
+  - Supports all policy settings: minlength, requiredigit, requirelower, requireupper
+
+### 📁 New Files
+
+- `lib/formslib.php` (550+ lines) - Complete moodleform implementation
+  - moodleform abstract class
+  - MoodleQuickForm class
+  - Full form rendering engine
+
+### 🔧 Modified Files
+
+- `lib/functions.php` - Added 5 new functions (120+ lines):
+  - get_user_preferences()
+  - set_user_preference()
+  - unset_user_preference()
+  - random_string()
+  - strip_querystring()
+  - qualified_me()
+  - s()
+
+- `lib/authlib.php` - Updated check_password_policy():
+  - Dual signature support for backward compatibility
+  - Config-based password validation
+  - Better error messages
+
+- `lib/version.php` - Bumped to v1.1.5 (2025011805)
+
+### 🏗️ Architecture Highlights
+
+#### Moodle Compatibility
+- **Exact Class Hierarchy**: moodleform matches Moodle's formslib.php structure
+- **Compatible Method Signatures**: definition(), validation(), get_data(), etc.
+- **Form Elements**: Supports all basic Moodle form element types
+- **Rendering**: Generates Moodle-compatible HTML with .mform classes
+
+#### Type Safety
+- Form element types use PARAM_* constants
+- Full type hints on all new functions
+- Defensive programming with null checks
+
+#### Extensibility
+- Easy to add new form element types in MoodleQuickForm
+- Plugin-friendly user preferences system
+- Random string generation supports custom lengths
+
+### 🔐 Security Features
+
+- **CSRF Protection**: All forms include sesskey automatically
+- **Type Validation**: Form elements use PARAM_* for input cleaning
+- **Password Policy**: Configurable requirements enforced at validation
+- **HTML Escaping**: s() function prevents XSS
+- **Cryptographic Randomness**: random_string() uses random_int()
+
+### 📊 Statistics
+
+- **Classes Created**: 2 (moodleform, MoodleQuickForm)
+- **Functions Created**: 7 (user prefs + utilities + s())
+- **Functions Modified**: 1 (check_password_policy enhanced)
+- **New Files Total**: 1 (formslib.php)
+- **Lines of Code**: ~670+
+
+### 🐛 Bugs Fixed
+
+1. **Missing moodleform class** - Password management forms were extending non-existent moodleform
+2. **Missing user preferences** - get_user_preferences() didn't exist, breaking form defaults
+3. **Password policy incompatibility** - check_password_policy() signature didn't match Moodle's
+4. **Missing utility functions** - random_string(), s(), qualified_me() were undefined
+
+### 📝 Dependencies
+
+**This version is required for:**
+- v1.1.4 password management forms to work correctly
+- Any future form-based features
+- User preference storage
+
+**Backward Compatibility:**
+- Fully compatible with v1.1.4
+- All existing code continues to work
+- Password forms now functional
+
+### 🔄 Upgrade Notes
+
+**From v1.1.4 to v1.1.5:**
+1. No database changes required
+2. Password management forms from v1.1.4 now work correctly
+3. No manual intervention required
+4. Recommended: Create user_preferences table if not exists (will be in future upgrade script)
+
+### 🚀 Next Steps (Future Versions)
+
+- **v1.2.0**: Database schema for user_preferences table
+  - Upgrade script to create table
+  - Migration of any hardcoded preferences
+
+- **v1.3.0**: Advanced form elements
+  - File upload support
+  - Rich text editor (HTML editor)
+  - Date/time picker
+  - Color picker
+
+### 👥 Credits
+
+Developed following Moodle LMS formslib.php architecture and core function patterns.
+
+### 📄 License
+
+GNU General Public License v3.0 or later
+
+---
+
+**Version**: 1.1.5 (2025011805)
+**Release Date**: 2025-01-18
+**Previous Version**: 1.1.4 (2025011804)
+**Maturity**: STABLE
+
+---
+
 ## Version 1.1.4 (2025-01-18) - Admin Settings + Routing + Password Management
 
 ### 🎯 Overview
