@@ -23,7 +23,7 @@ $success = null;
 if ($userid > 0) {
     $user = \core\user\manager::get_user($userid);
     if (!$user) {
-        redirect('/admin/users', 'Usuario no encontrado');
+        redirect('/admin/users', get_string('usernotfound'));
     }
 
     $syscontext = \core\rbac\context::system();
@@ -46,7 +46,7 @@ if ($userid > 0) {
                 $role = \core\rbac\role::get_by_id($assignroleid);
                 if ($role) {
                     \core\rbac\access::assign_role($assignroleid, $userid, $syscontext);
-                    $success = "Rol '{$role->name}' asignado exitosamente";
+                    $success = get_string('roleassigned', 'core', $role->name);
                     // Recargar roles
                     $userroles = \core\rbac\access::get_user_roles($userid, $syscontext);
                 }
@@ -54,7 +54,7 @@ if ($userid > 0) {
                 $role = \core\rbac\role::get_by_id($assignroleid);
                 if ($role) {
                     \core\rbac\access::unassign_role($assignroleid, $userid, $syscontext);
-                    $success = "Rol '{$role->name}' removido exitosamente";
+                    $success = get_string('roleunassigned', 'core', $role->name);
                     // Recargar roles
                     $userroles = \core\rbac\access::get_user_roles($userid, $syscontext);
                 }
@@ -71,23 +71,23 @@ if ($userid > 0) {
     // Si se especifica roleid, mostrar usuarios con ese rol
     $role = \core\rbac\role::get_by_id($roleid);
     if (!$role) {
-        redirect('/admin/roles', 'Rol no encontrado');
+        redirect('/admin/roles', get_string('rolenotfound'));
     }
 
     $syscontext = \core\rbac\context::system();
     $roleusers = $role->get_users($syscontext);
 
 } else {
-    redirect('/admin/users', 'Debe especificar un usuario o rol');
+    redirect('/admin/users', get_string('mustselectuserrole'));
 }
 
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?php echo \core\string_manager::get_language(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asignar Roles - NexoSupport</title>
+    <title><?php echo get_string('assignroles'); ?> - <?php echo get_string('sitename'); ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -244,22 +244,22 @@ if ($userid > 0) {
 </head>
 <body>
     <div class="nav">
-        <a href="/">Inicio</a>
-        <a href="/admin">Administración</a>
-        <a href="/admin/users">Usuarios</a>
-        <a href="/admin/roles">Roles</a>
-        <a href="/logout">Cerrar sesión</a>
+        <a href="/"><?php echo get_string('home'); ?></a>
+        <a href="/admin"><?php echo get_string('administration'); ?></a>
+        <a href="/admin/users"><?php echo get_string('users'); ?></a>
+        <a href="/admin/roles"><?php echo get_string('roles'); ?></a>
+        <a href="/logout"><?php echo get_string('logout'); ?></a>
     </div>
 
     <?php if ($userid > 0): ?>
         <!-- Vista por usuario -->
         <div class="card">
-            <h1>Asignar Roles al Usuario</h1>
+            <h1><?php echo get_string('assignroles'); ?></h1>
 
             <div class="user-info">
-                <strong>Usuario:</strong> <?php echo htmlspecialchars($user->username); ?><br>
-                <strong>Nombre:</strong> <?php echo htmlspecialchars($user->firstname . ' ' . $user->lastname); ?><br>
-                <strong>Email:</strong> <?php echo htmlspecialchars($user->email); ?>
+                <strong><?php echo get_string('user'); ?>:</strong> <?php echo htmlspecialchars($user->username); ?><br>
+                <strong><?php echo get_string('name'); ?>:</strong> <?php echo htmlspecialchars($user->firstname . ' ' . $user->lastname); ?><br>
+                <strong><?php echo get_string('email'); ?>:</strong> <?php echo htmlspecialchars($user->email); ?>
             </div>
 
             <?php if ($success): ?>
@@ -278,7 +278,7 @@ if ($userid > 0) {
                 </div>
             <?php endif; ?>
 
-            <h2>Roles Disponibles</h2>
+            <h2><?php echo get_string('availableroles'); ?></h2>
 
             <div class="roles-grid">
                 <?php foreach ($allroles as $role): ?>
@@ -292,14 +292,14 @@ if ($userid > 0) {
                                 <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
                                 <input type="hidden" name="assignroleid" value="<?php echo $role->id; ?>">
                                 <input type="hidden" name="assignaction" value="unassign">
-                                <button type="submit" class="btn btn-sm btn-danger">Remover Rol</button>
+                                <button type="submit" class="btn btn-sm btn-danger"><?php echo get_string('removerole'); ?></button>
                             </form>
                         <?php else: ?>
                             <form method="POST" style="display: inline;">
                                 <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
                                 <input type="hidden" name="assignroleid" value="<?php echo $role->id; ?>">
                                 <input type="hidden" name="assignaction" value="assign">
-                                <button type="submit" class="btn btn-sm btn-success">Asignar Rol</button>
+                                <button type="submit" class="btn btn-sm btn-success"><?php echo get_string('assignrole'); ?></button>
                             </form>
                         <?php endif; ?>
                     </div>
@@ -310,29 +310,29 @@ if ($userid > 0) {
     <?php elseif ($roleid > 0): ?>
         <!-- Vista por rol -->
         <div class="card">
-            <h1>Usuarios con el Rol</h1>
+            <h1><?php echo get_string('userswithrol'); ?></h1>
 
             <div class="role-info">
-                <strong>Rol:</strong> <?php echo htmlspecialchars($role->name); ?><br>
-                <strong>Shortname:</strong> <?php echo htmlspecialchars($role->shortname); ?><br>
+                <strong><?php echo get_string('role'); ?>:</strong> <?php echo htmlspecialchars($role->name); ?><br>
+                <strong><?php echo get_string('roleshortname'); ?>:</strong> <?php echo htmlspecialchars($role->shortname); ?><br>
                 <?php if ($role->description): ?>
-                    <strong>Descripción:</strong> <?php echo htmlspecialchars($role->description); ?>
+                    <strong><?php echo get_string('description'); ?>:</strong> <?php echo htmlspecialchars($role->description); ?>
                 <?php endif; ?>
             </div>
 
             <?php if (empty($roleusers)): ?>
                 <div class="empty-state">
-                    <h3>No hay usuarios con este rol</h3>
-                    <p>Este rol no ha sido asignado a ningún usuario aún.</p>
+                    <h3><?php echo get_string('nouserswithcriteria'); ?></h3>
+                    <p><?php echo get_string('nouserswithrole'); ?></p>
                 </div>
             <?php else: ?>
                 <table>
                     <thead>
                         <tr>
-                            <th>Usuario</th>
-                            <th>Nombre</th>
-                            <th>Email</th>
-                            <th>Acciones</th>
+                            <th><?php echo get_string('username'); ?></th>
+                            <th><?php echo get_string('name'); ?></th>
+                            <th><?php echo get_string('email'); ?></th>
+                            <th><?php echo get_string('actions'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -343,7 +343,7 @@ if ($userid > 0) {
                                 <td><?php echo htmlspecialchars($roleuser->email); ?></td>
                                 <td>
                                     <a href="/admin/user/edit?id=<?php echo $roleuser->id; ?>" class="btn btn-sm btn-secondary">
-                                        Ver Usuario
+                                        <?php echo get_string('seeuser'); ?>
                                     </a>
                                 </td>
                             </tr>

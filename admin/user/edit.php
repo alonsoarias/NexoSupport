@@ -22,7 +22,7 @@ $success = null;
 if (!$isNew) {
     $edituser = \core\user\manager::get_user($userid);
     if (!$edituser) {
-        redirect('/admin/users', 'Usuario no encontrado');
+        redirect('/admin/users', get_string('usernotfound'));
     }
 } else {
     $edituser = new stdClass();
@@ -54,9 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validar passwords si se proporcionan
     if (!empty($password) || $isNew) {
         if ($password !== $password2) {
-            $errors[] = 'Las contraseñas no coinciden';
+            $errors[] = get_string('passwordmismatch');
         } elseif (strlen($password) < 8) {
-            $errors[] = 'La contraseña debe tener al menos 8 caracteres';
+            $errors[] = get_string('passwordtooshort');
         } else {
             $data->password = $password;
         }
@@ -67,13 +67,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($isNew) {
                 // Crear usuario
                 $newid = \core\user\manager::create_user($data);
-                $success = 'Usuario creado exitosamente';
+                $success = get_string('usercreated');
                 redirect('/admin/user/edit?id=' . $newid, $success);
             } else {
                 // Actualizar usuario
                 $data->id = $userid;
                 \core\user\manager::update_user($data);
-                $success = 'Usuario actualizado exitosamente';
+                $success = get_string('userupdated');
                 $edituser = \core\user\manager::get_user($userid);
             }
         } catch (\coding_exception $e) {
@@ -84,11 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?php echo \core\string_manager::get_language(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $isNew ? 'Nuevo Usuario' : 'Editar Usuario'; ?> - NexoSupport</title>
+    <title><?php echo $isNew ? get_string('newuser') : get_string('edituser'); ?> - <?php echo get_string('sitename'); ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -223,14 +223,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="nav">
-        <a href="/">Inicio</a>
-        <a href="/admin">Administración</a>
-        <a href="/admin/users">Usuarios</a>
-        <a href="/logout">Cerrar sesión</a>
+        <a href="/"><?php echo get_string('home'); ?></a>
+        <a href="/admin"><?php echo get_string('administration'); ?></a>
+        <a href="/admin/users"><?php echo get_string('users'); ?></a>
+        <a href="/logout"><?php echo get_string('logout'); ?></a>
     </div>
 
     <div class="card">
-        <h1><?php echo $isNew ? 'Nuevo Usuario' : 'Editar Usuario'; ?></h1>
+        <h1><?php echo $isNew ? get_string('newuser') : get_string('edituser'); ?></h1>
 
         <?php if ($success): ?>
             <div class="alert alert-success">
@@ -240,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if (!empty($errors)): ?>
             <div class="alert alert-danger">
-                <strong>Error:</strong>
+                <strong><?php echo get_string('error'); ?>:</strong>
                 <ul style="margin: 5px 0 0 20px;">
                     <?php foreach ($errors as $error): ?>
                         <li><?php echo htmlspecialchars($error); ?></li>
@@ -253,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
 
             <div class="form-group">
-                <label for="username" class="required">Nombre de usuario</label>
+                <label for="username" class="required"><?php echo get_string('username'); ?></label>
                 <input type="text"
                        id="username"
                        name="username"
@@ -261,12 +261,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        required
                        <?php echo $isNew ? '' : 'readonly'; ?>>
                 <?php if (!$isNew): ?>
-                    <div class="help-text">El nombre de usuario no se puede cambiar</div>
+                    <div class="help-text"><?php echo get_string('cannotrename'); ?></div>
                 <?php endif; ?>
             </div>
 
             <div class="form-group">
-                <label for="email" class="required">Email</label>
+                <label for="email" class="required"><?php echo get_string('email'); ?></label>
                 <input type="email"
                        id="email"
                        name="email"
@@ -275,7 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="form-group">
-                <label for="firstname" class="required">Nombre</label>
+                <label for="firstname" class="required"><?php echo get_string('firstname'); ?></label>
                 <input type="text"
                        id="firstname"
                        name="firstname"
@@ -284,7 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="form-group">
-                <label for="lastname" class="required">Apellido</label>
+                <label for="lastname" class="required"><?php echo get_string('lastname'); ?></label>
                 <input type="text"
                        id="lastname"
                        name="lastname"
@@ -301,22 +301,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="form-group">
-                <label for="password"><?php echo $isNew ? 'Contraseña' : 'Nueva Contraseña'; ?></label>
+                <label for="password"><?php echo get_string('password'); ?></label>
                 <input type="password"
                        id="password"
                        name="password"
                        <?php echo $isNew ? 'required' : ''; ?>>
                 <div class="help-text">
                     <?php if ($isNew): ?>
-                        Mínimo 8 caracteres
+                        <?php echo get_string('passwordtooshort'); ?>
                     <?php else: ?>
-                        Dejar en blanco para no cambiar la contraseña
+                        <?php echo get_string('passwordtooshort'); ?>
                     <?php endif; ?>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="password2"><?php echo $isNew ? 'Confirmar Contraseña' : 'Confirmar Nueva Contraseña'; ?></label>
+                <label for="password2"><?php echo get_string('password'); ?></label>
                 <input type="password"
                        id="password2"
                        name="password2"
@@ -324,9 +324,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="form-group">
-                <label for="auth">Método de autenticación</label>
+                <label for="auth"><?php echo get_string('name'); ?></label>
                 <select id="auth" name="auth">
-                    <option value="manual" <?php echo $edituser->auth === 'manual' ? 'selected' : ''; ?>>Manual</option>
+                    <option value="manual" <?php echo $edituser->auth === 'manual' ? 'selected' : ''; ?>><?php echo get_string('name'); ?></option>
                 </select>
             </div>
 
@@ -337,20 +337,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                            name="suspended"
                            value="1"
                            <?php echo $edituser->suspended ? 'checked' : ''; ?>>
-                    <label for="suspended" style="margin: 0;">Usuario suspendido</label>
+                    <label for="suspended" style="margin: 0;"><?php echo get_string('suspenduser'); ?></label>
                 </div>
-                <div class="help-text">Los usuarios suspendidos no pueden iniciar sesión</div>
+                <div class="help-text"><?php echo get_string('userissuspended'); ?></div>
             </div>
 
             <div class="form-actions">
                 <button type="submit" class="btn">
-                    <?php echo $isNew ? 'Crear Usuario' : 'Guardar Cambios'; ?>
+                    <?php echo $isNew ? get_string('createuser') : get_string('save'); ?>
                 </button>
-                <a href="/admin/users" class="btn btn-secondary">Cancelar</a>
+                <a href="/admin/users" class="btn btn-secondary"><?php echo get_string('cancel'); ?></a>
 
                 <?php if (!$isNew): ?>
                     <a href="/admin/roles/assign?userid=<?php echo $userid; ?>" class="btn btn-secondary">
-                        Gestionar Roles
+                        <?php echo get_string('assignroles'); ?>
                     </a>
                 <?php endif; ?>
             </div>

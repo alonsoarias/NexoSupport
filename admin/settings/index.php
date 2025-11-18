@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         set_config('debug', $debug ? 'true' : 'false', 'core');
         set_config('sessiontimeout', $sessiontimeout, 'core');
 
-        $success = 'Configuración guardada exitosamente';
+        $success = get_string('configsaved');
     } catch (Exception $e) {
-        $errors[] = 'Error guardando configuración: ' . $e->getMessage();
+        $errors[] = get_string('errorconfig', 'core', $e->getMessage());
     }
 }
 
@@ -41,11 +41,11 @@ $sessiontimeout = get_config('core', 'sessiontimeout') ?? 7200;
 
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?php echo \core\string_manager::get_language(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuración del Sistema - NexoSupport</title>
+    <title><?php echo get_string('systemsettings'); ?> - <?php echo get_string('sitename'); ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -176,14 +176,14 @@ $sessiontimeout = get_config('core', 'sessiontimeout') ?? 7200;
 </head>
 <body>
     <div class="nav">
-        <a href="/">Inicio</a>
-        <a href="/admin">Administración</a>
-        <a href="/admin/settings">Configuración</a>
-        <a href="/logout">Cerrar sesión</a>
+        <a href="/"><?php echo get_string('home'); ?></a>
+        <a href="/admin"><?php echo get_string('administration'); ?></a>
+        <a href="/admin/settings"><?php echo get_string('settings'); ?></a>
+        <a href="/logout"><?php echo get_string('logout'); ?></a>
     </div>
 
     <div class="card">
-        <h1>Configuración del Sistema</h1>
+        <h1><?php echo get_string('systemsettings'); ?></h1>
 
         <?php if ($success): ?>
             <div class="alert alert-success">
@@ -193,7 +193,7 @@ $sessiontimeout = get_config('core', 'sessiontimeout') ?? 7200;
 
         <?php if (!empty($errors)): ?>
             <div class="alert alert-danger">
-                <strong>Error:</strong>
+                <strong><?php echo get_string('error'); ?>:</strong>
                 <ul style="margin: 5px 0 0 20px;">
                     <?php foreach ($errors as $error): ?>
                         <li><?php echo htmlspecialchars($error); ?></li>
@@ -206,24 +206,24 @@ $sessiontimeout = get_config('core', 'sessiontimeout') ?? 7200;
             <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
 
             <div class="settings-group">
-                <h2>General</h2>
+                <h2><?php echo get_string('generalsettings'); ?></h2>
 
                 <div class="form-group">
-                    <label for="sitename">Nombre del Sitio</label>
+                    <label for="sitename"><?php echo get_string('sitename'); ?></label>
                     <input type="text"
                            id="sitename"
                            name="sitename"
                            value="<?php echo htmlspecialchars($sitename); ?>"
                            required>
-                    <div class="help-text">Nombre que aparece en el encabezado y correos</div>
+                    <div class="help-text"><?php echo get_string('sitenamehelp'); ?></div>
                 </div>
             </div>
 
             <div class="settings-group">
-                <h2>Sesiones</h2>
+                <h2><?php echo get_string('sessions'); ?></h2>
 
                 <div class="form-group">
-                    <label for="sessiontimeout">Timeout de Sesión (segundos)</label>
+                    <label for="sessiontimeout"><?php echo get_string('sessiontimeout'); ?></label>
                     <input type="number"
                            id="sessiontimeout"
                            name="sessiontimeout"
@@ -231,12 +231,12 @@ $sessiontimeout = get_config('core', 'sessiontimeout') ?? 7200;
                            min="600"
                            max="86400"
                            required>
-                    <div class="help-text">Tiempo de inactividad antes de cerrar sesión. Rango: 10 min (600) - 24 hrs (86400). Valor recomendado: 7200 (2 horas)</div>
+                    <div class="help-text"><?php echo get_string('sessiontimeouthelp'); ?></div>
                 </div>
             </div>
 
             <div class="settings-group">
-                <h2>Desarrollo</h2>
+                <h2><?php echo get_string('developmentsettings'); ?></h2>
 
                 <div class="form-group">
                     <div class="checkbox-group">
@@ -245,40 +245,40 @@ $sessiontimeout = get_config('core', 'sessiontimeout') ?? 7200;
                                name="debug"
                                value="1"
                                <?php echo $debug ? 'checked' : ''; ?>>
-                        <label for="debug" style="margin: 0;">Modo Debug</label>
+                        <label for="debug" style="margin: 0;"><?php echo get_string('debugmode'); ?></label>
                     </div>
-                    <div class="help-text">Habilita mensajes de debug en logs. Solo para desarrollo.</div>
+                    <div class="help-text"><?php echo get_string('debughelp'); ?></div>
                 </div>
             </div>
 
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
-                <button type="submit" class="btn">Guardar Configuración</button>
-                <a href="/admin" class="btn btn-secondary">Volver a Administración</a>
+                <button type="submit" class="btn"><?php echo get_string('save'); ?></button>
+                <a href="/admin" class="btn btn-secondary"><?php echo get_string('back'); ?></a>
             </div>
         </form>
     </div>
 
     <div class="card">
-        <h2>Información del Sistema</h2>
+        <h2><?php echo get_string('systeminfo'); ?></h2>
         <table style="width: 100%; border-collapse: collapse;">
             <tr style="border-bottom: 1px solid #e0e0e0;">
-                <td style="padding: 10px; font-weight: 600;">Versión del Sistema</td>
-                <td style="padding: 10px;"><?php echo get_config('core', 'version') ?? 'Unknown'; ?></td>
+                <td style="padding: 10px; font-weight: 600;"><?php echo get_string('systemversion'); ?></td>
+                <td style="padding: 10px;"><?php echo get_config('core', 'version') ?? get_string('unknown'); ?></td>
             </tr>
             <tr style="border-bottom: 1px solid #e0e0e0;">
-                <td style="padding: 10px; font-weight: 600;">Versión de PHP</td>
+                <td style="padding: 10px; font-weight: 600;"><?php echo get_string('phpversion'); ?></td>
                 <td style="padding: 10px;"><?php echo phpversion(); ?></td>
             </tr>
             <tr style="border-bottom: 1px solid #e0e0e0;">
-                <td style="padding: 10px; font-weight: 600;">Base de Datos</td>
+                <td style="padding: 10px; font-weight: 600;"><?php echo get_string('database'); ?></td>
                 <td style="padding: 10px;"><?php echo $CFG->dbtype; ?></td>
             </tr>
             <tr style="border-bottom: 1px solid #e0e0e0;">
-                <td style="padding: 10px; font-weight: 600;">Prefijo de Tablas</td>
+                <td style="padding: 10px; font-weight: 600;"><?php echo get_string('tableprefix'); ?></td>
                 <td style="padding: 10px;"><?php echo $CFG->dbprefix; ?></td>
             </tr>
             <tr style="border-bottom: 1px solid #e0e0e0;">
-                <td style="padding: 10px; font-weight: 600;">Usuario Actual</td>
+                <td style="padding: 10px; font-weight: 600;"><?php echo get_string('currentuser'); ?></td>
                 <td style="padding: 10px;"><?php echo htmlspecialchars($USER->username ?? 'Guest'); ?></td>
             </tr>
         </table>

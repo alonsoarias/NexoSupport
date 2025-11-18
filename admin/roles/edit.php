@@ -23,7 +23,7 @@ $success = null;
 if (!$isNew) {
     $role = \core\rbac\role::get_by_id($roleid);
     if (!$role) {
-        redirect('/admin/roles', 'Rol no encontrado');
+        redirect('/admin/roles', get_string('rolenotfound'));
     }
 } else {
     $role = new stdClass();
@@ -40,13 +40,13 @@ if ($action === 'delete' && !$isNew) {
 
     // Verificar que no sea un rol del sistema
     if (in_array($role->shortname, ['administrator', 'manager', 'user'])) {
-        $errors[] = 'No se puede eliminar un rol del sistema';
+        $errors[] = get_string('systemrolewarning');
     } else {
         try {
             \core\rbac\role::delete($roleid);
-            redirect('/admin/roles', 'Rol eliminado exitosamente');
+            redirect('/admin/roles', get_string('roledeleted'));
         } catch (\Exception $e) {
-            $errors[] = 'Error al eliminar el rol: ' . $e->getMessage();
+            $errors[] = get_string('error') . ': ' . $e->getMessage();
         }
     }
 }
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'delete') {
                     $data->description,
                     $data->archetype
                 );
-                $success = 'Rol creado exitosamente';
+                $success = get_string('rolecreated');
                 redirect('/admin/roles/define?roleid=' . $newrole->id, $success);
             } else {
                 // Actualizar rol
@@ -84,13 +84,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'delete') {
                     if (!in_array($role->shortname, ['administrator', 'manager', 'user'])) {
                         $role->shortname = $data->shortname;
                     } else {
-                        $errors[] = 'No se puede cambiar el nombre corto de un rol del sistema';
+                        $errors[] = get_string('cannotrename');
                     }
                 }
 
                 if (empty($errors)) {
                     \core\rbac\role::update_role($role);
-                    $success = 'Rol actualizado exitosamente';
+                    $success = get_string('roleupdated');
                     $role = \core\rbac\role::get_by_id($roleid);
                 }
             }
@@ -104,11 +104,11 @@ $isSystemRole = !$isNew && in_array($role->shortname, ['administrator', 'manager
 
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?php echo \core\string_manager::get_language(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $isNew ? 'Nuevo Rol' : 'Editar Rol'; ?> - NexoSupport</title>
+    <title><?php echo $isNew ? get_string('createrole') : get_string('editrole'); ?> - <?php echo get_string('sitename'); ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -248,18 +248,18 @@ $isSystemRole = !$isNew && in_array($role->shortname, ['administrator', 'manager
 </head>
 <body>
     <div class="nav">
-        <a href="/">Inicio</a>
-        <a href="/admin">Administración</a>
-        <a href="/admin/roles">Roles</a>
-        <a href="/logout">Cerrar sesión</a>
+        <a href="/"><?php echo get_string('home'); ?></a>
+        <a href="/admin"><?php echo get_string('administration'); ?></a>
+        <a href="/admin/roles"><?php echo get_string('roles'); ?></a>
+        <a href="/logout"><?php echo get_string('logout'); ?></a>
     </div>
 
     <div class="card">
-        <h1><?php echo $isNew ? 'Nuevo Rol' : 'Editar Rol'; ?></h1>
+        <h1><?php echo $isNew ? get_string('createrole') : get_string('editrole'); ?></h1>
 
         <?php if ($isSystemRole): ?>
             <div class="alert alert-warning">
-                <strong>Advertencia:</strong> Este es un rol del sistema. Algunos campos no pueden ser modificados.
+                <strong><?php echo get_string('warning'); ?>:</strong> <?php echo get_string('systemrolewarning'); ?>
             </div>
         <?php endif; ?>
 
@@ -271,7 +271,7 @@ $isSystemRole = !$isNew && in_array($role->shortname, ['administrator', 'manager
 
         <?php if (!empty($errors)): ?>
             <div class="alert alert-danger">
-                <strong>Error:</strong>
+                <strong><?php echo get_string('error'); ?>:</strong>
                 <ul style="margin: 5px 0 0 20px;">
                     <?php foreach ($errors as $error): ?>
                         <li><?php echo htmlspecialchars($error); ?></li>
@@ -284,17 +284,17 @@ $isSystemRole = !$isNew && in_array($role->shortname, ['administrator', 'manager
             <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
 
             <div class="form-group">
-                <label for="name" class="required">Nombre del rol</label>
+                <label for="name" class="required"><?php echo get_string('rolename'); ?></label>
                 <input type="text"
                        id="name"
                        name="name"
                        value="<?php echo htmlspecialchars($role->name); ?>"
                        required>
-                <div class="help-text">Nombre descriptivo del rol (ej: "Administrador", "Gerente")</div>
+                <div class="help-text"><?php echo get_string('rolename'); ?></div>
             </div>
 
             <div class="form-group">
-                <label for="shortname" class="required">Nombre corto</label>
+                <label for="shortname" class="required"><?php echo get_string('roleshortname'); ?></label>
                 <input type="text"
                        id="shortname"
                        name="shortname"
@@ -302,39 +302,39 @@ $isSystemRole = !$isNew && in_array($role->shortname, ['administrator', 'manager
                        required
                        <?php echo $isSystemRole ? 'readonly' : ''; ?>>
                 <div class="help-text">
-                    Identificador único del rol (solo letras, números y guiones bajos)
+                    <?php echo get_string('roleshortname'); ?>
                     <?php if ($isSystemRole): ?>
-                        <br><strong>Este campo no se puede modificar en roles del sistema</strong>
+                        <br><strong><?php echo get_string('cannotrename'); ?></strong>
                     <?php endif; ?>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="description">Descripción</label>
+                <label for="description"><?php echo get_string('roledescription'); ?></label>
                 <textarea id="description"
                           name="description"><?php echo htmlspecialchars($role->description); ?></textarea>
-                <div class="help-text">Descripción opcional del rol y sus responsabilidades</div>
+                <div class="help-text"><?php echo get_string('roledescription'); ?></div>
             </div>
 
             <div class="form-actions">
                 <div>
                     <button type="submit" class="btn">
-                        <?php echo $isNew ? 'Crear Rol' : 'Guardar Cambios'; ?>
+                        <?php echo $isNew ? get_string('createrole') : get_string('save'); ?>
                     </button>
-                    <a href="/admin/roles" class="btn btn-secondary">Cancelar</a>
+                    <a href="/admin/roles" class="btn btn-secondary"><?php echo get_string('cancel'); ?></a>
 
                     <?php if (!$isNew): ?>
                         <a href="/admin/roles/define?roleid=<?php echo $roleid; ?>" class="btn btn-secondary">
-                            Definir Capabilities
+                            <?php echo get_string('definecapabilities'); ?>
                         </a>
                     <?php endif; ?>
                 </div>
 
                 <?php if (!$isNew && !$isSystemRole): ?>
-                    <form method="POST" style="display: inline;" onsubmit="return confirm('¿Está seguro de eliminar este rol?');">
+                    <form method="POST" style="display: inline;" onsubmit="return confirm('<?php echo get_string('deleteconfirm'); ?>');">
                         <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
                         <input type="hidden" name="action" value="delete">
-                        <button type="submit" class="btn btn-danger">Eliminar Rol</button>
+                        <button type="submit" class="btn btn-danger"><?php echo get_string('deleterole'); ?></button>
                     </form>
                 <?php endif; ?>
             </div>

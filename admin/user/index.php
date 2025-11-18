@@ -25,11 +25,11 @@ $totalusers = \core\user\manager::count_users();
 
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?php echo \core\string_manager::get_language(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Usuarios - NexoSupport</title>
+    <title><?php echo get_string('usermanagement'); ?> - <?php echo get_string('sitename'); ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -148,43 +148,43 @@ $totalusers = \core\user\manager::count_users();
 </head>
 <body>
     <div class="nav">
-        <a href="/">Inicio</a>
-        <a href="/admin">Administración</a>
-        <a href="/admin/users">Usuarios</a>
-        <a href="/logout">Cerrar sesión</a>
+        <a href="/"><?php echo get_string('home'); ?></a>
+        <a href="/admin"><?php echo get_string('administration'); ?></a>
+        <a href="/admin/users"><?php echo get_string('users'); ?></a>
+        <a href="/logout"><?php echo get_string('logout'); ?></a>
     </div>
 
-    <h1>Gestión de Usuarios</h1>
-    <p>Total de usuarios: <?php echo $totalusers; ?></p>
+    <h1><?php echo get_string('usermanagement'); ?></h1>
+    <p><?php echo get_string('totalusers'); ?>: <?php echo $totalusers; ?></p>
 
     <div class="actions-bar">
         <form method="GET" class="search-box">
-            <input type="text" name="search" placeholder="Buscar usuarios..." value="<?php echo htmlspecialchars($search); ?>">
-            <button type="submit" class="btn">Buscar</button>
+            <input type="text" name="search" placeholder="<?php echo get_string('searchbyname'); ?>" value="<?php echo htmlspecialchars($search); ?>">
+            <button type="submit" class="btn"><?php echo get_string('search'); ?></button>
             <?php if ($search): ?>
-                <a href="/admin/users" class="btn btn-secondary">Limpiar</a>
+                <a href="/admin/users" class="btn btn-secondary"><?php echo get_string('cancel'); ?></a>
             <?php endif; ?>
         </form>
 
-        <a href="/admin/user/edit?id=0" class="btn">+ Nuevo Usuario</a>
+        <a href="/admin/user/edit?id=0" class="btn">+ <?php echo get_string('newuser'); ?></a>
     </div>
 
     <?php if (empty($users)): ?>
         <div class="empty-state">
-            <h3>No se encontraron usuarios</h3>
-            <p>No hay usuarios que mostrar con los criterios seleccionados.</p>
+            <h3><?php echo get_string('nousersfound'); ?></h3>
+            <p><?php echo get_string('pleaseselectcriteria'); ?></p>
         </div>
     <?php else: ?>
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Estado</th>
-                    <th>Último acceso</th>
-                    <th>Acciones</th>
+                    <th><?php echo get_string('username'); ?></th>
+                    <th><?php echo get_string('name'); ?></th>
+                    <th><?php echo get_string('email'); ?></th>
+                    <th><?php echo get_string('status'); ?></th>
+                    <th><?php echo get_string('lastlogin'); ?></th>
+                    <th><?php echo get_string('actions'); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -196,9 +196,9 @@ $totalusers = \core\user\manager::count_users();
                         <td><?php echo htmlspecialchars($user->email); ?></td>
                         <td>
                             <?php if ($user->suspended): ?>
-                                <span class="badge badge-warning">Suspendido</span>
+                                <span class="badge badge-warning"><?php echo get_string('suspended'); ?></span>
                             <?php else: ?>
-                                <span class="badge badge-success">Activo</span>
+                                <span class="badge badge-success"><?php echo get_string('active'); ?></span>
                             <?php endif; ?>
                         </td>
                         <td>
@@ -206,13 +206,13 @@ $totalusers = \core\user\manager::count_users();
                             if ($user->lastlogin) {
                                 echo date('d/m/Y H:i', $user->lastlogin);
                             } else {
-                                echo 'Nunca';
+                                echo get_string('never');
                             }
                             ?>
                         </td>
                         <td>
-                            <a href="/admin/user/edit?id=<?php echo $user->id; ?>" class="btn btn-sm">Editar</a>
-                            <a href="/admin/roles/assign?userid=<?php echo $user->id; ?>" class="btn btn-sm btn-secondary">Roles</a>
+                            <a href="/admin/user/edit?id=<?php echo $user->id; ?>" class="btn btn-sm"><?php echo get_string('edit'); ?></a>
+                            <a href="/admin/roles/assign?userid=<?php echo $user->id; ?>" class="btn btn-sm btn-secondary"><?php echo get_string('roles'); ?></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

@@ -12,11 +12,11 @@ require_login();
 global $USER;
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?php echo \core\string_manager::get_language(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administración - NexoSupport</title>
+    <title><?php echo get_string('administration'); ?> - <?php echo get_string('sitename'); ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -71,29 +71,29 @@ global $USER;
 </head>
 <body>
     <div class="nav">
-        <a href="/">Inicio</a>
-        <a href="/admin">Administración</a>
-        <a href="/user/profile">Mi Perfil</a>
-        <a href="/logout">Cerrar sesión</a>
+        <a href="/"><?php echo get_string('home'); ?></a>
+        <a href="/admin"><?php echo get_string('administration'); ?></a>
+        <a href="/user/profile"><?php echo get_string('profile'); ?></a>
+        <a href="/logout"><?php echo get_string('logout'); ?></a>
     </div>
 
-    <h1>Panel de Administración</h1>
-    <p>Bienvenido, <?php echo htmlspecialchars($USER->firstname); ?></p>
+    <h1><?php echo get_string('adminarea'); ?></h1>
+    <p><?php echo get_string('welcome'); ?>, <?php echo htmlspecialchars($USER->firstname); ?></p>
 
     <div class="admin-grid">
         <a href="/admin/users" class="admin-card">
-            <h3>Usuarios</h3>
-            <p>Gestionar usuarios del sistema</p>
+            <h3><?php echo get_string('users'); ?></h3>
+            <p><?php echo get_string('manageusers_desc'); ?></p>
         </a>
 
         <a href="/admin/roles" class="admin-card">
-            <h3>Roles y Permisos</h3>
-            <p>Configurar roles y capabilities</p>
+            <h3><?php echo get_string('roles'); ?></h3>
+            <p><?php echo get_string('manageroles_desc'); ?></p>
         </a>
 
         <a href="/admin/settings" class="admin-card">
-            <h3>Configuración</h3>
-            <p>Configuración general del sistema</p>
+            <h3><?php echo get_string('settings'); ?></h3>
+            <p><?php echo get_string('managesettings_desc'); ?></p>
         </a>
 
         <div class="admin-card" style="opacity: 0.5;">

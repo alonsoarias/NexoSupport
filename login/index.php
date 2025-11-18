@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $authplugin = \core\plugin\manager::get_auth_plugin($authmethod);
 
     if (!$authplugin) {
-        $error = 'Authentication plugin not found';
+        $error = get_string('authpluginnotfound');
     } else {
         // Intentar autenticar
         $user = $authplugin->authenticate($username, $password);
@@ -48,11 +48,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?php echo \core\string_manager::get_language(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - NexoSupport</title>
+    <title><?php echo get_string('title_login'); ?> - <?php echo get_string('sitename'); ?></title>
     <style>
         * {
             margin: 0;
@@ -145,8 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="login-container">
-        <h1>NexoSupport</h1>
-        <h2>Iniciar sesión</h2>
+        <h1><?php echo get_string('sitename'); ?></h1>
+        <h2><?php echo get_string('title_login'); ?></h2>
 
         <?php if ($error): ?>
             <div class="alert">

@@ -21,11 +21,11 @@ $syscontext = context::system();
 
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?php echo \core\string_manager::get_language(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Roles - NexoSupport</title>
+    <title><?php echo get_string('rolemanagement'); ?> - <?php echo get_string('sitename'); ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -147,20 +147,20 @@ $syscontext = context::system();
 </head>
 <body>
     <div class="nav">
-        <a href="/">Inicio</a>
-        <a href="/admin">Administración</a>
-        <a href="/admin/roles">Roles</a>
-        <a href="/admin/users">Usuarios</a>
-        <a href="/user/profile">Mi Perfil</a>
-        <a href="/logout">Cerrar sesión</a>
+        <a href="/"><?php echo get_string('home'); ?></a>
+        <a href="/admin"><?php echo get_string('administration'); ?></a>
+        <a href="/admin/roles"><?php echo get_string('roles'); ?></a>
+        <a href="/admin/users"><?php echo get_string('users'); ?></a>
+        <a href="/user/profile"><?php echo get_string('profile'); ?></a>
+        <a href="/logout"><?php echo get_string('logout'); ?></a>
     </div>
 
-    <h1>Gestión de Roles y Permisos</h1>
-    <p>Usuario: <?php echo htmlspecialchars($USER->firstname . ' ' . $USER->lastname); ?></p>
+    <h1><?php echo get_string('rolemanagement'); ?></h1>
+    <p><?php echo get_string('user'); ?>: <?php echo htmlspecialchars($USER->firstname . ' ' . $USER->lastname); ?></p>
 
     <?php if (has_capability('nexosupport/admin:manageroles')): ?>
     <div style="margin-bottom: 20px;">
-        <a href="/admin/roles/edit?id=0" class="btn">Crear Nuevo Rol</a>
+        <a href="/admin/roles/edit?id=0" class="btn"><?php echo get_string('createrole'); ?></a>
     </div>
     <?php endif; ?>
 
@@ -168,7 +168,7 @@ $syscontext = context::system();
         <?php foreach ($roles as $role): ?>
             <div class="role-card">
                 <h3><?php echo htmlspecialchars($role->name); ?></h3>
-                <div class="shortname">Código: <?php echo htmlspecialchars($role->shortname); ?></div>
+                <div class="shortname"><?php echo get_string('code'); ?>: <?php echo htmlspecialchars($role->shortname); ?></div>
 
                 <?php if ($role->description): ?>
                 <div class="description">
@@ -176,19 +176,19 @@ $syscontext = context::system();
                 </div>
                 <?php endif; ?>
 
-                <h4>Capabilities:</h4>
+                <h4><?php echo get_string('capabilities'); ?>:</h4>
                 <div class="capability-list">
                     <?php
                     $capabilities = $role->get_capabilities($syscontext);
                     if (empty($capabilities)):
                     ?>
-                        <p style="color: #999; text-align: center; margin: 10px 0;">Sin capabilities asignadas</p>
+                        <p style="color: #999; text-align: center; margin: 10px 0;"><?php echo get_string('nocapabilities'); ?></p>
                     <?php else: ?>
                         <?php foreach ($capabilities as $capname => $permission): ?>
                             <div class="capability-item">
                                 <?php echo htmlspecialchars($capname); ?>
                                 <span class="permission permission-<?php echo $permission == 1 ? 'allow' : 'prevent'; ?>">
-                                    <?php echo $permission == 1 ? 'PERMITIR' : 'DENEGAR'; ?>
+                                    <?php echo $permission == 1 ? get_string('allow') : get_string('prevent'); ?>
                                 </span>
                             </div>
                         <?php endforeach; ?>
@@ -200,14 +200,14 @@ $syscontext = context::system();
                 $usercount = count($users);
                 ?>
                 <div class="user-count">
-                    <strong><?php echo $usercount; ?></strong> usuario(s) con este rol
+                    <?php echo get_string('usercount', 'core', $usercount); ?>
                 </div>
 
                 <?php if (has_capability('nexosupport/admin:manageroles')): ?>
                 <div style="margin-top: 15px;">
-                    <a href="/admin/roles/edit?id=<?php echo $role->id; ?>" class="btn">Editar Rol</a>
-                    <a href="/admin/roles/define?roleid=<?php echo $role->id; ?>" class="btn">Capabilities</a>
-                    <a href="/admin/roles/assign?roleid=<?php echo $role->id; ?>" class="btn">Ver Usuarios</a>
+                    <a href="/admin/roles/edit?id=<?php echo $role->id; ?>" class="btn"><?php echo get_string('editrole'); ?></a>
+                    <a href="/admin/roles/define?roleid=<?php echo $role->id; ?>" class="btn"><?php echo get_string('capabilities'); ?></a>
+                    <a href="/admin/roles/assign?roleid=<?php echo $role->id; ?>" class="btn"><?php echo get_string('users'); ?></a>
                 </div>
                 <?php endif; ?>
             </div>
@@ -216,8 +216,8 @@ $syscontext = context::system();
 
     <?php if (empty($roles)): ?>
         <div style="background: white; padding: 40px; text-align: center; border-radius: 8px;">
-            <p style="font-size: 18px; color: #999;">No hay roles definidos en el sistema</p>
-            <a href="/admin/roles/edit?id=0" class="btn">Crear Primer Rol</a>
+            <p style="font-size: 18px; color: #999;"><?php echo get_string('noroles'); ?></p>
+            <a href="/admin/roles/edit?id=0" class="btn"><?php echo get_string('createfirstrole'); ?></a>
         </div>
     <?php endif; ?>
 </body>

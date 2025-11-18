@@ -31,7 +31,7 @@ $upgradeErrors = [];
 if (isset($_POST['upgrade']) && $_POST['upgrade'] === 'true') {
     // Verify sesskey for security
     if (!isset($_POST['sesskey']) || $_POST['sesskey'] !== sesskey()) {
-        $upgradeErrors[] = 'Invalid session key';
+        $upgradeErrors[] = get_string('invalidtoken');
     } else {
         // Execute upgrade
         $upgradeExecuted = true;
@@ -41,10 +41,10 @@ if (isset($_POST['upgrade']) && $_POST['upgrade'] === 'true') {
             $upgradeSuccess = xmldb_core_upgrade($dbversion ?? 0);
 
             if (!$upgradeSuccess) {
-                $upgradeErrors[] = 'Core upgrade failed';
+                $upgradeErrors[] = get_string('error');
             }
         } catch (Exception $e) {
-            $upgradeErrors[] = 'Exception during upgrade: ' . $e->getMessage();
+            $upgradeErrors[] = get_string('error') . ': ' . $e->getMessage();
             $upgradeSuccess = false;
         }
 
@@ -58,11 +58,11 @@ if (isset($_POST['upgrade']) && $_POST['upgrade'] === 'true') {
 
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?php echo \core\string_manager::get_language(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actualización del Sistema - NexoSupport</title>
+    <title><?php echo get_string('upgrade'); ?> - <?php echo get_string('sitename'); ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -214,38 +214,38 @@ if (isset($_POST['upgrade']) && $_POST['upgrade'] === 'true') {
 </head>
 <body>
     <div class="container">
-        <h1>Actualización del Sistema</h1>
-        <h2>NexoSupport</h2>
+        <h1><?php echo get_string('upgrade'); ?></h1>
+        <h2><?php echo get_string('sitename'); ?></h2>
 
         <div class="version-info">
             <div class="version-row">
-                <span class="version-label">Versión Actual en Base de Datos:</span>
-                <span class="version-value"><?php echo $dbversion ?? 'No instalado'; ?></span>
+                <span class="version-label"><?php echo get_string('currentversion'); ?>:</span>
+                <span class="version-value"><?php echo $dbversion ?? get_string('notfound'); ?></span>
             </div>
             <div class="version-row">
-                <span class="version-label">Versión del Código:</span>
+                <span class="version-label"><?php echo get_string('newversion'); ?>:</span>
                 <span class="version-value"><?php echo $codeversion; ?></span>
             </div>
             <div class="version-row">
-                <span class="version-label">Versión de Release:</span>
+                <span class="version-label">Release:</span>
                 <span class="version-value"><?php echo $release; ?></span>
             </div>
         </div>
 
         <?php if ($upgradeExecuted && $upgradeSuccess): ?>
             <div class="alert alert-success">
-                <strong><span class="checkmark">✓</span>¡Actualización Completada!</strong><br>
-                El sistema se ha actualizado correctamente a la versión <?php echo $release; ?>.
+                <strong><span class="checkmark">✓</span><?php echo get_string('upgradecomplete'); ?>!</strong><br>
+                <?php echo get_string('systemreadyupgrade'); ?>
             </div>
 
             <div class="actions">
-                <a href="/admin" class="btn">Ir al Panel de Administración</a>
+                <a href="/admin" class="btn"><?php echo get_string('administration'); ?></a>
             </div>
 
         <?php elseif ($upgradeExecuted && !$upgradeSuccess): ?>
             <div class="alert alert-error">
-                <strong>Error en la Actualización</strong><br>
-                Se encontraron errores durante la actualización:
+                <strong><?php echo get_string('error'); ?></strong><br>
+                <?php echo get_string('error'); ?>:
                 <ul class="error-list">
                     <?php foreach ($upgradeErrors as $error): ?>
                         <li><?php echo htmlspecialchars($error); ?></li>
@@ -254,14 +254,14 @@ if (isset($_POST['upgrade']) && $_POST['upgrade'] === 'true') {
             </div>
 
             <div class="actions">
-                <a href="/admin/upgrade.php" class="btn">Reintentar</a>
-                <a href="/admin" class="btn btn-secondary">Volver</a>
+                <a href="/admin/upgrade.php" class="btn"><?php echo get_string('upgrade'); ?></a>
+                <a href="/admin" class="btn btn-secondary"><?php echo get_string('back'); ?></a>
             </div>
 
         <?php elseif ($upgradeNeeded): ?>
             <div class="alert alert-warning">
-                <strong>Actualización Requerida</strong><br>
-                Se ha detectado una nueva versión del código. Es necesario actualizar la base de datos.
+                <strong><?php echo get_string('requiresupgrade'); ?></strong><br>
+                <?php echo get_string('systemreadyupgrade'); ?>
             </div>
 
             <div class="upgrade-list">
@@ -293,19 +293,19 @@ if (isset($_POST['upgrade']) && $_POST['upgrade'] === 'true') {
                 <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
 
                 <div class="actions">
-                    <a href="/admin" class="btn btn-secondary">Cancelar</a>
-                    <button type="submit" class="btn">Actualizar Ahora</button>
+                    <a href="/admin" class="btn btn-secondary"><?php echo get_string('cancel'); ?></a>
+                    <button type="submit" class="btn"><?php echo get_string('upgradenow'); ?></button>
                 </div>
             </form>
 
         <?php else: ?>
             <div class="alert alert-success">
-                <strong><span class="checkmark">✓</span>Sistema Actualizado</strong><br>
-                No hay actualizaciones pendientes. El sistema está en la última versión.
+                <strong><span class="checkmark">✓</span><?php echo get_string('upgradecomplete'); ?></strong><br>
+                <?php echo get_string('noupdaterequired'); ?>
             </div>
 
             <div class="actions">
-                <a href="/admin" class="btn">Ir al Panel de Administración</a>
+                <a href="/admin" class="btn"><?php echo get_string('administration'); ?></a>
             </div>
         <?php endif; ?>
     </div>

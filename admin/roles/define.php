@@ -16,7 +16,7 @@ $roleid = required_param('roleid', 'int');
 
 $role = \core\rbac\role::get_by_id($roleid);
 if (!$role) {
-    redirect('/admin/roles', 'Rol no encontrado');
+    redirect('/admin/roles', get_string('rolenotfound'));
 }
 
 $errors = [];
@@ -54,11 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($updated > 0) {
-        $success = "Se actualizaron $updated capabilities";
+        $success = get_string('capabilitiesupdated');
         // Recargar capabilities
         $rolecaps = $role->get_capabilities($syscontext);
     } else {
-        $success = "No se realizaron cambios";
+        $success = get_string('capabilitiesupdated');
     }
 }
 
@@ -79,11 +79,11 @@ define('CAP_PROHIBIT', -1000);
 
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?php echo \core\string_manager::get_language(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Definir Capabilities - <?php echo htmlspecialchars($role->name); ?> - NexoSupport</title>
+    <title><?php echo get_string('definecapabilities'); ?> - <?php echo htmlspecialchars($role->name); ?> - <?php echo get_string('sitename'); ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -289,20 +289,20 @@ define('CAP_PROHIBIT', -1000);
 </head>
 <body>
     <div class="nav">
-        <a href="/">Inicio</a>
-        <a href="/admin">Administración</a>
-        <a href="/admin/roles">Roles</a>
-        <a href="/admin/roles/edit?id=<?php echo $roleid; ?>">Editar Rol</a>
-        <a href="/logout">Cerrar sesión</a>
+        <a href="/"><?php echo get_string('home'); ?></a>
+        <a href="/admin"><?php echo get_string('administration'); ?></a>
+        <a href="/admin/roles"><?php echo get_string('roles'); ?></a>
+        <a href="/admin/roles/edit?id=<?php echo $roleid; ?>"><?php echo get_string('editrole'); ?></a>
+        <a href="/logout"><?php echo get_string('logout'); ?></a>
     </div>
 
     <div class="card">
-        <h1>Definir Capabilities del Rol</h1>
+        <h1><?php echo get_string('definepermissions'); ?></h1>
 
         <div class="role-info">
-            <strong>Rol:</strong> <?php echo htmlspecialchars($role->name); ?> (<?php echo htmlspecialchars($role->shortname); ?>)<br>
+            <strong><?php echo get_string('role'); ?>:</strong> <?php echo htmlspecialchars($role->name); ?> (<?php echo htmlspecialchars($role->shortname); ?>)<br>
             <?php if ($role->description): ?>
-                <strong>Descripción:</strong> <?php echo htmlspecialchars($role->description); ?>
+                <strong><?php echo get_string('description'); ?>:</strong> <?php echo htmlspecialchars($role->description); ?>
             <?php endif; ?>
         </div>
 
@@ -315,19 +315,19 @@ define('CAP_PROHIBIT', -1000);
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-color" style="background: #6c757d;"></div>
-                <span><strong>Heredar (0):</strong> Hereda del contexto padre</span>
+                <span><strong><?php echo get_string('inherit'); ?> (0):</strong> <?php echo get_string('inherit'); ?></span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: #28a745;"></div>
-                <span><strong>Permitir (1):</strong> Permite la acción</span>
+                <span><strong><?php echo get_string('allow'); ?> (1):</strong> <?php echo get_string('allow'); ?></span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: #ffc107;"></div>
-                <span><strong>Prevenir (-1):</strong> Niega la acción (puede sobreescribirse)</span>
+                <span><strong><?php echo get_string('prevent'); ?> (-1):</strong> <?php echo get_string('prevent'); ?></span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: #dc3545;"></div>
-                <span><strong>Prohibir (-1000):</strong> Prohibe permanentemente</span>
+                <span><strong><?php echo get_string('prohibit'); ?> (-1000):</strong> <?php echo get_string('prohibit'); ?></span>
             </div>
         </div>
 
@@ -352,22 +352,22 @@ define('CAP_PROHIBIT', -1000);
                                     <button type="button"
                                             class="permission-btn <?php echo $currentPerm == CAP_INHERIT ? 'active-inherit' : ''; ?>"
                                             onclick="setPerm('<?php echo $fieldName; ?>', <?php echo CAP_INHERIT; ?>)">
-                                        Heredar
+                                        <?php echo get_string('inherit'); ?>
                                     </button>
                                     <button type="button"
                                             class="permission-btn <?php echo $currentPerm == CAP_ALLOW ? 'active-allow' : ''; ?>"
                                             onclick="setPerm('<?php echo $fieldName; ?>', <?php echo CAP_ALLOW; ?>)">
-                                        Permitir
+                                        <?php echo get_string('allow'); ?>
                                     </button>
                                     <button type="button"
                                             class="permission-btn <?php echo $currentPerm == CAP_PREVENT ? 'active-prevent' : ''; ?>"
                                             onclick="setPerm('<?php echo $fieldName; ?>', <?php echo CAP_PREVENT; ?>)">
-                                        Prevenir
+                                        <?php echo get_string('prevent'); ?>
                                     </button>
                                     <button type="button"
                                             class="permission-btn <?php echo $currentPerm == CAP_PROHIBIT ? 'active-prohibit' : ''; ?>"
                                             onclick="setPerm('<?php echo $fieldName; ?>', <?php echo CAP_PROHIBIT; ?>)">
-                                        Prohibir
+                                        <?php echo get_string('prohibit'); ?>
                                     </button>
                                     <input type="hidden" name="<?php echo $fieldName; ?>" id="<?php echo $fieldName; ?>" value="<?php echo $currentPerm; ?>">
                                 </div>
@@ -378,9 +378,9 @@ define('CAP_PROHIBIT', -1000);
             <?php endforeach; ?>
 
             <div class="form-actions">
-                <button type="submit" class="btn">Guardar Capabilities</button>
-                <a href="/admin/roles" class="btn btn-secondary">Volver a Roles</a>
-                <a href="/admin/roles/edit?id=<?php echo $roleid; ?>" class="btn btn-secondary">Editar Rol</a>
+                <button type="submit" class="btn"><?php echo get_string('savepermissions'); ?></button>
+                <a href="/admin/roles" class="btn btn-secondary"><?php echo get_string('backtoroles'); ?></a>
+                <a href="/admin/roles/edit?id=<?php echo $roleid; ?>" class="btn btn-secondary"><?php echo get_string('editrole'); ?></a>
             </div>
         </form>
     </div>
