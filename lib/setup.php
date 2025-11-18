@@ -50,6 +50,7 @@ if (file_exists(BASE_DIR . '/vendor/autoload.php')) {
 require_once(__DIR__ . '/functions.php');
 require_once(__DIR__ . '/authlib.php');
 require_once(__DIR__ . '/userlib.php');
+require_once(__DIR__ . '/adminlib.php');
 
 // ============================================
 // PASO 5: Inicializar objeto $CFG
