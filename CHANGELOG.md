@@ -1,20 +1,20 @@
 # NexoSupport Changelog
 
-## Version 1.1.5 (2025-01-18) - moodleform Framework + Core Functions
+## Version 1.1.5 (2025-01-18) - nexoform Framework + Core Functions
 
 ### 🎯 Overview
-Critical infrastructure update to support password management and future form-based features. Implements Moodle's moodleform framework and essential core functions for user preferences and utility operations.
+Critical infrastructure update to support password management and future form-based features. Implements NexoSupport's nexoform framework (Moodle-compatible) and essential core functions for user preferences and utility operations.
 
 ### ✨ New Features
 
 #### Form Library (lib/formslib.php)
-- **moodleform Base Class**: Abstract base class for all forms
-  - Automatic form rendering with Moodle-compatible HTML structure
+- **nexoform Base Class**: Abstract base class for all forms
+  - Automatic form rendering with NexoSupport HTML structure (.nform)
   - Built-in validation framework
   - CSRF protection via sesskey
   - definition() and definition_after_data() hooks
   - get_data(), is_submitted(), is_validated() methods
-- **MoodleQuickForm**: Form builder class
+- **NexoQuickForm**: Form builder class
   - Support for multiple element types: text, password, hidden, checkbox, select, header, static
   - Validation rules per element
   - Type safety with PARAM_* constants
@@ -44,9 +44,9 @@ Critical infrastructure update to support password management and future form-ba
 
 ### 📁 New Files
 
-- `lib/formslib.php` (550+ lines) - Complete moodleform implementation
-  - moodleform abstract class
-  - MoodleQuickForm class
+- `lib/formslib.php` (550+ lines) - Complete nexoform implementation
+  - nexoform abstract class
+  - NexoQuickForm class
   - Full form rendering engine
 
 ### 🔧 Modified Files
@@ -70,10 +70,10 @@ Critical infrastructure update to support password management and future form-ba
 ### 🏗️ Architecture Highlights
 
 #### Moodle Compatibility
-- **Exact Class Hierarchy**: moodleform matches Moodle's formslib.php structure
+- **Exact Class Hierarchy**: nexoform follows Moodle's formslib.php structure
 - **Compatible Method Signatures**: definition(), validation(), get_data(), etc.
 - **Form Elements**: Supports all basic Moodle form element types
-- **Rendering**: Generates Moodle-compatible HTML with .mform classes
+- **Rendering**: Generates NexoSupport HTML with .nform classes
 
 #### Type Safety
 - Form element types use PARAM_* constants
@@ -95,7 +95,7 @@ Critical infrastructure update to support password management and future form-ba
 
 ### 📊 Statistics
 
-- **Classes Created**: 2 (moodleform, MoodleQuickForm)
+- **Classes Created**: 2 (nexoform, NexoQuickForm)
 - **Functions Created**: 7 (user prefs + utilities + s())
 - **Functions Modified**: 1 (check_password_policy enhanced)
 - **New Files Total**: 1 (formslib.php)
@@ -103,7 +103,7 @@ Critical infrastructure update to support password management and future form-ba
 
 ### 🐛 Bugs Fixed
 
-1. **Missing moodleform class** - Password management forms were extending non-existent moodleform
+1. **Missing nexoform class** - Password management forms were extending non-existent form base class
 2. **Missing user preferences** - get_user_preferences() didn't exist, breaking form defaults
 3. **Password policy incompatibility** - check_password_policy() signature didn't match Moodle's
 4. **Missing utility functions** - random_string(), s(), qualified_me() were undefined

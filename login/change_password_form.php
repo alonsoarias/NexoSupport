@@ -12,7 +12,7 @@ defined('NEXOSUPPORT_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 
-class login_change_password_form extends moodleform {
+class login_change_password_form extends nexoform {
 
     function definition() {
         global $USER, $CFG;

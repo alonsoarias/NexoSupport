@@ -1,8 +1,8 @@
 <?php
 /**
- * formslib.php - Moodle-compatible form library for NexoSupport
+ * formslib.php - NexoSupport form library (Moodle-compatible)
  *
- * Provides moodleform base class for creating forms with validation
+ * Provides nexoform base class for creating forms with validation
  *
  * @package    core
  * @subpackage form
@@ -13,10 +13,10 @@
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
- * Base class for Moodle-style forms
+ * Base class for NexoSupport forms
  */
-abstract class moodleform {
-    /** @var MoodleQuickForm The form object */
+abstract class nexoform {
+    /** @var NexoQuickForm The form object */
     protected $_form;
 
     /** @var array Custom data passed to form */
@@ -39,7 +39,7 @@ abstract class moodleform {
         }
 
         $this->_customdata = $customdata;
-        $this->_form = new MoodleQuickForm($this->get_form_identifier(), $method, $action, $target, $attributes);
+        $this->_form = new NexoQuickForm($this->get_form_identifier(), $method, $action, $target, $attributes);
 
         $this->definition();
         $this->definition_after_data();
@@ -48,9 +48,9 @@ abstract class moodleform {
     /**
      * Old syntax of class constructor. Deprecated in PHP7.
      *
-     * @deprecated since Moodle 3.1
+     * @deprecated since NexoSupport 1.1
      */
-    public function moodleform($action = null, $customdata = null, $method = 'post', $target = '', $attributes = null) {
+    public function nexoform($action = null, $customdata = null, $method = 'post', $target = '', $attributes = null) {
         debugging('Use of class name as constructor is deprecated', DEBUG_DEVELOPER);
         self::__construct($action, $customdata, $method, $target, $attributes);
     }
@@ -188,9 +188,9 @@ abstract class moodleform {
 }
 
 /**
- * Simplified QuickForm-style class for building forms
+ * NexoSupport QuickForm-style class for building forms
  */
-class MoodleQuickForm {
+class NexoQuickForm {
     /** @var string Form name */
     protected $_formName;
 
@@ -424,7 +424,7 @@ class MoodleQuickForm {
     public function display() {
         global $OUTPUT;
 
-        echo '<form method="' . s($this->_method) . '" action="' . s($this->_action) . '" class="mform">';
+        echo '<form method="' . s($this->_method) . '" action="' . s($this->_action) . '" class="nform">';
         echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
 
         $currentFieldset = false;

@@ -16,7 +16,7 @@ require_once(__DIR__ . '/lib.php');
 /**
  * Set forgotten password form definition.
  */
-class login_set_password_form extends moodleform {
+class login_set_password_form extends nexoform {
 
     /**
      * Define the set password form.
