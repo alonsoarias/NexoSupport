@@ -1,0 +1,244 @@
+<?php
+/**
+ * Language strings - English
+ *
+ * @package core
+ * @copyright NexoSupport
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('NEXOSUPPORT_INTERNAL') || die();
+
+$string['sitename'] = 'NexoSupport';
+
+// Common errors
+$string['error'] = 'Error';
+$string['success'] = 'Success';
+$string['warning'] = 'Warning';
+$string['info'] = 'Information';
+$string['nopermissions'] = 'You do not have permission to access this page';
+$string['accessdenied'] = 'Access denied';
+$string['notfound'] = 'Not found';
+$string['invaliddata'] = 'Invalid data';
+$string['requiredfield'] = 'This field is required';
+$string['invalidtoken'] = 'Invalid session token';
+$string['sessionexpired'] = 'Your session has expired. Please log in again';
+
+// Navigation
+$string['home'] = 'Home';
+$string['dashboard'] = 'Dashboard';
+$string['administration'] = 'Administration';
+$string['settings'] = 'Settings';
+$string['profile'] = 'My Profile';
+$string['logout'] = 'Log out';
+$string['login'] = 'Log in';
+$string['back'] = 'Back';
+$string['cancel'] = 'Cancel';
+$string['save'] = 'Save';
+$string['delete'] = 'Delete';
+$string['edit'] = 'Edit';
+$string['create'] = 'Create';
+$string['view'] = 'View';
+$string['search'] = 'Search';
+$string['next'] = 'Next';
+$string['previous'] = 'Previous';
+
+// Authentication
+$string['username'] = 'Username';
+$string['password'] = 'Password';
+$string['email'] = 'Email';
+$string['firstname'] = 'First name';
+$string['lastname'] = 'Last name';
+$string['fullname'] = 'Full name';
+$string['loggedinas'] = 'Logged in as {$a}';
+$string['welcome'] = 'Welcome';
+$string['welcomeback'] = 'Welcome back, {$a}';
+$string['invalidlogin'] = 'Invalid username or password';
+$string['loggedout'] = 'You have been logged out successfully';
+$string['pleaselogin'] = 'Please log in';
+
+// Users
+$string['user'] = 'User';
+$string['users'] = 'Users';
+$string['usermanagement'] = 'User Management';
+$string['manageusers'] = 'Manage Users';
+$string['createuser'] = 'Create User';
+$string['edituser'] = 'Edit User';
+$string['deleteuser'] = 'Delete User';
+$string['userdeleted'] = 'User deleted successfully';
+$string['usercreated'] = 'User created successfully';
+$string['userupdated'] = 'User updated successfully';
+$string['totalusers'] = 'Total Users';
+$string['activeusers'] = 'Active Users';
+$string['suspendedusers'] = 'Suspended Users';
+$string['deletedusers'] = 'Deleted Users';
+$string['suspended'] = 'Suspended';
+$string['active'] = 'Active';
+$string['deleted'] = 'Deleted';
+$string['lastlogin'] = 'Last login';
+$string['timecreated'] = 'Created';
+$string['timemodified'] = 'Last modified';
+$string['nousers'] = 'No users to display';
+$string['userinfo'] = 'User information';
+
+// Roles and permissions
+$string['role'] = 'Role';
+$string['roles'] = 'Roles';
+$string['rolemanagement'] = 'Role Management';
+$string['manageroles'] = 'Manage Roles';
+$string['createrole'] = 'Create Role';
+$string['editrole'] = 'Edit Role';
+$string['deleterole'] = 'Delete Role';
+$string['assignroles'] = 'Assign Roles';
+$string['rolename'] = 'Role name';
+$string['roleshortname'] = 'Short name';
+$string['roledescription'] = 'Description';
+$string['rolecreated'] = 'Role created successfully';
+$string['roleupdated'] = 'Role updated successfully';
+$string['roledeleted'] = 'Role deleted successfully';
+$string['roleassigned'] = 'Role \'{$a}\' assigned successfully';
+$string['roleunassigned'] = 'Role \'{$a}\' removed successfully';
+$string['noroles'] = 'No roles defined in the system';
+$string['totalroles'] = 'System Roles';
+$string['capabilities'] = 'Capabilities';
+$string['definecapabilities'] = 'Define Capabilities';
+$string['capability'] = 'Capability';
+$string['permission'] = 'Permission';
+$string['inherit'] = 'Inherit';
+$string['allow'] = 'Allow';
+$string['prevent'] = 'Prevent';
+$string['prohibit'] = 'Prohibit';
+$string['nocapabilities'] = 'No capabilities defined';
+$string['capabilitiesupdated'] = 'Capabilities updated successfully';
+
+// Sessions
+$string['session'] = 'Session';
+$string['sessions'] = 'Sessions';
+$string['activesessions'] = 'Active Sessions';
+$string['sessiontimeout'] = 'Session Timeout (seconds)';
+
+// Dashboard
+$string['quickactions'] = 'Quick Actions';
+$string['recentactivity'] = 'Recent Activity';
+$string['statistics'] = 'Statistics';
+$string['norecentactivity'] = 'No recent activity to display';
+
+// Settings
+$string['systemsettings'] = 'System Settings';
+$string['generalsettings'] = 'General';
+$string['developmentsettings'] = 'Development';
+$string['sitename'] = 'Site Name';
+$string['sitenamehelp'] = 'Name that appears in the header and emails';
+$string['debugmode'] = 'Debug Mode';
+$string['debughelp'] = 'Enable debug messages in logs. For development only.';
+$string['sessiontimeouthelp'] = 'Inactivity time before logging out. Range: 10 min (600) - 24 hrs (86400). Recommended: 7200 (2 hours)';
+$string['configsaved'] = 'Configuration saved successfully';
+$string['systeminfo'] = 'System Information';
+$string['systemversion'] = 'System Version';
+$string['phpversion'] = 'PHP Version';
+$string['database'] = 'Database';
+$string['tableprefix'] = 'Table Prefix';
+$string['currentuser'] = 'Current User';
+
+// Forms
+$string['required'] = 'Required';
+$string['optional'] = 'Optional';
+$string['submit'] = 'Submit';
+$string['reset'] = 'Reset';
+$string['confirm'] = 'Confirm';
+$string['confirmdelete'] = 'Are you sure you want to delete this item?';
+$string['yes'] = 'Yes';
+$string['no'] = 'No';
+
+// Actions
+$string['actions'] = 'Actions';
+$string['add'] = 'Add';
+$string['remove'] = 'Remove';
+$string['assign'] = 'Assign';
+$string['unassign'] = 'Unassign';
+$string['update'] = 'Update';
+$string['manage'] = 'Manage';
+$string['configure'] = 'Configure';
+
+// Pagination
+$string['page'] = 'Page';
+$string['of'] = 'of';
+$string['showing'] = 'Showing';
+$string['to'] = 'to';
+$string['entries'] = 'entries';
+$string['noresults'] = 'No results found';
+$string['nomoreresults'] = 'No more results';
+
+// Status
+$string['status'] = 'Status';
+$string['enabled'] = 'Enabled';
+$string['disabled'] = 'Disabled';
+$string['visible'] = 'Visible';
+$string['hidden'] = 'Hidden';
+
+// Installation and upgrade
+$string['installation'] = 'Installation';
+$string['upgrade'] = 'Upgrade';
+$string['installing'] = 'Installing...';
+$string['upgrading'] = 'Upgrading...';
+$string['installcomplete'] = 'Installation complete';
+$string['upgradecomplete'] = 'Upgrade complete';
+$string['upgraderequired'] = 'Upgrade required';
+$string['clicktoupgrade'] = 'Click here to upgrade';
+
+// Time strings
+$string['second'] = 'second';
+$string['seconds'] = 'seconds';
+$string['minute'] = 'minute';
+$string['minutes'] = 'minutes';
+$string['hour'] = 'hour';
+$string['hours'] = 'hours';
+$string['day'] = 'day';
+$string['days'] = 'days';
+$string['week'] = 'week';
+$string['weeks'] = 'weeks';
+$string['month'] = 'month';
+$string['months'] = 'months';
+$string['year'] = 'year';
+$string['years'] = 'years';
+$string['ago'] = '{$a} ago';
+$string['never'] = 'Never';
+
+// Capability descriptions
+$string['capability:nexosupport/admin:viewdashboard'] = 'View administrative dashboard';
+$string['capability:nexosupport/admin:manageusers'] = 'Manage system users';
+$string['capability:nexosupport/admin:manageroles'] = 'Manage roles and permissions';
+$string['capability:nexosupport/admin:assignroles'] = 'Assign roles to users';
+$string['capability:nexosupport/admin:manageconfig'] = 'Manage system configuration';
+$string['capability:nexosupport/user:editownprofile'] = 'Edit own profile';
+$string['capability:nexosupport/user:viewprofile'] = 'View user profiles';
+
+// Action card descriptions
+$string['manageusers_desc'] = 'View, create, and edit system users';
+$string['manageroles_desc'] = 'Configure roles and assign capabilities';
+$string['managesettings_desc'] = 'Configure system parameters';
+$string['myprofile_desc'] = 'View and edit my personal information';
+
+// Validation messages
+$string['invalidusername'] = 'Invalid username';
+$string['invalidemailformat'] = 'Invalid email format';
+$string['usernameexists'] = 'Username already exists';
+$string['emailexists'] = 'Email is already registered';
+$string['passwordtooshort'] = 'Password is too short (minimum 8 characters)';
+$string['passwordmismatch'] = 'Passwords do not match';
+
+// Other
+$string['description'] = 'Description';
+$string['name'] = 'Name';
+$string['code'] = 'Code';
+$string['value'] = 'Value';
+$string['type'] = 'Type';
+$string['component'] = 'Component';
+$string['context'] = 'Context';
+$string['system'] = 'System';
+$string['unknown'] = 'Unknown';
+$string['none'] = 'None';
+$string['all'] = 'All';
+$string['any'] = 'Any';
+$string['empty'] = 'Empty';
+$string['nodata'] = 'No data available';

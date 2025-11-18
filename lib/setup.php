@@ -133,9 +133,31 @@ if (isset($_SESSION['USER'])) {
 }
 
 // ============================================
-// PASO 9: Inicializar $LANG
+// PASO 9: Inicializar sistema de idiomas
 // ============================================
 
+// Determinar idioma
+$currentlang = 'es'; // Idioma por defecto
+
+// Si hay usuario logueado, usar su idioma preferido
+if ($CFG->installed && $DB !== null && isset($USER->id) && $USER->id > 0) {
+    if (isset($USER->lang) && !empty($USER->lang)) {
+        $currentlang = $USER->lang;
+    }
+}
+
+// Permitir override por parámetro URL (útil para testing)
+if (isset($_GET['lang'])) {
+    $lang_param = clean_param($_GET['lang'], 'alphanumext');
+    if (in_array($lang_param, ['es', 'en'])) {
+        $currentlang = $lang_param;
+    }
+}
+
+// Configurar idioma en string_manager
+\core\string_manager::set_language($currentlang);
+
+// Mantener compatibilidad con código antiguo
 global $LANG;
 $LANG = [];
 

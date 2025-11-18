@@ -19,32 +19,7 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  * @return string
  */
 function get_string(string $identifier, string $component = 'core', mixed $a = null): string {
-    global $LANG;
-
-    if (!isset($LANG)) {
-        $LANG = [];
-    }
-
-    // Cargar strings del componente si no están cargados
-    if (!isset($LANG[$component])) {
-        $LANG[$component] = load_language_strings($component);
-    }
-
-    $string = $LANG[$component][$identifier] ?? "[[$identifier]]";
-
-    // Interpolación simple
-    if ($a !== null) {
-        if (is_object($a) || is_array($a)) {
-            foreach ((array)$a as $key => $value) {
-                $string = str_replace('{$a->' . $key . '}', $value, $string);
-                $string = str_replace('{' . $key . '}', $value, $string);
-            }
-        } else {
-            $string = str_replace('{$a}', $a, $string);
-        }
-    }
-
-    return $string;
+    return \core\string_manager::get_string($identifier, $component, $a);
 }
 
 /**
@@ -55,13 +30,7 @@ function get_string(string $identifier, string $component = 'core', mixed $a = n
  * @return bool
  */
 function string_exists(string $identifier, string $component = 'core'): bool {
-    global $LANG;
-
-    if (!isset($LANG[$component])) {
-        $LANG[$component] = load_language_strings($component);
-    }
-
-    return isset($LANG[$component][$identifier]);
+    return \core\string_manager::string_exists($identifier, $component);
 }
 
 /**

@@ -122,11 +122,37 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // Upgrade to v1.2.0 (2025011802) - Add i18n Support
+    // =========================================================
+    if ($oldversion < 2025011802) {
+        require_once(__DIR__ . '/classes/db/xmldb_table.php');
+        require_once(__DIR__ . '/classes/db/xmldb_field.php');
+        require_once(__DIR__ . '/classes/db/ddl_manager.php');
+
+        try {
+            $ddl = new \core\db\ddl_manager($DB);
+
+            // Add lang field to users table
+            $table = new \core\db\xmldb_table('users');
+            $field = new \core\db\xmldb_field('lang', \core\db\xmldb_field::TYPE_CHAR, 10, null, true, null, 'es', 'lastip');
+
+            if (!$ddl->field_exists($table, $field)) {
+                $ddl->add_field($table, $field);
+                debugging('Added lang field to users table', DEBUG_DEVELOPER);
+            }
+        } catch (Exception $e) {
+            debugging('Error adding lang field: ' . $e->getMessage());
+        }
+
+        upgrade_core_savepoint(true, 2025011802);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 
     // if ($oldversion < 2025011900) {
-    //     // Upgrade to v1.2.0
+    //     // Upgrade to v1.3.0
     //     upgrade_core_savepoint(true, 2025011900);
     // }
 

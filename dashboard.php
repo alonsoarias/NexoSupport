@@ -22,11 +22,11 @@ $recentlogins = $DB->get_records_sql('SELECT * FROM {users} WHERE deleted = 0 AN
 
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?php echo \core\string_manager::get_language(); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - NexoSupport</title>
+    <title><?php echo get_string('dashboard'); ?> - <?php echo get_string('sitename'); ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -171,76 +171,76 @@ $recentlogins = $DB->get_records_sql('SELECT * FROM {users} WHERE deleted = 0 AN
 </head>
 <body>
     <div class="nav">
-        <a href="/">Inicio</a>
+        <a href="/"><?php echo get_string('home'); ?></a>
         <?php if (has_capability('nexosupport/admin:viewdashboard')): ?>
-            <a href="/admin">Administración</a>
+            <a href="/admin"><?php echo get_string('administration'); ?></a>
         <?php endif; ?>
-        <a href="/user/profile">Mi Perfil</a>
-        <a href="/logout">Cerrar sesión</a>
+        <a href="/user/profile"><?php echo get_string('profile'); ?></a>
+        <a href="/logout"><?php echo get_string('logout'); ?></a>
     </div>
 
-    <h1>Dashboard</h1>
-    <p class="welcome-msg">Bienvenido, <strong><?php echo htmlspecialchars($USER->firstname . ' ' . $USER->lastname); ?></strong></p>
+    <h1><?php echo get_string('dashboard'); ?></h1>
+    <p class="welcome-msg"><?php echo get_string('welcomeback', 'core', $USER->firstname . ' ' . $USER->lastname); ?></p>
 
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-value"><?php echo $totalusers; ?></div>
-            <div class="stat-label">Total Usuarios</div>
+            <div class="stat-label"><?php echo get_string('totalusers'); ?></div>
         </div>
 
         <div class="stat-card">
             <div class="stat-value"><?php echo $activeusers; ?></div>
-            <div class="stat-label">Usuarios Activos</div>
+            <div class="stat-label"><?php echo get_string('activeusers'); ?></div>
         </div>
 
         <div class="stat-card">
             <div class="stat-value"><?php echo $totalroles; ?></div>
-            <div class="stat-label">Roles del Sistema</div>
+            <div class="stat-label"><?php echo get_string('totalroles'); ?></div>
         </div>
 
         <div class="stat-card">
             <div class="stat-value"><?php echo $activesessions; ?></div>
-            <div class="stat-label">Sesiones Activas</div>
+            <div class="stat-label"><?php echo get_string('activesessions'); ?></div>
         </div>
     </div>
 
     <?php if (has_capability('nexosupport/admin:viewdashboard')): ?>
-        <h2 style="margin-bottom: 20px;">Acciones Rápidas</h2>
+        <h2 style="margin-bottom: 20px;"><?php echo get_string('quickactions'); ?></h2>
         <div class="actions-grid">
             <?php if (has_capability('nexosupport/admin:manageusers')): ?>
                 <a href="/admin/users" class="action-card">
-                    <h3>Gestionar Usuarios</h3>
-                    <p>Ver, crear y editar usuarios del sistema</p>
+                    <h3><?php echo get_string('manageusers'); ?></h3>
+                    <p><?php echo get_string('manageusers_desc'); ?></p>
                 </a>
             <?php endif; ?>
 
             <?php if (has_capability('nexosupport/admin:manageroles')): ?>
                 <a href="/admin/roles" class="action-card">
-                    <h3>Roles y Permisos</h3>
-                    <p>Configurar roles y asignar capabilities</p>
+                    <h3><?php echo get_string('manageroles'); ?></h3>
+                    <p><?php echo get_string('manageroles_desc'); ?></p>
                 </a>
             <?php endif; ?>
 
             <?php if (has_capability('nexosupport/admin:manageconfig')): ?>
                 <a href="/admin/settings" class="action-card">
-                    <h3>Configuración</h3>
-                    <p>Configurar parámetros del sistema</p>
+                    <h3><?php echo get_string('settings'); ?></h3>
+                    <p><?php echo get_string('managesettings_desc'); ?></p>
                 </a>
             <?php endif; ?>
 
             <a href="/user/profile" class="action-card">
-                <h3>Mi Perfil</h3>
-                <p>Ver y editar mi información personal</p>
+                <h3><?php echo get_string('profile'); ?></h3>
+                <p><?php echo get_string('myprofile_desc'); ?></p>
             </a>
         </div>
     <?php endif; ?>
 
     <div class="recent-activity">
-        <h2>Actividad Reciente</h2>
+        <h2><?php echo get_string('recentactivity'); ?></h2>
 
         <?php if (empty($recentlogins)): ?>
             <div class="empty-state">
-                <p>No hay actividad reciente para mostrar</p>
+                <p><?php echo get_string('norecentactivity'); ?></p>
             </div>
         <?php else: ?>
             <ul class="activity-list">
@@ -251,7 +251,7 @@ $recentlogins = $DB->get_records_sql('SELECT * FROM {users} WHERE deleted = 0 AN
                             <span style="color: #999;"> (<?php echo htmlspecialchars($login->username); ?>)</span>
                         </div>
                         <span class="activity-time">
-                            Último acceso: <?php echo date('d/m/Y H:i', $login->lastlogin); ?>
+                            <?php echo get_string('lastlogin'); ?>: <?php echo date('d/m/Y H:i', $login->lastlogin); ?>
                         </span>
                     </li>
                 <?php endforeach; ?>
