@@ -331,32 +331,24 @@ function xmldb_core_upgrade(int $oldversion): bool {
         try {
             $ddl = new \core\db\ddl_manager($DB);
 
-            // Create logstore_standard_log table
+            // Create logstore_standard_log table (simplified for NexoSupport)
             $table = new \core\db\xmldb_table('logstore_standard_log');
             $table->add_field((new \core\db\xmldb_field('id', 'int'))->set_length(10)->set_notnull(true)->set_sequence(true));
             $table->add_field((new \core\db\xmldb_field('eventname', 'char'))->set_length(255)->set_notnull(true));
-            $table->add_field((new \core\db\xmldb_field('component', 'char'))->set_length(100)->set_notnull(true));
-            $table->add_field((new \core\db\xmldb_field('action', 'char'))->set_length(100)->set_notnull(true));
-            $table->add_field((new \core\db\xmldb_field('target', 'char'))->set_length(100)->set_notnull(true));
+            $table->add_field((new \core\db\xmldb_field('action', 'char'))->set_length(50)->set_notnull(true));
             $table->add_field((new \core\db\xmldb_field('objecttable', 'char'))->set_length(50)->set_notnull(false));
             $table->add_field((new \core\db\xmldb_field('objectid', 'int'))->set_length(10)->set_notnull(false));
-            $table->add_field((new \core\db\xmldb_field('crud', 'char'))->set_length(1)->set_notnull(true));
-            $table->add_field((new \core\db\xmldb_field('contextid', 'int'))->set_length(10)->set_notnull(true));
-            $table->add_field((new \core\db\xmldb_field('contextlevel', 'int'))->set_length(10)->set_notnull(true));
-            $table->add_field((new \core\db\xmldb_field('contextinstanceid', 'int'))->set_length(10)->set_notnull(true));
             $table->add_field((new \core\db\xmldb_field('userid', 'int'))->set_length(10)->set_notnull(true));
-            $table->add_field((new \core\db\xmldb_field('relateduserid', 'int'))->set_length(10)->set_notnull(false));
-            $table->add_field((new \core\db\xmldb_field('anonymous', 'int'))->set_length(1)->set_notnull(true)->set_default(0));
+            $table->add_field((new \core\db\xmldb_field('contextid', 'int'))->set_length(10)->set_notnull(true));
             $table->add_field((new \core\db\xmldb_field('other', 'text'))->set_notnull(false));
             $table->add_field((new \core\db\xmldb_field('timecreated', 'int'))->set_length(10)->set_notnull(true));
-            $table->add_field((new \core\db\xmldb_field('origin', 'char'))->set_length(10)->set_notnull(false));
             $table->add_field((new \core\db\xmldb_field('ip', 'char'))->set_length(45)->set_notnull(false));
-            $table->add_field((new \core\db\xmldb_field('realuserid', 'int'))->set_length(10)->set_notnull(false));
             $table->add_key((new \core\db\xmldb_key('primary', 'primary', ['id'])));
             $table->add_index((new \core\db\xmldb_index('idx_timecreated', 'notunique', ['timecreated'])));
             $table->add_index((new \core\db\xmldb_index('idx_userid', 'notunique', ['userid'])));
-            $table->add_index((new \core\db\xmldb_index('idx_contextid', 'notunique', ['contextid'])));
             $table->add_index((new \core\db\xmldb_index('idx_eventname', 'notunique', ['eventname'])));
+            $table->add_index((new \core\db\xmldb_index('idx_action', 'notunique', ['action'])));
+            $table->add_index((new \core\db\xmldb_index('idx_objecttable_objectid', 'notunique', ['objecttable', 'objectid'])));
 
             if (!$ddl->table_exists($table->get_name())) {
                 $ddl->create_table($table);

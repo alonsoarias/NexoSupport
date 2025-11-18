@@ -16,19 +16,13 @@ class user_created extends \core\event\base {
         return 'created';
     }
 
-    protected static function get_target() {
-        return 'user';
-    }
-
     protected static function get_objecttable() {
         return 'users';
     }
 
-    protected static function get_crud() {
-        return 'c';
-    }
-
     public function get_description() {
-        return "User {$this->relateduserid} was created by user {$this->userid}";
+        $userid = $this->data['userid'] ?? 0;
+        $objectid = $this->data['objectid'] ?? 0;
+        return "User with id {$objectid} was created by user {$userid}";
     }
 }

@@ -40,7 +40,9 @@ class role_unassigned extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "User {$this->userid} unassigned role {$this->objectid} from user {$this->relateduserid}";
+        $userid = $this->data['userid'] ?? 0;
+        $objectid = $this->data['objectid'] ?? 0;
+        return "User {$userid} unassigned role {$objectid}";
     }
 
     /**
@@ -53,29 +55,11 @@ class role_unassigned extends \core\event\base {
     }
 
     /**
-     * Return the target.
-     *
-     * @return string
-     */
-    protected static function get_target() {
-        return 'role';
-    }
-
-    /**
      * Return the object table.
      *
      * @return string
      */
     protected static function get_objecttable() {
         return 'role_assignments';
-    }
-
-    /**
-     * Return the CRUD type.
-     *
-     * @return string
-     */
-    protected static function get_crud() {
-        return 'd'; // Delete
     }
 }

@@ -41,7 +41,8 @@ class user_loggedin extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "User {$this->userid} logged in";
+        $userid = $this->data['userid'] ?? 0;
+        return "User {$userid} logged in";
     }
 
     /**
@@ -54,29 +55,11 @@ class user_loggedin extends \core\event\base {
     }
 
     /**
-     * Return the target.
-     *
-     * @return string
-     */
-    protected static function get_target() {
-        return 'user';
-    }
-
-    /**
      * Return the object table.
      *
      * @return string
      */
     protected static function get_objecttable() {
         return 'users';
-    }
-
-    /**
-     * Return the CRUD type.
-     *
-     * @return string
-     */
-    protected static function get_crud() {
-        return 'r'; // Read
     }
 }

@@ -25,12 +25,6 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  */
 abstract class base {
 
-    /** CRUD constants */
-    const ACTION_CREATED = 'c';
-    const ACTION_UPDATED = 'u';
-    const ACTION_DELETED = 'd';
-    const ACTION_READ = 'r';
-
     /**
      * @var array Event data
      */
@@ -59,27 +53,18 @@ abstract class base {
      * @param array|null $data Event data
      */
     protected function init($data = null) {
-        global $USER, $CFG;
+        global $USER;
 
         $this->data = [
             'eventname' => get_called_class(),
-            'component' => $this->get_component(),
             'action' => static::get_action(),
-            'target' => static::get_target(),
             'objecttable' => static::get_objecttable(),
             'objectid' => null,
-            'crud' => static::get_crud(),
-            'contextid' => \core\rbac\context::system()->id,
-            'contextlevel' => CONTEXT_SYSTEM,
-            'contextinstanceid' => 0,
             'userid' => isset($USER->id) ? $USER->id : 0,
-            'relateduserid' => null,
-            'anonymous' => 0,
+            'contextid' => \core\rbac\context::system()->id,
             'other' => null,
             'timecreated' => time(),
-            'origin' => 'web',
             'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
-            'realuserid' => null,
         ];
 
         if ($data) {
@@ -94,8 +79,6 @@ abstract class base {
         if (isset($data['context'])) {
             $this->context = $data['context'];
             $this->data['contextid'] = $this->context->id;
-            $this->data['contextlevel'] = $this->context->contextlevel;
-            $this->data['contextinstanceid'] = $this->context->instanceid;
         } else if (isset($data['contextid'])) {
             $this->context = \core\rbac\context::instance_by_id($data['contextid']);
         }
@@ -141,45 +124,17 @@ abstract class base {
         if (empty($this->data['eventname'])) {
             throw new \coding_exception('Event name is required');
         }
-        if (empty($this->data['component'])) {
-            throw new \coding_exception('Event component is required');
+        if (empty($this->data['action'])) {
+            throw new \coding_exception('Event action is required');
         }
-    }
-
-    /**
-     * Get component name.
-     *
-     * @return string Component name (e.g., 'core', 'mod_forum')
-     */
-    protected function get_component() {
-        $classname = get_called_class();
-        $parts = explode('\\', $classname);
-
-        if ($parts[0] === 'core') {
-            return 'core';
-        }
-
-        // For plugins: mod_forum, auth_manual, etc.
-        if (count($parts) >= 2) {
-            return $parts[0] . '_' . $parts[1];
-        }
-
-        return 'core';
     }
 
     /**
      * Get event action.
      *
-     * @return string Action (e.g., 'viewed', 'created', 'updated', 'deleted')
+     * @return string Action (e.g., 'created', 'updated', 'deleted', 'viewed')
      */
     abstract protected static function get_action();
-
-    /**
-     * Get event target.
-     *
-     * @return string Target (e.g., 'user', 'course', 'role')
-     */
-    abstract protected static function get_target();
 
     /**
      * Get object table.
@@ -189,13 +144,6 @@ abstract class base {
     protected static function get_objecttable() {
         return null;
     }
-
-    /**
-     * Get CRUD type.
-     *
-     * @return string CRUD (c=create, r=read, u=update, d=delete)
-     */
-    abstract protected static function get_crud();
 
     /**
      * Get event data.
@@ -228,7 +176,10 @@ abstract class base {
      * @return string Event name
      */
     public static function get_name() {
-        return get_string('event' . static::get_action() . static::get_target(), 'core');
+        $classname = get_called_class();
+        $parts = explode('\\', $classname);
+        $shortname = end($parts);
+        return get_string('event_' . $shortname, 'core');
     }
 
     /**

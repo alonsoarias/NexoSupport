@@ -40,9 +40,12 @@ class capability_assigned extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        $capability = $this->other['capability'] ?? 'unknown';
-        $permission = $this->other['permission'] ?? 'unknown';
-        return "User {$this->userid} assigned capability '{$capability}' with permission '{$permission}' to role {$this->objectid}";
+        $userid = $this->data['userid'] ?? 0;
+        $objectid = $this->data['objectid'] ?? 0;
+        $other = is_string($this->data['other']) ? json_decode($this->data['other'], true) : ($this->data['other'] ?? []);
+        $capability = $other['capability'] ?? 'unknown';
+        $permission = $other['permission'] ?? 'unknown';
+        return "User {$userid} assigned capability '{$capability}' with permission '{$permission}' to role {$objectid}";
     }
 
     /**
@@ -55,29 +58,11 @@ class capability_assigned extends \core\event\base {
     }
 
     /**
-     * Return the target.
-     *
-     * @return string
-     */
-    protected static function get_target() {
-        return 'capability';
-    }
-
-    /**
      * Return the object table.
      *
      * @return string
      */
     protected static function get_objecttable() {
         return 'role_capabilities';
-    }
-
-    /**
-     * Return the CRUD type.
-     *
-     * @return string
-     */
-    protected static function get_crud() {
-        return 'c'; // Create
     }
 }

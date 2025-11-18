@@ -40,7 +40,9 @@ class user_deleted extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "User {$this->userid} deleted user {$this->relateduserid}";
+        $userid = $this->data['userid'] ?? 0;
+        $objectid = $this->data['objectid'] ?? 0;
+        return "User {$userid} deleted user {$objectid}";
     }
 
     /**
@@ -53,29 +55,11 @@ class user_deleted extends \core\event\base {
     }
 
     /**
-     * Return the target.
-     *
-     * @return string
-     */
-    protected static function get_target() {
-        return 'user';
-    }
-
-    /**
      * Return the object table.
      *
      * @return string
      */
     protected static function get_objecttable() {
         return 'users';
-    }
-
-    /**
-     * Return the CRUD type.
-     *
-     * @return string
-     */
-    protected static function get_crud() {
-        return 'd'; // Delete
     }
 }

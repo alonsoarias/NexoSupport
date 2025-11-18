@@ -40,10 +40,13 @@ class capability_updated extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        $capability = $this->other['capability'] ?? 'unknown';
-        $oldpermission = $this->other['oldpermission'] ?? 'unknown';
-        $newpermission = $this->other['newpermission'] ?? 'unknown';
-        return "User {$this->userid} updated capability '{$capability}' from '{$oldpermission}' to '{$newpermission}' for role {$this->objectid}";
+        $userid = $this->data['userid'] ?? 0;
+        $objectid = $this->data['objectid'] ?? 0;
+        $other = is_string($this->data['other']) ? json_decode($this->data['other'], true) : ($this->data['other'] ?? []);
+        $capability = $other['capability'] ?? 'unknown';
+        $oldpermission = $other['oldpermission'] ?? 'unknown';
+        $newpermission = $other['newpermission'] ?? 'unknown';
+        return "User {$userid} updated capability '{$capability}' from '{$oldpermission}' to '{$newpermission}' for role {$objectid}";
     }
 
     /**
@@ -56,29 +59,11 @@ class capability_updated extends \core\event\base {
     }
 
     /**
-     * Return the target.
-     *
-     * @return string
-     */
-    protected static function get_target() {
-        return 'capability';
-    }
-
-    /**
      * Return the object table.
      *
      * @return string
      */
     protected static function get_objecttable() {
         return 'role_capabilities';
-    }
-
-    /**
-     * Return the CRUD type.
-     *
-     * @return string
-     */
-    protected static function get_crud() {
-        return 'u'; // Update
     }
 }
