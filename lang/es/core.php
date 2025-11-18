@@ -441,3 +441,15 @@ $string['continue'] = 'Continuar';
 $string['required'] = 'Requerido';
 $string['loginalready'] = 'Ya ha iniciado sesión';
 $string['administrator'] = 'Administrador';
+
+// Event names (v1.1.6)
+$string['eventuserloggedin'] = 'Usuario ingresó al sistema';
+$string['eventusercreated'] = 'Usuario creado';
+$string['eventuserupdated'] = 'Usuario actualizado';
+$string['eventuserdeleted'] = 'Usuario eliminado';
+$string['eventusersuspended'] = 'Usuario suspendido';
+$string['eventuserunsuspended'] = 'Usuario reactivado';
+$string['eventroleassigned'] = 'Rol asignado';
+$string['eventroleunassigned'] = 'Rol removido';
+$string['eventcapabilityassigned'] = 'Capability asignada';
+$string['eventcapabilityupdated'] = 'Capability actualizada';

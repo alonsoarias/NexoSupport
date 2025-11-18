@@ -3,26 +3,33 @@
 ## Version 1.1.6 (2025-01-18) - Comprehensive Logging System
 
 ### 🎯 Overview
-Complete event logging system implementation following Moodle's logstore architecture. All user actions, system changes, and administrative operations are now tracked in a comprehensive audit log.
+Complete event logging system implementation adapted from Moodle's logstore architecture. All user actions, system changes, and administrative operations are now tracked in a comprehensive audit log. Includes upgrade helper library and event logging integration across the system.
 
 ### ✨ New Features
 
 #### Event Logging System
-- **logstore_standard_log Table**: Moodle-compatible event logging
+- **logstore_standard_log Table**: Event logging adapted for NexoSupport
   - Records all system events with full context
   - Tracks user actions, admin operations, and system changes
   - CRUD operation tracking (Create, Read, Update, Delete)
-  - Educational level classification
   - IP address and origin tracking
+  - Context-aware logging (contextid, contextlevel, contextinstanceid)
 - **Event Base Class** (`lib/classes/event/base.php`)
   - Abstract base class for all events
   - Automatic context detection
   - Component-based event organization
   - Extensible for custom events
-- **Core Events**:
+- **Core Events Implemented** (10 total):
   - `user_loggedin` - User login tracking
   - `user_created` - User creation tracking
-  - More events easily extensible
+  - `user_updated` - User modification tracking
+  - `user_deleted` - User deletion tracking
+  - `user_suspended` - User suspension tracking
+  - `user_unsuspended` - User reactivation tracking
+  - `role_assigned` - Role assignment tracking
+  - `role_unassigned` - Role removal tracking
+  - `capability_assigned` - Capability assignment tracking
+  - `capability_updated` - Capability modification tracking
 
 #### User Preferences System
 - **user_preferences Table**: Persistent user settings storage
@@ -45,27 +52,62 @@ Complete event logging system implementation following Moodle's logstore archite
   - Automatically set to first user during upgrade
   - Used for system-level permissions
 
+#### Upgrade Helper Library
+- **lib/upgradelib.php**: Comprehensive upgrade support functions (440+ lines)
+  - upgrade_log() - Log upgrade progress
+  - upgrade_handle_exception() - Exception handling
+  - upgrade_core_savepoint() - Version checkpoints
+  - upgrade_check_php_version() - PHP version validation
+  - upgrade_check_php_extensions() - Extension validation
+  - upgrade_check_database() - Database connectivity check
+  - purge_all_caches() - Cache clearing
+  - And 15+ additional helper functions
+
+#### Event Integration
+- **login/index.php**: Triggers user_loggedin event after successful authentication
+- **lib/classes/user/manager.php**: Triggers user_created and user_updated events
+- **lib/userlib.php**: Triggers user_deleted, user_suspended, user_unsuspended events
+- **lib/classes/rbac/role.php**: Triggers capability_assigned and capability_updated events
+- **lib/classes/rbac/access.php**: Triggers role_assigned and role_unassigned events
+
 ### 📁 New Files
 
-- `lib/classes/event/base.php` (300+ lines) - Event base class
+#### Event Classes (11 files)
+- `lib/classes/event/base.php` (276 lines) - Abstract event base class
 - `lib/classes/event/user_loggedin.php` - Login event
 - `lib/classes/event/user_created.php` - User creation event
-- `lib/db/install.xml` - Updated with 4 new tables
+- `lib/classes/event/user_updated.php` - User update event
+- `lib/classes/event/user_deleted.php` - User deletion event
+- `lib/classes/event/user_suspended.php` - User suspension event
+- `lib/classes/event/user_unsuspended.php` - User reactivation event
+- `lib/classes/event/role_assigned.php` - Role assignment event
+- `lib/classes/event/role_unassigned.php` - Role removal event
+- `lib/classes/event/capability_assigned.php` - Capability assignment event
+- `lib/classes/event/capability_updated.php` - Capability update event
+
+#### Core Libraries
+- `lib/upgradelib.php` (440+ lines) - Upgrade helper functions
 
 ### 🔧 Modified Files
 
-- `admin/upgrade.php` - Fixed config.php requirement, added authentication
-- `lib/upgrade.php` - Added v1.1.6 upgrade with table creation
+- `admin/upgrade.php` - Changed authentication from require_capability() to is_siteadmin()
+- `lib/upgrade.php` - Added v1.1.6 upgrade with proper xmldb object creation
 - `lib/version.php` - Bumped to v1.1.6 (2025011806)
+- `login/index.php` - Added user_loggedin event trigger
+- `lib/classes/user/manager.php` - Added user_created and user_updated event triggers
+- `lib/userlib.php` - Added user_deleted, user_suspended, user_unsuspended event triggers
+- `lib/classes/rbac/role.php` - Added capability_assigned and capability_updated event triggers
+- `lib/classes/rbac/access.php` - Added role_assigned and role_unassigned event triggers
+- `lang/es/core.php` - Added 10 event name strings
 
 ### 🗄️ Database Changes
 
 #### New Tables (4)
-1. **logstore_standard_log** - Complete event logging (20 fields)
+1. **logstore_standard_log** - Complete event logging (17 fields)
    - eventname, component, action, target
-   - objecttable, objectid, crud, edulevel
+   - objecttable, objectid, crud
    - contextid, contextlevel, contextinstanceid
-   - userid, courseid, relateduserid, anonymous
+   - userid, relateduserid, anonymous
    - other (JSON), timecreated, origin, ip, realuserid
    - Indexes: timecreated, userid, contextid, eventname
 
@@ -86,16 +128,18 @@ Complete event logging system implementation following Moodle's logstore archite
 
 ### 🏗️ Architecture Highlights
 
-#### Moodle Compatibility
-- **Exact Event Structure**: logstore_standard_log matches Moodle's schema
+#### Adapted from Moodle
+- **Event Structure**: logstore_standard_log adapted from Moodle's schema for NexoSupport needs
 - **Event Class Hierarchy**: \core\event\base with specialized subclasses
-- **Component Organization**: Events organized by component (core, mod_*, etc.)
+- **Component Organization**: Events organized by component (core, plugins, etc.)
+- **LMS-Specific Fields Removed**: No courseid or edulevel - adapted for general purpose use
 
 #### Event System Features
 - **Automatic Context Detection**: Events inherit context from data
 - **Flexible Data Storage**: 'other' field supports JSON for custom data
 - **Origin Tracking**: Web, CLI, WS origins supported
 - **Anonymous Events**: Support for anonymous event logging
+- **RBAC Integration**: Full context tracking (contextid, contextlevel, contextinstanceid)
 
 ### 🔐 Security Features
 
@@ -109,18 +153,24 @@ Complete event logging system implementation following Moodle's logstore archite
 ### 📊 Statistics
 
 - **Tables Created**: 4 (logstore, preferences, password history/resets)
-- **Classes Created**: 3 (base event + 2 concrete events)
+- **Event Classes Created**: 11 (1 base + 10 concrete events)
+- **Functions Created**: 20+ (upgradelib.php helpers)
+- **Files Modified**: 9 (upgrade, version, login, user manager, userlib, rbac classes, lang)
 - **Config Values Added**: 1 (siteadmin)
 - **Database Fields Total**: 34 across new tables
 - **Indexes Created**: 9 for optimal query performance
-- **Lines of Code**: ~700+
+- **Language Strings Added**: 10 (event names in Spanish)
+- **Lines of Code**: ~1,500+
 
 ### 🐛 Bugs Fixed
 
-1. **admin/upgrade.php missing auth** - Added require_login() and capability check
-2. **No audit trail** - Complete logging system now in place
-3. **No user preferences storage** - user_preferences table created
-4. **No siteadmin config** - siteadmin designation now in config
+1. **admin/upgrade.php permission error** - Changed from require_capability() to is_siteadmin() check
+2. **xmldb_table::add_field() TypeError** - Fixed by using proper xmldb_field object instantiation
+3. **LMS-specific fields in log table** - Removed courseid and edulevel fields to adapt for NexoSupport
+4. **No audit trail** - Complete logging system now in place with 10 event types
+5. **No user preferences storage** - user_preferences table created
+6. **No siteadmin config** - siteadmin designation now in config
+7. **Missing upgrade helpers** - Created comprehensive lib/upgradelib.php
 
 ### 🔄 Upgrade Notes
 
@@ -151,9 +201,17 @@ set_user_preference('lang', 'en');
 ### 📝 Next Steps (Future Versions)
 
 - **v1.2.0**: Event viewer/reporter in admin interface
-- **v1.2.1**: More core events (user_updated, role_assigned, etc.)
+  - Browse and filter event logs
+  - Export event reports
+  - Event statistics dashboard
 - **v1.3.0**: Event observers/hooks system
+  - Plugin event observers
+  - Custom event handlers
+  - Event-driven workflows
 - **v1.4.0**: Log retention policies and cleanup
+  - Configurable retention periods
+  - Automated log archival
+  - Log cleanup cron tasks
 
 ### 👥 Credits
 
