@@ -193,9 +193,33 @@ Basado en la documentación de Moodle, las siguientes funcionalidades están **p
 
 ### Error #1: Función Duplicada `is_siteadmin()`
 - **Archivo**: lib/userlib.php línea 242 y lib/functions.php línea 615
-- **Problema**: Cannot redeclare is_siteadmin()
+- **Problema**: `Cannot redeclare is_siteadmin()`
 - **Solución**: Eliminada de userlib.php, actualizada en functions.php con lógica correcta
 - **Estado**: ✅ CORREGIDO
+- **Commit**: 13a36f4
+
+### Error #2: Método Faltante `count_records_sql()`
+- **Archivo**: lib/classes/db/database.php (método no existía)
+- **Error**: `Call to undefined method core\db\database::count_records_sql()` en lib/functions.php:639
+- **Causa**: is_siteadmin() usa SQL personalizado para contar roles administrator
+- **Solución**: Agregado método `count_records_sql(string $sql, array $params = []): int`
+- **Estado**: ✅ CORREGIDO
+- **Commit**: 776cb70
+
+### Error #3: Método Faltante `delete_records_select()`
+- **Archivo**: lib/classes/db/database.php (método no existía)
+- **Error**: `Call to undefined method core\db\database::delete_records_select()` en lib/classes/session/manager.php:186
+- **Causa**: Session garbage collection necesita eliminar sesiones expiradas con WHERE clause
+- **Solución**: Agregado método `delete_records_select(string $table, string $select = '', array $params = []): bool`
+- **Estado**: ✅ CORREGIDO
+- **Commit**: 776cb70
+
+### Error #4: Tipos de Parámetros Incorrectos
+- **Archivo**: admin/roles/assign.php líneas 15-17, 41-42
+- **Problema**: Usando strings 'int' y 'text' en vez de constantes PARAM_INT, PARAM_TEXT
+- **Solución**: Cambiados a constantes definidas en lib/functions.php
+- **Estado**: ✅ CORREGIDO
+- **Commit**: 776cb70
 
 ### Mejora Implementada
 - **Antes**: is_siteadmin() verificaba "cualquier rol en contexto sistema"
@@ -208,11 +232,12 @@ Basado en la documentación de Moodle, las siguientes funcionalidades están **p
 |---------|-------|
 | Funciones implementadas | 23 |
 | Métodos de clase implementados | 15 |
+| Métodos database agregados | 2 (count_records_sql, delete_records_select) |
 | Templates creados | 4 |
 | Strings i18n | 46 (23 ES + 23 EN) |
-| Líneas de código añadidas | 1,197+ |
-| Archivos modificados | 13 |
-| Errores corregidos | 1 (is_siteadmin duplicada) |
+| Líneas de código añadidas | 1,242+ |
+| Archivos modificados | 15 |
+| Errores corregidos | 4 (is_siteadmin duplicada, 2 métodos db, param types) |
 | Cobertura de documentación | 100% (funcionalidades core) |
 
 ## ✅ Conclusión
