@@ -582,7 +582,7 @@ function xmldb_core_upgrade(int $oldversion): bool {
 
         echo '<p style="color: green; font-weight: bold;">✓ Upgrade to v1.1.8 completed successfully!</p>';
         echo '<p style="color: blue;">ℹ No database changes for v1.1.8 (cache management functionality only).</p>';
-        echo '<p style="color: orange;">💡 Recommended: Visit /admin/cache/purge and purge all caches now!</p>';
+        echo '<p style="color: green;">🔄 All caches will be automatically purged at the end of this upgrade process!</p>';
 
         echo '</div>';
 
@@ -598,6 +598,45 @@ function xmldb_core_upgrade(int $oldversion): bool {
     //     // Upgrade to v1.3.0
     //     upgrade_core_savepoint(true, 2025011900);
     // }
+
+    // =========================================================
+    // PURGAR CACHÉS AL FINALIZAR UPGRADE
+    // =========================================================
+    // Siempre purgar todas las cachés al finalizar cualquier upgrade
+    // para asegurar que los cambios se vean inmediatamente
+    if ($result) {
+        echo '<div style="background: #fff3e0; border-left: 4px solid #f57c00; padding: 20px; margin: 20px 0;">';
+        echo '<h3 style="color: #f57c00; margin-top: 0;">🔄 Purgando Cachés...</h3>';
+        echo '<p>Limpiando cachés para asegurar que los cambios se apliquen inmediatamente.</p>';
+
+        try {
+            $purge_results = \core\cache\cache_manager::purge_all();
+
+            echo '<ul>';
+            if (isset($purge_results['opcache']) && $purge_results['opcache']['success']) {
+                echo '<li style="color: green;">✓ OPcache purgado exitosamente</li>';
+            } else if (isset($purge_results['opcache'])) {
+                echo '<li style="color: orange;">⚠ ' . htmlspecialchars($purge_results['opcache']['message']) . '</li>';
+            }
+
+            if (isset($purge_results['application']) && $purge_results['application']['success']) {
+                $items = $purge_results['application']['items'] ?? [];
+                echo '<li style="color: green;">✓ Caché de aplicación purgado: ' . htmlspecialchars(implode(', ', $items)) . '</li>';
+            }
+
+            if (isset($purge_results['rbac']) && $purge_results['rbac']['success']) {
+                echo '<li style="color: green;">✓ Caché RBAC purgado exitosamente</li>';
+            }
+            echo '</ul>';
+
+            echo '<p style="color: green; font-weight: bold;">✓ Todas las cachés han sido purgadas!</p>';
+        } catch (\Exception $e) {
+            echo '<p style="color: orange;">⚠ No se pudieron purgar algunas cachés: ' . htmlspecialchars($e->getMessage()) . '</p>';
+            echo '<p>Puede purgarlas manualmente desde: Administración del Sitio → Gestionar Cachés</p>';
+        }
+
+        echo '</div>';
+    }
 
     return $result;
 }
