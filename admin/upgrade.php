@@ -47,7 +47,17 @@ if ($siteadmins_config && !empty($siteadmins_config->value)) {
         $adminrole = \core\rbac\role::get_by_shortname('administrator');
 
         if ($adminrole) {
-            $has_admin_role = \core\rbac\access::user_has_role($USER->id, $adminrole->id, $syscontext);
+            // Get user roles in system context
+            $userroles = \core\rbac\access::get_user_roles($USER->id, $syscontext);
+            $has_admin_role = false;
+
+            foreach ($userroles as $role) {
+                if ($role->id == $adminrole->id) {
+                    $has_admin_role = true;
+                    break;
+                }
+            }
+
             if (!$has_admin_role) {
                 // Not administrator, check if first user
                 $firstuser = $DB->get_record_sql('SELECT * FROM {users} WHERE deleted = 0 ORDER BY id ASC LIMIT 1');
