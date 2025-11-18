@@ -477,37 +477,73 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
-    // Upgrade to v1.1.7 (2025011807) - Automatic Upgrade Detection + Moodle Navigation
+    // Upgrade to v1.1.7 (2025011807) - Consolidated Release (v1.1.3 to v1.1.7)
     // =========================================================
     if ($oldversion < 2025011807) {
         echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
-        echo '<h2 style="color: #667eea; margin-top: 0;">🚀 Upgrading to NexoSupport v1.1.7</h2>';
-        echo '<p><strong>Automatic Upgrade Detection + Moodle-Style Navigation</strong></p>';
-        echo '<p>This upgrade adds significant improvements to the user experience:</p>';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🚀 Upgrading to NexoSupport v1.1.7 - CONSOLIDATED RELEASE</h2>';
+        echo '<p><strong>This release consolidates all improvements from v1.1.3 through v1.1.7</strong></p>';
+
+        echo '<h3 style="color: #667eea;">📦 What\'s Included:</h3>';
+
+        echo '<h4>v1.1.3 - User Management Enhancements</h4>';
         echo '<ul>';
-        echo '<li><strong>Automatic Upgrade Detection:</strong> System now automatically detects when upgrade is needed</li>';
+        echo '<li>Complete user lifecycle management (delete, suspend, unsuspend, unlock, confirm)</li>';
+        echo '<li>Email confirmation workflow</li>';
+        echo '<li>Protected operations (cannot delete/suspend admins or self)</li>';
+        echo '<li>Session management with auto-logout</li>';
+        echo '<li>Soft delete with data anonymization</li>';
+        echo '</ul>';
+
+        echo '<h4>v1.1.4 - Password Management System</h4>';
+        echo '<ul>';
+        echo '<li>Complete password management: change password, forgot password, reset password</li>';
+        echo '<li>Password policy enforcement (length, complexity, history)</li>';
+        echo '<li>Secure token-based password reset</li>';
+        echo '<li>Password history tracking</li>';
+        echo '</ul>';
+
+        echo '<h4>v1.1.5 - Authentication Improvements</h4>';
+        echo '<ul>';
+        echo '<li>Enhanced authentication security</li>';
+        echo '<li>Session security improvements</li>';
+        echo '<li>Login attempt tracking</li>';
+        echo '</ul>';
+
+        echo '<h4>v1.1.6 - Logging System & Site Administrators</h4>';
+        echo '<ul>';
+        echo '<li>Complete event logging system (logstore_standard_log table - Moodle compatible)</li>';
+        echo '<li>User preferences system</li>';
+        echo '<li>Password history and reset tables</li>';
+        echo '<li>Site administrators configuration (config.siteadmins - Moodle pattern)</li>';
+        echo '<li>RBAC bypass for site administrators</li>';
+        echo '</ul>';
+
+        echo '<h4>v1.1.7 - Automatic Upgrade + Moodle Navigation (Current Release)</h4>';
+        echo '<ul>';
+        echo '<li><strong>Automatic Upgrade Detection:</strong> System automatically detects when upgrade is needed</li>';
         echo '<li><strong>Moodle-Style Navigation:</strong> Hierarchical sidebar menu for better navigation</li>';
         echo '<li><strong>Improved UX:</strong> Collapsible categories, active state highlighting, responsive layout</li>';
+        echo '<li><strong>Navigation System:</strong> lib/classes/navigation/nav_manager.php with complete menu management</li>';
+        echo '<li><strong>Two-column Layout:</strong> Sidebar (280px) + content area with Moodle-inspired styling</li>';
+        echo '<li><strong>All Admin Pages Updated:</strong> 9 admin pages now include navigation sidebar</li>';
         echo '</ul>';
-        echo '<p><strong>✨ New Features:</strong></p>';
-        echo '<ul>';
-        echo '<li>lib/classes/navigation/nav_manager.php - Complete navigation management system</li>';
-        echo '<li>Sidebar navigation with categories (Site Administration, Users, Roles, Settings)</li>';
-        echo '<li>Two-column layout with sidebar + content area</li>';
-        echo '<li>JavaScript-powered category expand/collapse</li>';
-        echo '<li>Active page highlighting</li>';
-        echo '</ul>';
+
         echo '<p><strong>🔄 Changed Behavior:</strong></p>';
         echo '<ul>';
-        echo '<li>Automatic redirect to upgrade page when new version is detected</li>';
-        echo '<li>All admin pages now include navigation sidebar</li>';
+        echo '<li>Automatic redirect to upgrade page when new version detected</li>';
         echo '<li>Non-logged users redirected to login before accessing upgrade</li>';
+        echo '<li>Site administrators have all capabilities (bypass RBAC)</li>';
+        echo '<li>All admin pages now show hierarchical navigation menu</li>';
         echo '</ul>';
+
         echo '</div>';
 
-        // No database changes for this version - only code improvements
+        // No database changes for v1.1.7 specifically (v1.1.3 and v1.1.6 had DB changes)
+        // Those changes are already applied in their respective upgrade functions above
         echo '<p style="color: green; font-weight: bold;">✓ Upgrade to v1.1.7 completed successfully!</p>';
-        echo '<p style="color: blue;">ℹ No database changes required for this version.</p>';
+        echo '<p style="color: blue;">ℹ No additional database changes for v1.1.7 (UI/UX improvements only).</p>';
+        echo '<p style="color: green;">All features from v1.1.3 through v1.1.7 are now active!</p>';
 
         upgrade_core_savepoint(true, 2025011807);
     }

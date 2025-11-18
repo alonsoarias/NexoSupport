@@ -122,9 +122,8 @@ $context = [
     'haserrors' => !empty($upgradeErrors),
     'upgradeneeded' => $upgradeNeeded,
     'sesskey' => sesskey(),
+    'has_navigation' => false,  // Upgrade page doesn't need navigation sidebar
 ];
 
 // Render and output
-    'has_navigation' => true,
-    'navigation_html' => get_navigation_html(),
 echo render_template('admin/upgrade', $context);
