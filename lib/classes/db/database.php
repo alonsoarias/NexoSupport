@@ -296,6 +296,29 @@ class database {
     }
 
     /**
+     * Count records matching a WHERE clause
+     *
+     * @param string $table Table name
+     * @param string $select WHERE clause (without WHERE keyword)
+     * @param array $params Parameters for the WHERE clause
+     * @return int Number of matching records
+     */
+    public function count_records_select(string $table, string $select = '', array $params = []): int {
+        $table = $this->add_prefix($table);
+
+        $sql = "SELECT COUNT(*) as count FROM $table";
+
+        if (!empty($select)) {
+            $sql .= " WHERE $select";
+        }
+
+        $stmt = $this->execute($sql, $params);
+        $result = $stmt->fetch();
+
+        return (int)$result->count;
+    }
+
+    /**
      * Ejecutar SQL personalizado y obtener un campo
      *
      * @param string $sql
