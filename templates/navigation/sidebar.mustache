@@ -1,0 +1,137 @@
+{{!
+    Sidebar Navigation Template
+
+    Renders hierarchical navigation with collapsible categories,
+    icons, active states, and proper indentation.
+}}
+<nav class="nexo-navigation-sidebar" role="navigation" aria-label="{{strings.navigation}}">
+    {{#has_nodes}}
+    <ul class="nexo-nav-list">
+        {{#nodes}}
+            {{> navigation/sidebar_node}}
+        {{/nodes}}
+    </ul>
+    {{/has_nodes}}
+
+    {{^has_nodes}}
+    <div class="nexo-nav-empty">
+        <p>{{ strings.no_navigation }}</p>
+    </div>
+    {{/has_nodes}}
+</nav>
+
+<style>
+/* Modern Navigation Styles */
+.nexo-navigation-sidebar {
+    background: #ffffff;
+    border-right: 1px solid #e3e8ef;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.nexo-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nexo-nav-item {
+    position: relative;
+}
+
+.nexo-nav-link,
+.nexo-nav-category-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: #4a5568;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+}
+
+.nexo-nav-link:hover,
+.nexo-nav-category-header:hover {
+    background: #f7fafc;
+    color: #2d3748;
+}
+
+.nexo-nav-link.active {
+    background: #ebf4ff;
+    color: #3182ce;
+    border-left-color: #3182ce;
+    font-weight: 600;
+}
+
+.nexo-nav-icon {
+    width: 24px;
+    margin-right: 12px;
+    text-align: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.nexo-nav-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nexo-nav-toggle {
+    width: 20px;
+    text-align: center;
+    margin-left: 8px;
+    transition: transform 0.2s ease;
+    font-size: 12px;
+}
+
+.nexo-nav-category.expanded > .nexo-nav-category-header .nexo-nav-toggle {
+    transform: rotate(180deg);
+}
+
+.nexo-nav-children {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.nexo-nav-category.expanded > .nexo-nav-children {
+    max-height: 2000px;
+}
+
+.nexo-nav-children .nexo-nav-link {
+    padding-left: 52px;
+    font-size: 14px;
+}
+
+.nexo-nav-children .nexo-nav-children .nexo-nav-link {
+    padding-left: 68px;
+}
+
+.nexo-nav-separator {
+    height: 1px;
+    background: #e3e8ef;
+    margin: 8px 16px;
+}
+</style>
+
+<script>
+// Navigation interaction
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle categories
+    const categoryHeaders = document.querySelectorAll('.nexo-nav-category-header');
+
+    categoryHeaders.forEach(header => {
+        header.addEventListener('click', function(e) {
+            e.preventDefault();
+            const category = this.closest('.nexo-nav-category');
+            category.classList.toggle('expanded');
+        });
+    });
+});
+</script>

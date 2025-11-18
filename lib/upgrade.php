@@ -591,6 +591,80 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.9 - Navigation System Redesign + i18n Cache
+    // =========================================================
+    if ($oldversion < 2025011809) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🎨 Upgrading to NexoSupport v1.1.9 - Navigation System Redesign</h2>';
+
+        echo '<h3 style="color: #667eea;">✨ What\'s New in v1.1.9:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Complete Navigation Redesign:</strong> Modern OOP architecture with navigation_node, navigation_tree, navigation_builder, navigation_renderer</li>';
+        echo '<li><strong>Font Awesome 6 Icons:</strong> Professional icons replacing emojis throughout the interface</li>';
+        echo '<li><strong>Template-Based Rendering:</strong> Mustache templates for sidebar and breadcrumbs navigation</li>';
+        echo '<li><strong>Permission-Based Filtering:</strong> Granular access control at individual menu item level</li>';
+        echo '<li><strong>i18n Cache Purging:</strong> Added i18n language string cache management</li>';
+        echo '<li><strong>Breadcrumb System:</strong> Automatic breadcrumb trail generation from navigation tree</li>';
+        echo '<li><strong>Auto-Expand Categories:</strong> Admin menu auto-expands when on admin pages</li>';
+        echo '<li><strong>Backward Compatibility:</strong> All v1.1.8 nav_manager API calls continue to work</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🏗️ New Architecture:</h3>';
+        echo '<ul>';
+        echo '<li><strong>navigation_node:</strong> Single node with permissions, icons, and states (537 lines)</li>';
+        echo '<li><strong>navigation_tree:</strong> Tree structure with filtering and breadcrumbs (464 lines)</li>';
+        echo '<li><strong>navigation_builder:</strong> Fluent API for building navigation (250 lines)</li>';
+        echo '<li><strong>navigation_renderer:</strong> Template-based rendering (122 lines)</li>';
+        echo '<li><strong>nav_manager v2:</strong> Redesigned using new system, maintains BC (339 lines)</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🎯 New Features:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Separators:</strong> Add visual separators between navigation groups</li>';
+        echo '<li><strong>Icon Conversion:</strong> Automatic emoji → Font Awesome conversion</li>';
+        echo '<li><strong>Active Detection:</strong> Auto-detect and highlight current page</li>';
+        echo '<li><strong>Collapsible Categories:</strong> Click to expand/collapse with smooth transitions</li>';
+        echo '<li><strong>Responsive Design:</strong> Mobile-friendly navigation with media queries</li>';
+        echo '<li><strong>Accessibility:</strong> ARIA labels, keyboard navigation, high contrast mode</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">📦 New Files:</h3>';
+        echo '<ul>';
+        echo '<li>lib/classes/navigation/navigation_node.php</li>';
+        echo '<li>lib/classes/navigation/navigation_tree.php</li>';
+        echo '<li>lib/classes/navigation/navigation_builder.php</li>';
+        echo '<li>lib/classes/navigation/navigation_renderer.php</li>';
+        echo '<li>templates/navigation/sidebar.mustache</li>';
+        echo '<li>templates/navigation/sidebar_node.mustache</li>';
+        echo '<li>templates/navigation/breadcrumbs.mustache</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔧 Updated Files:</h3>';
+        echo '<ul>';
+        echo '<li>lib/classes/navigation/nav_manager.php - Complete redesign</li>';
+        echo '<li>lib/classes/cache/cache_manager.php - Added purge_i18n_cache()</li>';
+        echo '<li>templates/core/header.mustache - Added Font Awesome 6 CDN</li>';
+        echo '<li>lang/es/core.php - Added: collapse, expand, breadcrumbs</li>';
+        echo '<li>lang/en/core.php - Added: collapse, expand, breadcrumbs</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">💾 Cache Management:</h3>';
+        echo '<p>Added i18n cache purging to clear language string caches:</p>';
+        echo '<ul>';
+        echo '<li>Purge i18n cache from admin interface</li>';
+        echo '<li>Automatic purge during upgrades</li>';
+        echo '<li>Clear cached translations after language file changes</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.9 - All improvements are code-level</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.9 - navigation and cache enhancements only
+        upgrade_core_savepoint(true, 2025011809);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 

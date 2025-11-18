@@ -1,0 +1,59 @@
+{{!
+    Sidebar Node Partial
+
+    Renders a single navigation node (category, item, or separator).
+    Calls itself recursively for children.
+}}
+
+{{#is_separator}}
+<li class="nexo-nav-separator" role="separator"></li>
+{{/is_separator}}
+
+{{#is_category}}
+<li class="nexo-nav-item nexo-nav-category {{#expanded}}expanded{{/expanded}}">
+    <div class="nexo-nav-category-header">
+        {{#has_icon}}
+            {{#icon_class}}
+            <span class="nexo-nav-icon"><i class="{{icon_class}}"></i></span>
+            {{/icon_class}}
+            {{#icon_emoji}}
+            <span class="nexo-nav-icon">{{icon_emoji}}</span>
+            {{/icon_emoji}}
+        {{/has_icon}}
+        <span class="nexo-nav-text">{{text}}</span>
+        <span class="nexo-nav-toggle">▼</span>
+    </div>
+
+    {{#has_children}}
+    <ul class="nexo-nav-children">
+        {{#children}}
+            {{> navigation/sidebar_node}}
+        {{/children}}
+    </ul>
+    {{/has_children}}
+</li>
+{{/is_category}}
+
+{{#is_item}}
+<li class="nexo-nav-item">
+    <a href="{{url}}" class="nexo-nav-link {{#active}}active{{/active}}">
+        {{#has_icon}}
+            {{#icon_class}}
+            <span class="nexo-nav-icon"><i class="{{icon_class}}"></i></span>
+            {{/icon_class}}
+            {{#icon_emoji}}
+            <span class="nexo-nav-icon">{{icon_emoji}}</span>
+            {{/icon_emoji}}
+        {{/has_icon}}
+        <span class="nexo-nav-text">{{text}}</span>
+    </a>
+
+    {{#has_children}}
+    <ul class="nexo-nav-children">
+        {{#children}}
+            {{> navigation/sidebar_node}}
+        {{/children}}
+    </ul>
+    {{/has_children}}
+</li>
+{{/is_item}}

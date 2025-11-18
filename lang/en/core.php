@@ -452,6 +452,9 @@ $string['manageroles'] = 'Manage roles';
 $string['defineroles'] = 'Define roles';
 $string['assignroles'] = 'Assign roles';
 $string['pleaselogin'] = 'Please log in to continue';
+$string['collapse'] = 'Collapse';
+$string['expand'] = 'Expand';
+$string['breadcrumbs'] = 'Breadcrumbs';
 
 // Cache v1.1.8
 $string['cache'] = 'Cache';

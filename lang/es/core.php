@@ -464,6 +464,9 @@ $string['defineroles'] = 'Definir roles';
 $string['assignroles'] = 'Asignar roles';
 $string['pleaselogin'] = 'Por favor inicie sesión para continuar';
 $string['eventcapabilityupdated'] = 'Capability actualizada';
+$string['collapse'] = 'Contraer';
+$string['expand'] = 'Expandir';
+$string['breadcrumbs'] = 'Ruta de navegación';
 
 // Cache v1.1.8
 $string['cache'] = 'Caché';

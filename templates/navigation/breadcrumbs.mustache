@@ -1,0 +1,184 @@
+{{!
+    Breadcrumbs Navigation Template
+
+    Displays hierarchical breadcrumb trail from root to current page.
+    Auto-generated from navigation tree active path.
+}}
+
+{{#has_breadcrumbs}}
+<nav class="nexo-breadcrumbs" role="navigation" aria-label="{{strings.breadcrumbs}}">
+    <ol class="breadcrumb-list">
+        {{#show_home}}
+        <li class="breadcrumb-item">
+            <a href="/" class="breadcrumb-link">
+                <i class="fas fa-home"></i>
+                <span class="breadcrumb-text">{{strings.home}}</span>
+            </a>
+        </li>
+        {{/show_home}}
+
+        {{#breadcrumbs}}
+        <li class="breadcrumb-item {{#active}}active{{/active}}" {{#active}}aria-current="page"{{/active}}>
+            {{^active}}
+            <a href="{{url}}" class="breadcrumb-link">
+                {{#has_icon}}
+                    {{#icon_class}}
+                    <i class="{{icon_class}}"></i>
+                    {{/icon_class}}
+                    {{#icon_emoji}}
+                    <span class="breadcrumb-emoji">{{icon_emoji}}</span>
+                    {{/icon_emoji}}
+                {{/has_icon}}
+                <span class="breadcrumb-text">{{text}}</span>
+            </a>
+            {{/active}}
+
+            {{#active}}
+            <span class="breadcrumb-current">
+                {{#has_icon}}
+                    {{#icon_class}}
+                    <i class="{{icon_class}}"></i>
+                    {{/icon_class}}
+                    {{#icon_emoji}}
+                    <span class="breadcrumb-emoji">{{icon_emoji}}</span>
+                    {{/icon_emoji}}
+                {{/has_icon}}
+                <span class="breadcrumb-text">{{text}}</span>
+            </span>
+            {{/active}}
+        </li>
+        {{/breadcrumbs}}
+    </ol>
+</nav>
+
+<style>
+.nexo-breadcrumbs {
+    background: #f8f9fa;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    gap: 0.5rem;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb-item:not(:last-child)::after {
+    content: '{{separator}}';
+    margin-left: 0.5rem;
+    color: #94a3b8;
+    font-weight: 300;
+}
+
+.breadcrumb-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: #3182ce;
+    text-decoration: none;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.breadcrumb-link:hover {
+    background: #ebf4ff;
+    color: #2c5282;
+}
+
+.breadcrumb-link:focus {
+    outline: 2px solid #3182ce;
+    outline-offset: 2px;
+}
+
+.breadcrumb-link i {
+    font-size: 0.875rem;
+}
+
+.breadcrumb-emoji {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.breadcrumb-current {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: #1e293b;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+}
+
+.breadcrumb-text {
+    line-height: 1.2;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .nexo-breadcrumbs {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .breadcrumb-list {
+        gap: 0.25rem;
+    }
+
+    .breadcrumb-link,
+    .breadcrumb-current {
+        font-size: 0.8125rem;
+        padding: 0.125rem 0.375rem;
+    }
+
+    .breadcrumb-item:not(:last-child)::after {
+        margin-left: 0.25rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .nexo-breadcrumbs {
+        background: transparent;
+        border: none;
+        padding: 0.25rem 0;
+    }
+
+    .breadcrumb-link {
+        color: #000;
+        text-decoration: underline;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .breadcrumb-link {
+        text-decoration: underline;
+    }
+
+    .nexo-breadcrumbs {
+        border: 2px solid #000;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .breadcrumb-link {
+        transition: none;
+    }
+}
+</style>
+{{/has_breadcrumbs}}
