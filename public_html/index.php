@@ -120,17 +120,7 @@ $router = new router();
 
 // Rutas principales
 $router->get('/', function() {
-    global $USER;
-
-    if (!isset($USER->id) || $USER->id == 0) {
-        redirect('/login');
-    }
-
-    // Home page
-    echo '<h1>Welcome to NexoSupport</h1>';
-    echo '<p>User: ' . htmlspecialchars($USER->username ?? 'Guest') . '</p>';
-    echo '<p><a href="/logout">Logout</a></p>';
-    echo '<p><a href="/admin">Administration</a></p>';
+    require(BASE_DIR . '/dashboard.php');
 });
 
 // Login routes
@@ -166,6 +156,46 @@ $router->get('/admin/users', function() {
 
 $router->get('/admin/roles', function() {
     require(BASE_DIR . '/admin/roles/index.php');
+});
+
+$router->get('/admin/user/edit', function() {
+    require(BASE_DIR . '/admin/user/edit.php');
+});
+
+$router->post('/admin/user/edit', function() {
+    require(BASE_DIR . '/admin/user/edit.php');
+});
+
+$router->get('/admin/roles/edit', function() {
+    require(BASE_DIR . '/admin/roles/edit.php');
+});
+
+$router->post('/admin/roles/edit', function() {
+    require(BASE_DIR . '/admin/roles/edit.php');
+});
+
+$router->get('/admin/roles/define', function() {
+    require(BASE_DIR . '/admin/roles/define.php');
+});
+
+$router->post('/admin/roles/define', function() {
+    require(BASE_DIR . '/admin/roles/define.php');
+});
+
+$router->get('/admin/roles/assign', function() {
+    require(BASE_DIR . '/admin/roles/assign.php');
+});
+
+$router->post('/admin/roles/assign', function() {
+    require(BASE_DIR . '/admin/roles/assign.php');
+});
+
+$router->get('/admin/settings', function() {
+    require(BASE_DIR . '/admin/settings/index.php');
+});
+
+$router->post('/admin/settings', function() {
+    require(BASE_DIR . '/admin/settings/index.php');
 });
 
 // User profile
