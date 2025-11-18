@@ -155,13 +155,14 @@ El Plugin Manager (`\core\plugin\manager`) descubre plugins mediante:
 
 - PHP >= 8.1
 - MySQL 5.7+ o MariaDB 10.2+
+- Apache 2.4+ (con mod_rewrite) o Nginx 1.18+
 - Extensiones PHP:
   - PDO
   - pdo_mysql
   - json
   - mbstring
 
-### Proceso de Instalación
+### Instalación Rápida
 
 1. **Clonar el repositorio:**
 
@@ -184,17 +185,19 @@ chmod -R 755 var/
 
 4. **Configurar servidor web:**
 
-Apuntar el document root a `public_html/`
+**Apache:** El document root debe apuntar a `public_html/`. El archivo `.htaccess` está incluido.
+
+**Nginx:** Ver configuración completa en `INSTALL.md`
 
 5. **Acceder al instalador:**
 
 Navegar a `http://localhost/install` y seguir el asistente.
 
-El instalador guiará a través de:
-- Verificación de requisitos
-- Configuración de base de datos
-- Instalación de tablas
-- Creación de usuario administrador
+### 📖 Guía Completa de Instalación
+
+Para instrucciones detalladas de configuración del servidor web (Apache/Nginx), troubleshooting y configuración de producción, consultar:
+
+**[INSTALL.md](INSTALL.md)** - Guía completa de instalación y configuración
 
 ## Uso del Sistema
 
