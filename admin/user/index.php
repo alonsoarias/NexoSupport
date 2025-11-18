@@ -90,6 +90,8 @@ else if ($delete && confirm_sesskey()) {
                 ],
                 'confirmhash' => md5($delete),
                 'sesskey' => sesskey(),
+                'has_navigation' => true,
+                'navigation_html' => get_navigation_html(),
             ];
 
             echo render_template('admin/user_delete_confirm', $context);
@@ -196,6 +198,8 @@ $context = [
     'hasusers' => !empty($usersformatted),
     'error' => $error ? htmlspecialchars($error) : null,
     'success' => $success ? htmlspecialchars($success) : null,
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
 ];
 
 // Render and output

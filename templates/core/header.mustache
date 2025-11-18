@@ -66,9 +66,139 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        .content-wrapper {
-            max-width: 1400px;
+        .main-layout {
+            display: flex;
+            max-width: 1600px;
             margin: 0 auto;
+        }
+
+        .sidebar-navigation {
+            width: 280px;
+            background: white;
+            min-height: calc(100vh - 60px);
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            padding: 20px 0;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            padding: 20px;
+            min-width: 0;
+        }
+
+        /* Navigation Styles - Moodle-like */
+        .nexo-navigation {
+            padding: 0;
+        }
+
+        .nexo-nav-header {
+            padding: 0 15px 10px;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 10px;
+        }
+
+        .nexo-nav-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nexo-nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nexo-nav-item {
+            margin: 0;
+        }
+
+        .nexo-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: #495057;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nexo-nav-link:hover {
+            background: #f8f9fa;
+            color: #667eea;
+            border-left-color: #667eea;
+        }
+
+        .nexo-nav-item.active > .nexo-nav-link {
+            background: #e7f1ff;
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+
+        .nexo-nav-icon {
+            margin-right: 10px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nexo-nav-text {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .nexo-nav-category-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: #212529;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .nexo-nav-category-header:hover {
+            background: #f8f9fa;
+        }
+
+        .nexo-nav-toggle {
+            margin-left: auto;
+            font-size: 10px;
+            transition: transform 0.3s;
+        }
+
+        .nexo-nav-category.collapsed .nexo-nav-toggle {
+            transform: rotate(-90deg);
+        }
+
+        .nexo-nav-children {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            max-height: 1000px;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .nexo-nav-category.collapsed .nexo-nav-children {
+            max-height: 0;
+        }
+
+        .nexo-nav-level-1 .nexo-nav-link {
+            padding-left: 45px;
+            font-size: 13px;
+        }
+
+        .nexo-nav-level-2 .nexo-nav-link {
+            padding-left: 60px;
+            font-size: 13px;
+        }
+
+        .content-wrapper {
             padding: 20px;
         }
 
@@ -106,3 +236,16 @@
     </style>
 </head>
 <body class="{{bodyclass}}">
+{{> core/nav}}
+
+{{#has_navigation}}
+<div class="main-layout">
+    <aside class="sidebar-navigation">
+        {{{navigation_html}}}
+    </aside>
+    <main class="content-wrapper">
+{{/has_navigation}}
+
+{{^has_navigation}}
+<div class="content-wrapper">
+{{/has_navigation}}

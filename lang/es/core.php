@@ -454,4 +454,13 @@ $string['eventuserunsuspended'] = 'Usuario reactivado';
 $string['eventroleassigned'] = 'Rol asignado';
 $string['eventroleunassigned'] = 'Rol removido';
 $string['eventcapabilityassigned'] = 'Capability asignada';
+
+// Navigation v1.1.7
+$string['navigation'] = 'Navegación';
+$string['browselistofusers'] = 'Explorar lista de usuarios';
+$string['addnewuser'] = 'Agregar nuevo usuario';
+$string['manageroles'] = 'Administrar roles';
+$string['defineroles'] = 'Definir roles';
+$string['assignroles'] = 'Asignar roles';
+$string['pleaselogin'] = 'Por favor inicie sesión para continuar';
 $string['eventcapabilityupdated'] = 'Capability actualizada';

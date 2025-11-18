@@ -443,3 +443,12 @@ $string['continue'] = 'Continue';
 $string['required'] = 'Required';
 $string['loginalready'] = 'You are already logged in';
 $string['administrator'] = 'Administrator';
+
+// Navigation v1.1.7
+$string['navigation'] = 'Navigation';
+$string['browselistofusers'] = 'Browse list of users';
+$string['addnewuser'] = 'Add a new user';
+$string['manageroles'] = 'Manage roles';
+$string['defineroles'] = 'Define roles';
+$string['assignroles'] = 'Assign roles';
+$string['pleaselogin'] = 'Please log in to continue';

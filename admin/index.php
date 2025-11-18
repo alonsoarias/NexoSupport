@@ -16,6 +16,8 @@ $context = [
     'user' => $USER,
     'showadmin' => true,
     'firstname' => htmlspecialchars($USER->firstname),
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
 ];
 
 // Render and output

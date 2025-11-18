@@ -4,6 +4,29 @@
     Context:
     * year - Current year
     * version - System version
+    * has_navigation - Boolean indicating if sidebar navigation is present
 }}
+    {{#has_navigation}}
+    </main>
+</div>
+    {{/has_navigation}}
+
+    {{^has_navigation}}
+</div>
+    {{/has_navigation}}
+
+    <script>
+    // Navigation category toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryHeaders = document.querySelectorAll('.nexo-nav-category-header');
+
+        categoryHeaders.forEach(function(header) {
+            header.addEventListener('click', function() {
+                const category = this.parentElement;
+                category.classList.toggle('collapsed');
+            });
+        });
+    });
+    </script>
 </body>
 </html>

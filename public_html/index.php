@@ -127,22 +127,46 @@ if ($DB === null) {
 // ============================================
 // VERIFICAR SI NECESITA ACTUALIZACIÓN (Patrón Moodle)
 // ============================================
-// DISABLED TEMPORARILY: Causing redirect loop
-// The upgrade detection in lib/setup.php will show notification instead
-// Users must manually go to /admin/upgrade.php when logged in as siteadmin
+// Similar a Moodle: si hay upgrade pendiente, solo permitir:
+// - /admin/upgrade.php (para ejecutar upgrade)
+// - /login (para autenticarse)
+// - /logout (para salir)
 
-/*
 if ($envChecker->needs_upgrade()) {
-    // Upgrade needed - only allow access to upgrade page
-    if ($uri !== '/admin/upgrade.php' && !str_starts_with($uri, '/admin/upgrade.php')) {
-        // Redirect to upgrade page
-        header('Location: /admin/upgrade.php');
-        exit;
+    // Lista de URIs permitidas durante upgrade
+    $allowed_during_upgrade = [
+        '/admin/upgrade.php',
+        '/login',
+        '/logout',
+    ];
+
+    $is_allowed = false;
+    foreach ($allowed_during_upgrade as $allowed_uri) {
+        if ($uri === $allowed_uri || str_starts_with($uri, $allowed_uri)) {
+            $is_allowed = true;
+            break;
+        }
     }
 
-    // If accessing upgrade page, let it through (will be handled by routing)
+    if (!$is_allowed) {
+        // Check if user is logged in and is siteadmin
+        // Note: $USER is loaded in lib/setup.php which was already required
+        global $USER;
+
+        $is_logged_in = isset($USER->id) && $USER->id > 0;
+
+        if ($is_logged_in) {
+            // User is logged in, redirect to upgrade page
+            header('Location: /admin/upgrade.php');
+            exit;
+        } else {
+            // User not logged in, redirect to login with return URL
+            $return = urlencode('/admin/upgrade.php');
+            header("Location: /login?returnurl={$return}");
+            exit;
+        }
+    }
 }
-*/
 
 // ============================================
 // ROUTING
