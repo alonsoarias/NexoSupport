@@ -11,7 +11,12 @@
 require_once(__DIR__ . '/../config.php');
 
 require_login();
-require_capability('nexosupport/admin:manage');
+
+// Verify user is site administrator
+global $USER;
+if (!is_siteadmin($USER->id)) {
+    throw new \access_exception('Only site administrators can access this page');
+}
 
 require_once(__DIR__ . '/../lib/upgrade.php');
 
