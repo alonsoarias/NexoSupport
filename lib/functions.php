@@ -217,24 +217,15 @@ function unset_config(string $name, string $component = 'core'): bool {
 /**
  * Verificar capability
  *
+ * FASE 2: Implementación completa de RBAC
+ *
  * @param string $capability
  * @param int|null $userid
+ * @param \core\rbac\context|null $context
  * @return bool
  */
-function has_capability(string $capability, ?int $userid = null): bool {
-    global $USER;
-
-    if ($userid === null) {
-        $userid = $USER->id ?? 0;
-    }
-
-    // Por ahora, implementación simplificada
-    // En Fase 2 se implementará RBAC completo
-    if (isset($USER->is_admin) && $USER->is_admin) {
-        return true;
-    }
-
-    return false;
+function has_capability(string $capability, ?int $userid = null, ?\core\rbac\context $context = null): bool {
+    return \core\rbac\access::has_capability($capability, $userid, $context);
 }
 
 /**
@@ -434,3 +425,84 @@ define('MATURITY_ALPHA', 50);
 define('MATURITY_BETA', 100);
 define('MATURITY_RC', 150);
 define('MATURITY_STABLE', 200);
+
+// ============================================
+// RBAC Helper Functions (Fase 2)
+// ============================================
+
+/**
+ * Assign role to user
+ *
+ * @param int $roleid
+ * @param int $userid
+ * @param \core\rbac\context|null $context
+ * @return int Assignment ID
+ */
+function role_assign(int $roleid, int $userid, ?\core\rbac\context $context = null): int {
+    if ($context === null) {
+        $context = \core\rbac\context::system();
+    }
+
+    return \core\rbac\access::assign_role($roleid, $userid, $context);
+}
+
+/**
+ * Unassign role from user
+ *
+ * @param int $roleid
+ * @param int $userid
+ * @param \core\rbac\context|null $context
+ * @return bool
+ */
+function role_unassign(int $roleid, int $userid, ?\core\rbac\context $context = null): bool {
+    if ($context === null) {
+        $context = \core\rbac\context::system();
+    }
+
+    return \core\rbac\access::unassign_role($roleid, $userid, $context);
+}
+
+/**
+ * Get user roles
+ *
+ * @param int $userid
+ * @param \core\rbac\context|null $context
+ * @return array
+ */
+function get_user_roles(int $userid, ?\core\rbac\context $context = null): array {
+    global $DB;
+
+    if ($context === null) {
+        $context = \core\rbac\context::system();
+    }
+
+    $sql = "SELECT r.*
+            FROM {roles} r
+            JOIN {role_assignments} ra ON ra.roleid = r.id
+            WHERE ra.userid = ?
+              AND ra.contextid = ?";
+
+    return $DB->get_records_sql($sql, [$userid, $context->id]);
+}
+
+/**
+ * Check if user is admin (has any role in system context)
+ *
+ * @param int|null $userid
+ * @return bool
+ */
+function is_siteadmin(?int $userid = null): bool {
+    global $USER;
+
+    if ($userid === null) {
+        $userid = $USER->id ?? 0;
+    }
+
+    if ($userid == 0) {
+        return false;
+    }
+
+    $roles = get_user_roles($userid, \core\rbac\context::system());
+
+    return !empty($roles);
+}

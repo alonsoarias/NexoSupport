@@ -60,25 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'timemodified' => time()
             ]);
 
-            // Crear rol de administrador
-            $roleid = $DB->insert_record('roles', [
-                'name' => 'Administrador',
-                'shortname' => 'admin',
-                'description' => 'Administrador del sistema',
-                'archetype' => 'admin',
-                'sortorder' => 1
-            ]);
-
-            // Asignar rol al usuario
-            $DB->insert_record('role_assignments', [
-                'roleid' => $roleid,
-                'userid' => $userid,
-                'contextid' => 1,
-                'timemodified' => time()
-            ]);
-
-            // Guardar en sesión
+            // Guardar en sesión (RBAC se instalará en finish.php)
             $_SESSION['admin_created'] = true;
+            $_SESSION['admin_userid'] = $userid;
 
             // Redirigir a finish
             header('Location: /install?stage=finish');

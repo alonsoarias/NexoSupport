@@ -12,6 +12,49 @@ if (!isset($_SESSION['admin_created'])) {
     exit;
 }
 
+// ========================================
+// Instalar sistema RBAC (Fase 2)
+// ========================================
+$rbac_installed = false;
+$admin_role_assigned = false;
+
+try {
+    // Conectar a BD
+    $dbconfig = $_SESSION['install_db'];
+    $dsn = $dbconfig['driver'] === 'mysql'
+        ? "mysql:host={$dbconfig['host']};dbname={$dbconfig['name']};charset=utf8mb4"
+        : "pgsql:host={$dbconfig['host']};dbname={$dbconfig['name']}";
+
+    $pdo = new PDO($dsn, $dbconfig['user'], $dbconfig['pass']);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    require_once(BASE_DIR . '/lib/classes/db/database.php');
+    $GLOBALS['DB'] = new \core\db\database($pdo, $dbconfig['prefix'], $dbconfig['driver']);
+
+    require_once(BASE_DIR . '/lib/install_rbac.php');
+
+    // Install RBAC system (roles, capabilities, contexts)
+    if (install_rbac_system()) {
+        $rbac_installed = true;
+
+        // Assign administrator role to the admin user
+        if (isset($_SESSION['admin_userid'])) {
+            $userid = $_SESSION['admin_userid'];
+
+            $syscontext = \core\rbac\context::system();
+            $adminrole = \core\rbac\role::get_by_shortname('administrator');
+
+            if ($adminrole) {
+                \core\rbac\access::assign_role($adminrole->id, $userid, $syscontext);
+                $admin_role_assigned = true;
+            }
+        }
+    }
+} catch (Exception $e) {
+    // Log error but don't stop installation
+    error_log('RBAC installation error: ' . $e->getMessage());
+}
+
 // Marcar como instalado
 $envPath = BASE_DIR . '/.env';
 if (file_exists($envPath)) {
@@ -44,6 +87,12 @@ session_destroy();
         <li>El sistema ha sido configurado correctamente</li>
         <li>Se ha creado la cuenta de administrador</li>
         <li>Las tablas de la base de datos están instaladas</li>
+        <?php if ($rbac_installed): ?>
+        <li>✅ Sistema de RBAC (Roles y Permisos) instalado correctamente</li>
+        <?php endif; ?>
+        <?php if ($admin_role_assigned): ?>
+        <li>✅ Rol de Administrador asignado correctamente</li>
+        <?php endif; ?>
         <li>Ya puede iniciar sesión y comenzar a usar NexoSupport</li>
     </ul>
 </div>
