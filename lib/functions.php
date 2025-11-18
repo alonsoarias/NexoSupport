@@ -317,6 +317,22 @@ function optional_param(string $name, mixed $default = null, string $type = 'raw
  * @return mixed
  */
 function clean_param(mixed $value, string $type): mixed {
+    // Handle null/empty values
+    if ($value === null || $value === '') {
+        switch ($type) {
+            case 'int':
+                return 0;
+            case 'float':
+                return 0.0;
+            case 'bool':
+                return false;
+            case 'array':
+                return [];
+            default:
+                return $value;
+        }
+    }
+
     switch ($type) {
         case 'int':
             return (int)$value;
@@ -328,21 +344,76 @@ function clean_param(mixed $value, string $type): mixed {
             return (bool)$value;
 
         case 'email':
-            return filter_var($value, FILTER_VALIDATE_EMAIL) ?: '';
+            $email = filter_var($value, FILTER_VALIDATE_EMAIL);
+            return $email !== false ? $email : '';
 
         case 'url':
-            return filter_var($value, FILTER_VALIDATE_URL) ?: '';
+            $url = filter_var($value, FILTER_VALIDATE_URL);
+            return $url !== false ? $url : '';
 
         case 'alphanumext':
-            return preg_replace('/[^a-zA-Z0-9_-]/', '', $value);
+            // Letters, numbers, underscore, hyphen, dot
+            return preg_replace('/[^a-zA-Z0-9_.-]/', '', $value);
 
         case 'alphanum':
+            // Only letters and numbers
             return preg_replace('/[^a-zA-Z0-9]/', '', $value);
 
+        case 'alpha':
+            // Only letters
+            return preg_replace('/[^a-zA-Z]/', '', $value);
+
         case 'text':
+            // Strip tags and encode HTML entities
             return htmlspecialchars(strip_tags($value), ENT_QUOTES, 'UTF-8');
 
+        case 'notags':
+            // Strip all HTML/PHP tags
+            return strip_tags($value);
+
+        case 'path':
+            // Clean file path (no traversal attempts)
+            $value = str_replace('\\', '/', $value);
+            $value = preg_replace('#/+#', '/', $value);
+            $value = preg_replace('#\.\.+#', '', $value);
+            return trim($value, '/');
+
+        case 'file':
+            // Clean filename (no path separators)
+            return preg_replace('/[^a-zA-Z0-9_.-]/', '', basename($value));
+
+        case 'safedir':
+            // Safe directory name (no special chars)
+            return preg_replace('/[^a-zA-Z0-9_-]/', '', $value);
+
+        case 'username':
+            // Username format (letters, numbers, underscore, hyphen, dot)
+            return preg_replace('/[^a-zA-Z0-9_.-]/', '', strtolower($value));
+
+        case 'host':
+            // Hostname/domain
+            return preg_replace('/[^a-zA-Z0-9.-]/', '', strtolower($value));
+
+        case 'sequence':
+            // Comma-separated sequence of integers
+            $items = explode(',', $value);
+            $items = array_map('intval', $items);
+            return implode(',', array_filter($items));
+
+        case 'array':
+            // Ensure it's an array
+            return is_array($value) ? $value : [$value];
+
+        case 'json':
+            // Decode JSON
+            if (is_string($value)) {
+                $decoded = json_decode($value, true);
+                return $decoded !== null ? $decoded : [];
+            }
+            return $value;
+
         case 'raw':
+        case PARAM_RAW:
         default:
             return $value;
     }
@@ -386,6 +457,54 @@ function sesskey(): string {
 }
 
 /**
+ * Add notification to session
+ *
+ * @param string $message
+ * @param string $type success|error|warning|info
+ * @return void
+ */
+function add_notification(string $message, string $type = 'info'): void {
+    if (!isset($_SESSION['notifications'])) {
+        $_SESSION['notifications'] = [];
+    }
+
+    $_SESSION['notifications'][] = [
+        'message' => $message,
+        'type' => $type
+    ];
+}
+
+/**
+ * Get global OUTPUT renderer
+ *
+ * @return \core\output\renderer
+ */
+function get_renderer(): \core\output\renderer {
+    global $OUTPUT;
+
+    if (!isset($OUTPUT)) {
+        $OUTPUT = new \core\output\renderer();
+    }
+
+    return $OUTPUT;
+}
+
+/**
+ * Get global PAGE object
+ *
+ * @return \core\output\page
+ */
+function get_page(): \core\output\page {
+    global $PAGE;
+
+    if (!isset($PAGE)) {
+        $PAGE = new \core\output\page();
+    }
+
+    return $PAGE;
+}
+
+/**
  * Coding exception
  */
 class coding_exception extends \Exception {
@@ -404,6 +523,7 @@ class moodle_exception extends \Exception {
 /**
  * Constantes de tipo de parámetro
  */
+// Parameter type constants
 define('PARAM_RAW', 'raw');
 define('PARAM_INT', 'int');
 define('PARAM_FLOAT', 'float');
@@ -412,7 +532,17 @@ define('PARAM_EMAIL', 'email');
 define('PARAM_URL', 'url');
 define('PARAM_ALPHANUMEXT', 'alphanumext');
 define('PARAM_ALPHANUM', 'alphanum');
+define('PARAM_ALPHA', 'alpha');
 define('PARAM_TEXT', 'text');
+define('PARAM_NOTAGS', 'notags');
+define('PARAM_PATH', 'path');
+define('PARAM_FILE', 'file');
+define('PARAM_SAFEDIR', 'safedir');
+define('PARAM_USERNAME', 'username');
+define('PARAM_HOST', 'host');
+define('PARAM_SEQUENCE', 'sequence');
+define('PARAM_ARRAY', 'array');
+define('PARAM_JSON', 'json');
 
 /**
  * Constantes de madurez
