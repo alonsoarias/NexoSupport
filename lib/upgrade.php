@@ -416,66 +416,8 @@ function xmldb_core_upgrade(int $oldversion): bool {
                 echo '<p style="color: blue;">ℹ user_password_resets table already exists</p>';
             }
 
-            // Set siteadmin configuration
-            $adminuser = $DB->get_record_sql('SELECT * FROM {users} WHERE deleted = 0 ORDER BY id ASC LIMIT 1');
-            if ($adminuser) {
-                // Check if siteadmin config exists
-                if (!$DB->record_exists('config', ['name' => 'siteadmin'])) {
-                    $record = new \stdClass();
-                    $record->name = 'siteadmin';
-                    $record->value = (string)$adminuser->id;
-                    $DB->insert_record('config', $record);
-                    echo '<p style="color: green;">✓ Set siteadmin configuration (user ID: ' . $adminuser->id . ')</p>';
-                } else {
-                    echo '<p style="color: blue;">ℹ siteadmin configuration already exists</p>';
-                }
-            }
-
-        } catch (\Exception $e) {
-            debugging('Error in v1.1.6 upgrade: ' . $e->getMessage());
-            echo '<p style="color: red;">✗ Error: ' . htmlspecialchars($e->getMessage()) . '</p>';
-        }
-
-        echo '<p style="color: green; font-weight: bold;">✓ Upgrade to v1.1.6 completed successfully!</p>';
-
-        upgrade_core_savepoint(true, 2025011806);
-    }
-
-    // =========================================================
-    // Upgrade to v1.1.7 (2025011807) - Site Administrators (config.siteadmins)
-    // =========================================================
-    if ($oldversion < 2025011807) {
-        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
-        echo '<h2 style="color: #667eea; margin-top: 0;">🔐 Upgrading to NexoSupport v1.1.7</h2>';
-        echo '<p><strong>Site Administrators System (Moodle Pattern)</strong></p>';
-        echo '<p>This upgrade implements the exact Moodle pattern for site administrators:</p>';
-        echo '<ul>';
-        echo '<li><strong>config.siteadmins:</strong> Comma-separated list of super administrator user IDs</li>';
-        echo '<li><strong>is_siteadmin():</strong> Fast verification using config table (not role_assignments)</li>';
-        echo '<li><strong>Migration:</strong> All users with administrator role promoted to site administrators</li>';
-        echo '</ul>';
-        echo '<p><strong>📝 Changes:</strong></p>';
-        echo '<ul>';
-        echo '<li>Creating or updating config.siteadmins record...</li>';
-        echo '<li>Migrating users with administrator role in system context...</li>';
-        echo '<li>Fixing siteadmin → siteadmins (correcting v1.1.6 typo)...</li>';
-        echo '</ul>';
-        echo '</div>';
-
-        try {
-            // Step 1: Fix v1.1.6 typo (siteadmin should be siteadmins)
-            $oldsiteadmin = $DB->get_record('config', ['name' => 'siteadmin']);
-            if ($oldsiteadmin) {
-                // Rename to siteadmins (plural)
-                $DB->delete_records('config', ['name' => 'siteadmin']);
-                $newsiteadmins = new \stdClass();
-                $newsiteadmins->name = 'siteadmins';
-                $newsiteadmins->value = $oldsiteadmin->value;
-                $DB->insert_record('config', $newsiteadmins);
-                echo '<p style="color: green;">✓ Fixed config name: siteadmin → siteadmins</p>';
-            }
-
-            // Step 2: Get all users with administrator role in system context
+            // Set siteadmins configuration (Moodle pattern)
+            // Find all users with administrator role in system context
             $syscontext = \core\rbac\context::system();
 
             $sql = "SELECT DISTINCT ra.userid
@@ -488,59 +430,42 @@ function xmldb_core_upgrade(int $oldversion): bool {
             $adminusers = $DB->get_records_sql($sql, ['contextid' => $syscontext->id]);
 
             if (!empty($adminusers)) {
+                // Convert to comma-separated list of user IDs
                 $userids = array_keys($adminusers);
+                $siteadmins_value = implode(',', $userids);
 
-                // Step 3: Check if siteadmins config already exists
-                $siteadmins = $DB->get_record('config', ['name' => 'siteadmins']);
-
-                if ($siteadmins) {
-                    // Merge existing siteadmins with administrator role holders
-                    $existingIds = !empty($siteadmins->value)
-                        ? array_map('intval', explode(',', $siteadmins->value))
-                        : [];
-
-                    $mergedIds = array_unique(array_merge($existingIds, $userids));
-                    sort($mergedIds);
-
-                    $siteadmins->value = implode(',', $mergedIds);
-                    $DB->update_record('config', $siteadmins);
-
-                    echo '<p style="color: green;">✓ Updated siteadmins: ' . count($mergedIds) . ' users (' . implode(', ', $mergedIds) . ')</p>';
-                } else {
-                    // Create new siteadmins config
+                // Check if siteadmins config exists
+                if (!$DB->record_exists('config', ['name' => 'siteadmins'])) {
                     $record = new \stdClass();
                     $record->name = 'siteadmins';
-                    $record->value = implode(',', $userids);
+                    $record->value = $siteadmins_value;
                     $DB->insert_record('config', $record);
-
-                    echo '<p style="color: green;">✓ Created siteadmins: ' . count($userids) . ' users (' . implode(', ', $userids) . ')</p>';
+                    echo '<p style="color: green;">✓ Set siteadmins configuration: ' . count($userids) . ' administrators (' . $siteadmins_value . ')</p>';
+                } else {
+                    echo '<p style="color: blue;">ℹ siteadmins configuration already exists</p>';
                 }
             } else {
-                // No administrator role users found, use first user as fallback
+                // No administrator role found, use first user as fallback
                 $firstuser = $DB->get_record_sql('SELECT * FROM {users} WHERE deleted = 0 ORDER BY id ASC LIMIT 1');
-
                 if ($firstuser) {
-                    $siteadmins = $DB->get_record('config', ['name' => 'siteadmins']);
-
-                    if (!$siteadmins) {
+                    if (!$DB->record_exists('config', ['name' => 'siteadmins'])) {
                         $record = new \stdClass();
                         $record->name = 'siteadmins';
                         $record->value = (string)$firstuser->id;
                         $DB->insert_record('config', $record);
-
                         echo '<p style="color: orange;">⚠ No administrators found, using first user (ID: ' . $firstuser->id . ') as siteadmin</p>';
                     }
                 }
             }
 
         } catch (\Exception $e) {
-            debugging('Error in v1.1.7 upgrade: ' . $e->getMessage());
+            debugging('Error in v1.1.6 upgrade: ' . $e->getMessage());
             echo '<p style="color: red;">✗ Error: ' . htmlspecialchars($e->getMessage()) . '</p>';
         }
 
-        echo '<p style="color: green; font-weight: bold;">✓ Upgrade to v1.1.7 completed successfully!</p>';
+        echo '<p style="color: green; font-weight: bold;">✓ Upgrade to v1.1.6 completed successfully!</p>';
 
-        upgrade_core_savepoint(true, 2025011807);
+        upgrade_core_savepoint(true, 2025011806);
     }
 
     // =========================================================

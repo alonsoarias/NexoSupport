@@ -24,6 +24,9 @@ class access {
     /**
      * Check if user has capability
      *
+     * IMPORTANT: Site administrators (config.siteadmins) have ALL capabilities
+     * without needing role assignments. This is the Moodle pattern.
+     *
      * @param string $capability
      * @param int|null $userid
      * @param context|null $context
@@ -40,6 +43,12 @@ class access {
         // Guest user has no capabilities
         if ($userid == 0) {
             return false;
+        }
+
+        // Site administrators have ALL capabilities (bypass RBAC)
+        // This is the Moodle way: siteadmins are above everything
+        if (is_siteadmin($userid)) {
+            return true;
         }
 
         // Default context
