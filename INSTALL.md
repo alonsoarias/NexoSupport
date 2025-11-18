@@ -21,10 +21,19 @@ git clone <repo-url> nexosupport
 cd nexosupport
 ```
 
-## Paso 2: Instalar Dependencias
+## Paso 2: Instalar Dependencias ⚠️ CRÍTICO
+
+**Este paso es OBLIGATORIO. El sistema no funcionará sin él.**
 
 ```bash
-composer install --no-dev
+composer install
+```
+
+> **Importante:** Si olvidas este paso, el instalador NO se cargará y verás un error 500 o pantalla en blanco. El autoloader de Composer es necesario para cargar todas las clases del sistema.
+
+Para verificar que todo está correcto, ejecuta:
+```bash
+php check.php
 ```
 
 ## Paso 3: Configurar Permisos
@@ -149,6 +158,21 @@ Después de completar el instalador:
 3. Acceder a `/login` para iniciar sesión
 
 ## Troubleshooting
+
+### Pantalla en blanco o Error 500
+
+**Causa:** No se ejecutó `composer install`
+
+**Solución:**
+```bash
+cd /ruta/a/nexosupport
+composer install
+```
+
+Para verificar que todo está bien:
+```bash
+php check.php
+```
 
 ### Error: "Not Found" al acceder a /install
 

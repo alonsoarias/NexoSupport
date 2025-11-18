@@ -171,11 +171,13 @@ git clone <repo-url> nexosupport
 cd nexosupport
 ```
 
-2. **Instalar dependencias:**
+2. **Instalar dependencias:** ⚠️ **CRÍTICO**
 
 ```bash
 composer install
 ```
+
+> **Importante:** Este paso es OBLIGATORIO. Sin él, el sistema no funcionará.
 
 3. **Configurar permisos:**
 
@@ -193,11 +195,11 @@ chmod -R 755 var/
 
 Navegar a `http://localhost/install` y seguir el asistente.
 
-### 📖 Guía Completa de Instalación
+### 📖 Guías de Instalación
 
-Para instrucciones detalladas de configuración del servidor web (Apache/Nginx), troubleshooting y configuración de producción, consultar:
-
-**[INSTALL.md](INSTALL.md)** - Guía completa de instalación y configuración
+- **[QUICKSTART.md](QUICKSTART.md)** - Inicio rápido en 5 pasos (⚠️ EMPIEZA AQUÍ)
+- **[INSTALL.md](INSTALL.md)** - Guía completa de instalación y configuración
+- **check.php** - Script de verificación de requisitos (`php check.php`)
 
 ## Uso del Sistema
 
