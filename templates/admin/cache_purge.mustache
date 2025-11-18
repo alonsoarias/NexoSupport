@@ -1,0 +1,169 @@
+{{> core/header }}
+
+<div class="main-layout">
+    {{#has_navigation}}
+    <nav class="sidebar-navigation">
+        {{{navigation_html}}}
+    </nav>
+    {{/has_navigation}}
+
+    <main class="content-area">
+        <div class="container-fluid">
+            <h1>🗑️ {{ strings.cachepurge }}</h1>
+
+            {{#success}}
+            <div class="alert alert-success">
+                <strong>✓ {{ strings.success }}:</strong> {{success}}
+            </div>
+            {{/success}}
+
+            {{#haserrors}}
+            <div class="alert alert-danger">
+                <strong>✗ {{ strings.error }}:</strong>
+                <ul>
+                    {{#errors}}
+                    <li>{{.}}</li>
+                    {{/errors}}
+                </ul>
+            </div>
+            {{/haserrors}}
+
+            {{#has_purge_results}}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>{{ strings.purgeresults }}</h3>
+                </div>
+                <div class="card-body">
+                    {{#purge_results.opcache}}
+                    <div class="purge-result {{#success}}text-success{{/success}}{{^success}}text-danger{{/success}}">
+                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>OPcache:</strong> {{message}}
+                    </div>
+                    {{/purge_results.opcache}}
+
+                    {{#purge_results.application}}
+                    <div class="purge-result {{#success}}text-success{{/success}}{{^success}}text-danger{{/success}}">
+                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{ strings.applicationcache }}:</strong> {{message}}
+                    </div>
+                    {{/purge_results.application}}
+
+                    {{#purge_results.rbac}}
+                    <div class="purge-result {{#success}}text-success{{/success}}{{^success}}text-danger{{/success}}">
+                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>RBAC {{ strings.cache }}:</strong> {{message}}
+                    </div>
+                    {{/purge_results.rbac}}
+                </div>
+            </div>
+            {{/has_purge_results}}
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3>{{ strings.cachestatus }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <h4>OPcache</h4>
+                            {{#opcache_enabled}}
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>{{ strings.status }}</th>
+                                    <td><span class="badge badge-success">{{ strings.enabled }}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>{{ strings.memoryused }}</th>
+                                    <td>{{opcache_memory_used}}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ strings.memoryfree }}</th>
+                                    <td>{{opcache_memory_free}}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ strings.memorywasted }}</th>
+                                    <td>{{opcache_memory_wasted}}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ strings.cachedscripts }}</th>
+                                    <td>{{opcache_scripts}}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ strings.hits }}</th>
+                                    <td>{{opcache_hits}}</td>
+                                </tr>
+                                <tr>
+                                    <th>{{ strings.misses }}</th>
+                                    <td>{{opcache_misses}}</td>
+                                </tr>
+                                {{#opcache_hit_rate}}
+                                <tr>
+                                    <th>{{ strings.hitrate }}</th>
+                                    <td><strong>{{opcache_hit_rate}}</strong></td>
+                                </tr>
+                                {{/opcache_hit_rate}}
+                            </table>
+                            {{/opcache_enabled}}
+                            {{^opcache_enabled}}
+                            <p class="text-muted">{{ strings.opcachedisabled }}</p>
+                            {{/opcache_enabled}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3>{{ strings.purgecache }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ strings.purgecachehelp }}</p>
+
+                            <form method="POST" action="" class="mb-3">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="purge_type" value="all">
+                                <button type="submit" class="btn btn-danger btn-block">
+                                    🗑️ {{ strings.purgeallcaches }}
+                                </button>
+                            </form>
+
+                            {{#opcache_enabled}}
+                            <form method="POST" action="" class="mb-3">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="purge_type" value="opcache">
+                                <button type="submit" class="btn btn-warning btn-block">
+                                    🔄 {{ strings.purgeopcache }}
+                                </button>
+                            </form>
+                            {{/opcache_enabled}}
+
+                            <form method="POST" action="" class="mb-3">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="purge_type" value="application">
+                                <button type="submit" class="btn btn-warning btn-block">
+                                    🔄 {{ strings.purgeappcache }}
+                                </button>
+                            </form>
+
+                            <form method="POST" action="" class="mb-3">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="purge_type" value="rbac">
+                                <button type="submit" class="btn btn-warning btn-block">
+                                    🔄 {{ strings.purgerbaccache }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <h4>ℹ️ {{ strings.aboutcaches }}</h4>
+                <ul>
+                    <li><strong>OPcache:</strong> {{ strings.opcachehelp }}</li>
+                    <li><strong>{{ strings.applicationcache }}:</strong> {{ strings.appcachehelp }}</li>
+                    <li><strong>RBAC {{ strings.cache }}:</strong> {{ strings.rbaccachehelp }}</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+</div>
+
+{{> core/footer }}

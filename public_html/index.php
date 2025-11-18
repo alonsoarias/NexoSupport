@@ -277,6 +277,14 @@ $router->post('/admin/settings', function() {
     require(BASE_DIR . '/admin/settings/index.php');
 });
 
+$router->get('/admin/cache/purge', function() {
+    require(BASE_DIR . '/admin/cache/purge.php');
+});
+
+$router->post('/admin/cache/purge', function() {
+    require(BASE_DIR . '/admin/cache/purge.php');
+});
+
 // User profile
 $router->get('/user/profile', function() {
     require(BASE_DIR . '/user/profile.php');

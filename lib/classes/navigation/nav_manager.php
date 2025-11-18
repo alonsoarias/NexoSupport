@@ -110,6 +110,15 @@ class nav_manager {
                 'parent' => 'siteadmin',
                 'order' => 30
             ]);
+
+            // Cache management
+            self::add_item('siteadmin_cache', [
+                'text' => get_string('managecaches', 'core'),
+                'url' => '/admin/cache/purge',
+                'icon' => 'refresh',
+                'parent' => 'siteadmin',
+                'order' => 40
+            ]);
         }
     }
 

@@ -61,6 +61,14 @@ class router {
      * @return mixed
      */
     public function dispatch(string $uri, string $method = 'GET'): mixed {
+        // DEFENSIVE: Strip query strings if they somehow made it here
+        // This should never happen (front controller should parse correctly)
+        // but we protect against cache issues or bugs
+        if (strpos($uri, '?') !== false) {
+            $uri = parse_url($uri, PHP_URL_PATH) ?? $uri;
+            debugging("Router: WARNING - Received URI with query string, stripped to: $uri", DEBUG_DEVELOPER);
+        }
+
         debugging("Router: Dispatching $method $uri", DEBUG_DEVELOPER);
         debugging("Router: Total routes registered: " . count($this->routes), DEBUG_DEVELOPER);
 

@@ -541,6 +541,56 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.8 - Cache Management System
+    // =========================================================
+    if ($oldversion < 2025011808) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🚀 Upgrading to NexoSupport v1.1.8 - Cache Management System</h2>';
+
+        echo '<h3 style="color: #667eea;">📦 What\'s New in v1.1.8:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Cache Management System:</strong> Complete cache purge functionality for OPcache, RBAC, and application caches</li>';
+        echo '<li><strong>Admin Interface:</strong> New /admin/cache/purge page with real-time cache status monitoring</li>';
+        echo '<li><strong>OPcache Integration:</strong> View memory usage, hit rate, and purge PHP bytecode cache</li>';
+        echo '<li><strong>RBAC Cache:</strong> Clear role/permission caches when permissions change</li>';
+        echo '<li><strong>Navigation Menu:</strong> Added "Manage Caches" item to Site Administration menu</li>';
+        echo '<li><strong>Router Enhancement:</strong> Defensive query string stripping for improved routing reliability</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔧 Technical Details:</h3>';
+        echo '<ul>';
+        echo '<li><strong>New Class:</strong> core\\cache\\cache_manager - Central cache management</li>';
+        echo '<li><strong>New Admin Page:</strong> admin/cache/purge.php with cache status dashboard</li>';
+        echo '<li><strong>New Template:</strong> templates/admin/cache_purge.mustache</li>';
+        echo '<li><strong>Language Strings:</strong> 29 new cache-related strings (ES/EN)</li>';
+        echo '<li><strong>Route Registered:</strong> /admin/cache/purge (GET/POST)</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🎯 Why This Release?</h3>';
+        echo '<p>During v1.1.7 testing, we discovered that OPcache was serving stale bytecode, ';
+        echo 'causing routing issues with query strings. This release adds comprehensive cache ';
+        echo 'management tools to allow administrators to clear caches when needed, ensuring ';
+        echo 'the system always runs the latest code and configurations.</p>';
+
+        echo '<p><strong>🔄 Usage:</strong></p>';
+        echo '<ul>';
+        echo '<li>Navigate to: <strong>Site Administration → Manage Caches</strong></li>';
+        echo '<li>View cache statistics (memory usage, hit rate, cache size)</li>';
+        echo '<li>Purge individual caches or all caches at once</li>';
+        echo '<li>Use after code updates, permission changes, or when experiencing unexpected behavior</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold;">✓ Upgrade to v1.1.8 completed successfully!</p>';
+        echo '<p style="color: blue;">ℹ No database changes for v1.1.8 (cache management functionality only).</p>';
+        echo '<p style="color: orange;">💡 Recommended: Visit /admin/cache/purge and purge all caches now!</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.8 - this is a cache management feature only
+        upgrade_core_savepoint(true, 2025011808);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 
