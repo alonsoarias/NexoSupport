@@ -358,7 +358,7 @@ function xmldb_core_upgrade(int $oldversion): bool {
             $table->add_index((new \core\db\xmldb_index('idx_contextid', 'notunique', ['contextid'])));
             $table->add_index((new \core\db\xmldb_index('idx_eventname', 'notunique', ['eventname'])));
 
-            if (!$ddl->table_exists($table)) {
+            if (!$ddl->table_exists($table->get_name())) {
                 $ddl->create_table($table);
                 echo '<p style="color: green;">✓ Created logstore_standard_log table</p>';
             } else {
@@ -375,7 +375,7 @@ function xmldb_core_upgrade(int $oldversion): bool {
             $table->add_key((new \core\db\xmldb_key('primary', 'primary', ['id'])));
             $table->add_index((new \core\db\xmldb_index('idx_userid_name', 'unique', ['userid', 'name'])));
 
-            if (!$ddl->table_exists($table)) {
+            if (!$ddl->table_exists($table->get_name())) {
                 $ddl->create_table($table);
                 echo '<p style="color: green;">✓ Created user_preferences table</p>';
             } else {
@@ -391,7 +391,7 @@ function xmldb_core_upgrade(int $oldversion): bool {
             $table->add_key((new \core\db\xmldb_key('primary', 'primary', ['id'])));
             $table->add_index((new \core\db\xmldb_index('idx_userid', 'notunique', ['userid'])));
 
-            if (!$ddl->table_exists($table)) {
+            if (!$ddl->table_exists($table->get_name())) {
                 $ddl->create_table($table);
                 echo '<p style="color: green;">✓ Created user_password_history table</p>';
             } else {
@@ -409,7 +409,7 @@ function xmldb_core_upgrade(int $oldversion): bool {
             $table->add_index((new \core\db\xmldb_index('idx_token', 'notunique', ['token'])));
             $table->add_index((new \core\db\xmldb_index('idx_userid', 'notunique', ['userid'])));
 
-            if (!$ddl->table_exists($table)) {
+            if (!$ddl->table_exists($table->get_name())) {
                 $ddl->create_table($table);
                 echo '<p style="color: green;">✓ Created user_password_resets table</p>';
             } else {
