@@ -665,6 +665,100 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.10 - Moodle-Style Navigation + Plugin Context
+    // =========================================================
+    if ($oldversion < 2025011810) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🚀 Upgrading to NexoSupport v1.1.10 - Moodle-Style Navigation</h2>';
+
+        echo '<h3 style="color: #667eea;">✨ What\'s New in v1.1.10:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Complete Moodle Navigation:</strong> Full Site Administration hierarchy with all categories</li>';
+        echo '<li><strong>User Navigation Menu:</strong> Profile, preferences, and notification settings</li>';
+        echo '<li><strong>Plugin Navigation System:</strong> Contextual navigation for plugins to add their own options</li>';
+        echo '<li><strong>7 Major Admin Categories:</strong> Users, Courses, Plugins, Appearance, Server, Reports, Development</li>';
+        echo '<li><strong>User Preferences:</strong> Edit profile, change password, notification preferences</li>';
+        echo '<li><strong>50+ New Navigation Items:</strong> Complete administrative navigation structure</li>';
+        echo '<li><strong>50+ New Language Strings:</strong> Full i18n support for ES/EN</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🗂️ Site Administration Structure:</h3>';
+        echo '<ul>';
+        echo '<li><strong>👥 Users:</strong> Browse, add, bulk actions, cohorts, profile fields, permissions, roles</li>';
+        echo '<li><strong>📚 Courses:</strong> Manage courses, course categories</li>';
+        echo '<li><strong>🧩 Plugins:</strong> Overview, install, auth plugins, MFA factors, admin tools, local plugins, blocks</li>';
+        echo '<li><strong>🎨 Appearance:</strong> Themes, theme selector, navigation, HTML settings</li>';
+        echo '<li><strong>🖥️ Server:</strong> System paths, support contact, sessions, HTTP, maintenance, environment, PHP info</li>';
+        echo '<li><strong>📊 Reports:</strong> Logs, live logs, config changes, security, performance</li>';
+        echo '<li><strong>💻 Development:</strong> Debugging, purge caches, test site, XMLDB editor, web services</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">👤 User Navigation:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Profile:</strong> View and edit profile information</li>';
+        echo '<li><strong>Preferences:</strong> Change password, notification settings</li>';
+        echo '<li><strong>Logout:</strong> With visual separator</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔌 Plugin Navigation System:</h3>';
+        echo '<p>New plugin_navigation class allows plugins to register their own navigation items:</p>';
+        echo '<ul>';
+        echo '<li><strong>Context-Based:</strong> Register navigation for system, user, course, category contexts</li>';
+        echo '<li><strong>Auto-Categorization:</strong> Plugin items automatically placed in correct parent category</li>';
+        echo '<li><strong>Helper Methods:</strong> register_settings(), register_report(), register_user_preferences()</li>';
+        echo '<li><strong>Load Callbacks:</strong> Plugins can implement {component}_extend_navigation() and {component}_extend_admin_navigation()</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">📦 New Files:</h3>';
+        echo '<ul>';
+        echo '<li>lib/classes/navigation/plugin_navigation.php (296 lines) - Plugin navigation system</li>';
+        echo '<li>user/edit.php - Edit user profile page</li>';
+        echo '<li>user/preferences/notification.php - Notification preferences page</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔧 Updated Files:</h3>';
+        echo '<ul>';
+        echo '<li>lib/classes/navigation/nav_manager.php - Complete Moodle-style navigation (870 lines)</li>';
+        echo '<li>public_html/index.php - Added user routes: /user/edit, /user/preferences/notification</li>';
+        echo '<li>lang/es/core.php - Added 50+ navigation strings</li>';
+        echo '<li>lang/en/core.php - Added 50+ navigation strings</li>';
+        echo '<li>lib/version.php - Updated to v1.1.10 (2025011810)</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🎯 Key Features:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Hierarchical Navigation:</strong> Nested categories up to 3 levels deep</li>';
+        echo '<li><strong>Permission-Based:</strong> Each menu item can have capability requirements</li>';
+        echo '<li><strong>Auto-Expand:</strong> Admin category expands when on admin pages</li>';
+        echo '<li><strong>Breadcrumbs:</strong> Automatic breadcrumb trail for current location</li>';
+        echo '<li><strong>Font Awesome Icons:</strong> Professional icons throughout</li>';
+        echo '<li><strong>Responsive:</strong> Mobile-friendly with collapsible sections</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔄 Navigation Methods:</h3>';
+        echo '<p>Plugins can register navigation using plugin_navigation class:</p>';
+        echo '<code style="display: block; background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 4px;">';
+        echo '// In plugin lib.php<br>';
+        echo 'function tool_example_extend_admin_navigation() {<br>';
+        echo '&nbsp;&nbsp;\\core\\navigation\\plugin_navigation::register_settings(<br>';
+        echo '&nbsp;&nbsp;&nbsp;&nbsp;\'tool_example\',<br>';
+        echo '&nbsp;&nbsp;&nbsp;&nbsp;\'tool\',<br>';
+        echo '&nbsp;&nbsp;&nbsp;&nbsp;[\'text\' => \'Example Tool\', \'url\' => \'/admin/tool/example\']<br>';
+        echo '&nbsp;&nbsp;);<br>';
+        echo '}';
+        echo '</code>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.10 - All improvements are code-level</p>';
+        echo '<p style="color: blue;">📱 New navigation is fully responsive and accessible</p>';
+        echo '<p style="color: green;">🌍 Full multilingual support (Spanish/English)</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.10 - navigation enhancements only
+        upgrade_core_savepoint(true, 2025011810);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 

@@ -285,9 +285,25 @@ $router->post('/admin/cache/purge', function() {
     require(BASE_DIR . '/admin/cache/purge.php');
 });
 
-// User profile
+// User routes
 $router->get('/user/profile', function() {
     require(BASE_DIR . '/user/profile.php');
+});
+
+$router->get('/user/edit', function() {
+    require(BASE_DIR . '/user/edit.php');
+});
+
+$router->post('/user/edit', function() {
+    require(BASE_DIR . '/user/edit.php');
+});
+
+$router->get('/user/preferences/notification', function() {
+    require(BASE_DIR . '/user/preferences/notification.php');
+});
+
+$router->post('/user/preferences/notification', function() {
+    require(BASE_DIR . '/user/preferences/notification.php');
 });
 
 // Despachar

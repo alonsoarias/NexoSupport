@@ -4,16 +4,13 @@ namespace core\navigation;
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
- * Navigation Manager - v1.1.9 Redesign
+ * Navigation Manager - v1.1.10 Moodle-Style Navigation
  *
- * Modern navigation system using navigation_builder, navigation_tree,
- * and navigation_renderer with Mustache templates and Font Awesome icons.
- *
- * Maintains backward compatibility with v1.1.8 API while adding:
- * - Template-based rendering
- * - Font Awesome icon support
- * - Permission-based filtering
- * - Better extensibility
+ * Complete Moodle-inspired navigation system with:
+ * - Full Site Administration hierarchy
+ * - User menu with preferences
+ * - Plugin navigation support (contextual)
+ * - Template-based rendering with Font Awesome icons
  *
  * @package core\navigation
  */
@@ -31,7 +28,7 @@ class nav_manager {
     /**
      * Initialize navigation tree
      *
-     * Builds the complete site navigation structure.
+     * Builds the complete Moodle-style site navigation structure.
      * Called automatically by render() if not already initialized.
      *
      * @return void
@@ -49,101 +46,624 @@ class nav_manager {
 
         // Main navigation for all logged-in users
         if (isset($USER->id) && $USER->id > 0) {
-            self::$builder->add_item('home', [
-                'text' => get_string('home', 'core'),
-                'url' => '/',
-                'icon' => 'fa-home',
-                'order' => 1
-            ]);
-
-            self::$builder->add_item('dashboard', [
-                'text' => get_string('dashboard', 'core'),
-                'url' => '/',
-                'icon' => 'fa-chart-line',
-                'order' => 2
-            ]);
+            self::build_main_navigation();
+            self::build_user_navigation();
         }
 
-        // Site administration menu (with permission checking)
+        // Site administration menu (siteadmins only)
         if (is_siteadmin()) {
-            self::$builder->add_category('siteadmin', [
-                'text' => get_string('administration', 'core'),
-                'icon' => 'fa-cogs',
-                'order' => 100,
-                'expanded' => self::is_admin_page(),
-            ]);
-
-            // Users submenu
-            self::$builder->add_category('siteadmin_users', [
-                'text' => get_string('users', 'core'),
-                'icon' => 'fa-users',
-                'parent' => 'siteadmin',
-                'order' => 10,
-            ]);
-
-            self::$builder->add_item('siteadmin_users_browse', [
-                'text' => get_string('browselistofusers', 'core'),
-                'url' => '/admin/user',
-                'parent' => 'siteadmin_users',
-                'order' => 1,
-            ]);
-
-            self::$builder->add_item('siteadmin_users_add', [
-                'text' => get_string('addnewuser', 'core'),
-                'url' => '/admin/user/edit',
-                'parent' => 'siteadmin_users',
-                'order' => 2,
-            ]);
-
-            // Roles submenu
-            self::$builder->add_category('siteadmin_roles', [
-                'text' => get_string('roles', 'core'),
-                'icon' => 'fa-shield-alt',
-                'parent' => 'siteadmin',
-                'order' => 20,
-            ]);
-
-            self::$builder->add_item('siteadmin_roles_manage', [
-                'text' => get_string('manageroles', 'core'),
-                'url' => '/admin/roles',
-                'parent' => 'siteadmin_roles',
-                'order' => 1,
-            ]);
-
-            self::$builder->add_item('siteadmin_roles_define', [
-                'text' => get_string('defineroles', 'core'),
-                'url' => '/admin/roles/define',
-                'parent' => 'siteadmin_roles',
-                'order' => 2,
-            ]);
-
-            self::$builder->add_item('siteadmin_roles_assign', [
-                'text' => get_string('assignroles', 'core'),
-                'url' => '/admin/roles/assign',
-                'parent' => 'siteadmin_roles',
-                'order' => 3,
-            ]);
-
-            // Settings submenu
-            self::$builder->add_item('siteadmin_settings', [
-                'text' => get_string('settings', 'core'),
-                'url' => '/admin/settings',
-                'icon' => 'fa-sliders-h',
-                'parent' => 'siteadmin',
-                'order' => 30,
-            ]);
-
-            // Cache management
-            self::$builder->add_item('siteadmin_cache', [
-                'text' => get_string('managecaches', 'core'),
-                'url' => '/admin/cache/purge',
-                'icon' => 'fa-sync-alt',
-                'parent' => 'siteadmin',
-                'order' => 40,
-            ]);
+            self::build_site_administration();
         }
+
+        // Load plugin navigation
+        plugin_navigation::apply_to_builder(self::$builder, plugin_navigation::CONTEXT_SYSTEM);
 
         self::$initialized = true;
+    }
+
+    /**
+     * Build main navigation (Home, Dashboard)
+     *
+     * @return void
+     */
+    private static function build_main_navigation(): void {
+        self::$builder->add_item('home', [
+            'text' => get_string('home', 'core'),
+            'url' => '/',
+            'icon' => 'fa-home',
+            'order' => 1
+        ]);
+
+        self::$builder->add_item('dashboard', [
+            'text' => get_string('dashboard', 'core'),
+            'url' => '/',
+            'icon' => 'fa-chart-line',
+            'order' => 2
+        ]);
+    }
+
+    /**
+     * Build user navigation menu
+     *
+     * Includes profile, preferences, messages, etc.
+     *
+     * @return void
+     */
+    private static function build_user_navigation(): void {
+        global $USER;
+
+        // User menu category
+        self::$builder->add_category('user', [
+            'text' => fullname($USER),
+            'icon' => 'fa-user-circle',
+            'order' => 90,
+        ]);
+
+        // Profile
+        self::$builder->add_item('user_profile', [
+            'text' => get_string('profile', 'core'),
+            'url' => '/user/profile',
+            'icon' => 'fa-user',
+            'parent' => 'user',
+            'order' => 1,
+        ]);
+
+        // Edit profile
+        self::$builder->add_item('user_editprofile', [
+            'text' => get_string('editprofile', 'core'),
+            'url' => '/user/edit',
+            'icon' => 'fa-user-edit',
+            'parent' => 'user',
+            'order' => 2,
+        ]);
+
+        // Preferences category
+        self::$builder->add_category('user_preferences', [
+            'text' => get_string('preferences', 'core'),
+            'icon' => 'fa-sliders-h',
+            'parent' => 'user',
+            'order' => 10,
+        ]);
+
+        // Change password
+        self::$builder->add_item('user_preferences_password', [
+            'text' => get_string('changepassword', 'core'),
+            'url' => '/login/change_password',
+            'icon' => 'fa-key',
+            'parent' => 'user_preferences',
+            'order' => 1,
+        ]);
+
+        // Notification preferences
+        self::$builder->add_item('user_preferences_notifications', [
+            'text' => get_string('notificationpreferences', 'core'),
+            'url' => '/user/preferences/notification',
+            'icon' => 'fa-bell',
+            'parent' => 'user_preferences',
+            'order' => 2,
+        ]);
+
+        // Plugin preferences (loaded via plugin_navigation)
+        plugin_navigation::apply_to_builder(self::$builder, plugin_navigation::CONTEXT_USER);
+
+        // Separator before logout
+        self::$builder->add_separator('user_sep', [
+            'parent' => 'user',
+            'order' => 90,
+        ]);
+
+        // Logout
+        self::$builder->add_item('user_logout', [
+            'text' => get_string('logout', 'core'),
+            'url' => '/logout',
+            'icon' => 'fa-sign-out-alt',
+            'parent' => 'user',
+            'order' => 99,
+        ]);
+    }
+
+    /**
+     * Build complete Site Administration navigation (Moodle-style)
+     *
+     * @return void
+     */
+    private static function build_site_administration(): void {
+        // Main Site Administration category
+        self::$builder->add_category('siteadmin', [
+            'text' => get_string('administration', 'core'),
+            'icon' => 'fa-cogs',
+            'order' => 100,
+            'expanded' => self::is_admin_page(),
+        ]);
+
+        // === USERS ===
+        self::build_users_navigation();
+
+        // === COURSES/PROJECTS ===
+        self::build_courses_navigation();
+
+        // === PLUGINS ===
+        self::build_plugins_navigation();
+
+        // === APPEARANCE ===
+        self::build_appearance_navigation();
+
+        // === SERVER ===
+        self::build_server_navigation();
+
+        // === REPORTS ===
+        self::build_reports_navigation();
+
+        // === DEVELOPMENT ===
+        self::build_development_navigation();
+    }
+
+    /**
+     * Build Users section of Site Administration
+     *
+     * @return void
+     */
+    private static function build_users_navigation(): void {
+        self::$builder->add_category('siteadmin_users', [
+            'text' => get_string('users', 'core'),
+            'icon' => 'fa-users',
+            'parent' => 'siteadmin',
+            'order' => 10,
+        ]);
+
+        self::$builder->add_item('siteadmin_users_browse', [
+            'text' => get_string('browselistofusers', 'core'),
+            'url' => '/admin/users',
+            'parent' => 'siteadmin_users',
+            'order' => 1,
+        ]);
+
+        self::$builder->add_item('siteadmin_users_add', [
+            'text' => get_string('addnewuser', 'core'),
+            'url' => '/admin/user/edit',
+            'parent' => 'siteadmin_users',
+            'order' => 2,
+        ]);
+
+        self::$builder->add_item('siteadmin_users_bulk', [
+            'text' => get_string('bulkuseractions', 'core'),
+            'url' => '/admin/user/bulk',
+            'parent' => 'siteadmin_users',
+            'order' => 3,
+        ]);
+
+        // Accounts submenu
+        self::$builder->add_category('siteadmin_users_accounts', [
+            'text' => get_string('accounts', 'core'),
+            'icon' => 'fa-id-card',
+            'parent' => 'siteadmin_users',
+            'order' => 10,
+        ]);
+
+        self::$builder->add_item('siteadmin_users_accounts_cohorts', [
+            'text' => get_string('cohorts', 'core'),
+            'url' => '/admin/cohorts',
+            'parent' => 'siteadmin_users_accounts',
+            'order' => 1,
+        ]);
+
+        self::$builder->add_item('siteadmin_users_accounts_profilefields', [
+            'text' => get_string('userprofilefields', 'core'),
+            'url' => '/admin/user/profilefield',
+            'parent' => 'siteadmin_users_accounts',
+            'order' => 2,
+        ]);
+
+        // Permissions submenu
+        self::$builder->add_category('siteadmin_users_permissions', [
+            'text' => get_string('permissions', 'core'),
+            'icon' => 'fa-shield-alt',
+            'parent' => 'siteadmin_users',
+            'order' => 20,
+        ]);
+
+        self::$builder->add_item('siteadmin_users_permissions_roles', [
+            'text' => get_string('manageroles', 'core'),
+            'url' => '/admin/roles',
+            'parent' => 'siteadmin_users_permissions',
+            'order' => 1,
+        ]);
+
+        self::$builder->add_item('siteadmin_users_permissions_define', [
+            'text' => get_string('defineroles', 'core'),
+            'url' => '/admin/roles/define',
+            'parent' => 'siteadmin_users_permissions',
+            'order' => 2,
+        ]);
+
+        self::$builder->add_item('siteadmin_users_permissions_assign', [
+            'text' => get_string('assignroles', 'core'),
+            'url' => '/admin/roles/assign',
+            'parent' => 'siteadmin_users_permissions',
+            'order' => 3,
+        ]);
+
+        self::$builder->add_item('siteadmin_users_permissions_capabilities', [
+            'text' => get_string('capabilityreport', 'core'),
+            'url' => '/admin/roles/check',
+            'parent' => 'siteadmin_users_permissions',
+            'order' => 4,
+        ]);
+    }
+
+    /**
+     * Build Courses/Projects section
+     *
+     * @return void
+     */
+    private static function build_courses_navigation(): void {
+        self::$builder->add_category('siteadmin_courses', [
+            'text' => get_string('courses', 'core'),
+            'icon' => 'fa-book',
+            'parent' => 'siteadmin',
+            'order' => 20,
+        ]);
+
+        self::$builder->add_item('siteadmin_courses_manage', [
+            'text' => get_string('managecourses', 'core'),
+            'url' => '/admin/courses',
+            'parent' => 'siteadmin_courses',
+            'order' => 1,
+        ]);
+
+        self::$builder->add_item('siteadmin_courses_categories', [
+            'text' => get_string('coursecategories', 'core'),
+            'url' => '/admin/courses/categories',
+            'parent' => 'siteadmin_courses',
+            'order' => 2,
+        ]);
+    }
+
+    /**
+     * Build Plugins section with all plugin types
+     *
+     * @return void
+     */
+    private static function build_plugins_navigation(): void {
+        self::$builder->add_category('siteadmin_plugins', [
+            'text' => get_string('plugins', 'core'),
+            'icon' => 'fa-puzzle-piece',
+            'parent' => 'siteadmin',
+            'order' => 30,
+        ]);
+
+        // Plugins overview
+        self::$builder->add_item('siteadmin_plugins_overview', [
+            'text' => get_string('pluginsoverview', 'core'),
+            'url' => '/admin/plugins',
+            'parent' => 'siteadmin_plugins',
+            'order' => 1,
+        ]);
+
+        // Install plugins
+        self::$builder->add_item('siteadmin_plugins_install', [
+            'text' => get_string('installplugins', 'core'),
+            'url' => '/admin/plugins/install',
+            'parent' => 'siteadmin_plugins',
+            'order' => 2,
+        ]);
+
+        self::$builder->add_separator('siteadmin_plugins_sep1', [
+            'parent' => 'siteadmin_plugins',
+            'order' => 5,
+        ]);
+
+        // Authentication plugins
+        self::$builder->add_category('siteadmin_plugins_auth', [
+            'text' => get_string('authentication', 'core'),
+            'icon' => 'fa-key',
+            'parent' => 'siteadmin_plugins',
+            'order' => 10,
+        ]);
+
+        self::$builder->add_item('siteadmin_plugins_auth_manage', [
+            'text' => get_string('manageauth', 'core'),
+            'url' => '/admin/auth',
+            'parent' => 'siteadmin_plugins_auth',
+            'order' => 1,
+        ]);
+
+        // MFA Factor plugins
+        self::$builder->add_category('siteadmin_plugins_factor', [
+            'text' => get_string('mfafactors', 'core'),
+            'icon' => 'fa-shield-alt',
+            'parent' => 'siteadmin_plugins',
+            'order' => 15,
+        ]);
+
+        self::$builder->add_item('siteadmin_plugins_factor_manage', [
+            'text' => get_string('managefactors', 'core'),
+            'url' => '/admin/factors',
+            'parent' => 'siteadmin_plugins_factor',
+            'order' => 1,
+        ]);
+
+        // Admin tools
+        self::$builder->add_category('siteadmin_plugins_tool', [
+            'text' => get_string('admintools', 'core'),
+            'icon' => 'fa-wrench',
+            'parent' => 'siteadmin_plugins',
+            'order' => 20,
+        ]);
+
+        // Local plugins
+        self::$builder->add_category('siteadmin_plugins_local', [
+            'text' => get_string('localplugins', 'core'),
+            'icon' => 'fa-code',
+            'parent' => 'siteadmin_plugins',
+            'order' => 30,
+        ]);
+
+        // Blocks
+        self::$builder->add_category('siteadmin_plugins_block', [
+            'text' => get_string('blocks', 'core'),
+            'icon' => 'fa-th',
+            'parent' => 'siteadmin_plugins',
+            'order' => 40,
+        ]);
+    }
+
+    /**
+     * Build Appearance section
+     *
+     * @return void
+     */
+    private static function build_appearance_navigation(): void {
+        self::$builder->add_category('siteadmin_appearance', [
+            'text' => get_string('appearance', 'core'),
+            'icon' => 'fa-paint-brush',
+            'parent' => 'siteadmin',
+            'order' => 40,
+        ]);
+
+        // Themes
+        self::$builder->add_category('siteadmin_appearance_themes', [
+            'text' => get_string('themes', 'core'),
+            'icon' => 'fa-palette',
+            'parent' => 'siteadmin_appearance',
+            'order' => 1,
+        ]);
+
+        self::$builder->add_item('siteadmin_appearance_themes_selector', [
+            'text' => get_string('themeselector', 'core'),
+            'url' => '/admin/themes',
+            'parent' => 'siteadmin_appearance_themes',
+            'order' => 1,
+        ]);
+
+        self::$builder->add_item('siteadmin_appearance_themes_settings', [
+            'text' => get_string('themesettings', 'core'),
+            'url' => '/admin/settings/appearance',
+            'parent' => 'siteadmin_appearance_themes',
+            'order' => 2,
+        ]);
+
+        // Navigation
+        self::$builder->add_item('siteadmin_appearance_navigation', [
+            'text' => get_string('navigation', 'core'),
+            'url' => '/admin/settings/navigation',
+            'icon' => 'fa-bars',
+            'parent' => 'siteadmin_appearance',
+            'order' => 10,
+        ]);
+
+        // HTML settings
+        self::$builder->add_item('siteadmin_appearance_htmlsettings', [
+            'text' => get_string('htmlsettings', 'core'),
+            'url' => '/admin/settings/htmlsettings',
+            'icon' => 'fa-code',
+            'parent' => 'siteadmin_appearance',
+            'order' => 20,
+        ]);
+
+        // Additional HTML
+        self::$builder->add_item('siteadmin_appearance_additionalhtml', [
+            'text' => get_string('additionalhtml', 'core'),
+            'url' => '/admin/settings/additionalhtml',
+            'icon' => 'fa-file-code',
+            'parent' => 'siteadmin_appearance',
+            'order' => 30,
+        ]);
+    }
+
+    /**
+     * Build Server section
+     *
+     * @return void
+     */
+    private static function build_server_navigation(): void {
+        self::$builder->add_category('siteadmin_server', [
+            'text' => get_string('server', 'core'),
+            'icon' => 'fa-server',
+            'parent' => 'siteadmin',
+            'order' => 50,
+        ]);
+
+        // System paths
+        self::$builder->add_item('siteadmin_server_systempaths', [
+            'text' => get_string('systempaths', 'core'),
+            'url' => '/admin/settings/systempaths',
+            'icon' => 'fa-folder-open',
+            'parent' => 'siteadmin_server',
+            'order' => 1,
+        ]);
+
+        // Support contact
+        self::$builder->add_item('siteadmin_server_supportcontact', [
+            'text' => get_string('supportcontact', 'core'),
+            'url' => '/admin/settings/supportcontact',
+            'icon' => 'fa-life-ring',
+            'parent' => 'siteadmin_server',
+            'order' => 2,
+        ]);
+
+        // Session handling
+        self::$builder->add_item('siteadmin_server_sessionhandling', [
+            'text' => get_string('sessionhandling', 'core'),
+            'url' => '/admin/settings/sessionhandling',
+            'icon' => 'fa-clock',
+            'parent' => 'siteadmin_server',
+            'order' => 10,
+        ]);
+
+        // HTTP settings
+        self::$builder->add_item('siteadmin_server_http', [
+            'text' => get_string('httpsettings', 'core'),
+            'url' => '/admin/settings/http',
+            'icon' => 'fa-network-wired',
+            'parent' => 'siteadmin_server',
+            'order' => 20,
+        ]);
+
+        // Maintenance mode
+        self::$builder->add_item('siteadmin_server_maintenance', [
+            'text' => get_string('maintenancemode', 'core'),
+            'url' => '/admin/settings/maintenancemode',
+            'icon' => 'fa-tools',
+            'parent' => 'siteadmin_server',
+            'order' => 30,
+        ]);
+
+        // Environment
+        self::$builder->add_item('siteadmin_server_environment', [
+            'text' => get_string('environment', 'core'),
+            'url' => '/admin/environment',
+            'icon' => 'fa-info-circle',
+            'parent' => 'siteadmin_server',
+            'order' => 40,
+        ]);
+
+        // PHP info
+        self::$builder->add_item('siteadmin_server_phpinfo', [
+            'text' => get_string('phpinfo', 'core'),
+            'url' => '/admin/phpinfo',
+            'icon' => 'fa-file-alt',
+            'parent' => 'siteadmin_server',
+            'order' => 50,
+        ]);
+    }
+
+    /**
+     * Build Reports section
+     *
+     * @return void
+     */
+    private static function build_reports_navigation(): void {
+        self::$builder->add_category('siteadmin_reports', [
+            'text' => get_string('reports', 'core'),
+            'icon' => 'fa-chart-bar',
+            'parent' => 'siteadmin',
+            'order' => 60,
+        ]);
+
+        // Logs
+        self::$builder->add_item('siteadmin_reports_logs', [
+            'text' => get_string('logs', 'core'),
+            'url' => '/admin/reports/logs',
+            'icon' => 'fa-list',
+            'parent' => 'siteadmin_reports',
+            'order' => 1,
+        ]);
+
+        // Live logs
+        self::$builder->add_item('siteadmin_reports_livelogs', [
+            'text' => get_string('livelogs', 'core'),
+            'url' => '/admin/reports/livelogs',
+            'icon' => 'fa-stream',
+            'parent' => 'siteadmin_reports',
+            'order' => 2,
+        ]);
+
+        // Config changes
+        self::$builder->add_item('siteadmin_reports_configchanges', [
+            'text' => get_string('configchanges', 'core'),
+            'url' => '/admin/reports/configchanges',
+            'icon' => 'fa-history',
+            'parent' => 'siteadmin_reports',
+            'order' => 10,
+        ]);
+
+        // Security report
+        self::$builder->add_item('siteadmin_reports_security', [
+            'text' => get_string('securityreport', 'core'),
+            'url' => '/admin/reports/security',
+            'icon' => 'fa-shield-alt',
+            'parent' => 'siteadmin_reports',
+            'order' => 20,
+        ]);
+
+        // Performance
+        self::$builder->add_item('siteadmin_reports_performance', [
+            'text' => get_string('performance', 'core'),
+            'url' => '/admin/reports/performance',
+            'icon' => 'fa-tachometer-alt',
+            'parent' => 'siteadmin_reports',
+            'order' => 30,
+        ]);
+    }
+
+    /**
+     * Build Development section
+     *
+     * @return void
+     */
+    private static function build_development_navigation(): void {
+        self::$builder->add_category('siteadmin_development', [
+            'text' => get_string('development', 'core'),
+            'icon' => 'fa-code',
+            'parent' => 'siteadmin',
+            'order' => 70,
+        ]);
+
+        // Debugging
+        self::$builder->add_item('siteadmin_development_debugging', [
+            'text' => get_string('debugging', 'core'),
+            'url' => '/admin/settings/debugging',
+            'icon' => 'fa-bug',
+            'parent' => 'siteadmin_development',
+            'order' => 1,
+        ]);
+
+        // Purge caches
+        self::$builder->add_item('siteadmin_development_purgecaches', [
+            'text' => get_string('purgecaches', 'core'),
+            'url' => '/admin/cache/purge',
+            'icon' => 'fa-sync-alt',
+            'parent' => 'siteadmin_development',
+            'order' => 10,
+        ]);
+
+        // Make test site
+        self::$builder->add_item('siteadmin_development_maketestsite', [
+            'text' => get_string('maketestsite', 'core'),
+            'url' => '/admin/tool/makedata',
+            'icon' => 'fa-flask',
+            'parent' => 'siteadmin_development',
+            'order' => 20,
+        ]);
+
+        // XMLDB editor
+        self::$builder->add_item('siteadmin_development_xmldb', [
+            'text' => get_string('xmldbeditor', 'core'),
+            'url' => '/admin/tool/xmldb',
+            'icon' => 'fa-database',
+            'parent' => 'siteadmin_development',
+            'order' => 30,
+        ]);
+
+        // Web service test client
+        self::$builder->add_item('siteadmin_development_wstestclient', [
+            'text' => get_string('wstestclient', 'core'),
+            'url' => '/admin/webservice/testclient',
+            'icon' => 'fa-plug',
+            'parent' => 'siteadmin_development',
+            'order' => 40,
+        ]);
     }
 
     /**
@@ -316,6 +836,16 @@ class nav_manager {
     }
 
     /**
+     * Check if we're on a user page
+     *
+     * @return bool True if on user page
+     */
+    private static function is_user_page(): bool {
+        $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        return str_starts_with($path, '/user/');
+    }
+
+    /**
      * Ensure navigation is initialized
      *
      * @return void
@@ -335,5 +865,6 @@ class nav_manager {
         self::$builder = null;
         self::$tree = null;
         self::$initialized = false;
+        plugin_navigation::reset();
     }
 }
