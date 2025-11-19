@@ -572,3 +572,20 @@ $string['performancenotice'] = 'Performance notice';
 $string['debugperformancewarning'] = 'High debug levels can affect system performance. Use DEBUG_NONE in production.';
 $string['currentsettings'] = 'Current settings';
 $string['invaliddebug level'] = 'Invalid debug level';
+
+// User profile and preferences v1.1.11
+$string['emailexists'] = 'This email is already being used by another user';
+$string['cannotchangeusername'] = 'The username cannot be changed';
+$string['usernamecannotbechanged'] = 'The username cannot be modified once created';
+$string['notificationpreferencesdesc'] = 'Configure how you want to receive system notifications.';
+$string['emailnotifications'] = 'Email notifications';
+$string['receivemailnotifications'] = 'Receive email notifications';
+$string['receivemailnotificationshelp'] = 'When enabled, you will receive email notifications about important activities.';
+$string['digesttype'] = 'Digest type';
+$string['nodigest'] = 'No digest';
+$string['nodigesthelp'] = 'Receive individual notifications for each event.';
+$string['dailydigest'] = 'Daily digest';
+$string['dailydigesthelp'] = 'Receive a single email per day with all accumulated notifications.';
+$string['weeklydigest'] = 'Weekly digest';
+$string['weeklydigesthelp'] = 'Receive a single email per week with all accumulated notifications.';
+$string['preferencessaved'] = 'Preferences saved successfully';

@@ -584,3 +584,20 @@ $string['performancenotice'] = 'Aviso de rendimiento';
 $string['debugperformancewarning'] = 'Los niveles de depuración altos pueden afectar el rendimiento del sistema. Use DEBUG_NONE en producción.';
 $string['currentsettings'] = 'Configuración actual';
 $string['invaliddebug level'] = 'Nivel de depuración inválido';
+
+// User profile and preferences v1.1.11
+$string['emailexists'] = 'Este correo ya está siendo usado por otro usuario';
+$string['cannotchangeusername'] = 'El nombre de usuario no puede ser cambiado';
+$string['usernamecannotbechanged'] = 'El nombre de usuario no puede ser modificado una vez creado';
+$string['notificationpreferencesdesc'] = 'Configure cómo desea recibir notificaciones del sistema.';
+$string['emailnotifications'] = 'Notificaciones por correo electrónico';
+$string['receivemailnotifications'] = 'Recibir notificaciones por correo electrónico';
+$string['receivemailnotificationshelp'] = 'Cuando está activado, recibirá notificaciones por correo electrónico sobre actividades importantes.';
+$string['digesttype'] = 'Tipo de resumen';
+$string['nodigest'] = 'Sin resumen';
+$string['nodigesthelp'] = 'Recibir notificaciones individuales por cada evento.';
+$string['dailydigest'] = 'Resumen diario';
+$string['dailydigesthelp'] = 'Recibir un único correo al día con todas las notificaciones acumuladas.';
+$string['weeklydigest'] = 'Resumen semanal';
+$string['weeklydigesthelp'] = 'Recibir un único correo a la semana con todas las notificaciones acumuladas.';
+$string['preferencessaved'] = 'Preferencias guardadas exitosamente';

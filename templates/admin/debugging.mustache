@@ -1,0 +1,355 @@
+{{> core/header}}
+
+<div class="debugging-settings">
+    {{#haserrors}}
+    <div class="alert alert-danger">
+        {{#errors}}
+        <p>{{.}}</p>
+        {{/errors}}
+    </div>
+    {{/haserrors}}
+
+    {{#success}}
+    <div class="alert alert-success">
+        {{success}}
+    </div>
+    {{/success}}
+
+    <div class="warning-box">
+        <i class="fa fa-exclamation-triangle"></i>
+        <strong>{{#str}}warning,core{{/str}}:</strong>
+        {{#str}}debuggingwarning,core{{/str}}
+    </div>
+
+    <form method="post" action="/admin/settings/debugging" class="nexo-form">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+
+        <!-- Debug Level -->
+        <div class="form-section">
+            <h3><i class="fa fa-bug"></i> {{#str}}debuglevel,core{{/str}}</h3>
+            <p class="description">{{#str}}debuglevel_desc,core{{/str}}</p>
+
+            <div class="debug-options">
+                {{#debug_levels}}
+                <div class="option-item">
+                    <input type="radio"
+                           id="debug_{{key}}"
+                           name="debug"
+                           value="{{value}}"
+                           {{#selected}}checked{{/selected}}>
+                    <label for="debug_{{key}}">
+                        <strong>{{#str}}debug{{key}},core{{/str}}</strong>
+                        <span class="option-desc">{{#str}}debug{{key}}_desc,core{{/str}}</span>
+                        {{#badge}}
+                        <span class="badge badge-{{badge_type}}">{{#str}}{{badge}},core{{/str}}</span>
+                        {{/badge}}
+                    </label>
+                </div>
+                {{/debug_levels}}
+            </div>
+        </div>
+
+        <!-- Debug Display -->
+        <div class="form-section">
+            <h3><i class="fa fa-desktop"></i> {{#str}}debugdisplay,core{{/str}}</h3>
+            <p class="description">{{#str}}debugdisplay_desc,core{{/str}}</p>
+
+            <div class="checkbox-item">
+                <input type="checkbox"
+                       id="debugdisplay"
+                       name="debugdisplay"
+                       value="1"
+                       {{#debugdisplay_checked}}checked{{/debugdisplay_checked}}>
+                <label for="debugdisplay">
+                    <strong>{{#str}}displayerrors,core{{/str}}</strong>
+                    <span class="help-text">{{#str}}displayerrors_help,core{{/str}}</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Performance Notice -->
+        <div class="info-box">
+            <i class="fa fa-info-circle"></i>
+            <strong>{{#str}}performancenotice,core{{/str}}:</strong>
+            {{#str}}debugperformancewarning,core{{/str}}
+        </div>
+
+        <!-- Current Status -->
+        <div class="status-box">
+            <h4>{{#str}}currentsettings,core{{/str}}:</h4>
+            <ul>
+                <li>
+                    <strong>{{#str}}debuglevel,core{{/str}}:</strong>
+                    {{current_debug_name}} ({{current_debug}})
+                </li>
+                <li>
+                    <strong>{{#str}}debugdisplay,core{{/str}}:</strong>
+                    {{#current_debugdisplay}}{{#str}}enabled,core{{/str}}{{/current_debugdisplay}}
+                    {{^current_debugdisplay}}{{#str}}disabled,core{{/str}}{{/current_debugdisplay}}
+                </li>
+                <li>
+                    <strong>PHP error_reporting:</strong>
+                    {{php_error_reporting}}
+                </li>
+                <li>
+                    <strong>PHP display_errors:</strong>
+                    {{php_display_errors}}
+                </li>
+            </ul>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-save"></i> {{#str}}save,core{{/str}}
+            </button>
+            <a href="/admin" class="btn btn-secondary">
+                <i class="fa fa-arrow-left"></i> {{#str}}back,core{{/str}}
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+.debugging-settings {
+    max-width: 900px;
+    margin: 20px auto;
+}
+
+.warning-box {
+    background: #fff3cd;
+    border: 1px solid #ffecb5;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    margin-bottom: 30px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.warning-box i {
+    color: #f57c00;
+    font-size: 20px;
+}
+
+.info-box {
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-left: 4px solid #2196f3;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-box i {
+    color: #1976d2;
+    font-size: 20px;
+}
+
+.status-box {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.status-box h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.status-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.status-box li {
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.status-box li:last-child {
+    border-bottom: none;
+}
+
+.form-section {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.form-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-section .description {
+    margin-bottom: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.debug-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.option-item {
+    border: 2px solid #e0e0e0;
+    padding: 15px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.option-item:has(input:checked) {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.option-item input[type="radio"] {
+    margin-right: 12px;
+}
+
+.option-item label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    margin: 0;
+    flex: 1;
+}
+
+.option-item label strong {
+    font-size: 16px;
+    color: #333;
+}
+
+.option-desc {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 8px;
+    align-self: flex-start;
+}
+
+.badge-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-danger {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.checkbox-item {
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 12px;
+}
+
+.checkbox-item label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.checkbox-item .help-text {
+    font-size: 13px;
+    color: #666;
+    margin-left: 28px;
+}
+
+.form-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 10px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #5568d3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.alert-success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+</style>
+
+{{> core/footer}}

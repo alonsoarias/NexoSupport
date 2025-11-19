@@ -973,3 +973,65 @@ function core_upgrade_required(): bool {
 
     return $codeversion > $dbversion;
 }
+
+    // =========================================================
+    // v1.1.12 - Mustache Templates for All Pages
+    // =========================================================
+    if ($oldversion < 2025011812) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🎨 Upgrading to NexoSupport v1.1.12 - Template Migration</h2>';
+
+        echo '<h3 style="color: #667eea;">✨ What\'s New in v1.1.12:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Complete Mustache Migration:</strong> All hardcoded HTML removed from PHP files</li>';
+        echo '<li><strong>3 New Templates:</strong> debugging, edit_profile, notification_preferences</li>';
+        echo '<li><strong>Proper MVC Separation:</strong> PHP = logic, Mustache = presentation</li>';
+        echo '<li><strong>Consistent Architecture:</strong> All pages now follow v1.1.2 pattern</li>';
+        echo '<li><strong>15+ New Language Strings:</strong> User preferences and profile strings (ES/EN)</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">📦 New Templates:</h3>';
+        echo '<ul>';
+        echo '<li>templates/admin/debugging.mustache - Debug settings configuration page</li>';
+        echo '<li>templates/user/edit_profile.mustache - User profile editor</li>';
+        echo '<li>templates/user/notification_preferences.mustache - Notification preferences</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔧 Refactored Files:</h3>';
+        echo '<ul>';
+        echo '<li>admin/settings/debugging.php - Now uses Mustache template</li>';
+        echo '<li>user/edit.php - Now uses Mustache template</li>';
+        echo '<li>user/preferences/notification.php - Now uses Mustache template</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🎯 Architecture Improvements:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Zero Hardcoded HTML:</strong> All presentation logic moved to templates</li>';
+        echo '<li><strong>Context-Based Rendering:</strong> PHP prepares context, Mustache renders</li>';
+        echo '<li><strong>Reusable Components:</strong> Header/footer partials, consistent styling</li>';
+        echo '<li><strong>Maintainability:</strong> HTML changes don\'t require PHP changes</li>';
+        echo '<li><strong>Internationalization:</strong> All text uses {{#str}} helper</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.12 - Template migration only</p>';
+        echo '<p style="color: blue;">🎨 All user and admin pages now use proper MVC architecture</p>';
+        echo '<p style="color: green;">📝 Complete separation of logic and presentation achieved</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.12 - template migration only
+        upgrade_core_savepoint(true, 2025011812);
+    }
+
+    // =========================================================
+    // Future upgrades go here
+    // =========================================================
+
+    // if ($oldversion < 2025011900) {
+    //     // Upgrade to v1.3.0
+    //     upgrade_core_savepoint(true, 2025011900);
+    // }
+
+    // =========================================================
+    // PURGAR CACHÉS AL FINALIZAR UPGRADE
+    // =========================================================

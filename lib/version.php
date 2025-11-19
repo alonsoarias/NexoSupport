@@ -10,8 +10,8 @@ defined('NEXOSUPPORT_INTERNAL') || die();
 $plugin = new stdClass();
 
 // Información del core
-$plugin->version  = 2025011811;      // YYYYMMDDXX - v1.1.11: Debug Settings + Always Purge Caches on Upgrade
-$plugin->release  = '1.1.11';        // Versión semántica
+$plugin->version  = 2025011812;      // YYYYMMDDXX - v1.1.12: Mustache Templates for all User/Admin Pages
+$plugin->release  = '1.1.12';        // Versión semántica
 $plugin->maturity = MATURITY_STABLE; // Nivel de madurez
 $plugin->component = 'core';         // Componente
 
