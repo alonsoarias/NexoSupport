@@ -93,6 +93,15 @@ if (file_exists(BASE_DIR . '/vendor/autoload.php')) {
     require_once(BASE_DIR . '/vendor/autoload.php');
 }
 
+// Define MATURITY constants needed by lib/version.php
+// (environment_checker needs to read version.php before setup.php is loaded)
+if (!defined('MATURITY_ALPHA')) {
+    define('MATURITY_ALPHA', 50);
+    define('MATURITY_BETA', 100);
+    define('MATURITY_RC', 150);
+    define('MATURITY_STABLE', 200);
+}
+
 // Usar environment_checker para determinar estado del sistema
 $envChecker = new \core\install\environment_checker();
 
@@ -131,6 +140,12 @@ if ($DB === null) {
 // - /admin/upgrade.php (para ejecutar upgrade)
 // - /login (para autenticarse)
 // - /logout (para salir)
+
+// DEBUG: Log upgrade detection
+error_log("Upgrade Detection: needs_upgrade = " . ($envChecker->needs_upgrade() ? 'TRUE' : 'FALSE'));
+error_log("Upgrade Detection: DB version = " . ($envChecker->get_db_version() ?? 'NULL'));
+error_log("Upgrade Detection: Code version = " . ($envChecker->get_code_version() ?? 'NULL'));
+error_log("Upgrade Detection: Release = " . $envChecker->get_release());
 
 if ($envChecker->needs_upgrade()) {
     // Lista de URIs permitidas durante upgrade

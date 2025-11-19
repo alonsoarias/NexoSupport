@@ -238,9 +238,15 @@ class environment_checker {
             $versionfile = BASE_DIR . '/lib/version.php';
             if (file_exists($versionfile)) {
                 $plugin = new \stdClass();
-                include($versionfile);
-                $this->state['code_version'] = $plugin->version;
-                $this->state['release'] = $plugin->release ?? 'Unknown';
+                try {
+                    include($versionfile);
+                    $this->state['code_version'] = $plugin->version ?? null;
+                    $this->state['release'] = $plugin->release ?? 'Unknown';
+                } catch (\Throwable $e) {
+                    // Error al cargar version.php (ej: constantes no definidas)
+                    $this->state['code_version'] = null;
+                    $this->state['version_error'] = 'Error loading version.php: ' . $e->getMessage();
+                }
             } else {
                 $this->state['code_version'] = null;
             }
@@ -251,6 +257,11 @@ class environment_checker {
                 $this->state['version_ok'] = false;
                 $this->state['needs_upgrade'] = false;
                 $this->state['needs_install'] = true;
+            } else if ($this->state['code_version'] === null) {
+                // No se pudo leer versión del código
+                $this->state['version_ok'] = false;
+                $this->state['needs_upgrade'] = false;
+                $this->state['needs_install'] = false;
             } else if ($this->state['code_version'] > $this->state['db_version']) {
                 // Versión de código es mayor: necesita upgrade
                 $this->state['version_ok'] = false;
@@ -266,6 +277,10 @@ class environment_checker {
         } catch (\PDOException $e) {
             $this->state['version_ok'] = false;
             $this->state['version_error'] = $e->getMessage();
+        } catch (\Throwable $e) {
+            // Catch all other errors
+            $this->state['version_ok'] = false;
+            $this->state['version_error'] = 'Unexpected error in check_version: ' . $e->getMessage();
         }
     }
 
