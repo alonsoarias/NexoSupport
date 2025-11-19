@@ -12,6 +12,25 @@
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 // ============================================
+// DEBUG LEVEL CONSTANTS (similar to Moodle)
+// ============================================
+
+/** No debug messages */
+define('DEBUG_NONE', 0);
+
+/** Minimal debug messages - errors only */
+define('DEBUG_MINIMAL', E_ERROR | E_PARSE);
+
+/** Normal debug messages - errors and warnings */
+define('DEBUG_NORMAL', E_ERROR | E_PARSE | E_WARNING | E_NOTICE);
+
+/** All debug messages except strict and deprecated */
+define('DEBUG_DEVELOPER', E_ALL & ~E_STRICT & ~E_DEPRECATED);
+
+/** All debug messages including strict and deprecated (for developers only) */
+define('DEBUG_ALL', E_ALL);
+
+// ============================================
 // PASO 1: Configuración básica de PHP
 // ============================================
 
@@ -82,7 +101,11 @@ $CFG->dbprefix = getenv('DB_PREFIX') ?: 'nxs_';
 
 // Configuración general
 $CFG->wwwroot = getenv('APP_URL') ?: 'http://localhost';
-$CFG->debug = getenv('APP_DEBUG') === 'true';
+
+// Debug configuration - will be loaded from DB later if available
+// Default from .env for installation/early errors
+$CFG->debug = DEBUG_NONE;  // Will be overridden from DB
+$CFG->debugdisplay = false; // Will be overridden from DB
 
 // ============================================
 // PASO 6: Conectar a base de datos
@@ -101,6 +124,40 @@ try {
 
     // Marcar como instalado (el front controller ya lo verificó)
     $CFG->installed = true;
+
+    // Load debug configuration from database
+    try {
+        $debug_level = $DB->get_field('config', 'value', ['name' => 'debug', 'component' => 'core']);
+        $debug_display = $DB->get_field('config', 'value', ['name' => 'debugdisplay', 'component' => 'core']);
+
+        if ($debug_level !== false) {
+            $CFG->debug = (int)$debug_level;
+        } else {
+            // Default to NONE in production
+            $CFG->debug = DEBUG_NONE;
+        }
+
+        if ($debug_display !== false) {
+            $CFG->debugdisplay = (bool)(int)$debug_display;
+        } else {
+            $CFG->debugdisplay = false;
+        }
+
+        // Apply debug level to PHP error reporting
+        if ($CFG->debug !== DEBUG_NONE) {
+            error_reporting($CFG->debug);
+            ini_set('display_errors', $CFG->debugdisplay ? '1' : '0');
+        } else {
+            error_reporting(0);
+            ini_set('display_errors', '0');
+        }
+    } catch (Exception $e) {
+        // If config table doesn't exist or error, use safe defaults
+        $CFG->debug = DEBUG_NONE;
+        $CFG->debugdisplay = false;
+        error_reporting(0);
+        ini_set('display_errors', '0');
+    }
 
 } catch (PDOException $e) {
     debugging("Database connection failed: " . $e->getMessage());

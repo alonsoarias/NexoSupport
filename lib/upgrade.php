@@ -759,6 +759,79 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.11 - Debug Settings + Always Purge Caches
+    // =========================================================
+    if ($oldversion < 2025011811) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🐛 Upgrading to NexoSupport v1.1.11 - Debug Settings</h2>';
+
+        echo '<h3 style="color: #667eea;">✨ What\'s New in v1.1.11:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Debug Settings Page:</strong> Complete debugging configuration interface in Development</li>';
+        echo '<li><strong>5 Debug Levels:</strong> NONE, MINIMAL, NORMAL, DEVELOPER, ALL (similar to Moodle)</li>';
+        echo '<li><strong>Debug Display Control:</strong> Show/hide errors on screen independently</li>';
+        echo '<li><strong>Always Purge Caches:</strong> Cache purging now ALWAYS executes after upgrades</li>';
+        echo '<li><strong>DB-Based Configuration:</strong> Debug settings stored in config table, loaded at startup</li>';
+        echo '<li><strong>Real-Time Status:</strong> View current PHP error_reporting and display_errors settings</li>';
+        echo '<li><strong>25+ New Language Strings:</strong> Full i18n support for debug settings (ES/EN)</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🐛 Debug Levels:</h3>';
+        echo '<ul>';
+        echo '<li><strong>DEBUG_NONE (0):</strong> No debug messages. Recommended for production.</li>';
+        echo '<li><strong>DEBUG_MINIMAL (E_ERROR | E_PARSE):</strong> Only critical errors.</li>';
+        echo '<li><strong>DEBUG_NORMAL (E_ERROR | E_PARSE | E_WARNING | E_NOTICE):</strong> Errors, warnings, and notices.</li>';
+        echo '<li><strong>DEBUG_DEVELOPER (E_ALL & ~E_STRICT & ~E_DEPRECATED):</strong> All except strict and deprecated. For development.</li>';
+        echo '<li><strong>DEBUG_ALL (E_ALL):</strong> ALL messages including strict and deprecated. For advanced debugging.</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔧 Technical Improvements:</h3>';
+        echo '<ul>';
+        echo '<li><strong>setup.php:</strong> Loads debug configuration from database at startup</li>';
+        echo '<li><strong>upgrade.php:</strong> Cache purging now executes ALWAYS, not only on success</li>';
+        echo '<li><strong>Debug Constants:</strong> Defined in lib/setup.php before any code loads</li>';
+        echo '<li><strong>Immediate Application:</strong> Settings applied instantly via error_reporting() and ini_set()</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">📦 New Files:</h3>';
+        echo '<ul>';
+        echo '<li>admin/settings/debugging.php - Complete debugging configuration page</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔧 Updated Files:</h3>';
+        echo '<ul>';
+        echo '<li>lib/setup.php - Added DEBUG_* constants and DB-based debug loading</li>';
+        echo '<li>lib/upgrade.php - Cache purging now ALWAYS executes (not conditional on $result)</li>';
+        echo '<li>public_html/index.php - Added routes: /admin/settings/debugging (GET/POST)</li>';
+        echo '<li>lang/es/core.php - Added 25+ debugging strings</li>';
+        echo '<li>lang/en/core.php - Added 25+ debugging strings</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🎯 Usage:</h3>';
+        echo '<p>Configure debugging settings:</p>';
+        echo '<ol>';
+        echo '<li>Navigate to: <strong>Site Administration → Development → Debugging</strong></li>';
+        echo '<li>Select appropriate debug level for your environment</li>';
+        echo '<li>Enable/disable display errors (NEVER enable in production)</li>';
+        echo '<li>View current PHP error_reporting and display_errors settings</li>';
+        echo '<li>Save - settings apply immediately</li>';
+        echo '</ol>';
+
+        echo '<h3 style="color: #667eea;">⚠️ Critical Change:</h3>';
+        echo '<p style="color: #f57c00; font-weight: bold;">Cache purging now ALWAYS executes after upgrades, even if upgrade fails.</p>';
+        echo '<p>This prevents issues with stale bytecode causing errors. If cache purging fails, you MUST manually purge caches immediately.</p>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.11 - All improvements are code-level</p>';
+        echo '<p style="color: blue;">🐛 Debug settings now configurable via admin interface</p>';
+        echo '<p style="color: green;">🔄 Cache purging is now guaranteed after every upgrade</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.11 - debugging configuration only
+        upgrade_core_savepoint(true, 2025011811);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 
@@ -770,15 +843,17 @@ function xmldb_core_upgrade(int $oldversion): bool {
     // =========================================================
     // PURGAR CACHÉS AL FINALIZAR UPGRADE
     // =========================================================
-    // Siempre purgar todas las cachés al finalizar cualquier upgrade
-    // para asegurar que los cambios se vean inmediatamente
-    if ($result) {
-        echo '<div style="background: #fff3e0; border-left: 4px solid #f57c00; padding: 20px; margin: 20px 0;">';
-        echo '<h3 style="color: #f57c00; margin-top: 0;">🔄 Purgando Cachés...</h3>';
-        echo '<p>Limpiando cachés para asegurar que los cambios se apliquen inmediatamente.</p>';
+    // CRÍTICO: SIEMPRE purgar TODAS las cachés después de cualquier upgrade
+    // independientemente del resultado ($result) para prevenir problemas
+    // de código antiguo causando errores. Esto es esencial para la estabilidad del sistema.
 
-        try {
-            $purge_results = \core\cache\cache_manager::purge_all();
+    echo '<div style="background: #fff3e0; border-left: 4px solid #f57c00; padding: 20px; margin: 20px 0;">';
+    echo '<h3 style="color: #f57c00; margin-top: 0;">🔄 Purgando Cachés...</h3>';
+    echo '<p><strong>CRÍTICO:</strong> Limpiando TODAS las cachés para prevenir problemas de código antiguo.</p>';
+    echo '<p>Esta operación se ejecuta SIEMPRE después de cualquier actualización para garantizar estabilidad.</p>';
+
+    try {
+        $purge_results = \core\cache\cache_manager::purge_all();
 
             echo '<ul>';
             if (isset($purge_results['opcache']) && $purge_results['opcache']['success']) {
@@ -811,13 +886,14 @@ function xmldb_core_upgrade(int $oldversion): bool {
             echo '</ul>';
 
             echo '<p style="color: green; font-weight: bold;">✓ Todas las cachés han sido purgadas!</p>';
+            echo '<p style="color: green;">✓ El sistema ahora está ejecutando el código más reciente.</p>';
         } catch (\Exception $e) {
-            echo '<p style="color: orange;">⚠ No se pudieron purgar algunas cachés: ' . htmlspecialchars($e->getMessage()) . '</p>';
-            echo '<p>Puede purgarlas manualmente desde: Administración del Sitio → Gestionar Cachés</p>';
+            echo '<p style="color: red; font-weight: bold;">✗ ERROR: No se pudieron purgar algunas cachés: ' . htmlspecialchars($e->getMessage()) . '</p>';
+            echo '<p style="color: orange;"><strong>IMPORTANTE:</strong> Debe purgar las cachés manualmente INMEDIATAMENTE desde: Administración del Sitio → Development → Purge Caches</p>';
+            echo '<p style="color: orange;">El sistema puede no funcionar correctamente hasta que se purguen las cachés.</p>';
         }
 
-        echo '</div>';
-    }
+    echo '</div>';
 
     return $result;
 }

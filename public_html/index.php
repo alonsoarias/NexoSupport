@@ -285,6 +285,15 @@ $router->post('/admin/cache/purge', function() {
     require(BASE_DIR . '/admin/cache/purge.php');
 });
 
+// Settings routes
+$router->get('/admin/settings/debugging', function() {
+    require(BASE_DIR . '/admin/settings/debugging.php');
+});
+
+$router->post('/admin/settings/debugging', function() {
+    require(BASE_DIR . '/admin/settings/debugging.php');
+});
+
 // User routes
 $router->get('/user/profile', function() {
     require(BASE_DIR . '/user/profile.php');
