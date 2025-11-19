@@ -628,15 +628,6 @@ define('MATURITY_STABLE', 200);
 define('SQL_PARAMS_QM', 0);     // Question mark placeholders (?)
 define('SQL_PARAMS_NAMED', 1);  // Named placeholders (:param)
 
-/**
- * Constantes de debugging
- */
-define('DEBUG_NONE', 0);
-define('DEBUG_MINIMAL', 5);
-define('DEBUG_NORMAL', 15);
-define('DEBUG_ALL', 32767);
-define('DEBUG_DEVELOPER', 38911);
-
 // ============================================
 // RBAC Helper Functions (Fase 2)
 // ============================================

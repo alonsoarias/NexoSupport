@@ -1024,6 +1024,51 @@ function core_upgrade_required(): bool {
     }
 
     // =========================================================
+    // v1.1.13 - Fix DB Method Calls + Remove Duplicate Constants
+    // =========================================================
+    if ($oldversion < 2025011813) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🔧 Upgrading to NexoSupport v1.1.13 - Critical Bugfixes</h2>';
+
+        echo '<h3 style="color: #667eea;">🐛 What\'s Fixed in v1.1.13:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Database Method Calls:</strong> Fixed non-existent $DB->get_field() and $DB->set_config()</li>';
+        echo '<li><strong>Duplicate Constants:</strong> Removed duplicate DEBUG_* constant definitions</li>';
+        echo '<li><strong>Fatal Error Prevention:</strong> System now boots correctly without PHP fatal errors</li>';
+        echo '<li><strong>Proper API Usage:</strong> All code now uses correct database wrapper methods</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔧 Files Fixed:</h3>';
+        echo '<ul>';
+        echo '<li><strong>lib/functions.php:</strong> Removed duplicate DEBUG_* constants (conflicted with lib/setup.php)</li>';
+        echo '<li><strong>lib/setup.php:</strong> Changed $DB->get_field() to $DB->get_record() for debug config</li>';
+        echo '<li><strong>lib/upgradelib.php:</strong> Fixed upgrade_get_current_version() to use get_record()</li>';
+        echo '<li><strong>admin/settings/debugging.php:</strong> Changed $DB->set_config() to set_config() global function</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🎯 Technical Details:</h3>';
+        echo '<p><strong>Problem:</strong> The database wrapper class (core\db\database) does not have get_field() or set_config() methods.</p>';
+        echo '<p><strong>Solution:</strong></p>';
+        echo '<ul>';
+        echo '<li>Use $DB->get_record() instead of $DB->get_field() and access the field from the returned object</li>';
+        echo '<li>Use global set_config() and get_config() functions instead of $DB->set_config()</li>';
+        echo '<li>DEBUG_* constants now only defined once in lib/setup.php with correct E_ERROR values</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">✅ Impact:</h3>';
+        echo '<p style="color: green;">System now boots without fatal errors and debug settings work correctly.</p>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.13 - Code fixes only</p>';
+        echo '<p style="color: blue;">🔧 All database method calls now use correct API</p>';
+        echo '<p style="color: green;">🐛 Fatal errors resolved - System stability restored</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.13 - code fixes only
+        upgrade_core_savepoint(true, 2025011813);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 

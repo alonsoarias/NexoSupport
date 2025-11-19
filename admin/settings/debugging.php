@@ -39,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && validate_sesskey()) {
         $errors[] = get_string('invaliddebug level', 'core');
     } else {
         // Save to database
-        $DB->set_config('debug', $debug_level, 'core');
-        $DB->set_config('debugdisplay', $debug_display, 'core');
+        set_config('debug', $debug_level, 'core');
+        set_config('debugdisplay', $debug_display, 'core');
 
         // Update $CFG immediately
         $CFG->debug = $debug_level;

@@ -179,8 +179,8 @@ function upgrade_get_current_version() {
     global $DB;
 
     try {
-        $version = $DB->get_field('config', 'value', ['name' => 'version']);
-        return $version ? (int)$version : false;
+        $record = $DB->get_record('config', ['name' => 'version']);
+        return ($record && isset($record->value)) ? (int)$record->value : false;
     } catch (Exception $e) {
         return false;
     }

@@ -127,18 +127,18 @@ try {
 
     // Load debug configuration from database
     try {
-        $debug_level = $DB->get_field('config', 'value', ['name' => 'debug', 'component' => 'core']);
-        $debug_display = $DB->get_field('config', 'value', ['name' => 'debugdisplay', 'component' => 'core']);
+        $debug_record = $DB->get_record('config', ['name' => 'debug', 'component' => 'core']);
+        $debug_display_record = $DB->get_record('config', ['name' => 'debugdisplay', 'component' => 'core']);
 
-        if ($debug_level !== false) {
-            $CFG->debug = (int)$debug_level;
+        if ($debug_record && isset($debug_record->value)) {
+            $CFG->debug = (int)$debug_record->value;
         } else {
             // Default to NONE in production
             $CFG->debug = DEBUG_NONE;
         }
 
-        if ($debug_display !== false) {
-            $CFG->debugdisplay = (bool)(int)$debug_display;
+        if ($debug_display_record && isset($debug_display_record->value)) {
+            $CFG->debugdisplay = (bool)(int)$debug_display_record->value;
         } else {
             $CFG->debugdisplay = false;
         }
