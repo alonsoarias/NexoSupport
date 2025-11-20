@@ -602,7 +602,40 @@ function get_page(): \core\output\page {
  * @return string Rendered HTML
  */
 function render_template(string $templatename, $context = []): string {
-    return \core\output\template_manager::render($templatename, $context);
+    global $USER, $CFG;
+
+    // Auto-inject global variables into context
+    $auto_context = [
+        // User information
+        'user' => $USER ?? null,
+        'currentlang' => \core\string_manager::get_language(),
+
+        // Developer mode variables
+        'developer_mode' => is_developer_mode(),
+        'show_dev_toolbar' => show_dev_toolbar(),
+        'debug_level' => get_debug_level(),
+
+        // System info for developer toolbar
+        'version' => $CFG->version ?? '1.1.9',
+        'php_version' => PHP_VERSION,
+    ];
+
+    // Add performance metrics if in developer mode
+    if (is_developer_mode() && show_performance_info()) {
+        $auto_context['page_load_time'] = number_format(microtime(true) - ($_SERVER['REQUEST_TIME_FLOAT'] ?? microtime(true)), 3);
+        $auto_context['memory_usage'] = round(memory_get_usage() / 1024 / 1024, 2) . ' MB';
+
+        // Get DB query count if available
+        global $DB;
+        if (isset($DB) && method_exists($DB, 'get_query_count')) {
+            $auto_context['db_queries'] = $DB->get_query_count();
+        }
+    }
+
+    // Merge with provided context (user context takes precedence)
+    $final_context = array_merge($auto_context, $context);
+
+    return \core\output\template_manager::render($templatename, $final_context);
 }
 
 /**
@@ -1141,4 +1174,178 @@ function s($var) {
 function get_navigation_html(): string {
     \core\navigation\nav_manager::init();
     return \core\navigation\nav_manager::render();
+}
+
+// ============================================
+// DEVELOPER MODE & .ENV HELPER FUNCTIONS
+// ============================================
+
+/**
+ * Get environment variable with default fallback
+ *
+ * @param string $key Variable name
+ * @param mixed $default Default value if not set
+ * @return mixed Variable value or default
+ */
+function env(string $key, $default = null) {
+    $value = getenv($key);
+
+    if ($value === false) {
+        return $default;
+    }
+
+    // Convert string booleans to actual booleans
+    if ($value === 'true' || $value === '(true)') {
+        return true;
+    }
+
+    if ($value === 'false' || $value === '(false)') {
+        return false;
+    }
+
+    // Convert string null to actual null
+    if ($value === 'null' || $value === '(null)') {
+        return null;
+    }
+
+    return $value;
+}
+
+/**
+ * Check if developer mode is enabled
+ *
+ * @return bool True if developer mode is enabled
+ */
+function is_developer_mode(): bool {
+    global $CFG;
+
+    // Check .env setting first
+    if (env('DEVELOPER_MODE') === true) {
+        return true;
+    }
+
+    // Check database config setting
+    $devmode = get_config('core', 'developer_mode');
+    if ($devmode !== null && $devmode) {
+        return true;
+    }
+
+    // Check APP_ENV
+    if (env('APP_ENV') === 'development') {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Check if SQL queries should be logged/shown
+ *
+ * @return bool True if SQL queries should be shown
+ */
+function show_sql_queries(): bool {
+    if (!is_developer_mode()) {
+        return false;
+    }
+
+    return env('SHOW_SQL_QUERIES', false) === true ||
+           get_config('core', 'show_sql_queries');
+}
+
+/**
+ * Check if performance info should be shown
+ *
+ * @return bool True if performance info should be shown
+ */
+function show_performance_info(): bool {
+    if (!is_developer_mode()) {
+        return false;
+    }
+
+    return env('SHOW_PERFORMANCE_INFO', false) === true ||
+           get_config('core', 'show_performance_info');
+}
+
+/**
+ * Check if developer toolbar should be shown
+ *
+ * @return bool True if dev toolbar should be shown
+ */
+function show_dev_toolbar(): bool {
+    if (!is_developer_mode()) {
+        return false;
+    }
+
+    return env('SHOW_DEV_TOOLBAR', false) === true ||
+           get_config('core', 'show_dev_toolbar');
+}
+
+/**
+ * Check if template hints should be shown
+ *
+ * @return bool True if template hints should be shown
+ */
+function show_template_hints(): bool {
+    if (!is_developer_mode()) {
+        return false;
+    }
+
+    return env('SHOW_TEMPLATE_HINTS', false) === true ||
+           get_config('core', 'show_template_hints');
+}
+
+/**
+ * Get debug level from environment or database
+ *
+ * @return int Debug level (0-4)
+ */
+function get_debug_level(): int {
+    global $CFG;
+
+    // Check CFG first (loaded from database in setup.php)
+    if (isset($CFG->debug)) {
+        return (int)$CFG->debug;
+    }
+
+    // Fallback to .env
+    $level = env('DEBUG_LEVEL', 0);
+    return (int)$level;
+}
+
+/**
+ * Check if debug display is enabled
+ *
+ * @return bool True if errors should be displayed
+ */
+function is_debug_display(): bool {
+    global $CFG;
+
+    if (isset($CFG->debugdisplay)) {
+        return (bool)$CFG->debugdisplay;
+    }
+
+    return env('DEBUG_DISPLAY', false) === true;
+}
+
+/**
+ * Get all developer settings
+ *
+ * Returns an associative array with all developer settings
+ * from both .env and database.
+ *
+ * @return array Developer settings
+ */
+function get_developer_settings(): array {
+    return [
+        'developer_mode' => is_developer_mode(),
+        'debug_level' => get_debug_level(),
+        'debug_display' => is_debug_display(),
+        'show_sql_queries' => show_sql_queries(),
+        'show_performance_info' => show_performance_info(),
+        'show_dev_toolbar' => show_dev_toolbar(),
+        'show_template_hints' => show_template_hints(),
+        'cache_enabled' => env('CACHE_ENABLED_DEV', true) === true,
+        'template_cache_enabled' => env('TEMPLATE_CACHE_ENABLED', true) === true,
+        'string_cache_enabled' => env('STRING_CACHE_ENABLED', true) === true,
+    ];
 }

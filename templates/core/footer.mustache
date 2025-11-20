@@ -1,32 +1,139 @@
 {{!
-    Footer Template
+    Modern Footer Template
 
     Context:
     * year - Current year
     * version - System version
     * has_navigation - Boolean indicating if sidebar navigation is present
+    * developer_mode - Developer mode enabled
+    * debug_level - Debug level
+    * show_dev_toolbar - Show developer toolbar
+    * page_load_time - Page load time in seconds
+    * memory_usage - Memory usage
+    * db_queries - Number of database queries
 }}
-    {{#has_navigation}}
-    </main>
+        </div> <!-- .nexo-content-inner -->
+    </main> <!-- .nexo-content -->
+</div> <!-- .nexo-main-layout -->
+
+{{#show_dev_toolbar}}
+<!-- Developer Toolbar -->
+<div class="dev-toolbar">
+    <span class="dev-toolbar-badge">DEV MODE</span>
+
+    <div class="dev-toolbar-info">
+        <div class="dev-toolbar-item">
+            <span class="dev-toolbar-label">Version:</span>
+            <span class="dev-toolbar-value">{{version}}</span>
+        </div>
+
+        {{#page_load_time}}
+        <div class="dev-toolbar-item">
+            <span class="dev-toolbar-label">Load Time:</span>
+            <span class="dev-toolbar-value">{{page_load_time}}s</span>
+        </div>
+        {{/page_load_time}}
+
+        {{#memory_usage}}
+        <div class="dev-toolbar-item">
+            <span class="dev-toolbar-label">Memory:</span>
+            <span class="dev-toolbar-value">{{memory_usage}}</span>
+        </div>
+        {{/memory_usage}}
+
+        {{#db_queries}}
+        <div class="dev-toolbar-item">
+            <span class="dev-toolbar-label">DB Queries:</span>
+            <span class="dev-toolbar-value">{{db_queries}}</span>
+        </div>
+        {{/db_queries}}
+
+        <div class="dev-toolbar-item">
+            <span class="dev-toolbar-label">Debug Level:</span>
+            <span class="dev-toolbar-value">{{debug_level}}</span>
+        </div>
+
+        <div class="dev-toolbar-item">
+            <span class="dev-toolbar-label">PHP:</span>
+            <span class="dev-toolbar-value">{{php_version}}</span>
+        </div>
+    </div>
+
+    <div style="margin-left: auto;">
+        <a href="/admin/settings/debugging.php" style="color: #60a5fa; text-decoration: none;">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+    </div>
 </div>
-    {{/has_navigation}}
+{{/show_dev_toolbar}}
 
-    {{^has_navigation}}
-</div>
-    {{/has_navigation}}
+<script>
+// Navigation category toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle sidebar categories
+    const categoryHeaders = document.querySelectorAll('.nexo-nav-category-header');
 
-    <script>
-    // Navigation category toggle
-    document.addEventListener('DOMContentLoaded', function() {
-        const categoryHeaders = document.querySelectorAll('.nexo-nav-category-header');
-
-        categoryHeaders.forEach(function(header) {
-            header.addEventListener('click', function() {
-                const category = this.parentElement;
+    categoryHeaders.forEach(function(header) {
+        header.addEventListener('click', function(e) {
+            e.preventDefault();
+            const category = this.closest('.nexo-nav-category');
+            if (category) {
                 category.classList.toggle('collapsed');
-            });
+            }
         });
     });
-    </script>
+
+    // Active link highlighting
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nexo-nav-link, .nexo-navbar-link');
+
+    navLinks.forEach(function(link) {
+        const href = link.getAttribute('href');
+        if (href && currentPath.startsWith(href) && href !== '/') {
+            const navItem = link.closest('.nexo-nav-item');
+            if (navItem) {
+                navItem.classList.add('active');
+
+                // Expand parent categories
+                let parent = navItem.closest('.nexo-nav-category');
+                while (parent) {
+                    parent.classList.remove('collapsed');
+                    parent = parent.parentElement.closest('.nexo-nav-category');
+                }
+            }
+
+            // Add active class to navbar link
+            if (link.classList.contains('nexo-navbar-link')) {
+                link.classList.add('active');
+            }
+        }
+    });
+
+    // Mobile sidebar toggle (if needed)
+    const mobileToggle = document.querySelector('.mobile-sidebar-toggle');
+    const sidebar = document.querySelector('.nexo-sidebar');
+
+    if (mobileToggle && sidebar) {
+        mobileToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+        });
+    }
+
+    // Close sidebar on mobile when clicking outside
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 768) {
+            const sidebar = document.querySelector('.nexo-sidebar');
+            const toggle = document.querySelector('.mobile-sidebar-toggle');
+
+            if (sidebar && sidebar.classList.contains('open')) {
+                if (!sidebar.contains(e.target) && e.target !== toggle) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        }
+    });
+});
+</script>
+
 </body>
 </html>
