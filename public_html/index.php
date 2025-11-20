@@ -328,9 +328,10 @@ try {
     echo '<p>The requested page was not found.</p>';
     echo '<p><a href="/">Return to home</a></p>';
 } catch (\Exception $e) {
+    global $CFG;  // ← FIX: Agregar acceso a variable global
     http_response_code(500);
 
-    if ($CFG->debug) {
+    if (isset($CFG) && $CFG->debug) {
         echo '<h1>Error</h1>';
         echo '<pre>' . htmlspecialchars($e->getMessage()) . '</pre>';
         echo '<pre>' . htmlspecialchars($e->getTraceAsString()) . '</pre>';

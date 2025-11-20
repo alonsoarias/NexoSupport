@@ -259,35 +259,23 @@ $LANG = [];
 // ============================================
 // PASO 10: Verificar si hay actualizaciones pendientes
 // ============================================
-// Similar a Moodle: verifica si la versión del código es mayor que la versión en BD
-// y redirige a /admin/upgrade.php si es necesario
+// NOTE: Upgrade detection is handled in public_html/index.php
+// using environment_checker BEFORE loading this file.
+// This ensures upgrade happens regardless of login status and BEFORE any code runs.
+//
+// We DON'T check here because:
+// 1. environment_checker already did it
+// 2. Calling core_upgrade_required() requires DB access and can fail during upgrade
+// 3. Front controller already redirects to upgrade page if needed
+//
+// If we're here, it means either:
+// - No upgrade needed, OR
+// - We're ON the upgrade page already
 
+// Just mark that upgrade might be pending (for UI notifications)
+// This is safe because we don't call any functions that could fail
 if ($CFG->installed && $DB !== null) {
-    // Solo verificar si no estamos ya en upgrade, instalador, o páginas públicas
-    $uri = $_SERVER['REQUEST_URI'] ?? '';
-
-    $skip_upgrade_check = (
-        str_contains($uri, '/install') ||
-        str_contains($uri, '/admin/upgrade.php') ||
-        str_contains($uri, '/login') ||
-        str_contains($uri, '/logout') ||
-        str_contains($uri, '/theme/') // Assets de themes
-    );
-
-    // NOTE: Upgrade detection is now handled in public_html/index.php
-    // using environment_checker BEFORE loading this file.
-    // This ensures upgrade happens regardless of login status.
-    //
-    // We only mark upgrade_pending flag here for templates to show notifications.
-
-    if (!$skip_upgrade_check) {
-        require_once(__DIR__ . '/upgrade.php');
-
-        if (core_upgrade_required()) {
-            // Mark that upgrade is pending (for notifications in templates)
-            $CFG->upgrade_pending = true;
-        }
-    }
+    $CFG->upgrade_pending = false; // Will be set to true by upgrade page if needed
 }
 
 // ============================================
