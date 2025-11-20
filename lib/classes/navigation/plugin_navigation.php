@@ -22,9 +22,6 @@ class plugin_navigation {
     /** @var array Context types for plugin navigation */
     const CONTEXT_SYSTEM = 'system';
     const CONTEXT_USER = 'user';
-    const CONTEXT_COURSE = 'course';
-    const CONTEXT_CATEGORY = 'category';
-    const CONTEXT_MODULE = 'module';
 
     /**
      * Register a plugin navigation node
