@@ -946,7 +946,7 @@ function xmldb_core_upgrade(int $oldversion): bool {
         echo '<li><strong>admin/settings/debugging.php:</strong> Replaced require_admin() with require_capability() ✅</li>';
         echo '<li><strong>lib/userlib.php:</strong> Implemented fullname() function (CRITICAL - was missing) ✅</li>';
         echo '<li><strong>lib/functions.php:</strong> Implemented confirm_sesskey() function ✅</li>';
-        echo '<li><strong>lib/authlib.php:</strong> Implemented check_password_policy() function ✅</li>';
+        echo '<li><strong>lib/authlib.php:</strong> Verified check_password_policy() exists (line 105) ✅</li>';
         echo '<li><strong>lib/adminlib.php:</strong> Verified admin_get_categories() exists ✅</li>';
         echo '</ul>';
 
@@ -965,33 +965,35 @@ function xmldb_core_upgrade(int $oldversion): bool {
         echo '<li><strong>Code Consistency:</strong> Standardized null coalescing and isset() usage patterns</li>';
         echo '</ul>';
 
-        echo '<h3 style="color: #558b2f;">📋 Functions Implemented</h3>';
+        echo '<h3 style="color: #558b2f;">📋 Functions Added/Verified</h3>';
         echo '<ul>';
-        echo '<li><code>fullname($user, $override)</code> - Get formatted user name (CRITICAL fix)</li>';
-        echo '<li><code>confirm_sesskey()</code> - Boolean sesskey validation</li>';
-        echo '<li><code>check_password_policy($password, $authtype, &$error)</code> - Password validation</li>';
+        echo '<li><code>fullname($user, $override)</code> - Get formatted user name (NEW - CRITICAL fix)</li>';
+        echo '<li><code>confirm_sesskey()</code> - Boolean sesskey validation (NEW)</li>';
+        echo '<li><code>check_password_policy()</code> - Already existed at line 105 (VERIFIED)</li>';
+        echo '<li><code>admin_get_categories()</code> - Already existed (VERIFIED)</li>';
         echo '</ul>';
 
         echo '<h3 style="color: #558b2f;">🔐 Security Improvements</h3>';
         echo '<ul>';
         echo '<li><strong>Access Control:</strong> All admin pages now properly verify capabilities</li>';
         echo '<li><strong>Upgrade Protection:</strong> Only siteadmins can run system upgrades</li>';
-        echo '<li><strong>Password Security:</strong> Enforced password policy validation</li>';
+        echo '<li><strong>Password Security:</strong> Password policy validation already in place</li>';
         echo '<li><strong>CSRF Protection:</strong> Enhanced with confirm_sesskey() helper</li>';
         echo '</ul>';
 
         echo '<h3 style="color: #558b2f;">📊 Impact Summary</h3>';
         echo '<ul>';
-        echo '<li><strong>Files Modified:</strong> 11 files</li>';
+        echo '<li><strong>Files Modified:</strong> 10 files</li>';
         echo '<li><strong>Security Vulnerabilities Fixed:</strong> 7 critical issues</li>';
-        echo '<li><strong>Missing Functions Added:</strong> 4 functions</li>';
+        echo '<li><strong>Missing Functions Added:</strong> 2 functions (fullname, confirm_sesskey)</li>';
+        echo '<li><strong>Functions Verified:</strong> 2 functions (check_password_policy, admin_get_categories)</li>';
         echo '<li><strong>RBAC Features Added:</strong> 3 improvements</li>';
         echo '<li><strong>Code Quality Fixes:</strong> 2 cleanups</li>';
         echo '</ul>';
 
         echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.16 - Code improvements only</p>';
         echo '<p style="color: blue;">🔒 System security significantly enhanced</p>';
-        echo '<p style="color: green;">✓ All critical missing functions implemented</p>';
+        echo '<p style="color: green;">✓ Critical missing functions implemented</p>';
         echo '<p style="color: purple;">🎯 RBAC system more complete and granular</p>';
 
         echo '</div>';
