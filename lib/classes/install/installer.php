@@ -179,22 +179,22 @@ class installer {
     public function validate_database_config(array $dbconfig): array {
         // Validar driver
         if (!in_array($dbconfig['driver'] ?? '', ['mysql', 'pgsql'], true)) {
-            return ['success' => false, 'error' => 'Driver de base de datos no válido'];
+            return ['success' => false, 'error' => get_string('installer_invalid_driver', 'install')];
         }
 
         // Validar nombre de BD (seguridad)
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $dbconfig['database'] ?? '')) {
-            return ['success' => false, 'error' => 'Nombre de base de datos inválido (solo letras, números y guiones bajos)'];
+            return ['success' => false, 'error' => get_string('installer_invalid_dbname', 'install')];
         }
 
         // Validar prefijo (seguridad)
         if (!preg_match('/^[a-zA-Z0-9_]*$/', $dbconfig['prefix'] ?? '')) {
-            return ['success' => false, 'error' => 'Prefijo de tablas inválido (solo letras, números y guiones bajos)'];
+            return ['success' => false, 'error' => get_string('installer_invalid_prefix', 'install')];
         }
 
         // Validar campos requeridos
         if (empty($dbconfig['host']) || empty($dbconfig['database']) || empty($dbconfig['username'])) {
-            return ['success' => false, 'error' => 'Campos requeridos faltantes'];
+            return ['success' => false, 'error' => get_string('installer_required_fields', 'install')];
         }
 
         return ['success' => true, 'error' => null];
@@ -289,7 +289,7 @@ class installer {
         try {
             $dbconfig = $this->state['data']['database'] ?? null;
             if (!$dbconfig) {
-                return ['success' => false, 'error' => 'Configuración de BD no encontrada', 'log' => $log];
+                return ['success' => false, 'error' => get_string('installer_dbconfig_not_found', 'install'), 'log' => $log];
             }
 
             // Conectar
@@ -300,7 +300,7 @@ class installer {
             $pdo = new \PDO($dsn, $dbconfig['username'], $dbconfig['password'] ?? '');
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-            $log[] = "Conexión a BD establecida";
+            $log[] = get_string('installer_log_connected', 'install');
 
             // Verificar instalación existente
             try {
@@ -309,11 +309,11 @@ class installer {
                 $count = (int)$stmt->fetchColumn();
 
                 if ($count > 0) {
-                    return ['success' => false, 'error' => 'Ya existe una instalación en esta base de datos', 'log' => $log];
+                    return ['success' => false, 'error' => get_string('installer_existing_installation', 'install'), 'log' => $log];
                 }
             } catch (\PDOException $e) {
                 // Tabla no existe, continuar
-                $log[] = "BD vacía, procediendo con instalación";
+                $log[] = get_string('installer_log_empty_db', 'install');
             }
 
             // Cargar clases necesarias
@@ -328,12 +328,12 @@ class installer {
             $DB = new \core\db\database($pdo, $dbconfig['prefix'], $dbconfig['driver']);
             $installer = new \core\db\schema_installer($DB);
 
-            $log[] = "Instalando esquema desde lib/db/install.xml";
+            $log[] = get_string('installer_log_installing_schema', 'install');
 
             // Instalar schema
             $installer->install_from_xmlfile(BASE_DIR . '/lib/db/install.xml');
 
-            $log[] = "Esquema instalado correctamente";
+            $log[] = get_string('installer_log_schema_installed', 'install');
 
             // Crear contexto system
             $DB->insert_record('contexts', [
@@ -343,7 +343,7 @@ class installer {
                 'depth' => 1
             ]);
 
-            $log[] = "Contexto SYSTEM creado";
+            $log[] = get_string('installer_log_system_context', 'install');
 
             return ['success' => true, 'error' => null, 'log' => $log];
 
@@ -365,23 +365,23 @@ class installer {
             if (empty($userdata['username']) || empty($userdata['password']) ||
                 empty($userdata['email']) || empty($userdata['firstname']) ||
                 empty($userdata['lastname'])) {
-                return ['success' => false, 'error' => 'Campos requeridos faltantes', 'userid' => null];
+                return ['success' => false, 'error' => get_string('installer_required_fields', 'install'), 'userid' => null];
             }
 
             // Validar email
             if (!filter_var($userdata['email'], FILTER_VALIDATE_EMAIL)) {
-                return ['success' => false, 'error' => 'Email inválido', 'userid' => null];
+                return ['success' => false, 'error' => get_string('installer_invalid_email', 'install'), 'userid' => null];
             }
 
             // Validar contraseña
             if (strlen($userdata['password']) < 8) {
-                return ['success' => false, 'error' => 'La contraseña debe tener al menos 8 caracteres', 'userid' => null];
+                return ['success' => false, 'error' => get_string('installer_password_too_short', 'install'), 'userid' => null];
             }
 
             // Conectar a BD
             $dbconfig = $this->state['data']['database'] ?? null;
             if (!$dbconfig) {
-                return ['success' => false, 'error' => 'Configuración de BD no encontrada', 'userid' => null];
+                return ['success' => false, 'error' => get_string('installer_dbconfig_not_found', 'install'), 'userid' => null];
             }
 
             $dsn = $dbconfig['driver'] === 'mysql'
@@ -433,7 +433,7 @@ class installer {
             $adminuserid = $this->state['data']['admin_userid'] ?? null;
 
             if (!$dbconfig || !$adminuserid) {
-                return ['success' => false, 'error' => 'Datos de instalación incompletos', 'log' => $log];
+                return ['success' => false, 'error' => get_string('installer_incomplete_data', 'install'), 'log' => $log];
             }
 
             // Conectar
@@ -447,13 +447,13 @@ class installer {
             require_once(BASE_DIR . '/lib/classes/db/database.php');
             $GLOBALS['DB'] = new \core\db\database($pdo, $dbconfig['prefix'], $dbconfig['driver']);
 
-            $log[] = "Conexión a BD establecida";
+            $log[] = get_string('installer_log_connected', 'install');
 
             // Instalar RBAC
             require_once(BASE_DIR . '/lib/install_rbac.php');
 
             if (install_rbac_system()) {
-                $log[] = "Sistema RBAC instalado";
+                $log[] = get_string('installer_log_rbac_installed', 'install');
 
                 // Asignar rol administrator
                 $syscontext = \core\rbac\context::system();
@@ -461,10 +461,10 @@ class installer {
 
                 if ($adminrole) {
                     \core\rbac\access::assign_role($adminrole->id, $adminuserid, $syscontext);
-                    $log[] = "Rol administrator asignado al usuario";
+                    $log[] = get_string('installer_log_role_assigned', 'install', 'administrator');
                 }
             } else {
-                return ['success' => false, 'error' => 'Error instalando sistema RBAC', 'log' => $log];
+                return ['success' => false, 'error' => get_string('error', 'core'), 'log' => $log];
             }
 
             // Guardar versión del core
@@ -475,7 +475,7 @@ class installer {
                 'value' => (string)$plugin->version
             ]);
 
-            $log[] = "Versión del core guardada: {$plugin->version}";
+            $log[] = get_string('installer_log_version_set', 'install', $plugin->version);
 
             // Guardar siteadmins
             $GLOBALS['DB']->insert_record('config', [
@@ -484,7 +484,7 @@ class installer {
                 'value' => (string)$adminuserid
             ]);
 
-            $log[] = "Site administrator configurado";
+            $log[] = get_string('installer_log_config_created', 'install');
 
             // Limpiar sesión de instalación
             unset($_SESSION['nexosupport_install']);

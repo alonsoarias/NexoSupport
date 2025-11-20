@@ -1,9 +1,9 @@
 <?php
 /**
- * Instalador de NexoSupport - Refactorizado
+ * Instalador de NexoSupport - Usando Mustache e i18n
  *
- * Front controller del instalador que usa la clase Installer
- * para toda la lógica de negocio.
+ * Front controller del instalador completamente refactorizado
+ * para usar templates Mustache e internacionalización.
  *
  * @package NexoSupport
  */
@@ -17,11 +17,21 @@ if (!defined('NEXOSUPPORT_INTERNAL')) {
 // Cargar Composer autoloader
 require_once(BASE_DIR . '/vendor/autoload.php');
 
+// Cargar funciones globales
+require_once(BASE_DIR . '/lib/functions.php');
+
 // Cargar clase Installer
 require_once(BASE_DIR . '/lib/classes/install/environment_checker.php');
 require_once(BASE_DIR . '/lib/classes/install/installer.php');
+require_once(BASE_DIR . '/lib/classes/string_manager.php');
+require_once(BASE_DIR . '/lib/classes/output/mustache_engine.php');
 
 use core\install\installer;
+use core\string_manager;
+use core\output\mustache_engine;
+
+// Configurar idioma
+string_manager::set_language('es'); // TODO: Detectar del navegador o configuración
 
 // Instanciar instalador
 $installer = new installer();
@@ -62,14 +72,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Probar conexión
             $connection = $installer->test_database_connection($dbconfig);
             if (!$connection['success']) {
-                $action_result = ['success' => false, 'error' => 'Error de conexión: ' . $connection['error']];
+                $action_result = ['success' => false, 'error' => get_string('error', 'core') . ': ' . $connection['error']];
                 break;
             }
 
             // Guardar configuración
             $save = $installer->save_database_config($dbconfig);
             if (!$save['success']) {
-                $action_result = ['success' => false, 'error' => 'Error guardando configuración: ' . $save['error']];
+                $action_result = ['success' => false, 'error' => get_string('error', 'core') . ': ' . $save['error']];
                 break;
             }
 
@@ -100,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Verificar contraseñas coinciden
             if ($userdata['password'] !== ($_POST['password2'] ?? '')) {
-                $action_result = ['success' => false, 'error' => 'Las contraseñas no coinciden'];
+                $action_result = ['success' => false, 'error' => get_string('admin_password_mismatch', 'install')];
                 break;
             }
 
@@ -131,279 +141,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $installer->set_stage($requested_stage);
 $current_stage = $installer->get_current_stage();
 
-// Cargar template del stage actual
-$stage_file = BASE_DIR . '/install/stages/' . $current_stage . '.php';
+// Preparar contexto para el template según el stage
+$context = [
+    'currentlang' => string_manager::get_language(),
+    'progress' => 0
+];
 
-if (!file_exists($stage_file)) {
-    die('Stage file not found: ' . $current_stage);
+switch ($current_stage) {
+    case 'welcome':
+        $context['progress'] = 0;
+        $context['version'] = '1.1.9';
+        $template = 'install/welcome';
+        break;
+
+    case 'requirements':
+        $context['progress'] = 16;
+        $req_result = $installer->check_requirements();
+        $context['all_ok'] = $req_result['success'];
+        $context['requirements'] = array_values($req_result['requirements']);
+        $template = 'install/requirements';
+        break;
+
+    case 'database':
+        $context['progress'] = 33;
+        $context['dbdriver'] = $_POST['dbdriver'] ?? 'mysql';
+        $context['dbhost'] = $_POST['dbhost'] ?? 'localhost';
+        $context['dbname'] = $_POST['dbname'] ?? 'nexosupport';
+        $context['dbuser'] = $_POST['dbuser'] ?? 'root';
+        $context['dbpass'] = $_POST['dbpass'] ?? '';
+        $context['dbprefix'] = $_POST['dbprefix'] ?? 'nxs_';
+        $context['dbdriver_is_mysql'] = ($context['dbdriver'] === 'mysql');
+        $context['dbdriver_is_pgsql'] = ($context['dbdriver'] === 'pgsql');
+        if ($action_result && !$action_result['success']) {
+            $context['error'] = $action_result['error'];
+        }
+        $template = 'install/database';
+        break;
+
+    case 'install_db':
+        $context['progress'] = 50;
+        $context['is_processing'] = ($_SERVER['REQUEST_METHOD'] === 'POST');
+        if ($action_result) {
+            $context['success'] = $action_result['success'] ?? false;
+            $context['error'] = $action_result['error'] ?? '';
+            $context['log'] = $action_result['log'] ?? [];
+            $context['has_log'] = !empty($context['log']);
+        }
+        $template = 'install/install_db';
+        break;
+
+    case 'admin':
+        $context['progress'] = 66;
+        $context['username'] = $_POST['username'] ?? 'admin';
+        $context['email'] = $_POST['email'] ?? '';
+        $context['firstname'] = $_POST['firstname'] ?? '';
+        $context['lastname'] = $_POST['lastname'] ?? '';
+        if ($action_result && !$action_result['success']) {
+            $context['error'] = $action_result['error'];
+        }
+        $template = 'install/admin';
+        break;
+
+    case 'finish':
+        $context['progress'] = 83;
+        $context['is_processing'] = ($_SERVER['REQUEST_METHOD'] === 'POST');
+        if ($action_result) {
+            $context['success'] = $action_result['success'] ?? false;
+            $context['error'] = $action_result['error'] ?? '';
+            $context['log'] = $action_result['log'] ?? [];
+            $context['has_log'] = !empty($context['log']);
+        }
+        $template = 'install/finish';
+        break;
+
+    default:
+        die('Invalid stage: ' . $current_stage);
 }
 
-// Header HTML común
-?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexoSupport Installation</title>
+// Renderizar template del stage
+$mustache = new mustache_engine();
+$stage_content = $mustache->render($template, $context);
 
-    <!-- Font Awesome 6 - Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+// Renderizar layout con el contenido del stage
+$layout_context = [
+    'currentlang' => $context['currentlang'],
+    'progress' => $context['progress'],
+    'content' => $stage_content
+];
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            max-width: 700px;
-            width: 100%;
-            padding: 40px;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo h1 {
-            color: #667eea;
-            font-size: 32px;
-            margin: 0;
-        }
-
-        .logo p {
-            color: #666;
-            margin-top: 5px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        h1 .icon {
-            margin-right: 10px;
-            color: #667eea;
-        }
-
-        h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 18px;
-            font-weight: normal;
-        }
-
-        .progress {
-            background: #f0f0f0;
-            border-radius: 20px;
-            height: 8px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            height: 100%;
-            transition: width 0.3s ease;
-        }
-
-        .alert {
-            padding: 15px 20px;
-            border-radius: 6px;
-            margin: 20px 0;
-            border-left: 4px solid;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            border-color: #28a745;
-            color: #155724;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            border-color: #dc3545;
-            color: #721c24;
-        }
-
-        .alert-warning {
-            background: #fff3cd;
-            border-color: #ffc107;
-            color: #856404;
-        }
-
-        .alert-info {
-            background: #d1ecf1;
-            border-color: #17a2b8;
-            color: #0c5460;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .form-group label .icon {
-            margin-right: 8px;
-            color: #667eea;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-group small {
-            display: block;
-            margin-top: 5px;
-            color: #666;
-            font-size: 12px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-        }
-
-        .btn .icon {
-            margin-right: 8px;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-        }
-
-        .stage-indicator {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-
-        .stage-indicator .icon {
-            font-size: 32px;
-            color: #667eea;
-            margin-right: 15px;
-        }
-
-        .stage-indicator .text {
-            flex: 1;
-        }
-
-        .stage-indicator .step-number {
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .requirements-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .requirements-list li {
-            padding: 12px;
-            margin: 8px 0;
-            background: #f8f9fa;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .requirements-list .status {
-            font-weight: bold;
-        }
-
-        .requirements-list .status.ok {
-            color: #28a745;
-        }
-
-        .requirements-list .status.error {
-            color: #dc3545;
-        }
-
-        .log-output {
-            background: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            max-height: 300px;
-            overflow-y: auto;
-            margin: 20px 0;
-        }
-
-        .log-output div {
-            margin: 5px 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="logo">
-            <h1><i class="fas fa-graduation-cap"></i> NexoSupport</h1>
-            <p>Sistema de Gestión con Arquitectura Frankenstyle</p>
-        </div>
-
-        <?php include($stage_file); ?>
-    </div>
-</body>
-</html>
+echo $mustache->render('install/layout', $layout_context);
