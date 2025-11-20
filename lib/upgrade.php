@@ -832,6 +832,107 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // Upgrade to v1.1.14 (2025011814) - Fix Automatic Upgrade Detection
+    // =========================================================
+    if ($oldversion < 2025011814) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🔧 Upgrading to NexoSupport v1.1.14 - Auto-Upgrade Fix</h2>';
+
+        echo '<h3 style="color: #667eea;">🐛 What\'s Fixed in v1.1.14:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Automatic Upgrade Detection:</strong> System now auto-redirects to upgrade when new version detected</li>';
+        echo '<li><strong>MATURITY Constants:</strong> Defined before environment_checker runs to prevent version read errors</li>';
+        echo '<li><strong>Better Error Handling:</strong> environment_checker now catches all errors when reading version.php</li>';
+        echo '<li><strong>Debug Logging:</strong> Added temporary logging to track upgrade detection process</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔧 Root Cause:</h3>';
+        echo '<p><strong>Problem:</strong> environment_checker was created BEFORE lib/setup.php loaded, causing MATURITY_* constants to be undefined when reading lib/version.php. This caused version detection to fail silently.</p>';
+        echo '<p><strong>Solution:</strong></p>';
+        echo '<ul>';
+        echo '<li>Define MATURITY_* constants in public_html/index.php BEFORE creating environment_checker</li>';
+        echo '<li>Add try-catch in environment_checker to handle version.php loading errors gracefully</li>';
+        echo '<li>Check for null code_version in upgrade detection logic</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">📝 Files Modified:</h3>';
+        echo '<ul>';
+        echo '<li><strong>public_html/index.php:</strong> Added MATURITY_* constants + debug logging for upgrade detection</li>';
+        echo '<li><strong>lib/classes/install/environment_checker.php:</strong> Improved error handling when loading version.php</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">✅ Impact:</h3>';
+        echo '<p style="color: green;">When a new version is deployed, the system will automatically:</p>';
+        echo '<ul>';
+        echo '<li>Detect the version mismatch (code_version > db_version)</li>';
+        echo '<li>Redirect logged-in users to /admin/upgrade.php</li>';
+        echo '<li>Redirect non-logged users to /login with return URL to upgrade</li>';
+        echo '<li>Block all non-essential requests until upgrade completes</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.14 - Code fixes only</p>';
+        echo '<p style="color: blue;">🔄 Automatic upgrade detection now works like Moodle</p>';
+        echo '<p style="color: green;">✓ System will self-update without manual intervention</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.14 - code fixes only
+        upgrade_core_savepoint(true, 2025011814);
+    }
+
+    // =========================================================
+    // Upgrade to v1.1.15 (2025011815) - Fix Upgrade Visualization + Clean public_html
+    // =========================================================
+    if ($oldversion < 2025011815) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🔧 Upgrading to NexoSupport v1.1.15 - Upgrade Visualization Fixes</h2>';
+
+        echo '<h3 style="color: #667eea;">✨ What\'s New in v1.1.15:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Upgrade Output Visualization:</strong> admin/upgrade.php now captures and displays upgrade process output</li>';
+        echo '<li><strong>Clean public_html:</strong> Removed extra files (.htaccess, verify_docroot.php) - only index.php remains</li>';
+        echo '<li><strong>Debug Logs Removed:</strong> Cleaned up debug logging from front controller</li>';
+        echo '<li><strong>Better User Experience:</strong> Users now see detailed progress when system upgrades</li>';
+        echo '<li><strong>Apache Configuration Documented:</strong> docs/APACHE_CONFIG.md with complete setup instructions</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔧 Technical Changes:</h3>';
+        echo '<ul>';
+        echo '<li><strong>admin/upgrade.php:</strong> Uses output buffering to capture xmldb_core_upgrade() echo statements</li>';
+        echo '<li><strong>templates/admin/upgrade.mustache:</strong> New section to display upgrade output with proper styling</li>';
+        echo '<li><strong>public_html/index.php:</strong> Removed error_log() debug statements</li>';
+        echo '<li><strong>public_html/.htaccess:</strong> Removed (configuration moved to VirtualHost)</li>';
+        echo '<li><strong>public_html/verify_docroot.php:</strong> Removed (not needed for system operation)</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">📁 Architecture Compliance:</h3>';
+        echo '<p><strong>Frankenstyle Principle:</strong> Minimal exposure in public_html/</p>';
+        echo '<ul>';
+        echo '<li>✅ <strong>public_html/index.php:</strong> ONLY file in public_html (front controller)</li>';
+        echo '<li>✅ <strong>Apache config in VirtualHost:</strong> Proper production setup</li>';
+        echo '<li>✅ <strong>Assets served through front controller:</strong> /theme/name/pix/logo.png routing</li>';
+        echo '<li>✅ <strong>Security hardened:</strong> No direct filesystem access</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🎯 User Experience Improvements:</h3>';
+        echo '<ul>';
+        echo '<li>When clicking "Upgrade Now", users see real-time output from upgrade process</li>';
+        echo '<li>All database changes, table creations, and configurations are logged visibly</li>';
+        echo '<li>No more "black box" upgrades - full transparency</li>';
+        echo '<li>Scrollable output window with clean styling</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.15 - Code improvements only</p>';
+        echo '<p style="color: blue;">🎨 Upgrade process now fully visible to administrators</p>';
+        echo '<p style="color: green;">✓ public_html/ cleaned - only index.php remains (Frankenstyle compliant)</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.15 - code improvements only
+        upgrade_core_savepoint(true, 2025011815);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 
@@ -1067,117 +1168,3 @@ function core_upgrade_required(): bool {
         // No database changes for v1.1.13 - code fixes only
         upgrade_core_savepoint(true, 2025011813);
     }
-
-    // =========================================================
-    // v1.1.14 - Fix Automatic Upgrade Detection
-    // =========================================================
-    if ($oldversion < 2025011814) {
-        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
-        echo '<h2 style="color: #667eea; margin-top: 0;">🔧 Upgrading to NexoSupport v1.1.14 - Auto-Upgrade Fix</h2>';
-
-        echo '<h3 style="color: #667eea;">🐛 What\'s Fixed in v1.1.14:</h3>';
-        echo '<ul>';
-        echo '<li><strong>Automatic Upgrade Detection:</strong> System now auto-redirects to upgrade when new version detected</li>';
-        echo '<li><strong>MATURITY Constants:</strong> Defined before environment_checker runs to prevent version read errors</li>';
-        echo '<li><strong>Better Error Handling:</strong> environment_checker now catches all errors when reading version.php</li>';
-        echo '<li><strong>Debug Logging:</strong> Added temporary logging to track upgrade detection process</li>';
-        echo '</ul>';
-
-        echo '<h3 style="color: #667eea;">🔧 Root Cause:</h3>';
-        echo '<p><strong>Problem:</strong> environment_checker was created BEFORE lib/setup.php loaded, causing MATURITY_* constants to be undefined when reading lib/version.php. This caused version detection to fail silently.</p>';
-        echo '<p><strong>Solution:</strong></p>';
-        echo '<ul>';
-        echo '<li>Define MATURITY_* constants in public_html/index.php BEFORE creating environment_checker</li>';
-        echo '<li>Add try-catch in environment_checker to handle version.php loading errors gracefully</li>';
-        echo '<li>Check for null code_version in upgrade detection logic</li>';
-        echo '</ul>';
-
-        echo '<h3 style="color: #667eea;">📝 Files Modified:</h3>';
-        echo '<ul>';
-        echo '<li><strong>public_html/index.php:</strong> Added MATURITY_* constants + debug logging for upgrade detection</li>';
-        echo '<li><strong>lib/classes/install/environment_checker.php:</strong> Improved error handling when loading version.php</li>';
-        echo '</ul>';
-
-        echo '<h3 style="color: #667eea;">✅ Impact:</h3>';
-        echo '<p style="color: green;">When a new version is deployed, the system will automatically:</p>';
-        echo '<ul>';
-        echo '<li>Detect the version mismatch (code_version > db_version)</li>';
-        echo '<li>Redirect logged-in users to /admin/upgrade.php</li>';
-        echo '<li>Redirect non-logged users to /login with return URL to upgrade</li>';
-        echo '<li>Block all non-essential requests until upgrade completes</li>';
-        echo '</ul>';
-
-        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.14 - Code fixes only</p>';
-        echo '<p style="color: blue;">🔄 Automatic upgrade detection now works like Moodle</p>';
-        echo '<p style="color: green;">✓ System will self-update without manual intervention</p>';
-
-        echo '</div>';
-
-        // No database changes for v1.1.14 - code fixes only
-        upgrade_core_savepoint(true, 2025011814);
-    }
-
-    // =========================================================
-    // Upgrade to v1.1.15 (2025011815) - Fix Upgrade Visualization + Clean public_html
-    // =========================================================
-    if ($oldversion < 2025011815) {
-        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
-        echo '<h2 style="color: #667eea; margin-top: 0;">🔧 Upgrading to NexoSupport v1.1.15 - Upgrade Visualization Fixes</h2>';
-
-        echo '<h3 style="color: #667eea;">✨ What\'s New in v1.1.15:</h3>';
-        echo '<ul>';
-        echo '<li><strong>Upgrade Output Visualization:</strong> admin/upgrade.php now captures and displays upgrade process output</li>';
-        echo '<li><strong>Clean public_html:</strong> Removed extra files (.htaccess, verify_docroot.php) - only index.php remains</li>';
-        echo '<li><strong>Debug Logs Removed:</strong> Cleaned up debug logging from front controller</li>';
-        echo '<li><strong>Better User Experience:</strong> Users now see detailed progress when system upgrades</li>';
-        echo '<li><strong>Apache Configuration Documented:</strong> docs/APACHE_CONFIG.md with complete setup instructions</li>';
-        echo '</ul>';
-
-        echo '<h3 style="color: #667eea;">🔧 Technical Changes:</h3>';
-        echo '<ul>';
-        echo '<li><strong>admin/upgrade.php:</strong> Uses output buffering to capture xmldb_core_upgrade() echo statements</li>';
-        echo '<li><strong>templates/admin/upgrade.mustache:</strong> New section to display upgrade output with proper styling</li>';
-        echo '<li><strong>public_html/index.php:</strong> Removed error_log() debug statements</li>';
-        echo '<li><strong>public_html/.htaccess:</strong> Removed (configuration moved to VirtualHost)</li>';
-        echo '<li><strong>public_html/verify_docroot.php:</strong> Removed (not needed for system operation)</li>';
-        echo '</ul>';
-
-        echo '<h3 style="color: #667eea;">📁 Architecture Compliance:</h3>';
-        echo '<p><strong>Frankenstyle Principle:</strong> Minimal exposure in public_html/</p>';
-        echo '<ul>';
-        echo '<li>✅ <strong>public_html/index.php:</strong> ONLY file in public_html (front controller)</li>';
-        echo '<li>✅ <strong>Apache config in VirtualHost:</strong> Proper production setup</li>';
-        echo '<li>✅ <strong>Assets served through front controller:</strong> /theme/name/pix/logo.png routing</li>';
-        echo '<li>✅ <strong>Security hardened:</strong> No direct filesystem access</li>';
-        echo '</ul>';
-
-        echo '<h3 style="color: #667eea;">🎯 User Experience Improvements:</h3>';
-        echo '<ul>';
-        echo '<li>When clicking "Upgrade Now", users see real-time output from upgrade process</li>';
-        echo '<li>All database changes, table creations, and configurations are logged visibly</li>';
-        echo '<li>No more "black box" upgrades - full transparency</li>';
-        echo '<li>Scrollable output window with clean styling</li>';
-        echo '</ul>';
-
-        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.15 - Code improvements only</p>';
-        echo '<p style="color: blue;">🎨 Upgrade process now fully visible to administrators</p>';
-        echo '<p style="color: green;">✓ public_html/ cleaned - only index.php remains (Frankenstyle compliant)</p>';
-
-        echo '</div>';
-
-        // No database changes for v1.1.15 - code improvements only
-        upgrade_core_savepoint(true, 2025011815);
-    }
-
-    // =========================================================
-    // Future upgrades go here
-    // =========================================================
-
-    // if ($oldversion < 2025011900) {
-    //     // Upgrade to v1.3.0
-    //     upgrade_core_savepoint(true, 2025011900);
-    // }
-
-    // =========================================================
-    // PURGAR CACHÉS AL FINALIZAR UPGRADE
-    // =========================================================
