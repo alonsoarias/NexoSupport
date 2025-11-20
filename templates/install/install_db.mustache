@@ -1,0 +1,80 @@
+{{!
+    Install Database Stage Template
+
+    Context:
+    * progress - Progress percentage
+    * is_processing - Boolean, if processing POST request
+    * success - Boolean, if installation succeeded
+    * error - Error message (if failed)
+    * log - Array of log messages
+}}
+{{^is_processing}}
+    <div class="stage-indicator">
+        <i class="fas fa-cog fa-spin icon"></i>
+        <div class="text">
+            <div class="step-number">{{#str}}step,install,{"current":4,"total":6}{{/str}}</div>
+            <strong>{{#str}}stage_install_db,install{{/str}}</strong>
+        </div>
+    </div>
+
+    <h1><i class="fas fa-database icon"></i>{{#str}}installdb_title,install{{/str}}</h1>
+    <h2>{{#str}}installdb_subtitle,install{{/str}}</h2>
+
+    <div class="progress">
+        <div class="progress-bar" style="width: {{progress}}%"></div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle icon"></i> <strong>{{#str}}installdb_installing,install{{/str}}</strong><br>
+        {{#str}}installdb_installing_message,install{{/str}}
+    </div>
+
+    <form id="install-form" method="POST" action="/install?stage=install_db" style="display: none;">
+        <input type="hidden" name="action" value="install_schema">
+    </form>
+
+    <script>
+        // Auto-submit after 1 second
+        setTimeout(function() {
+            document.getElementById('install-form').submit();
+        }, 1000);
+    </script>
+{{/is_processing}}
+
+{{#is_processing}}
+    {{#success}}
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle icon"></i> {{#str}}installdb_success,install{{/str}}
+        </div>
+    {{/success}}
+
+    {{^success}}
+        <div class="stage-indicator">
+            <i class="fas fa-exclamation-triangle icon"></i>
+            <div class="text">
+                <div class="step-number">{{#str}}step,install,{"current":4,"total":6}{{/str}}</div>
+                <strong>{{#str}}installdb_error_title,install{{/str}}</strong>
+            </div>
+        </div>
+
+        <h1><i class="fas fa-exclamation-triangle icon"></i>{{#str}}installdb_error_title,install{{/str}}</h1>
+
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle icon"></i> <strong>{{#str}}error,install{{/str}}:</strong><br>
+            {{error}}
+        </div>
+
+        {{#has_log}}
+            <h3>{{#str}}installdb_log_title,install{{/str}}</h3>
+            <div class="log-output">
+                {{#log}}
+                    <div>{{.}}</div>
+                {{/log}}
+            </div>
+        {{/has_log}}
+
+        <div class="actions">
+            <a href="/install?stage=database" class="btn"><i class="fas fa-arrow-left icon"></i>{{#str}}button_back_database,install{{/str}}</a>
+        </div>
+    {{/success}}
+{{/is_processing}}

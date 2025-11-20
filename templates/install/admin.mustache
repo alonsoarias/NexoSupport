@@ -1,0 +1,90 @@
+{{!
+    Create Admin User Stage Template
+
+    Context:
+    * progress - Progress percentage
+    * error - Error message (if any)
+    * username - Default/entered username
+    * email - Default/entered email
+    * firstname - Default/entered first name
+    * lastname - Default/entered last name
+}}
+<div class="stage-indicator">
+    <i class="fas fa-user-shield icon"></i>
+    <div class="text">
+        <div class="step-number">{{#str}}step,install,{"current":5,"total":6}{{/str}}</div>
+        <strong>{{#str}}stage_admin,install{{/str}}</strong>
+    </div>
+</div>
+
+<h1><i class="fas fa-user-shield icon"></i>{{#str}}admin_title,install{{/str}}</h1>
+<h2>{{#str}}admin_subtitle,install{{/str}}</h2>
+
+<div class="progress">
+    <div class="progress-bar" style="width: {{progress}}%"></div>
+</div>
+
+{{#error}}
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-triangle icon"></i> {{error}}
+    </div>
+{{/error}}
+
+<div class="alert alert-info">
+    <i class="fas fa-info-circle icon"></i> <strong>{{#str}}admin_important,install{{/str}}</strong><br>
+    {{#str}}admin_important_message,install{{/str}}
+</div>
+
+<form method="POST" action="/install?stage=admin" id="admin-form">
+    <input type="hidden" name="action" value="create_admin">
+
+    <div class="form-group">
+        <label for="username"><i class="fas fa-user icon"></i>{{#str}}admin_username,install{{/str}}</label>
+        <input type="text" name="username" id="username" value="{{username}}" required placeholder="admin" pattern="[a-zA-Z0-9_.-]+">
+        <small><i class="fas fa-info-circle icon"></i> {{#str}}admin_username_help,install{{/str}}</small>
+    </div>
+
+    <div class="form-group">
+        <label for="email"><i class="fas fa-envelope icon"></i>{{#str}}admin_email,install{{/str}}</label>
+        <input type="email" name="email" id="email" value="{{email}}" required placeholder="admin@example.com">
+    </div>
+
+    <div class="form-group">
+        <label for="firstname"><i class="fas fa-id-card icon"></i>{{#str}}admin_firstname,install{{/str}}</label>
+        <input type="text" name="firstname" id="firstname" value="{{firstname}}" required placeholder="John">
+    </div>
+
+    <div class="form-group">
+        <label for="lastname"><i class="fas fa-id-card icon"></i>{{#str}}admin_lastname,install{{/str}}</label>
+        <input type="text" name="lastname" id="lastname" value="{{lastname}}" required placeholder="Doe">
+    </div>
+
+    <div class="form-group">
+        <label for="password"><i class="fas fa-lock icon"></i>{{#str}}admin_password,install{{/str}}</label>
+        <input type="password" name="password" id="password" required minlength="8" placeholder="••••••••">
+        <small><i class="fas fa-info-circle icon"></i> {{#str}}admin_password_help,install{{/str}}</small>
+    </div>
+
+    <div class="form-group">
+        <label for="password2"><i class="fas fa-lock icon"></i>{{#str}}admin_password_confirm,install{{/str}}</label>
+        <input type="password" name="password2" id="password2" required minlength="8" placeholder="••••••••">
+    </div>
+
+    <div class="actions">
+        <a href="/install?stage=database" class="btn btn-secondary"><i class="fas fa-arrow-left icon"></i>{{#str}}button_back,install{{/str}}</a>
+        <button type="submit" class="btn"><i class="fas fa-user-plus icon"></i>{{#str}}button_create_admin,install{{/str}}</button>
+    </div>
+</form>
+
+<script>
+// Validate passwords match
+document.getElementById('admin-form').addEventListener('submit', function(e) {
+    var pass1 = document.getElementById('password').value;
+    var pass2 = document.getElementById('password2').value;
+
+    if (pass1 !== pass2) {
+        e.preventDefault();
+        alert('{{#str}}admin_password_mismatch,install{{/str}}');
+    }
+});
+</script>

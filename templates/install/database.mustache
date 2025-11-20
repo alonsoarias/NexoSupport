@@ -1,0 +1,84 @@
+{{!
+    Database Configuration Stage Template
+
+    Context:
+    * progress - Progress percentage
+    * error - Error message (if any)
+    * dbdriver - Selected database driver
+    * dbhost - Database host
+    * dbname - Database name
+    * dbuser - Database user
+    * dbpass - Database password (masked)
+    * dbprefix - Table prefix
+}}
+<div class="stage-indicator">
+    <i class="fas fa-database icon"></i>
+    <div class="text">
+        <div class="step-number">{{#str}}step,install,{"current":3,"total":6}{{/str}}</div>
+        <strong>{{#str}}stage_database,install{{/str}}</strong>
+    </div>
+</div>
+
+<h1><i class="fas fa-database icon"></i>{{#str}}database_title,install{{/str}}</h1>
+<h2>{{#str}}database_subtitle,install{{/str}}</h2>
+
+<div class="progress">
+    <div class="progress-bar" style="width: {{progress}}%"></div>
+</div>
+
+{{#error}}
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-triangle icon"></i> {{error}}
+    </div>
+{{/error}}
+
+<div class="alert alert-info">
+    <i class="fas fa-info-circle icon"></i> <strong>{{#str}}information,install{{/str}}</strong><br>
+    {{#str}}database_info,install{{/str}}
+</div>
+
+<form method="POST" action="/install?stage=database">
+    <input type="hidden" name="action" value="save_database">
+
+    <div class="form-group">
+        <label for="dbdriver"><i class="fas fa-server icon"></i>{{#str}}database_driver,install{{/str}}</label>
+        <select name="dbdriver" id="dbdriver" required>
+            <option value="mysql" {{#dbdriver_is_mysql}}selected{{/dbdriver_is_mysql}}>{{#str}}database_driver_mysql,install{{/str}}</option>
+            <option value="pgsql" {{#dbdriver_is_pgsql}}selected{{/dbdriver_is_pgsql}}>{{#str}}database_driver_pgsql,install{{/str}}</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="dbhost"><i class="fas fa-network-wired icon"></i>{{#str}}database_host,install{{/str}}</label>
+        <input type="text" name="dbhost" id="dbhost" value="{{dbhost}}" required placeholder="localhost">
+        <small><i class="fas fa-info-circle icon"></i> {{#str}}database_host_help,install{{/str}}</small>
+    </div>
+
+    <div class="form-group">
+        <label for="dbname"><i class="fas fa-database icon"></i>{{#str}}database_name,install{{/str}}</label>
+        <input type="text" name="dbname" id="dbname" value="{{dbname}}" required placeholder="nexosupport" pattern="[a-zA-Z0-9_]+">
+        <small><i class="fas fa-info-circle icon"></i> {{#str}}database_name_help,install{{/str}}</small>
+    </div>
+
+    <div class="form-group">
+        <label for="dbuser"><i class="fas fa-user icon"></i>{{#str}}database_user,install{{/str}}</label>
+        <input type="text" name="dbuser" id="dbuser" value="{{dbuser}}" required placeholder="root">
+    </div>
+
+    <div class="form-group">
+        <label for="dbpass"><i class="fas fa-lock icon"></i>{{#str}}database_password,install{{/str}}</label>
+        <input type="password" name="dbpass" id="dbpass" value="{{dbpass}}" placeholder="••••••••">
+        <small><i class="fas fa-info-circle icon"></i> {{#str}}database_password_help,install{{/str}}</small>
+    </div>
+
+    <div class="form-group">
+        <label for="dbprefix"><i class="fas fa-tag icon"></i>{{#str}}database_prefix,install{{/str}}</label>
+        <input type="text" name="dbprefix" id="dbprefix" value="{{dbprefix}}" required placeholder="nxs_" pattern="[a-zA-Z0-9_]*">
+        <small><i class="fas fa-info-circle icon"></i> {{#str}}database_prefix_help,install{{/str}}</small>
+    </div>
+
+    <div class="actions">
+        <a href="/install?stage=requirements" class="btn btn-secondary"><i class="fas fa-arrow-left icon"></i>{{#str}}button_back,install{{/str}}</a>
+        <button type="submit" class="btn"><i class="fas fa-plug icon"></i>{{#str}}button_test_connection,install{{/str}}</button>
+    </div>
+</form>

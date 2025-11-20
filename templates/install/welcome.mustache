@@ -1,0 +1,42 @@
+{{!
+    Welcome Stage Template
+
+    Context:
+    * version - System version
+    * progress - Progress percentage
+}}
+<div class="stage-indicator">
+    <i class="fas fa-rocket icon"></i>
+    <div class="text">
+        <div class="step-number">{{#str}}step,install,{"current":1,"total":6}{{/str}}</div>
+        <strong>{{#str}}stage_welcome,install{{/str}}</strong>
+    </div>
+</div>
+
+<h1><i class="fas fa-cogs icon"></i>{{#str}}welcome_title,install{{/str}}</h1>
+<h2>{{#str}}welcome_subtitle,install,{$a}{{/str}}</h2>
+
+<div class="progress">
+    <div class="progress-bar" style="width: {{progress}}%"></div>
+</div>
+
+<div class="alert alert-info">
+    <i class="fas fa-info-circle icon"></i> <strong>{{#str}}welcome_message,install{{/str}}</strong><br>
+    {{#str}}welcome_description,install{{/str}}
+</div>
+
+<p>{{#str}}about_nexosupport,install{{/str}}</p>
+
+<h3><i class="fas fa-star icon"></i> {{#str}}features_title,install{{/str}}</h3>
+<ul class="feature-list">
+    <li>{{#str}}feature_plugins,install{{/str}}</li>
+    <li>{{#str}}feature_rbac,install{{/str}}</li>
+    <li>{{#str}}feature_navigation,install{{/str}}</li>
+    <li>{{#str}}feature_cache,install{{/str}}</li>
+    <li>{{#str}}feature_templates,install{{/str}}</li>
+    <li>{{#str}}feature_themes,install{{/str}}</li>
+</ul>
+
+<div class="actions">
+    <a href="/install?stage=requirements" class="btn"><i class="fas fa-arrow-right icon"></i>{{#str}}button_start,install{{/str}}</a>
+</div>

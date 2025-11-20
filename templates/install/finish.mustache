@@ -1,0 +1,120 @@
+{{!
+    Finish Installation Stage Template
+
+    Context:
+    * progress - Progress percentage
+    * is_processing - Boolean, if processing POST request
+    * success - Boolean, if finalization succeeded
+    * error - Error message (if failed)
+    * log - Array of log messages
+    * has_log - Boolean, if log exists
+}}
+{{^is_processing}}
+    <div class="stage-indicator">
+        <i class="fas fa-cog fa-spin icon"></i>
+        <div class="text">
+            <div class="step-number">{{#str}}step,install,{"current":6,"total":6}{{/str}}</div>
+            <strong>{{#str}}stage_finish,install{{/str}}</strong>
+        </div>
+    </div>
+
+    <h1><i class="fas fa-rocket icon"></i>{{#str}}finish_title,install{{/str}}</h1>
+    <h2>{{#str}}finish_subtitle,install{{/str}}</h2>
+
+    <div class="progress">
+        <div class="progress-bar" style="width: {{progress}}%"></div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle icon"></i> <strong>{{#str}}finish_processing,install{{/str}}</strong><br>
+        {{#str}}finish_processing_message,install{{/str}}
+    </div>
+
+    <form id="finalize-form" method="POST" action="/install?stage=finish" style="display: none;">
+        <input type="hidden" name="action" value="finalize">
+    </form>
+
+    <script>
+        // Auto-submit after 1 second
+        setTimeout(function() {
+            document.getElementById('finalize-form').submit();
+        }, 1000);
+    </script>
+{{/is_processing}}
+
+{{#is_processing}}
+    {{#success}}
+        <div class="stage-indicator">
+            <i class="fas fa-check-circle icon"></i>
+            <div class="text">
+                <div class="step-number">{{#str}}step,install,{"current":6,"total":6}{{/str}}</div>
+                <strong>{{#str}}finish_complete_title,install{{/str}}</strong>
+            </div>
+        </div>
+
+        <h1><i class="fas fa-check-circle icon"></i>{{#str}}finish_complete_title,install{{/str}}</h1>
+        <h2>{{#str}}finish_complete_subtitle,install{{/str}}</h2>
+
+        <div class="progress">
+            <div class="progress-bar" style="width: {{progress}}%"></div>
+        </div>
+
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle icon"></i> <strong>{{#str}}finish_congratulations,install{{/str}}</strong><br>
+            {{#str}}finish_congratulations_message,install{{/str}}
+        </div>
+
+        {{#has_log}}
+            <div style="background: #f5f5f5; padding: 20px; border-radius: 6px; margin: 20px 0;">
+                <h3 style="margin-top: 0;">{{#str}}finish_tasks_title,install{{/str}}</h3>
+                <ul style="line-height: 1.8; margin-left: 20px;">
+                    {{#log}}
+                        <li>{{.}}</li>
+                    {{/log}}
+                </ul>
+            </div>
+        {{/has_log}}
+
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle icon"></i> <strong>{{#str}}finish_nextsteps_title,install{{/str}}</strong><br>
+            1. {{#str}}finish_nextstep_1,install{{/str}}<br>
+            2. {{#str}}finish_nextstep_2,install{{/str}}<br>
+            3. {{#str}}finish_nextstep_3,install{{/str}}<br>
+            4. {{#str}}finish_nextstep_4,install{{/str}}
+        </div>
+
+        <div class="actions" style="justify-content: center;">
+            <a href="/" class="btn"><i class="fas fa-arrow-right icon"></i>{{#str}}button_go_system,install{{/str}}</a>
+        </div>
+    {{/success}}
+
+    {{^success}}
+        <div class="stage-indicator">
+            <i class="fas fa-exclamation-triangle icon"></i>
+            <div class="text">
+                <div class="step-number">{{#str}}step,install,{"current":6,"total":6}{{/str}}</div>
+                <strong>{{#str}}finish_error_title,install{{/str}}</strong>
+            </div>
+        </div>
+
+        <h1><i class="fas fa-exclamation-triangle icon"></i>{{#str}}finish_error_title,install{{/str}}</h1>
+
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle icon"></i> <strong>{{#str}}error,install{{/str}}:</strong><br>
+            {{error}}
+        </div>
+
+        {{#has_log}}
+            <h3>{{#str}}installdb_log_title,install{{/str}}</h3>
+            <div class="log-output">
+                {{#log}}
+                    <div>{{.}}</div>
+                {{/log}}
+            </div>
+        {{/has_log}}
+
+        <div class="actions">
+            <a href="/install?stage=admin" class="btn"><i class="fas fa-arrow-left icon"></i>{{#str}}button_back,install{{/str}}</a>
+        </div>
+    {{/success}}
+{{/is_processing}}

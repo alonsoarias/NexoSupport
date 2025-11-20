@@ -1,0 +1,60 @@
+{{!
+    Requirements Stage Template
+
+    Context:
+    * progress - Progress percentage
+    * all_ok - Boolean, all requirements met
+    * requirements - Array of requirement objects with:
+        - name: Requirement name
+        - status: Boolean
+        - current: Current value/status
+}}
+<div class="stage-indicator">
+    <i class="fas fa-clipboard-check icon"></i>
+    <div class="text">
+        <div class="step-number">{{#str}}step,install,{"current":2,"total":6}{{/str}}</div>
+        <strong>{{#str}}stage_requirements,install{{/str}}</strong>
+    </div>
+</div>
+
+<h1><i class="fas fa-clipboard-check icon"></i>{{#str}}requirements_title,install{{/str}}</h1>
+<h2>{{#str}}requirements_subtitle,install{{/str}}</h2>
+
+<div class="progress">
+    <div class="progress-bar" style="width: {{progress}}%"></div>
+</div>
+
+{{#all_ok}}
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle icon"></i>
+        <strong>{{#str}}perfect,install{{/str}}</strong> {{#str}}requirements_success,install{{/str}}
+    </div>
+{{/all_ok}}
+
+{{^all_ok}}
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-triangle icon"></i>
+        <strong>{{#str}}attention,install{{/str}}:</strong> {{#str}}requirements_error,install{{/str}}
+    </div>
+{{/all_ok}}
+
+<div style="margin: 20px 0;">
+    {{#requirements}}
+        <div class="requirement">
+            <span>{{name}}</span>
+            <span class="status {{#status}}ok{{/status}}{{^status}}error{{/status}}">
+                {{#status}}✓{{/status}}{{^status}}✗{{/status}} {{current}}
+            </span>
+        </div>
+    {{/requirements}}
+</div>
+
+<div class="actions">
+    <a href="/install?stage=welcome" class="btn btn-secondary"><i class="fas fa-arrow-left icon"></i>{{#str}}button_back,install{{/str}}</a>
+    {{#all_ok}}
+        <a href="/install?stage=database" class="btn"><i class="fas fa-arrow-right icon"></i>{{#str}}button_continue,install{{/str}}</a>
+    {{/all_ok}}
+    {{^all_ok}}
+        <a href="/install?stage=requirements" class="btn"><i class="fas fa-sync icon"></i>{{#str}}button_check_again,install{{/str}}</a>
+    {{/all_ok}}
+</div>

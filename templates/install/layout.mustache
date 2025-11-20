@@ -1,0 +1,310 @@
+{{!
+    Installer Layout Template
+
+    Context:
+    * currentlang - Current language code
+    * progress - Progress percentage (0-100)
+    * content - Stage content HTML
+}}
+<!DOCTYPE html>
+<html lang="{{currentlang}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{#str}}installation,install{{/str}} - {{#str}}sitename,core{{/str}}</title>
+
+    <!-- Font Awesome 6 - Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .stage-indicator {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .stage-indicator .icon {
+            font-size: 32px;
+            margin-right: 20px;
+        }
+
+        .stage-indicator .text {
+            flex: 1;
+        }
+
+        .stage-indicator .step-number {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .stage-indicator strong {
+            font-size: 18px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        h1 .icon {
+            color: #667eea;
+            margin-right: 10px;
+        }
+
+        h2 {
+            color: #666;
+            font-size: 16px;
+            font-weight: normal;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            color: #333;
+            font-size: 20px;
+            margin: 25px 0 15px 0;
+        }
+
+        h3 .icon {
+            color: #667eea;
+            margin-right: 8px;
+        }
+
+        p {
+            color: #555;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        .progress {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .alert .icon {
+            margin-right: 8px;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #0277bd;
+            border-color: #0277bd;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-color: #2e7d32;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-color: #c62828;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            color: #e65100;
+            border-color: #e65100;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .feature-list li {
+            padding: 10px 0 10px 35px;
+            position: relative;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .feature-list li::before {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #2e7d32;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-group label .icon {
+            color: #667eea;
+            margin-right: 6px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group small {
+            display: block;
+            color: #777;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .form-group small .icon {
+            margin-right: 4px;
+        }
+
+        .requirement {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .requirement .status {
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+
+        .requirement .status.ok {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .requirement .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn .icon {
+            margin-right: 6px;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+        }
+
+        .log-output {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .log-output div {
+            padding: 3px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {{{content}}}
+    </div>
+</body>
+</html>
