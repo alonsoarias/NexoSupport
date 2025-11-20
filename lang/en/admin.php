@@ -52,6 +52,34 @@ $string['cache_purge_error'] = 'Error purging cache';
 $string['cache_purge_button'] = 'Purge Cache Now';
 $string['cache_info'] = 'Cache improves performance by storing processed data. Purge it if you experience issues.';
 $string['cache_confirm'] = 'Are you sure you want to purge the cache?';
+$string['cache_status'] = 'Status';
+$string['cache_enabled'] = 'Enabled';
+$string['cache_disabled'] = 'Disabled';
+$string['cache_memory_used'] = 'Memory Used';
+$string['cache_memory_free'] = 'Memory Free';
+$string['cache_memory_wasted'] = 'Memory Wasted';
+$string['cache_scripts'] = 'Cached Scripts';
+$string['cache_hits'] = 'Hits';
+$string['cache_misses'] = 'Misses';
+$string['cache_hit_rate'] = 'Hit Rate';
+$string['cache_templates'] = 'Cached Templates';
+$string['cache_size'] = 'Cache Size';
+$string['cache_opcache_disabled'] = 'OPcache is disabled';
+$string['cache_mustache_disabled'] = 'Mustache cache disabled';
+$string['cache_purge_help'] = 'Select which caches to purge';
+$string['cache_purge_all'] = 'Purge All Caches';
+$string['cache_purge_opcache'] = 'Purge OPcache';
+$string['cache_purge_mustache'] = 'Purge Mustache Cache';
+$string['cache_purge_i18n'] = 'Purge i18n Cache';
+$string['cache_purge_app'] = 'Purge Application Cache';
+$string['cache_purge_rbac'] = 'Purge RBAC Cache';
+$string['cache_about'] = 'About Caches';
+$string['cache_opcache_help'] = 'PHP opcode cache - speeds up PHP execution';
+$string['cache_mustache_help'] = 'Compiled Mustache templates cache';
+$string['cache_i18n_help'] = 'Language strings cache';
+$string['cache_app_help'] = 'Application-level cache for various data';
+$string['cache_rbac_help'] = 'Role and permission definitions cache';
+$string['cache_purge_results'] = 'Purge Results';
 
 // Settings
 $string['settings'] = 'Settings';
@@ -126,6 +154,17 @@ $string['back_to_admin'] = 'Back to Administration';
 $string['no_data'] = 'No data available';
 $string['loading'] = 'Loading...';
 $string['processing'] = 'Processing...';
+
+// Dashboard quick links
+$string['plugins'] = 'Plugins';
+$string['plugins_description'] = 'Manage plugins (Phase 2)';
+$string['themes'] = 'Themes';
+$string['themes_description'] = 'Customize appearance (Phase 6)';
+$string['reports'] = 'Reports';
+$string['reports_description'] = 'View system reports (Phase 5)';
+$string['manage_users_description'] = 'Create, edit, and manage user accounts';
+$string['manage_roles_description'] = 'Define roles and assign permissions';
+$string['manage_settings_description'] = 'Configure system settings';
 
 // Errors and messages
 $string['error_occurred'] = 'An error occurred';

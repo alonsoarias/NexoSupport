@@ -52,6 +52,34 @@ $string['cache_purge_error'] = 'Error al purgar caché';
 $string['cache_purge_button'] = 'Purgar Caché Ahora';
 $string['cache_info'] = 'El caché mejora el rendimiento almacenando datos procesados. Púrguelo si experimenta problemas.';
 $string['cache_confirm'] = '¿Está seguro de que desea purgar el caché?';
+$string['cache_status'] = 'Estado';
+$string['cache_enabled'] = 'Habilitado';
+$string['cache_disabled'] = 'Deshabilitado';
+$string['cache_memory_used'] = 'Memoria Usada';
+$string['cache_memory_free'] = 'Memoria Libre';
+$string['cache_memory_wasted'] = 'Memoria Desperdiciada';
+$string['cache_scripts'] = 'Scripts en Caché';
+$string['cache_hits'] = 'Aciertos';
+$string['cache_misses'] = 'Fallos';
+$string['cache_hit_rate'] = 'Tasa de Aciertos';
+$string['cache_templates'] = 'Plantillas en Caché';
+$string['cache_size'] = 'Tamaño de Caché';
+$string['cache_opcache_disabled'] = 'OPcache está deshabilitado';
+$string['cache_mustache_disabled'] = 'Caché de Mustache deshabilitado';
+$string['cache_purge_help'] = 'Seleccione qué cachés desea purgar';
+$string['cache_purge_all'] = 'Purgar Todos los Cachés';
+$string['cache_purge_opcache'] = 'Purgar OPcache';
+$string['cache_purge_mustache'] = 'Purgar Caché de Mustache';
+$string['cache_purge_i18n'] = 'Purgar Caché de i18n';
+$string['cache_purge_app'] = 'Purgar Caché de Aplicación';
+$string['cache_purge_rbac'] = 'Purgar Caché de RBAC';
+$string['cache_about'] = 'Acerca de los Cachés';
+$string['cache_opcache_help'] = 'Caché de opcodes de PHP - acelera la ejecución de PHP';
+$string['cache_mustache_help'] = 'Caché de plantillas Mustache compiladas';
+$string['cache_i18n_help'] = 'Caché de strings de idioma';
+$string['cache_app_help'] = 'Caché de nivel de aplicación para varios datos';
+$string['cache_rbac_help'] = 'Caché de definiciones de roles y permisos';
+$string['cache_purge_results'] = 'Resultados de Purga';
 
 // Settings
 $string['settings'] = 'Configuración';
@@ -126,6 +154,17 @@ $string['back_to_admin'] = 'Volver a Administración';
 $string['no_data'] = 'No hay datos disponibles';
 $string['loading'] = 'Cargando...';
 $string['processing'] = 'Procesando...';
+
+// Dashboard quick links
+$string['plugins'] = 'Plugins';
+$string['plugins_description'] = 'Gestionar plugins (Fase 2)';
+$string['themes'] = 'Temas';
+$string['themes_description'] = 'Personalizar apariencia (Fase 6)';
+$string['reports'] = 'Reportes';
+$string['reports_description'] = 'Ver reportes del sistema (Fase 5)';
+$string['manage_users_description'] = 'Crear, editar y gestionar cuentas de usuario';
+$string['manage_roles_description'] = 'Definir roles y asignar permisos';
+$string['manage_settings_description'] = 'Configurar ajustes del sistema';
 
 // Errors and messages
 $string['error_occurred'] = 'Ocurrió un error';

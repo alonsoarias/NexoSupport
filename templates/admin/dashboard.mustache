@@ -11,7 +11,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{#str}}administration,core{{/str}} - {{#str}}sitename,core{{/str}}</title>
+    <title>{{#str}}administration,admin{{/str}} - {{#str}}sitename,core{{/str}}</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -67,38 +67,38 @@
 <body>
     {{> core/nav}}
 
-    <h1>{{#str}}adminarea,core{{/str}}</h1>
-    <p>{{#str}}welcome,core{{/str}}, {{{firstname}}}</p>
+    <h1>{{#str}}administration,admin{{/str}}</h1>
+    <p>{{#str}}admin_welcome,admin{{/str}}, {{{firstname}}}</p>
 
     <div class="admin-grid">
-        <a href="/admin/users" class="admin-card">
-            <h3>{{#str}}users,core{{/str}}</h3>
-            <p>{{#str}}manageusers_desc,core{{/str}}</p>
+        <a href="/admin/user/" class="admin-card">
+            <h3>{{#str}}users,admin{{/str}}</h3>
+            <p>{{#str}}manage_users_description,admin{{/str}}</p>
         </a>
 
-        <a href="/admin/roles" class="admin-card">
-            <h3>{{#str}}roles,core{{/str}}</h3>
-            <p>{{#str}}manageroles_desc,core{{/str}}</p>
+        <a href="/admin/roles/" class="admin-card">
+            <h3>{{#str}}roles,admin{{/str}}</h3>
+            <p>{{#str}}manage_roles_description,admin{{/str}}</p>
         </a>
 
-        <a href="/admin/settings" class="admin-card">
-            <h3>{{#str}}settings,core{{/str}}</h3>
-            <p>{{#str}}managesettings_desc,core{{/str}}</p>
+        <a href="/admin/settings/" class="admin-card">
+            <h3>{{#str}}settings,admin{{/str}}</h3>
+            <p>{{#str}}manage_settings_description,admin{{/str}}</p>
         </a>
 
         <div class="admin-card" style="opacity: 0.5;">
-            <h3>Plugins</h3>
-            <p>Gestionar plugins (Fase 2)</p>
+            <h3>{{#str}}plugins,admin{{/str}}</h3>
+            <p>{{#str}}plugins_description,admin{{/str}}</p>
         </div>
 
         <div class="admin-card" style="opacity: 0.5;">
-            <h3>Temas</h3>
-            <p>Personalizar apariencia (Fase 6)</p>
+            <h3>{{#str}}themes,admin{{/str}}</h3>
+            <p>{{#str}}themes_description,admin{{/str}}</p>
         </div>
 
         <div class="admin-card" style="opacity: 0.5;">
-            <h3>Reportes</h3>
-            <p>Ver reportes del sistema (Fase 5)</p>
+            <h3>{{#str}}reports,admin{{/str}}</h3>
+            <p>{{#str}}reports_description,admin{{/str}}</p>
         </div>
     </div>
 

@@ -9,17 +9,17 @@
 
     <main class="content-area">
         <div class="container-fluid">
-            <h1>🗑️ {{ strings.cachepurge }}</h1>
+            <h1>🗑️ {{#str}}cache_purge,admin{{/str}}</h1>
 
             {{#success}}
             <div class="alert alert-success">
-                <strong>✓ {{ strings.success }}:</strong> {{success}}
+                <strong>✓ {{#str}}cache_purge_success,admin{{/str}}:</strong> {{success}}
             </div>
             {{/success}}
 
             {{#haserrors}}
             <div class="alert alert-danger">
-                <strong>✗ {{ strings.error }}:</strong>
+                <strong>✗ {{#str}}error_occurred,admin{{/str}}:</strong>
                 <ul>
                     {{#errors}}
                     <li>{{.}}</li>
@@ -31,7 +31,7 @@
             {{#has_purge_results}}
             <div class="card mb-4">
                 <div class="card-header">
-                    <h3>{{ strings.purgeresults }}</h3>
+                    <h3>{{#str}}cache_purge_results,admin{{/str}}</h3>
                 </div>
                 <div class="card-body">
                     {{#purge_results.opcache}}
@@ -42,25 +42,25 @@
 
                     {{#purge_results.mustache}}
                     <div class="purge-result {{#success}}text-success{{/success}}{{^success}}text-danger{{/success}}">
-                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{ strings.mustachecache }}:</strong> {{message}}
+                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{#str}}cache_purge_mustache,admin{{/str}}:</strong> {{message}}
                     </div>
                     {{/purge_results.mustache}}
 
                     {{#purge_results.i18n}}
                     <div class="purge-result {{#success}}text-success{{/success}}{{^success}}text-danger{{/success}}">
-                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{ strings.i18ncache }}:</strong> {{message}}
+                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{#str}}cache_purge_i18n,admin{{/str}}:</strong> {{message}}
                     </div>
                     {{/purge_results.i18n}}
 
                     {{#purge_results.application}}
                     <div class="purge-result {{#success}}text-success{{/success}}{{^success}}text-danger{{/success}}">
-                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{ strings.applicationcache }}:</strong> {{message}}
+                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{#str}}cache_purge_app,admin{{/str}}:</strong> {{message}}
                     </div>
                     {{/purge_results.application}}
 
                     {{#purge_results.rbac}}
                     <div class="purge-result {{#success}}text-success{{/success}}{{^success}}text-danger{{/success}}">
-                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>RBAC {{ strings.cache }}:</strong> {{message}}
+                        {{#success}}✓{{/success}}{{^success}}✗{{/success}} <strong>{{#str}}cache_purge_rbac,admin{{/str}}:</strong> {{message}}
                     </div>
                     {{/purge_results.rbac}}
                 </div>
@@ -71,49 +71,49 @@
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h3>OPcache {{ strings.status }}</h3>
+                            <h3>OPcache {{#str}}cache_status,admin{{/str}}</h3>
                         </div>
                         <div class="card-body">
                             {{#opcache_enabled}}
                             <table class="table table-sm">
                                 <tr>
-                                    <th>{{ strings.status }}</th>
-                                    <td><span class="badge badge-success">{{ strings.enabled }}</span></td>
+                                    <th>{{#str}}cache_status,admin{{/str}}</th>
+                                    <td><span class="badge badge-success">{{#str}}cache_enabled,admin{{/str}}</span></td>
                                 </tr>
                                 <tr>
-                                    <th>{{ strings.memoryused }}</th>
+                                    <th>{{#str}}cache_memory_used,admin{{/str}}</th>
                                     <td>{{opcache_memory_used}}</td>
                                 </tr>
                                 <tr>
-                                    <th>{{ strings.memoryfree }}</th>
+                                    <th>{{#str}}cache_memory_free,admin{{/str}}</th>
                                     <td>{{opcache_memory_free}}</td>
                                 </tr>
                                 <tr>
-                                    <th>{{ strings.memorywasted }}</th>
+                                    <th>{{#str}}cache_memory_wasted,admin{{/str}}</th>
                                     <td>{{opcache_memory_wasted}}</td>
                                 </tr>
                                 <tr>
-                                    <th>{{ strings.cachedscripts }}</th>
+                                    <th>{{#str}}cache_scripts,admin{{/str}}</th>
                                     <td>{{opcache_scripts}}</td>
                                 </tr>
                                 <tr>
-                                    <th>{{ strings.hits }}</th>
+                                    <th>{{#str}}cache_hits,admin{{/str}}</th>
                                     <td>{{opcache_hits}}</td>
                                 </tr>
                                 <tr>
-                                    <th>{{ strings.misses }}</th>
+                                    <th>{{#str}}cache_misses,admin{{/str}}</th>
                                     <td>{{opcache_misses}}</td>
                                 </tr>
                                 {{#opcache_hit_rate}}
                                 <tr>
-                                    <th>{{ strings.hitrate }}</th>
+                                    <th>{{#str}}cache_hit_rate,admin{{/str}}</th>
                                     <td><strong>{{opcache_hit_rate}}</strong></td>
                                 </tr>
                                 {{/opcache_hit_rate}}
                             </table>
                             {{/opcache_enabled}}
                             {{^opcache_enabled}}
-                            <p class="text-muted">{{ strings.opcachedisabled }}</p>
+                            <p class="text-muted">{{#str}}cache_opcache_disabled,admin{{/str}}</p>
                             {{/opcache_enabled}}
                         </div>
                     </div>
@@ -122,27 +122,27 @@
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h3>{{ strings.mustachecache }} {{ strings.status }}</h3>
+                            <h3>{{#str}}cache_purge_mustache,admin{{/str}} {{#str}}cache_status,admin{{/str}}</h3>
                         </div>
                         <div class="card-body">
                             {{#mustache_enabled}}
                             <table class="table table-sm">
                                 <tr>
-                                    <th>{{ strings.status }}</th>
-                                    <td><span class="badge badge-success">{{ strings.enabled }}</span></td>
+                                    <th>{{#str}}cache_status,admin{{/str}}</th>
+                                    <td><span class="badge badge-success">{{#str}}cache_enabled,admin{{/str}}</span></td>
                                 </tr>
                                 <tr>
-                                    <th>{{ strings.cachedtemplates }}</th>
+                                    <th>{{#str}}cache_templates,admin{{/str}}</th>
                                     <td>{{mustache_templates}}</td>
                                 </tr>
                                 <tr>
-                                    <th>{{ strings.cachesize }}</th>
+                                    <th>{{#str}}cache_size,admin{{/str}}</th>
                                     <td>{{mustache_cache_size}}</td>
                                 </tr>
                             </table>
                             {{/mustache_enabled}}
                             {{^mustache_enabled}}
-                            <p class="text-muted">Mustache cache disabled</p>
+                            <p class="text-muted">{{#str}}cache_mustache_disabled,admin{{/str}}</p>
                             {{/mustache_enabled}}
                         </div>
                     </div>
@@ -151,16 +151,16 @@
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h3>{{ strings.purgecache }}</h3>
+                            <h3>{{#str}}cache_purge,admin{{/str}}</h3>
                         </div>
                         <div class="card-body">
-                            <p>{{ strings.purgecachehelp }}</p>
+                            <p>{{#str}}cache_purge_help,admin{{/str}}</p>
 
                             <form method="POST" action="" class="mb-3">
                                 <input type="hidden" name="sesskey" value="{{sesskey}}">
                                 <input type="hidden" name="purge_type" value="all">
                                 <button type="submit" class="btn btn-danger btn-block">
-                                    🗑️ {{ strings.purgeallcaches }}
+                                    🗑️ {{#str}}cache_purge_all,admin{{/str}}
                                 </button>
                             </form>
 
@@ -169,7 +169,7 @@
                                 <input type="hidden" name="sesskey" value="{{sesskey}}">
                                 <input type="hidden" name="purge_type" value="opcache">
                                 <button type="submit" class="btn btn-warning btn-block">
-                                    🔄 {{ strings.purgeopcache }}
+                                    🔄 {{#str}}cache_purge_opcache,admin{{/str}}
                                 </button>
                             </form>
                             {{/opcache_enabled}}
@@ -179,7 +179,7 @@
                                 <input type="hidden" name="sesskey" value="{{sesskey}}">
                                 <input type="hidden" name="purge_type" value="mustache">
                                 <button type="submit" class="btn btn-warning btn-block">
-                                    🔄 {{ strings.purgemustachecache }}
+                                    🔄 {{#str}}cache_purge_mustache,admin{{/str}}
                                 </button>
                             </form>
                             {{/mustache_enabled}}
@@ -188,7 +188,7 @@
                                 <input type="hidden" name="sesskey" value="{{sesskey}}">
                                 <input type="hidden" name="purge_type" value="i18n">
                                 <button type="submit" class="btn btn-warning btn-block">
-                                    🔄 {{ strings.purgei18ncache }}
+                                    🔄 {{#str}}cache_purge_i18n,admin{{/str}}
                                 </button>
                             </form>
 
@@ -196,7 +196,7 @@
                                 <input type="hidden" name="sesskey" value="{{sesskey}}">
                                 <input type="hidden" name="purge_type" value="application">
                                 <button type="submit" class="btn btn-warning btn-block">
-                                    🔄 {{ strings.purgeappcache }}
+                                    🔄 {{#str}}cache_purge_app,admin{{/str}}
                                 </button>
                             </form>
 
@@ -204,7 +204,7 @@
                                 <input type="hidden" name="sesskey" value="{{sesskey}}">
                                 <input type="hidden" name="purge_type" value="rbac">
                                 <button type="submit" class="btn btn-warning btn-block">
-                                    🔄 {{ strings.purgerbaccache }}
+                                    🔄 {{#str}}cache_purge_rbac,admin{{/str}}
                                 </button>
                             </form>
                         </div>
@@ -213,13 +213,13 @@
             </div>
 
             <div class="alert alert-info">
-                <h4>ℹ️ {{ strings.aboutcaches }}</h4>
+                <h4>ℹ️ {{#str}}cache_about,admin{{/str}}</h4>
                 <ul>
-                    <li><strong>OPcache:</strong> {{ strings.opcachehelp }}</li>
-                    <li><strong>{{ strings.mustachecache }}:</strong> {{ strings.mustachecachehelp }}</li>
-                    <li><strong>{{ strings.i18ncache }}:</strong> {{ strings.i18ncachehelp }}</li>
-                    <li><strong>{{ strings.applicationcache }}:</strong> {{ strings.appcachehelp }}</li>
-                    <li><strong>RBAC {{ strings.cache }}:</strong> {{ strings.rbaccachehelp }}</li>
+                    <li><strong>OPcache:</strong> {{#str}}cache_opcache_help,admin{{/str}}</li>
+                    <li><strong>{{#str}}cache_purge_mustache,admin{{/str}}:</strong> {{#str}}cache_mustache_help,admin{{/str}}</li>
+                    <li><strong>{{#str}}cache_purge_i18n,admin{{/str}}:</strong> {{#str}}cache_i18n_help,admin{{/str}}</li>
+                    <li><strong>{{#str}}cache_purge_app,admin{{/str}}:</strong> {{#str}}cache_app_help,admin{{/str}}</li>
+                    <li><strong>{{#str}}cache_purge_rbac,admin{{/str}}:</strong> {{#str}}cache_rbac_help,admin{{/str}}</li>
                 </ul>
             </div>
         </div>

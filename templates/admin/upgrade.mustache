@@ -1,88 +1,160 @@
 {{!
-    Upgrade Template
+    Upgrade Template - Admin
 
     Context:
-    * dbversion - Database version
-    * codeversion - Code version
-    * release - Release version
-    * upgradeexecuted - Boolean if upgrade was executed
-    * upgradesuccess - Boolean if upgrade succeeded
-    * upgradeerrors - Array of errors
-    * haserrors - Boolean for errors
-    * upgradeneeded - Boolean if upgrade is needed
+    * upgrade_executed - Boolean if upgrade was executed
+    * success - Boolean if upgrade succeeded
+    * has_log - Boolean if log exists
+    * log - Array of log messages
+    * has_errors - Boolean if errors exist
+    * errors - Array of error messages
+    * needs_upgrade - Boolean if upgrade is needed
+    * requirements_ok - Boolean if requirements are met
+    * requirement_issues - Array of requirement issues
+    * db_version - Database version
+    * code_version - Code version
+    * release - Release version string
+    * version_diff - Version difference
+    * has_upgrades - Boolean if upgrades to execute exist
+    * upgrades_to_execute - Array of upgrades
     * sesskey - Session key
 }}
-<!DOCTYPE html>
-<html lang="{{currentlang}}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{#str}}upgrade,core{{/str}} - {{#str}}sitename,core{{/str}}</title>
-
-    <!-- Font Awesome 6 - Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+<style>
+        .upgrade-container {
+            max-width: 900px;
+            margin: 0 auto;
             padding: 20px;
-            margin: 0;
         }
 
-        .container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            max-width: 700px;
-            width: 100%;
-            padding: 40px;
+        .upgrade-info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
         }
 
-        h1 {
+        .upgrade-info-box h3 {
+            margin-top: 0;
             color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
         }
 
-        h2 {
+        .version-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .version-table td {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .version-table td:first-child {
+            font-weight: bold;
+            width: 200px;
+        }
+
+        .upgrade-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .upgrade-list li {
+            padding: 10px;
+            margin: 5px 0;
+            background: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .upgrade-list li i {
             color: #667eea;
-            margin-bottom: 20px;
-            font-size: 20px;
-            font-weight: normal;
+            margin-right: 10px;
         }
 
-        .version-info {
-            background: #f5f5f5;
-            padding: 20px;
-            border-radius: 8px;
+        .requirements-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .requirements-list li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .requirements-list .status {
+            font-weight: bold;
+        }
+
+        .requirements-list .status.ok {
+            color: #28a745;
+        }
+
+        .requirements-list .status.error {
+            color: #dc3545;
+        }
+
+        .log-output {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
             margin: 20px 0;
         }
 
-        .version-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #e0e0e0;
+        .log-output div {
+            margin: 3px 0;
         }
 
-        .version-row:last-child {
-            border-bottom: none;
+        .upgrade-actions {
+            margin: 30px 0;
+            text-align: center;
         }
 
-        .version-label {
-            font-weight: 600;
-            color: #555;
-        }
-
-        .version-value {
-            color: #667eea;
-            font-family: monospace;
+        .btn-upgrade {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
             font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-upgrade:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
         }
 
         .alert {
@@ -91,273 +163,211 @@
             margin: 20px 0;
         }
 
-        .alert-info {
-            background: #e3f2fd;
-            color: #0277bd;
-            border-left: 4px solid #0277bd;
-        }
-
         .alert-success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border-left: 4px solid #2e7d32;
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
         }
 
-        .alert-error {
-            background: #ffebee;
-            color: #c62828;
-            border-left: 4px solid #c62828;
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
         }
 
         .alert-warning {
-            background: #fff3e0;
-            color: #e65100;
-            border-left: 4px solid #e65100;
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
         }
 
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            transition: transform 0.2s;
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-        }
-
-        .actions {
-            margin-top: 30px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .upgrade-list {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 6px;
-            margin: 20px 0;
-        }
-
-        .upgrade-list ul {
-            margin: 10px 0 10px 20px;
-            line-height: 1.8;
-        }
-
-        .upgrade-list li {
-            margin: 5px 0;
-        }
-
-        .error-list {
-            margin: 10px 0;
-            padding-left: 20px;
-        }
-
-        .checkmark {
-            color: #2e7d32;
-            font-size: 24px;
-            margin-right: 10px;
-        }
-
-        /* Font Awesome Icons */
-        .icon {
-            margin-right: 8px;
-        }
-
-        h1 .icon {
-            color: #667eea;
-        }
-
-        .version-info .icon {
-            color: #667eea;
-            margin-right: 10px;
-        }
-
-        .feature-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .feature-list li {
-            padding: 8px 0;
-            padding-left: 30px;
-            position: relative;
-        }
-
-        .feature-list li::before {
-            content: "\f00c";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            left: 0;
-            color: #2e7d32;
-        }
-
-        .upgrade-output {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 6px;
-            margin: 20px 0;
-            border-left: 4px solid #667eea;
-        }
-
-        .output-content {
-            background: white;
-            padding: 15px;
-            border-radius: 4px;
-            max-height: 500px;
-            overflow-y: auto;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .output-content p {
-            margin: 8px 0;
-        }
-
-        .output-content div {
-            margin: 15px 0;
-        }
-
-        .output-content h2, .output-content h3, .output-content h4 {
-            margin-top: 20px;
+        .alert h4 {
+            margin-top: 0;
             margin-bottom: 10px;
         }
-
-        .output-content ul {
-            margin: 10px 0 10px 20px;
-        }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1><i class="fas fa-sync-alt icon"></i>{{#str}}upgrade,core{{/str}}</h1>
-        <h2><i class="fas fa-cogs"></i> {{#str}}sitename,core{{/str}}</h2>
 
-        <div class="version-info">
-            <div class="version-row">
-                <span class="version-label">{{#str}}currentversion,core{{/str}}:</span>
-                <span class="version-value">{{{dbversion}}}</span>
+<div class="upgrade-container">
+    <h1><i class="fas fa-sync-alt"></i> {{#str}}upgrade_title,admin{{/str}}</h1>
+
+    {{#upgrade_executed}}
+        {{! Resultado del Upgrade }}
+        {{#success}}
+            <div class="alert alert-success">
+                <h4><i class="fas fa-check-circle"></i> {{#str}}upgrade_success,admin{{/str}}</h4>
+                <p>{{#str}}upgrade_success,admin{{/str}}: {{release}} ({{code_version}}).</p>
             </div>
-            <div class="version-row">
-                <span class="version-label">{{#str}}newversion,core{{/str}}:</span>
-                <span class="version-value">{{{codeversion}}}</span>
+
+            {{#has_log}}
+                <h3>{{#str}}upgrade_log,admin{{/str}}:</h3>
+                <div class="log-output">
+                    {{#log}}
+                        <div>{{{.}}}</div>
+                    {{/log}}
+                </div>
+            {{/has_log}}
+
+            <div class="upgrade-actions">
+                <a href="/" class="btn-primary">
+                    <i class="fas fa-home"></i> {{#str}}back_to_admin,admin{{/str}}
+                </a>
             </div>
-            <div class="version-row">
-                <span class="version-label">Release:</span>
-                <span class="version-value">{{{release}}}</span>
+        {{/success}}
+
+        {{^success}}
+            {{! Error en el Upgrade }}
+            <div class="alert alert-danger">
+                <h4><i class="fas fa-exclamation-triangle"></i> {{#str}}upgrade_error,admin{{/str}}</h4>
+                <p>{{#str}}error_occurred,admin{{/str}}.</p>
             </div>
-        </div>
 
-        {{#upgradeexecuted}}
-            {{#upgradesuccess}}
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle icon"></i>
-                    <strong>{{#str}}upgradecomplete,core{{/str}}!</strong><br>
-                    {{#str}}systemreadyupgrade,core{{/str}}
-                </div>
-
-                {{#hasoutput}}
-                <div class="upgrade-output">
-                    <h3 style="color: #667eea; margin-bottom: 15px;">
-                        <i class="fas fa-list-check icon"></i>Detalles de la Actualización:
-                    </h3>
-                    <div class="output-content">
-                        {{{upgradeoutput}}}
-                    </div>
-                </div>
-                {{/hasoutput}}
-
-                <div class="actions">
-                    <a href="/admin" class="btn"><i class="fas fa-cogs icon"></i>{{#str}}administration,core{{/str}}</a>
-                </div>
-            {{/upgradesuccess}}
-
-            {{^upgradesuccess}}
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle icon"></i>
-                    <strong>{{#str}}error,core{{/str}}</strong><br>
-                    {{#str}}error,core{{/str}}:
-                    <ul class="error-list">
-                        {{#upgradeerrors}}
+            {{#has_errors}}
+                <h3>{{#str}}error_occurred,admin{{/str}}:</h3>
+                <div class="alert alert-danger">
+                    <ul style="margin: 0; padding-left: 20px;">
+                        {{#errors}}
                             <li>{{{.}}}</li>
-                        {{/upgradeerrors}}
+                        {{/errors}}
                     </ul>
                 </div>
+            {{/has_errors}}
 
-                <div class="actions">
-                    <a href="/admin/upgrade.php" class="btn"><i class="fas fa-sync-alt icon"></i>{{#str}}upgrade,core{{/str}}</a>
-                    <a href="/admin" class="btn btn-secondary"><i class="fas fa-arrow-left icon"></i>{{#str}}back,core{{/str}}</a>
+            {{#has_log}}
+                <h3>{{#str}}upgrade_log,admin{{/str}}:</h3>
+                <div class="log-output">
+                    {{#log}}
+                        <div>{{{.}}}</div>
+                    {{/log}}
                 </div>
-            {{/upgradesuccess}}
-        {{/upgradeexecuted}}
+            {{/has_log}}
 
-        {{^upgradeexecuted}}
-            {{#upgradeneeded}}
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle icon"></i>
-                    <strong>{{#str}}requiresupgrade,core{{/str}}</strong><br>
-                    {{#str}}systemreadyupgrade,core{{/str}}
-                </div>
+            <div class="upgrade-actions">
+                <a href="/admin/upgrade.php" class="btn-primary">
+                    <i class="fas fa-redo"></i> {{#str}}continue,admin{{/str}}
+                </a>
+            </div>
+        {{/success}}
+    {{/upgrade_executed}}
 
-                <div class="upgrade-list">
-                    <h3 style="margin-top: 0; color: #333;"><i class="fas fa-list-ul icon"></i>Cambios en esta Actualización:</h3>
-                    <h4 style="color: #667eea;"><i class="fas fa-rocket icon"></i>Versión 1.1.9 - Navigation System Redesign</h4>
-                    <ul class="feature-list">
-                        <li>Complete Navigation Redesign con OOP architecture</li>
-                        <li>Font Awesome 6 icons en toda la interfaz</li>
-                        <li>Template-based rendering con Mustache</li>
-                        <li>Permission-based filtering granular</li>
-                        <li>Sistema de breadcrumbs automático</li>
-                        <li>i18n cache management</li>
-                        <li>Auto-expand de categorías admin</li>
-                        <li>Backward compatibility completa</li>
+    {{^upgrade_executed}}
+        {{! Información del Upgrade }}
+
+        {{#needs_upgrade}}
+            <div class="alert alert-warning">
+                <h4><i class="fas fa-exclamation-circle"></i> {{#str}}upgrade_required,admin{{/str}}</h4>
+                <p>{{#str}}upgrade_description,admin{{/str}}.</p>
+            </div>
+
+            <div class="upgrade-info-box">
+                <h3>{{#str}}upgrade_info,admin{{/str}}</h3>
+                <table class="version-table">
+                    <tr>
+                        <td>{{#str}}database_version,admin{{/str}}:</td>
+                        <td>{{db_version}}</td>
+                    </tr>
+                    <tr>
+                        <td>{{#str}}code_version,admin{{/str}}:</td>
+                        <td><strong>{{code_version}} ({{release}})</strong></td>
+                    </tr>
+                    <tr>
+                        <td>{{#str}}target_version,admin{{/str}}:</td>
+                        <td>{{version_diff}}</td>
+                    </tr>
+                </table>
+            </div>
+
+            {{#has_upgrades}}
+                <div class="upgrade-info-box">
+                    <h3>{{#str}}upgrade_description,admin{{/str}}</h3>
+                    <ul class="upgrade-list">
+                        {{#upgrades_to_execute}}
+                            <li>
+                                <i class="fas fa-arrow-right"></i>
+                                {{#str}}target_version,admin{{/str}} {{version}}
+                            </li>
+                        {{/upgrades_to_execute}}
                     </ul>
+                </div>
+            {{/has_upgrades}}
+
+            {{! Verificación de Requisitos }}
+            {{^requirements_ok}}
+                <div class="alert alert-danger">
+                    <h4><i class="fas fa-exclamation-triangle"></i> {{#str}}upgrade_requirements_failed,admin{{/str}}</h4>
+                    <p>{{#str}}upgrade_requirements_failed,admin{{/str}}:</p>
+                </div>
+
+                <ul class="requirements-list">
+                    {{#requirement_issues}}
+                        <li>
+                            <span>{{{.}}}</span>
+                            <span class="status error"><i class="fas fa-times-circle"></i> {{#str}}error_occurred,admin{{/str}}</span>
+                        </li>
+                    {{/requirement_issues}}
+                </ul>
+
+                <div class="alert alert-info">
+                    <p>{{#str}}upgrade_requirements_failed,admin{{/str}}.</p>
+                </div>
+            {{/requirements_ok}}
+
+            {{#requirements_ok}}
+                {{! Todo OK, permitir upgrade }}
+                <div class="alert alert-success">
+                    <h4><i class="fas fa-check-circle"></i> {{#str}}upgrade_requirements_ok,admin{{/str}}</h4>
+                    <p>{{#str}}upgrade_requirements_ok,admin{{/str}}.</p>
                 </div>
 
                 <div class="alert alert-info">
-                    <i class="fas fa-info-circle icon"></i>
-                    <strong>Importante:</strong><br>
-                    • Se recomienda hacer un backup de la base de datos antes de actualizar<br>
-                    • La actualización puede tardar unos segundos<br>
-                    • No cierre esta ventana durante el proceso<br>
-                    • Todas las cachés se purgarán automáticamente
+                    <h4><i class="fas fa-info-circle"></i> {{#str}}upgrade_warning,admin{{/str}}</h4>
+                    <ul style="margin: 10px 0 0 20px;">
+                        <li>{{#str}}upgrade_warning,admin{{/str}}</li>
+                    </ul>
                 </div>
 
-                <form method="POST">
+                <form method="POST" action="/admin/upgrade.php" id="upgrade-form">
                     <input type="hidden" name="upgrade" value="true">
                     <input type="hidden" name="sesskey" value="{{sesskey}}">
 
-                    <div class="actions">
-                        <a href="/admin" class="btn btn-secondary"><i class="fas fa-times icon"></i>{{#str}}cancel,core{{/str}}</a>
-                        <button type="submit" class="btn"><i class="fas fa-rocket icon"></i>{{#str}}upgradenow,core{{/str}}</button>
+                    <div class="upgrade-actions">
+                        <button type="submit" class="btn-upgrade">
+                            <i class="fas fa-rocket"></i> {{#str}}upgrade_button,admin{{/str}}
+                        </button>
                     </div>
                 </form>
-            {{/upgradeneeded}}
+            {{/requirements_ok}}
 
-            {{^upgradeneeded}}
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle icon"></i>
-                    <strong>{{#str}}upgradecomplete,core{{/str}}</strong><br>
-                    {{#str}}noupdaterequired,core{{/str}}
-                </div>
+        {{/needs_upgrade}}
 
-                <div class="actions">
-                    <a href="/admin" class="btn"><i class="fas fa-cogs icon"></i>{{#str}}administration,core{{/str}}</a>
-                </div>
-            {{/upgradeneeded}}
-        {{/upgradeexecuted}}
-    </div>
-</body>
-</html>
+        {{^needs_upgrade}}
+            {{! Sistema actualizado }}
+            <div class="alert alert-success">
+                <h4><i class="fas fa-check-circle"></i> {{#str}}upgrade_not_required,admin{{/str}}</h4>
+                <p>{{#str}}upgrade_not_required,admin{{/str}}.</p>
+            </div>
+
+            <div class="upgrade-info-box">
+                <h3>{{#str}}upgrade_info,admin{{/str}}</h3>
+                <table class="version-table">
+                    <tr>
+                        <td>{{#str}}current_version,admin{{/str}}:</td>
+                        <td><strong>{{code_version}} ({{release}})</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="upgrade-actions">
+                <a href="/" class="btn-primary">
+                    <i class="fas fa-home"></i> {{#str}}back_to_admin,admin{{/str}}
+                </a>
+            </div>
+        {{/needs_upgrade}}
+
+    {{/upgrade_executed}}
+</div>
