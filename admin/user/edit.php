@@ -30,7 +30,7 @@ $success = null;
 if (!$isNew) {
     $edituser = \core\user\manager::get_user($userid);
     if (!$edituser) {
-        redirect('/admin/users', get_string('usernotfound'));
+        redirect('/admin/user/', get_string('usernotfound'));
     }
 } else {
     $edituser = new stdClass();

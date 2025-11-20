@@ -181,7 +181,7 @@
 
     {{#canmanageroles}}
     <div style="margin-bottom: 20px;">
-        <a href="/admin/roles/edit?id=0" class="btn">{{#str}}createrole,core{{/str}}</a>
+        <a href="/admin/roles/edit.php?id=0" class="btn">{{#str}}createrole,core{{/str}}</a>
     </div>
     {{/canmanageroles}}
 
@@ -225,20 +225,20 @@
 
                 {{#canmanageroles}}
                 <div class="action-buttons">
-                    <a href="/admin/roles/edit?id={{id}}" class="btn btn-sm">{{#str}}edit,core{{/str}}</a>
-                    <a href="/admin/roles/define?roleid={{id}}" class="btn btn-sm">{{#str}}capabilities,core{{/str}}</a>
-                    <a href="/admin/roles/assign?roleid={{id}}" class="btn btn-sm">{{#str}}users,core{{/str}}</a>
+                    <a href="/admin/roles/edit.php?id={{id}}" class="btn btn-sm">{{#str}}edit,core{{/str}}</a>
+                    <a href="/admin/roles/define.php?roleid={{id}}" class="btn btn-sm">{{#str}}capabilities,core{{/str}}</a>
+                    <a href="/admin/roles/assign.php?roleid={{id}}" class="btn btn-sm">{{#str}}users,core{{/str}}</a>
 
                     {{#canmoveup}}
-                        <a href="/admin/roles?moveup={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-secondary">↑ {{#str}}moveup,core{{/str}}</a>
+                        <a href="/admin/roles/?moveup={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-secondary">↑ {{#str}}moveup,core{{/str}}</a>
                     {{/canmoveup}}
 
                     {{#canmovedown}}
-                        <a href="/admin/roles?movedown={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-secondary">↓ {{#str}}movedown,core{{/str}}</a>
+                        <a href="/admin/roles/?movedown={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-secondary">↓ {{#str}}movedown,core{{/str}}</a>
                     {{/canmovedown}}
 
                     {{#candelete}}
-                        <a href="/admin/roles?delete={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-danger" onclick="return confirm('{{#str}}confirmdeleterole,core{{/str}}');">{{#str}}delete,core{{/str}}</a>
+                        <a href="/admin/roles/?delete={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-danger" onclick="return confirm('{{#str}}confirmdeleterole,core{{/str}}');">{{#str}}delete,core{{/str}}</a>
                     {{/candelete}}
                 </div>
                 {{/canmanageroles}}
@@ -249,7 +249,7 @@
     {{^hasroles}}
         <div style="background: white; padding: 40px; text-align: center; border-radius: 8px;">
             <p style="font-size: 18px; color: #999;">{{#str}}noroles,core{{/str}}</p>
-            <a href="/admin/roles/edit?id=0" class="btn">{{#str}}createfirstrole,core{{/str}}</a>
+            <a href="/admin/roles/edit.php?id=0" class="btn">{{#str}}createfirstrole,core{{/str}}</a>
         </div>
     {{/hasroles}}
 

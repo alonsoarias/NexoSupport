@@ -24,7 +24,7 @@ $unsuspend    = optional_param('unsuspend', 0, PARAM_INT);
 $unlock       = optional_param('unlock', 0, PARAM_INT);
 $resendemail  = optional_param('resendemail', 0, PARAM_INT);
 
-$returnurl = '/admin/users';
+$returnurl = '/admin/user/';
 
 // Process actions
 $error = null;

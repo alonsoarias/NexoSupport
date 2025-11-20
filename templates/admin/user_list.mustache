@@ -165,11 +165,11 @@
             <input type="text" name="search" placeholder="{{#str}}searchbyname,core{{/str}}" value="{{{search}}}">
             <button type="submit" class="btn">{{#str}}search,core{{/str}}</button>
             {{#search}}
-                <a href="/admin/users" class="btn btn-secondary">{{#str}}cancel,core{{/str}}</a>
+                <a href="/admin/user/" class="btn btn-secondary">{{#str}}cancel,core{{/str}}</a>
             {{/search}}
         </form>
 
-        <a href="/admin/user/edit?id=0" class="btn">+ {{#str}}newuser,core{{/str}}</a>
+        <a href="/admin/user/edit.php?id=0" class="btn">+ {{#str}}newuser,core{{/str}}</a>
     </div>
 
     {{^hasusers}}
@@ -210,28 +210,28 @@
                         <td>{{{lastloginformatted}}}</td>
                         <td>
                             <div class="action-buttons">
-                                <a href="/admin/user/edit?id={{id}}" class="btn btn-sm">{{#str}}edit,core{{/str}}</a>
-                                <a href="/admin/roles/assign?userid={{id}}" class="btn btn-sm btn-secondary">{{#str}}roles,core{{/str}}</a>
+                                <a href="/admin/user/edit.php?id={{id}}" class="btn btn-sm">{{#str}}edit,core{{/str}}</a>
+                                <a href="/admin/roles/assign.php?userid={{id}}" class="btn btn-sm btn-secondary">{{#str}}roles,core{{/str}}</a>
 
                                 {{#canconfirm}}
-                                    <a href="/admin/user?confirmuser={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-success" onclick="return confirm('{{#str}}confirm,core{{/str}}?');">{{#str}}confirm,core{{/str}}</a>
-                                    <a href="/admin/user?resendemail={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-info">{{#str}}emailconfirmsent,core{{/str}}</a>
+                                    <a href="/admin/user/?confirmuser={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-success" onclick="return confirm('{{#str}}confirm,core{{/str}}?');">{{#str}}confirm,core{{/str}}</a>
+                                    <a href="/admin/user/?resendemail={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-info">{{#str}}emailconfirmsent,core{{/str}}</a>
                                 {{/canconfirm}}
 
                                 {{#cansuspend}}
-                                    <a href="/admin/user?suspend={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-warning" onclick="return confirm('{{#str}}confirm,core{{/str}}?');">{{#str}}suspenduser,core{{/str}}</a>
+                                    <a href="/admin/user/?suspend={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-warning" onclick="return confirm('{{#str}}confirm,core{{/str}}?');">{{#str}}suspenduser,core{{/str}}</a>
                                 {{/cansuspend}}
 
                                 {{#canunsuspend}}
-                                    <a href="/admin/user?unsuspend={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-success" onclick="return confirm('{{#str}}confirm,core{{/str}}?');">{{#str}}active,core{{/str}}</a>
+                                    <a href="/admin/user/?unsuspend={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-success" onclick="return confirm('{{#str}}confirm,core{{/str}}?');">{{#str}}active,core{{/str}}</a>
                                 {{/canunsuspend}}
 
                                 {{#canunlock}}
-                                    <a href="/admin/user?unlock={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-info">{{#str}}userunlocked,core{{/str}}</a>
+                                    <a href="/admin/user/?unlock={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-info">{{#str}}userunlocked,core{{/str}}</a>
                                 {{/canunlock}}
 
                                 {{#candelete}}
-                                    <a href="/admin/user?delete={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-danger" onclick="return confirm('{{#str}}confirmdeleteuser,core{{/str}}');">{{#str}}delete,core{{/str}}</a>
+                                    <a href="/admin/user/?delete={{id}}&sesskey={{sesskey}}" class="btn btn-sm btn-danger" onclick="return confirm('{{#str}}confirmdeleteuser,core{{/str}}');">{{#str}}delete,core{{/str}}</a>
                                 {{/candelete}}
                             </div>
                         </td>
