@@ -523,6 +523,18 @@ function confirm_sesskey(): bool {
 }
 
 /**
+ * Validate session key (alias for confirm_sesskey)
+ *
+ * Alias function for backward compatibility.
+ * Validates the session key from POST/GET parameters.
+ *
+ * @return bool True if sesskey is valid, false otherwise
+ */
+function validate_sesskey(): bool {
+    return confirm_sesskey();
+}
+
+/**
  * Get session key
  *
  * Returns the current user's session key for CSRF protection.
