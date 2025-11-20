@@ -9,12 +9,10 @@
 
 require_once(__DIR__ . '/../config.php');
 require_once(BASE_DIR . '/lib/classes/install/upgrader.php');
-require_once(BASE_DIR . '/lib/classes/output/mustache_engine.php');
 
 require_login();
 
 use core\install\upgrader;
-use core\output\mustache_engine;
 
 // Verificar que el usuario sea site administrator
 global $USER;
@@ -87,16 +85,11 @@ if ($upgrade_executed) {
     }
 }
 
-// Renderizar página
-$PAGE->set_context(\core\rbac\context::system());
-$PAGE->set_url('/admin/upgrade.php');
-$PAGE->set_title(get_string('upgrade_title', 'admin'));
-$PAGE->set_heading(get_string('upgrade_title', 'admin'));
+// Add navigation and template variables
+$context['pagetitle'] = get_string('upgrade_title', 'admin');
+$context['showadmin'] = true;
+$context['has_navigation'] = true;
+$context['navigation_html'] = get_navigation_html();
 
-echo $OUTPUT->header();
-
-// Renderizar template
-$mustache = new mustache_engine();
-echo $mustache->render('admin/upgrade', $context);
-
-echo $OUTPUT->footer();
+// Render template
+echo render_template('admin/upgrade', $context);

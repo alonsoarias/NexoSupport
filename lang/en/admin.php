@@ -178,3 +178,4 @@ $string['total_users'] = 'Total Users';
 $string['total_roles'] = 'Total Roles';
 $string['system_version'] = 'System Version';
 $string['cache_description'] = 'Manage and purge system cache';
+$string["continue"] = "Continue";
