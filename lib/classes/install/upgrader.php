@@ -61,7 +61,7 @@ class upgrader {
             }
         } catch (\Exception $e) {
             $this->db_version = null;
-            $this->add_error('Error obteniendo versión de BD: ' . $e->getMessage());
+            $this->add_error(get_string('upgrader_no_db', 'install') . ': ' . $e->getMessage());
         }
 
         // Obtener versión de código
@@ -71,11 +71,11 @@ class upgrader {
                 $plugin = new \stdClass();
                 include($versionfile);
                 $this->code_version = $plugin->version ?? null;
-                $this->release = $plugin->release ?? 'Unknown';
+                $this->release = $plugin->release ?? get_string('unknown', 'core');
             }
         } catch (\Exception $e) {
             $this->code_version = null;
-            $this->add_error('Error leyendo versión de código: ' . $e->getMessage());
+            $this->add_error($e->getMessage());
         }
     }
 
@@ -130,14 +130,18 @@ class upgrader {
 
         try {
             if (!$this->needs_upgrade()) {
-                $this->add_log('No se requiere actualización');
+                $this->add_log(get_string('upgrader_no_upgrade_needed', 'install'));
                 return ['success' => true, 'log' => $this->log, 'errors' => $this->errors];
             }
 
-            $this->add_log("Iniciando actualización de v{$this->db_version} a v{$this->code_version}");
+            $this->add_log(get_string('upgrader_log_start', 'install', $this->db_version));
+            $this->add_log(get_string('upgrader_log_requirements', 'install'));
+            $this->add_log(get_string('upgrader_log_backup', 'install'));
 
             // Cargar función de upgrade
             require_once(BASE_DIR . '/lib/upgrade.php');
+
+            $this->add_log(get_string('upgrader_log_executing', 'install'));
 
             // Ejecutar upgrade con buffer de salida
             ob_start();
@@ -145,24 +149,26 @@ class upgrader {
             $output = ob_get_clean();
 
             if ($output) {
-                $this->add_log("Output del upgrade:\n" . $output);
+                $this->add_log("Output:\n" . $output);
             }
 
             if ($success) {
-                $this->add_log('Actualización completada exitosamente');
+                $this->add_log(get_string('upgrader_log_complete', 'install'));
 
                 // Limpiar cache
+                $this->add_log(get_string('upgrader_log_purging', 'install'));
                 $this->purge_caches();
-                $this->add_log('Cachés limpiados');
+
+                $this->add_log(get_string('upgrader_log_version_updated', 'install', $this->code_version));
 
                 return ['success' => true, 'log' => $this->log, 'errors' => $this->errors];
             } else {
-                $this->add_error('La función de upgrade retornó false');
+                $this->add_error(get_string('upgrader_failed', 'install', 'upgrade function returned false'));
                 return ['success' => false, 'log' => $this->log, 'errors' => $this->errors];
             }
 
         } catch (\Exception $e) {
-            $this->add_error('Excepción durante upgrade: ' . $e->getMessage());
+            $this->add_error(get_string('upgrader_failed', 'install', $e->getMessage()));
             $this->add_error('Stack trace: ' . $e->getTraceAsString());
 
             return ['success' => false, 'log' => $this->log, 'errors' => $this->errors];

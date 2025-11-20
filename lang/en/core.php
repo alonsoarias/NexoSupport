@@ -16,6 +16,7 @@ $string['error'] = 'Error';
 $string['success'] = 'Success';
 $string['warning'] = 'Warning';
 $string['info'] = 'Information';
+$string['unknown'] = 'Unknown';
 $string['nopermissions'] = 'You do not have permission to access this page';
 $string['accessdenied'] = 'Access denied';
 $string['notfound'] = 'Not found';
