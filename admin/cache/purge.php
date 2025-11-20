@@ -66,7 +66,7 @@ $cache_status = \core\cache\cache_manager::get_status();
 
 // Prepare context for template
 $context = [
-    'user' => $USER,
+    'pagetitle' => get_string('cache_purge', 'admin'),
     'showadmin' => true,
     'success' => $success,
     'errors' => $errors,
