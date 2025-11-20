@@ -187,14 +187,29 @@ class environment_checker {
 
         try {
             $prefix = $this->dbconfig['prefix'];
+            $driver = $this->dbconfig['driver'] ?? 'mysql';
 
-            // Verificar tabla config
-            $stmt = $this->testpdo->query("SHOW TABLES LIKE '{$prefix}config'");
-            $configExists = ($stmt->rowCount() > 0);
+            // Verificar tabla config (compatible MySQL y PostgreSQL)
+            if ($driver === 'mysql') {
+                $stmt = $this->testpdo->query("SHOW TABLES LIKE '{$prefix}config'");
+                $configExists = ($stmt->rowCount() > 0);
+            } else {
+                // PostgreSQL
+                $stmt = $this->testpdo->prepare("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = ?)");
+                $stmt->execute(["{$prefix}config"]);
+                $configExists = (bool)$stmt->fetchColumn();
+            }
 
             // Verificar tabla users (tabla crítica)
-            $stmt = $this->testpdo->query("SHOW TABLES LIKE '{$prefix}users'");
-            $usersExists = ($stmt->rowCount() > 0);
+            if ($driver === 'mysql') {
+                $stmt = $this->testpdo->query("SHOW TABLES LIKE '{$prefix}users'");
+                $usersExists = ($stmt->rowCount() > 0);
+            } else {
+                // PostgreSQL
+                $stmt = $this->testpdo->prepare("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = ?)");
+                $stmt->execute(["{$prefix}users"]);
+                $usersExists = (bool)$stmt->fetchColumn();
+            }
 
             // Sistema instalado si ambas tablas existen
             $this->state['tables_exist'] = $configExists && $usersExists;

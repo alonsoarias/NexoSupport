@@ -38,9 +38,10 @@ try {
     // Verificar si ya existe una instalación
     $existingInstall = false;
     try {
-        // Intentar verificar si la tabla config ya existe con datos
-        $stmt = $pdo->query("SELECT COUNT(*) as count FROM {$dbconfig['prefix']}config");
-        $configCount = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        // SECURITY: Use prepared statement to prevent SQL injection
+        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM {$dbconfig['prefix']}config");
+        $stmt->execute();
+        $configCount = (int)$stmt->fetchColumn();
         if ($configCount > 0) {
             $existingInstall = true;
         }
