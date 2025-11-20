@@ -12,18 +12,48 @@ defined('NEXOSUPPORT_INTERNAL') || die();
 /**
  * Get an authentication plugin instance
  *
+ * Similar to Moodle's get_auth_plugin() function.
+ * Loads the authentication plugin and returns an instance.
+ *
  * @param string $auth Authentication method (e.g., 'manual', 'ldap', 'oauth2')
  * @return \core\auth\auth_plugin_base|false Authentication plugin instance or false if not found
  */
 function get_auth_plugin($auth) {
-    global $CFG;
+    // Validate plugin name
+    if (empty($auth) || !preg_match('/^[a-z][a-z0-9_]*$/', $auth)) {
+        debugging("Invalid authentication plugin name: '$auth'");
+        return false;
+    }
 
-    // Build the class name following Frankenstyle convention
+    // Check if plugin directory exists
+    $plugindir = BASE_DIR . "/auth/$auth";
+    if (!is_dir($plugindir)) {
+        debugging("Authentication plugin directory not found: $plugindir");
+        return false;
+    }
+
+    // Load the plugin class file if it exists
+    // This ensures compatibility even if autoloader fails
+    $authfile = $plugindir . '/classes/auth.php';
+    if (file_exists($authfile)) {
+        require_once($authfile);
+    }
+
+    // Build the class name following NexoSupport convention
+    // Pattern: auth_{pluginname}\auth
+    // Example: auth_manual\auth
     $classname = "auth_{$auth}\\auth";
 
     // Check if class exists
     if (!class_exists($classname)) {
-        debugging("Authentication plugin '$auth' not found (class $classname does not exist)");
+        debugging("Authentication plugin class not found: $classname");
+        return false;
+    }
+
+    // Verify that the class extends the base auth plugin class
+    $reflection = new ReflectionClass($classname);
+    if (!$reflection->isSubclassOf('core\\auth\\auth_plugin_base')) {
+        debugging("Authentication plugin '$auth' must extend \\core\\auth\\auth_plugin_base");
         return false;
     }
 
