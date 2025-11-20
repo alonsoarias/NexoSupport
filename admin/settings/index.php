@@ -94,6 +94,7 @@ $context = [
     'phpversion' => phpversion(),
     'dbtype' => $CFG->dbtype,
     'dbprefix' => $CFG->dbprefix,
+    'pagetitle' => get_string('settings', 'admin'),
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
 ];

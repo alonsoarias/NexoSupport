@@ -85,7 +85,8 @@ if ($delete && confirm_sesskey()) {
             'confirmhash' => md5($delete),
             'returnurl' => $returnurl,
             'sesskey' => sesskey(),
-            'has_navigation' => true,
+            'pagetitle' => get_string('rolemanagement', 'core'),
+    'has_navigation' => true,
             'navigation_html' => get_navigation_html(),
         ];
 
@@ -149,6 +150,7 @@ $context = [
     'roles' => $rolesformatted,
     'hasroles' => !empty($rolesformatted),
     'canmanageroles' => has_capability('nexosupport/admin:manageroles'),
+    'pagetitle' => get_string('rolemanagement', 'core'),
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
 ];

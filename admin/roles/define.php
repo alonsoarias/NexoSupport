@@ -114,6 +114,7 @@ $context = [
     'success' => $success,
     'sesskey' => sesskey(),
     'components' => $components,
+    'pagetitle' => get_string('definecapabilities', 'core'),
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
 ];

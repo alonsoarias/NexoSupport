@@ -90,7 +90,8 @@ else if ($delete && confirm_sesskey()) {
                 ],
                 'confirmhash' => md5($delete),
                 'sesskey' => sesskey(),
-                'has_navigation' => true,
+                'pagetitle' => get_string('usermanagement', 'core'),
+    'has_navigation' => true,
                 'navigation_html' => get_navigation_html(),
             ];
 
@@ -198,6 +199,7 @@ $context = [
     'hasusers' => !empty($usersformatted),
     'error' => $error ? htmlspecialchars($error) : null,
     'success' => $success ? htmlspecialchars($success) : null,
+    'pagetitle' => get_string('usermanagement', 'core'),
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
 ];

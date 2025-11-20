@@ -113,6 +113,7 @@ $context = [
     'errors' => array_map('htmlspecialchars', $errors),
     'haserrors' => !empty($errors),
     'sesskey' => sesskey(),
+    'pagetitle' => ($isNew ? get_string('newuser', 'core') : get_string('edituser', 'core')),
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
 ];

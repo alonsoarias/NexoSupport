@@ -92,7 +92,8 @@ if ($userid > 0) {
         'has_errors' => !empty($errors),
         'errors' => $errors,
         'roles' => $roles,
-        'has_navigation' => true,
+        'pagetitle' => get_string('assignroles', 'core'),
+    'has_navigation' => true,
         'navigation_html' => get_navigation_html(),
     ];
 
@@ -128,7 +129,8 @@ if ($userid > 0) {
         'has_no_users' => empty($roleusers),
         'has_users' => !empty($roleusers),
         'users' => $users,
-        'has_navigation' => true,
+        'pagetitle' => get_string('assignroles', 'core'),
+    'has_navigation' => true,
         'navigation_html' => get_navigation_html(),
     ];
 
