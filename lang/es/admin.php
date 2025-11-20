@@ -172,3 +172,9 @@ $string['operation_success'] = 'Operación completada exitosamente';
 $string['operation_failed'] = 'La operación falló';
 $string['invalid_request'] = 'Solicitud inválida';
 $string['missing_parameter'] = 'Parámetro faltante';
+
+// Dashboard statistics
+$string['total_users'] = 'Total de Usuarios';
+$string['total_roles'] = 'Total de Roles';
+$string['system_version'] = 'Versión del Sistema';
+$string['cache_description'] = 'Gestionar y purgar caché del sistema';

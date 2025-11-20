@@ -602,3 +602,4 @@ $string['dailydigesthelp'] = 'Recibir un único correo al día con todas las not
 $string['weeklydigest'] = 'Resumen semanal';
 $string['weeklydigesthelp'] = 'Recibir un único correo a la semana con todas las notificaciones acumuladas.';
 $string['preferencessaved'] = 'Preferencias guardadas exitosamente';
+$string["coming_soon"] = "Próximamente";

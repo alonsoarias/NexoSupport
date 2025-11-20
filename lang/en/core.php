@@ -590,3 +590,4 @@ $string['dailydigesthelp'] = 'Receive a single email per day with all accumulate
 $string['weeklydigest'] = 'Weekly digest';
 $string['weeklydigesthelp'] = 'Receive a single email per week with all accumulated notifications.';
 $string['preferencessaved'] = 'Preferences saved successfully';
+$string["coming_soon"] = "Coming Soon";
