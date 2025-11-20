@@ -1,114 +1,85 @@
 <?php
 /**
- * Stage: Install Database
+ * Stage: Install Database Schema - Refactorizado
  */
 
-$progress = 50;
+$progress = 66;
 
-session_start();
+// Auto-ejecutar instalación de BD
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    // Primera carga, mostrar UI e iniciar instalación automáticamente
+    ?>
+    <div class="stage-indicator">
+        <i class="fas fa-cog fa-spin icon"></i>
+        <div class="text">
+            <div class="step-number">Paso 4 de 6</div>
+            <strong>Instalando Base de Datos</strong>
+        </div>
+    </div>
 
-if (!isset($_SESSION['install_db'])) {
-    header('Location: /install?stage=database');
-    exit;
-}
+    <h1><i class="fas fa-database icon"></i>Instalación de Base de Datos</h1>
+    <h2>Creando tablas del sistema</h2>
 
-$dbconfig = $_SESSION['install_db'];
+    <div class="progress">
+        <div class="progress-bar" style="width: <?php echo $progress; ?>%"></div>
+    </div>
 
-// Conectar a base de datos
-$dsn = $dbconfig['driver'] === 'mysql'
-    ? "mysql:host={$dbconfig['host']};dbname={$dbconfig['name']};charset=utf8mb4"
-    : "pgsql:host={$dbconfig['host']};dbname={$dbconfig['name']}";
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> <strong>Instalando...</strong><br>
+        Por favor espere mientras se crean las tablas del sistema.
+    </div>
 
-try {
-    $pdo = new PDO($dsn, $dbconfig['user'], $dbconfig['pass']);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    <form id="install-form" method="POST" action="/install?stage=install_db" style="display: none;">
+        <input type="hidden" name="action" value="install_schema">
+    </form>
 
-    // Cargar clases necesarias manualmente (Composer no está disponible aún)
-    require_once(BASE_DIR . '/lib/classes/db/xmldb_table.php');
-    require_once(BASE_DIR . '/lib/classes/db/xmldb_field.php');
-    require_once(BASE_DIR . '/lib/classes/db/xmldb_key.php');
-    require_once(BASE_DIR . '/lib/classes/db/xmldb_index.php');
-    require_once(BASE_DIR . '/lib/classes/db/database.php');
-    require_once(BASE_DIR . '/lib/classes/db/ddl_manager.php');
-    require_once(BASE_DIR . '/lib/classes/db/schema_installer.php');
+    <script>
+        // Auto-submit después de 1 segundo
+        setTimeout(function() {
+            document.getElementById('install-form').submit();
+        }, 1000);
+    </script>
+    <?php
+} else {
+    // Procesando instalación
+    if (isset($action_result)) {
+        if ($action_result['success']) {
+            // Éxito - redirigir (ya se hace en index.php)
+            echo '<div class="alert alert-success">';
+            echo '<i class="fas fa-check-circle"></i> Base de datos instalada correctamente';
+            echo '</div>';
+        } else {
+            // Error
+            ?>
+            <div class="stage-indicator">
+                <i class="fas fa-exclamation-triangle icon"></i>
+                <div class="text">
+                    <div class="step-number">Paso 4 de 6</div>
+                    <strong>Error en Instalación</strong>
+                </div>
+            </div>
 
-    $DB = new \core\db\database($pdo, $dbconfig['prefix'], $dbconfig['driver']);
-    $installer = new \core\db\schema_installer($DB);
+            <h1><i class="fas fa-exclamation-triangle icon"></i>Error en Instalación</h1>
 
-    // Verificar si ya existe una instalación
-    $existingInstall = false;
-    try {
-        // SECURITY: Use prepared statement to prevent SQL injection
-        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM {$dbconfig['prefix']}config");
-        $stmt->execute();
-        $configCount = (int)$stmt->fetchColumn();
-        if ($configCount > 0) {
-            $existingInstall = true;
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i> <strong>Error:</strong><br>
+                <?php echo htmlspecialchars($action_result['error']); ?>
+            </div>
+
+            <?php if (!empty($action_result['log'])): ?>
+                <h3>Log de instalación:</h3>
+                <div class="log-output">
+                    <?php foreach ($action_result['log'] as $line): ?>
+                        <div><?php echo htmlspecialchars($line); ?></div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <div class="actions">
+                <a href="/install?stage=database" class="btn"><i class="fas fa-arrow-left icon"></i>Volver a Configuración de BD</a>
+            </div>
+            <?php
         }
-    } catch (PDOException $e) {
-        // La tabla no existe, continuar con instalación
-        $existingInstall = false;
     }
-
-    if ($existingInstall) {
-        // Ya existe una instalación, redirigir a recuperación
-        throw new Exception(
-            'Se detectó una instalación existente en la base de datos. ' .
-            'Por favor, utilice el modo de recuperación en lugar de reinstalar. ' .
-            '<a href="/install/recovery.php">Ir a Recuperación</a>'
-        );
-    }
-
-    // Instalar schema del core
-    $installer->install_from_xmlfile(BASE_DIR . '/lib/db/install.xml');
-
-    // Instalar datos iniciales
-    // Crear contexto raíz (verificar que no exista primero)
-    $existingContext = $DB->get_record('contexts', [
-        'contextlevel' => 10,
-        'instanceid' => 0
-    ]);
-
-    if (!$existingContext) {
-        $DB->insert_record('contexts', [
-            'contextlevel' => 10,
-            'instanceid' => 0,
-            'path' => '/1',
-            'depth' => 1
-        ]);
-    }
-
-    // Redirigir al siguiente stage
-    header('Location: /install?stage=admin');
-    exit;
-
-} catch (Exception $e) {
-    $error = $e->getMessage();
 }
 ?>
-
-<h1>Instalación de Base de Datos</h1>
-<h2>Creando tablas del sistema</h2>
-
-<div class="progress">
-    <div class="progress-bar" style="width: <?php echo $progress; ?>%"></div>
-</div>
-
-<?php if (isset($error)): ?>
-    <div class="alert alert-error">
-        <strong>Error:</strong> <?php echo htmlspecialchars($error); ?>
-    </div>
-    <div class="actions">
-        <a href="/install?stage=database" class="btn">Volver</a>
-    </div>
-<?php else: ?>
-    <div class="alert alert-info">
-        <strong>Instalando...</strong> Por favor espere mientras se crean las tablas.
-    </div>
-    <script>
-        // Auto-redirigir si todo fue bien
-        setTimeout(function() {
-            window.location.href = '/install?stage=admin';
-        }, 2000);
-    </script>
-<?php endif; ?>

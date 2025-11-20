@@ -1,139 +1,125 @@
 <?php
 /**
- * Stage: Finish Installation
+ * Stage: Finish Installation - Refactorizado
  */
 
 $progress = 100;
 
-session_start();
+// Auto-ejecutar finalización si aún no se ha hecho
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    ?>
+    <div class="stage-indicator">
+        <i class="fas fa-cog fa-spin icon"></i>
+        <div class="text">
+            <div class="step-number">Paso 6 de 6</div>
+            <strong>Finalizando Instalación</strong>
+        </div>
+    </div>
 
-if (!isset($_SESSION['admin_created'])) {
-    header('Location: /install?stage=admin');
-    exit;
-}
+    <h1><i class="fas fa-rocket icon"></i>Finalizando Instalación</h1>
+    <h2>Configurando sistema RBAC y completando instalación</h2>
 
-// ========================================
-// Instalar sistema RBAC (Fase 2)
-// ========================================
-$rbac_installed = false;
-$admin_role_assigned = false;
+    <div class="progress">
+        <div class="progress-bar" style="width: <?php echo $progress; ?>%"></div>
+    </div>
 
-try {
-    // Conectar a BD
-    $dbconfig = $_SESSION['install_db'];
-    $dsn = $dbconfig['driver'] === 'mysql'
-        ? "mysql:host={$dbconfig['host']};dbname={$dbconfig['name']};charset=utf8mb4"
-        : "pgsql:host={$dbconfig['host']};dbname={$dbconfig['name']}";
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> <strong>Procesando...</strong><br>
+        Instalando sistema de roles y permisos, configurando sistema...
+    </div>
 
-    $pdo = new PDO($dsn, $dbconfig['user'], $dbconfig['pass']);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    <form id="finalize-form" method="POST" action="/install?stage=finish" style="display: none;">
+        <input type="hidden" name="action" value="finalize">
+    </form>
 
-    require_once(BASE_DIR . '/lib/classes/db/database.php');
-    $GLOBALS['DB'] = new \core\db\database($pdo, $dbconfig['prefix'], $dbconfig['driver']);
+    <script>
+        // Auto-submit después de 1 segundo
+        setTimeout(function() {
+            document.getElementById('finalize-form').submit();
+        }, 1000);
+    </script>
+    <?php
+} else {
+    // Procesando finalización
+    if (isset($action_result)) {
+        if ($action_result['success']) {
+            // Éxito
+            ?>
+            <div class="stage-indicator">
+                <i class="fas fa-check-circle icon"></i>
+                <div class="text">
+                    <div class="step-number">Paso 6 de 6</div>
+                    <strong>¡Instalación Completada!</strong>
+                </div>
+            </div>
 
-    require_once(BASE_DIR . '/lib/install_rbac.php');
+            <h1><i class="fas fa-check-circle icon"></i>¡Instalación Completada!</h1>
+            <h2>NexoSupport está listo para usar</h2>
 
-    // Install RBAC system (roles, capabilities, contexts)
-    if (install_rbac_system()) {
-        $rbac_installed = true;
+            <div class="progress">
+                <div class="progress-bar" style="width: <?php echo $progress; ?>%"></div>
+            </div>
 
-        // Assign administrator role to the admin user
-        if (isset($_SESSION['admin_userid'])) {
-            $userid = $_SESSION['admin_userid'];
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i> <strong>¡Felicidades!</strong><br>
+                NexoSupport ha sido instalado exitosamente.
+            </div>
 
-            $syscontext = \core\rbac\context::system();
-            $adminrole = \core\rbac\role::get_by_shortname('administrator');
+            <?php if (!empty($action_result['log'])): ?>
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 6px; margin: 20px 0;">
+                    <h3 style="margin-top: 0;">Tareas completadas:</h3>
+                    <ul style="line-height: 1.8; margin-left: 20px;">
+                        <?php foreach ($action_result['log'] as $line): ?>
+                            <li><?php echo htmlspecialchars($line); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
 
-            if ($adminrole) {
-                \core\rbac\access::assign_role($adminrole->id, $userid, $syscontext);
-                $admin_role_assigned = true;
-            }
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> <strong>Próximos pasos:</strong><br>
+                1. Inicie sesión con su cuenta de administrador<br>
+                2. Configure el sistema desde el panel de administración<br>
+                3. Cree usuarios y asigne roles<br>
+                4. Personalice el tema y la apariencia
+            </div>
+
+            <div class="actions" style="justify-content: center;">
+                <a href="/" class="btn"><i class="fas fa-arrow-right icon"></i>Ir al Sistema</a>
+            </div>
+            <?php
+        } else {
+            // Error
+            ?>
+            <div class="stage-indicator">
+                <i class="fas fa-exclamation-triangle icon"></i>
+                <div class="text">
+                    <div class="step-number">Paso 6 de 6</div>
+                    <strong>Error en Finalización</strong>
+                </div>
+            </div>
+
+            <h1><i class="fas fa-exclamation-triangle icon"></i>Error en Finalización</h1>
+
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i> <strong>Error:</strong><br>
+                <?php echo htmlspecialchars($action_result['error']); ?>
+            </div>
+
+            <?php if (!empty($action_result['log'])): ?>
+                <h3>Log de instalación:</h3>
+                <div class="log-output">
+                    <?php foreach ($action_result['log'] as $line): ?>
+                        <div><?php echo htmlspecialchars($line); ?></div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <div class="actions">
+                <a href="/install?stage=admin" class="btn"><i class="fas fa-arrow-left icon"></i>Volver</a>
+            </div>
+            <?php
         }
     }
-} catch (Exception $e) {
-    // Log error but don't stop installation
-    error_log('RBAC installation error: ' . $e->getMessage());
 }
-
-// Guardar versión del core en config
-try {
-    require_once(BASE_DIR . '/lib/version.php');
-
-    $versionRecord = new stdClass();
-    $versionRecord->component = 'core';  // IMPORTANTE: especificar component
-    $versionRecord->name = 'version';
-    $versionRecord->value = (string)$plugin->version;
-
-    $GLOBALS['DB']->insert_record('config', $versionRecord);
-
-    debugging("Core version saved: {$plugin->version} ({$plugin->release})", DEBUG_DEVELOPER);
-} catch (Exception $e) {
-    error_log('Error saving core version: ' . $e->getMessage());
-}
-
-// Guardar site administrators en config
-// Similar a Moodle: config.siteadmins contiene IDs de usuarios super administradores
-try {
-    if (isset($_SESSION['admin_userid'])) {
-        $adminuserid = $_SESSION['admin_userid'];
-
-        $siteadminsRecord = new stdClass();
-        $siteadminsRecord->component = 'core';  // IMPORTANTE: especificar component
-        $siteadminsRecord->name = 'siteadmins';
-        $siteadminsRecord->value = (string)$adminuserid; // ID del primer admin
-
-        $GLOBALS['DB']->insert_record('config', $siteadminsRecord);
-
-        debugging("Site administrator set: userid={$adminuserid}", DEBUG_DEVELOPER);
-    }
-} catch (Exception $e) {
-    error_log('Error saving site administrators: ' . $e->getMessage());
-}
-
-// La instalación está completa cuando:
-// 1. Existe el archivo .env (creado en stage database)
-// 2. La BD tiene la tabla config con datos
-// No se requiere archivo .installed adicional (estilo Moodle)
-
-// Limpiar sesión
-session_destroy();
 ?>
-
-<h1>¡Instalación Completada!</h1>
-<h2>NexoSupport está listo para usar</h2>
-
-<div class="progress">
-    <div class="progress-bar" style="width: <?php echo $progress; ?>%"></div>
-</div>
-
-<div class="alert alert-success">
-    <strong>¡Felicidades!</strong> NexoSupport ha sido instalado exitosamente.
-</div>
-
-<div style="background: #f5f5f5; padding: 20px; border-radius: 6px; margin: 20px 0;">
-    <h3 style="margin-top: 0;">Información importante:</h3>
-    <ul style="line-height: 1.8; margin-left: 20px;">
-        <li>El sistema ha sido configurado correctamente</li>
-        <li>Se ha creado la cuenta de administrador</li>
-        <li>Las tablas de la base de datos están instaladas</li>
-        <?php if ($rbac_installed): ?>
-        <li>✅ Sistema de RBAC (Roles y Permisos) instalado correctamente</li>
-        <?php endif; ?>
-        <?php if ($admin_role_assigned): ?>
-        <li>✅ Rol de Administrador asignado correctamente</li>
-        <?php endif; ?>
-        <li>Ya puede iniciar sesión y comenzar a usar NexoSupport</li>
-    </ul>
-</div>
-
-<div class="alert alert-info">
-    <strong>Próximos pasos:</strong><br>
-    1. Inicie sesión con su cuenta de administrador<br>
-    2. Configure el sistema desde el panel de administración<br>
-    3. Cree usuarios y asigne roles<br>
-    4. Personalice el tema y la apariencia
-</div>
-
-<div class="actions">
-    <a href="/" class="btn">Ir al sistema</a>
-</div>
