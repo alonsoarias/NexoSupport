@@ -15,70 +15,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dbpass = $_POST['dbpass'] ?? '';
     $dbprefix = $_POST['dbprefix'] ?? 'nxs_';
 
-    // Intentar conectar
-    try {
-        $dsn = $dbdriver === 'mysql'
-            ? "mysql:host=$dbhost;charset=utf8mb4"
-            : "pgsql:host=$dbhost";
+    // SECURITY: Validar nombre de base de datos (solo alfanuméricos y guiones bajos)
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $dbname)) {
+        $error = 'El nombre de la base de datos solo puede contener letras, números y guiones bajos';
+    } else if (!preg_match('/^[a-zA-Z0-9_]+$/', $dbprefix)) {
+        $error = 'El prefijo solo puede contener letras, números y guiones bajos';
+    } else if (!in_array($dbdriver, ['mysql', 'pgsql'], true)) {
+        $error = 'Driver de base de datos no válido';
+    } else {
+        // Intentar conectar
+        try {
+            $dsn = $dbdriver === 'mysql'
+                ? "mysql:host=$dbhost;charset=utf8mb4"
+                : "pgsql:host=$dbhost";
 
-        $pdo = new PDO($dsn, $dbuser, $dbpass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo = new PDO($dsn, $dbuser, $dbpass);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Verificar si la BD existe, si no, crearla
-        if ($dbdriver === 'mysql') {
-            $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-            $pdo->exec("USE `$dbname`");
+            // Verificar si la BD existe, si no, crearla
+            if ($dbdriver === 'mysql') {
+                // SECURITY: Use identifier quoting para prevenir SQL injection
+                // Aunque ya validamos con regex, esto es defensa en profundidad
+                $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                $pdo->exec("USE `$dbname`");
+            }
+
+            // Guardar configuración en .env
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $app_url = $protocol . '://' . $host;
+
+            $envContent = "# NexoSupport Environment Configuration\n";
+            $envContent .= "# Generated on " . date('Y-m-d H:i:s') . "\n\n";
+            $envContent .= "# Application Settings\n";
+            $envContent .= "APP_ENV=production\n";
+            $envContent .= "APP_DEBUG=false\n";
+            $envContent .= "APP_URL=$app_url\n";
+            $envContent .= "\n";
+            $envContent .= "# Database Configuration\n";
+            $envContent .= "DB_DRIVER=$dbdriver\n";
+            $envContent .= "DB_HOST=$dbhost\n";
+            $envContent .= "DB_DATABASE=$dbname\n";
+            $envContent .= "DB_USERNAME=$dbuser\n";
+            $envContent .= "DB_PASSWORD=$dbpass\n";
+            $envContent .= "DB_PREFIX=$dbprefix\n";
+            $envContent .= "\n";
+            $envContent .= "# Installation Status\n";
+            $envContent .= "INSTALLED=false\n";
+            $envContent .= "\n";
+            $envContent .= "# Cache Settings\n";
+            $envContent .= "CACHE_DRIVER=file\n";
+            $envContent .= "\n";
+            $envContent .= "# Session Settings\n";
+            $envContent .= "SESSION_LIFETIME=120\n";
+            $envContent .= "SESSION_NAME=nexosupport_session\n";
+
+            file_put_contents(BASE_DIR . '/.env', $envContent);
+
+            // Guardar en sesión para siguiente stage
+            session_start();
+            $_SESSION['install_db'] = [
+                'driver' => $dbdriver,
+                'host' => $dbhost,
+                'name' => $dbname,
+                'user' => $dbuser,
+                'pass' => $dbpass,
+                'prefix' => $dbprefix
+            ];
+
+            // Redirigir al siguiente paso
+            header('Location: /install?stage=install_db');
+            exit;
+
+        } catch (PDOException $e) {
+            $error = 'Error de conexión: ' . $e->getMessage();
         }
-
-        // Guardar configuración en .env
-        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $app_url = $protocol . '://' . $host;
-
-        $envContent = "# NexoSupport Environment Configuration\n";
-        $envContent .= "# Generated on " . date('Y-m-d H:i:s') . "\n\n";
-        $envContent .= "# Application Settings\n";
-        $envContent .= "APP_ENV=production\n";
-        $envContent .= "APP_DEBUG=false\n";
-        $envContent .= "APP_URL=$app_url\n";
-        $envContent .= "\n";
-        $envContent .= "# Database Configuration\n";
-        $envContent .= "DB_DRIVER=$dbdriver\n";
-        $envContent .= "DB_HOST=$dbhost\n";
-        $envContent .= "DB_DATABASE=$dbname\n";
-        $envContent .= "DB_USERNAME=$dbuser\n";
-        $envContent .= "DB_PASSWORD=$dbpass\n";
-        $envContent .= "DB_PREFIX=$dbprefix\n";
-        $envContent .= "\n";
-        $envContent .= "# Installation Status\n";
-        $envContent .= "INSTALLED=false\n";
-        $envContent .= "\n";
-        $envContent .= "# Cache Settings\n";
-        $envContent .= "CACHE_DRIVER=file\n";
-        $envContent .= "\n";
-        $envContent .= "# Session Settings\n";
-        $envContent .= "SESSION_LIFETIME=120\n";
-        $envContent .= "SESSION_NAME=nexosupport_session\n";
-
-        file_put_contents(BASE_DIR . '/.env', $envContent);
-
-        // Guardar en sesión para siguiente stage
-        session_start();
-        $_SESSION['install_db'] = [
-            'driver' => $dbdriver,
-            'host' => $dbhost,
-            'name' => $dbname,
-            'user' => $dbuser,
-            'pass' => $dbpass,
-            'prefix' => $dbprefix
-        ];
-
-        // Redirigir al siguiente paso
-        header('Location: /install?stage=install_db');
-        exit;
-
-    } catch (PDOException $e) {
-        $error = 'Error de conexión: ' . $e->getMessage();
     }
 }
 
