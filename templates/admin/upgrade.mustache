@@ -203,6 +203,41 @@
             left: 0;
             color: #2e7d32;
         }
+
+        .upgrade-output {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .output-content {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .output-content p {
+            margin: 8px 0;
+        }
+
+        .output-content div {
+            margin: 15px 0;
+        }
+
+        .output-content h2, .output-content h3, .output-content h4 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .output-content ul {
+            margin: 10px 0 10px 20px;
+        }
     </style>
 </head>
 <body>
@@ -232,6 +267,17 @@
                     <strong>{{#str}}upgradecomplete,core{{/str}}!</strong><br>
                     {{#str}}systemreadyupgrade,core{{/str}}
                 </div>
+
+                {{#hasoutput}}
+                <div class="upgrade-output">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">
+                        <i class="fas fa-list-check icon"></i>Detalles de la Actualización:
+                    </h3>
+                    <div class="output-content">
+                        {{{upgradeoutput}}}
+                    </div>
+                </div>
+                {{/hasoutput}}
 
                 <div class="actions">
                     <a href="/admin" class="btn"><i class="fas fa-cogs icon"></i>{{#str}}administration,core{{/str}}</a>

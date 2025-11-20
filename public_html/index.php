@@ -23,11 +23,6 @@ define('NEXOSUPPORT_INTERNAL', true);
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Debug logging
-error_log("Front Controller: REQUEST_URI = " . ($_SERVER['REQUEST_URI'] ?? 'undefined'));
-error_log("Front Controller: Parsed URI = $uri");
-error_log("Front Controller: Method = $method");
-
 // ============================================
 // SERVICIO DE ASSETS DE THEMES
 // Los themes contienen sus propios assets
@@ -140,12 +135,6 @@ if ($DB === null) {
 // - /admin/upgrade.php (para ejecutar upgrade)
 // - /login (para autenticarse)
 // - /logout (para salir)
-
-// DEBUG: Log upgrade detection
-error_log("Upgrade Detection: needs_upgrade = " . ($envChecker->needs_upgrade() ? 'TRUE' : 'FALSE'));
-error_log("Upgrade Detection: DB version = " . ($envChecker->get_db_version() ?? 'NULL'));
-error_log("Upgrade Detection: Code version = " . ($envChecker->get_code_version() ?? 'NULL'));
-error_log("Upgrade Detection: Release = " . $envChecker->get_release());
 
 if ($envChecker->needs_upgrade()) {
     // Lista de URIs permitidas durante upgrade

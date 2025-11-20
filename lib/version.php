@@ -10,8 +10,8 @@ defined('NEXOSUPPORT_INTERNAL') || die();
 $plugin = new stdClass();
 
 // Información del core
-$plugin->version  = 2025011814;      // YYYYMMDDXX - v1.1.14: Fix automatic upgrade detection
-$plugin->release  = '1.1.14';        // Versión semántica
+$plugin->version  = 2025011815;      // YYYYMMDDXX - v1.1.15: Fix upgrade visualization + Clean public_html
+$plugin->release  = '1.1.15';        // Versión semántica
 $plugin->maturity = MATURITY_STABLE; // Nivel de madurez
 $plugin->component = 'core';         // Componente
 

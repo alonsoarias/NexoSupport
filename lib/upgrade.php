@@ -1118,6 +1118,58 @@ function core_upgrade_required(): bool {
     }
 
     // =========================================================
+    // Upgrade to v1.1.15 (2025011815) - Fix Upgrade Visualization + Clean public_html
+    // =========================================================
+    if ($oldversion < 2025011815) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🔧 Upgrading to NexoSupport v1.1.15 - Upgrade Visualization Fixes</h2>';
+
+        echo '<h3 style="color: #667eea;">✨ What\'s New in v1.1.15:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Upgrade Output Visualization:</strong> admin/upgrade.php now captures and displays upgrade process output</li>';
+        echo '<li><strong>Clean public_html:</strong> Removed extra files (.htaccess, verify_docroot.php) - only index.php remains</li>';
+        echo '<li><strong>Debug Logs Removed:</strong> Cleaned up debug logging from front controller</li>';
+        echo '<li><strong>Better User Experience:</strong> Users now see detailed progress when system upgrades</li>';
+        echo '<li><strong>Apache Configuration Documented:</strong> docs/APACHE_CONFIG.md with complete setup instructions</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔧 Technical Changes:</h3>';
+        echo '<ul>';
+        echo '<li><strong>admin/upgrade.php:</strong> Uses output buffering to capture xmldb_core_upgrade() echo statements</li>';
+        echo '<li><strong>templates/admin/upgrade.mustache:</strong> New section to display upgrade output with proper styling</li>';
+        echo '<li><strong>public_html/index.php:</strong> Removed error_log() debug statements</li>';
+        echo '<li><strong>public_html/.htaccess:</strong> Removed (configuration moved to VirtualHost)</li>';
+        echo '<li><strong>public_html/verify_docroot.php:</strong> Removed (not needed for system operation)</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">📁 Architecture Compliance:</h3>';
+        echo '<p><strong>Frankenstyle Principle:</strong> Minimal exposure in public_html/</p>';
+        echo '<ul>';
+        echo '<li>✅ <strong>public_html/index.php:</strong> ONLY file in public_html (front controller)</li>';
+        echo '<li>✅ <strong>Apache config in VirtualHost:</strong> Proper production setup</li>';
+        echo '<li>✅ <strong>Assets served through front controller:</strong> /theme/name/pix/logo.png routing</li>';
+        echo '<li>✅ <strong>Security hardened:</strong> No direct filesystem access</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🎯 User Experience Improvements:</h3>';
+        echo '<ul>';
+        echo '<li>When clicking "Upgrade Now", users see real-time output from upgrade process</li>';
+        echo '<li>All database changes, table creations, and configurations are logged visibly</li>';
+        echo '<li>No more "black box" upgrades - full transparency</li>';
+        echo '<li>Scrollable output window with clean styling</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.15 - Code improvements only</p>';
+        echo '<p style="color: blue;">🎨 Upgrade process now fully visible to administrators</p>';
+        echo '<p style="color: green;">✓ public_html/ cleaned - only index.php remains (Frankenstyle compliant)</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.15 - code improvements only
+        upgrade_core_savepoint(true, 2025011815);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 

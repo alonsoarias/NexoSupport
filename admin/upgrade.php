@@ -92,6 +92,7 @@ $upgradeNeeded = core_upgrade_required();
 $upgradeExecuted = false;
 $upgradeSuccess = false;
 $upgradeErrors = [];
+$upgradeOutput = '';
 
 if (isset($_POST['upgrade']) && $_POST['upgrade'] === 'true') {
     // Verify sesskey for security
@@ -102,13 +103,24 @@ if (isset($_POST['upgrade']) && $_POST['upgrade'] === 'true') {
         $upgradeExecuted = true;
 
         try {
+            // Capture output from upgrade process
+            ob_start();
+
             // Run core upgrade
             $upgradeSuccess = xmldb_core_upgrade($dbversion ?? 0);
+
+            // Get captured output
+            $upgradeOutput = ob_get_clean();
 
             if (!$upgradeSuccess) {
                 $upgradeErrors[] = get_string('error');
             }
         } catch (Exception $e) {
+            // Make sure to clean buffer even on exception
+            if (ob_get_level() > 0) {
+                $upgradeOutput = ob_get_clean();
+            }
+
             $upgradeErrors[] = get_string('error') . ': ' . $e->getMessage();
             $upgradeSuccess = false;
         }
@@ -131,6 +143,8 @@ $context = [
     'upgradeerrors' => array_map('htmlspecialchars', $upgradeErrors),
     'haserrors' => !empty($upgradeErrors),
     'upgradeneeded' => $upgradeNeeded,
+    'upgradeoutput' => $upgradeOutput,  // Output from upgrade process
+    'hasoutput' => !empty($upgradeOutput),  // Whether there's output to show
     'sesskey' => sesskey(),
     'has_navigation' => false,  // Upgrade page doesn't need navigation sidebar
 ];
