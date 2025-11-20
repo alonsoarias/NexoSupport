@@ -194,6 +194,25 @@ if (!headers_sent()) {
 // ============================================
 // PASO 8: Inicializar $USER
 // ============================================
+//
+// STANDARD PATTERN para acceder a $USER en todo el código:
+//
+// 1. Para obtener ID de usuario:
+//    $userid = $USER->id ?? 0;
+//
+// 2. Para verificar si está logueado:
+//    if (isset($USER->id) && $USER->id > 0) { ... }
+//
+// 3. Para acceder a propiedades que pueden no existir:
+//    $firstname = $USER->firstname ?? '';
+//    $email = $USER->email ?? '';
+//
+// 4. EVITAR:
+//    - $userid = $USER->id; // Sin null coalescing
+//    - if (!empty($USER->id)) // Usar isset() es más claro
+//    - Acceso directo sin verificación en templates
+//
+// ============================================
 
 global $USER;
 

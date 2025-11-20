@@ -14,7 +14,7 @@ require_once('../../lib/setup.php');
 
 // Require login and admin access
 require_login();
-require_admin();
+require_capability('nexosupport/admin:manageconfig');
 
 // Get current user
 global $USER, $DB, $OUTPUT, $CFG;

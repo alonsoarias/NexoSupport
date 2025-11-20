@@ -8,12 +8,20 @@
 require_once(__DIR__ . '/../../config.php');
 
 require_login();
-require_capability('nexosupport/admin:manageusers');
 
 global $USER;
 
 $userid = optional_param('id', 0, 'int');
 $isNew = $userid === 0;
+
+// Check specific capability based on action
+if ($isNew) {
+    // Creating new user
+    require_capability('nexosupport/user:create');
+} else {
+    // Updating existing user
+    require_capability('nexosupport/user:update');
+}
 
 $errors = [];
 $success = null;

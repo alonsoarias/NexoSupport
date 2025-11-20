@@ -413,3 +413,78 @@ function get_password_policy_description($authmethod = 'manual') {
 
     return $html;
 }
+
+/**
+ * Check if password meets policy requirements
+ *
+ * Validates a password against the configured password policy for the given auth type.
+ * Password policies ensure minimum security standards for user passwords.
+ *
+ * Default policy requirements:
+ * - Minimum length: 8 characters
+ * - At least one lowercase letter (a-z)
+ * - At least one uppercase letter (A-Z)
+ * - At least one digit (0-9)
+ *
+ * This function is called during user creation and password changes to ensure
+ * passwords meet security standards.
+ *
+ * @param string $password The password to check
+ * @param string $authtype Authentication type (e.g., 'manual', 'ldap', 'saml')
+ * @param string &$error Error message (output parameter) - will be set if validation fails
+ * @return bool True if password is valid, false otherwise
+ *
+ * @example
+ * $error = '';
+ * if (!check_password_policy($password, 'manual', $error)) {
+ *     echo "Password invalid: $error";
+ * }
+ */
+function check_password_policy(string $password, string $authtype, string &$error): bool {
+    global $CFG;
+
+    // Get password policy configuration for this auth type
+    $minlength = get_config('auth_' . $authtype, 'minpasswordlength');
+    if (empty($minlength)) {
+        // Default minimum length
+        $minlength = 8;
+    }
+
+    $requirelowercase = get_config('auth_' . $authtype, 'requirelowercase') ?? true;
+    $requireuppercase = get_config('auth_' . $authtype, 'requireuppercase') ?? true;
+    $requirenumbers = get_config('auth_' . $authtype, 'requirenumbers') ?? true;
+    $requirespecialchars = get_config('auth_' . $authtype, 'requirespecialchars') ?? false;
+
+    // Check minimum length
+    if (strlen($password) < $minlength) {
+        $error = get_string('passwordtooshort', 'core', $minlength);
+        return false;
+    }
+
+    // Check lowercase requirement
+    if ($requirelowercase && !preg_match('/[a-z]/', $password)) {
+        $error = get_string('passwordmusthavelower', 'core');
+        return false;
+    }
+
+    // Check uppercase requirement
+    if ($requireuppercase && !preg_match('/[A-Z]/', $password)) {
+        $error = get_string('passwordmusthaveupper', 'core');
+        return false;
+    }
+
+    // Check digit requirement
+    if ($requirenumbers && !preg_match('/\d/', $password)) {
+        $error = get_string('passwordmusthavedigit', 'core');
+        return false;
+    }
+
+    // Check special character requirement (if enabled)
+    if ($requirespecialchars && !preg_match('/[^a-zA-Z0-9]/', $password)) {
+        $error = get_string('passwordmusthavespecialchar', 'core');
+        return false;
+    }
+
+    // All checks passed
+    return true;
+}

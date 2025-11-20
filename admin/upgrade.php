@@ -13,65 +13,40 @@ require_once(__DIR__ . '/../config.php');
 require_login();
 
 // Verify user is site administrator
-global $USER;
+// CRITICAL: Only site administrators can run upgrades
+global $USER, $DB;
 
-// Check if user is logged in
-if (!isset($USER->id) || $USER->id == 0) {
-    // Usuario no está logueado, redirigir a login
-    $returnurl = urlencode($_SERVER['REQUEST_URI']);
-    redirect("/login?returnurl={$returnurl}", get_string('pleaselogin', 'core'), 3);
-    exit;
-}
-
-// Check if user is site administrator
-// SPECIAL CASE: If siteadmins is not configured yet (first upgrade), allow any logged-in user
-// to proceed with upgrade. This solves the chicken-and-egg problem where upgrade creates siteadmins.
-global $DB;
-$siteadmins_config = null;
+// SPECIAL CASE: If siteadmins is not configured yet (first upgrade after fresh install),
+// allow the first user to proceed. This solves the chicken-and-egg problem where
+// upgrade v1.1.0 creates the siteadmins config.
+$siteadmins_configured = false;
 try {
-    $sql = "SELECT * FROM {config} WHERE name = ? AND component = ? LIMIT 1";
-    $siteadmins_config = $DB->get_record_sql($sql, ['siteadmins', 'core']);
+    $siteadmins_config = $DB->get_record('config', ['name' => 'siteadmins', 'component' => 'core']);
+    $siteadmins_configured = ($siteadmins_config && !empty($siteadmins_config->value));
 } catch (\Exception $e) {
-    // Table might not exist yet, continue
+    // Config table might not exist yet during very first upgrade
+    $siteadmins_configured = false;
 }
 
-if ($siteadmins_config && !empty($siteadmins_config->value)) {
-    // siteadmins is configured, enforce it
+if ($siteadmins_configured) {
+    // Normal case: siteadmins is configured, enforce it strictly
     if (!is_siteadmin($USER->id)) {
-        print_error('nopermissions', 'core');
+        print_error('upgrademinrequired', 'core', '/', null,
+            'Only site administrators can perform system upgrades.');
     }
 } else {
-    // siteadmins not configured yet - allow if user has administrator role
+    // Fallback case: siteadmins not configured yet, allow only the first user
+    // This handles fresh installs or upgrades from very old versions
     try {
-        $syscontext = \core\rbac\context::system();
-        $adminrole = \core\rbac\role::get_by_shortname('administrator');
-
-        if ($adminrole) {
-            // Get user roles in system context
-            $userroles = \core\rbac\access::get_user_roles($USER->id, $syscontext);
-            $has_admin_role = false;
-
-            foreach ($userroles as $role) {
-                if ($role->id == $adminrole->id) {
-                    $has_admin_role = true;
-                    break;
-                }
-            }
-
-            if (!$has_admin_role) {
-                // Not administrator, check if first user
-                $firstuser = $DB->get_record_sql('SELECT * FROM {users} WHERE deleted = 0 ORDER BY id ASC LIMIT 1');
-                if (!$firstuser || $firstuser->id != $USER->id) {
-                    print_error('nopermissions', 'core');
-                }
-            }
-        }
-    } catch (\Exception $e) {
-        // If we can't check, allow the first user only
         $firstuser = $DB->get_record_sql('SELECT * FROM {users} WHERE deleted = 0 ORDER BY id ASC LIMIT 1');
         if (!$firstuser || $firstuser->id != $USER->id) {
-            print_error('nopermissions', 'core');
+            print_error('upgrademinrequired', 'core', '/', null,
+                'Only the first registered user can perform upgrades when site administrators are not configured.');
         }
+    } catch (\Exception $e) {
+        // If we can't even query users table, something is very wrong
+        // Allow to proceed so upgrade can potentially fix it
+        debugging('Cannot verify user permissions for upgrade: ' . $e->getMessage(), DEBUG_DEVELOPER);
     }
 }
 

@@ -487,7 +487,11 @@ function debugging(string $message, string $level = 'notice'): void {
 /**
  * Require sesskey (CSRF protection)
  *
+ * Throws an exception if the sesskey is invalid.
+ * Use this in forms and actions that modify data.
+ *
  * @return void
+ * @throws moodle_exception If sesskey is invalid
  */
 function require_sesskey(): void {
     $sesskey = optional_param('sesskey', null, 'raw');
@@ -498,9 +502,33 @@ function require_sesskey(): void {
 }
 
 /**
+ * Confirm session key (CSRF protection)
+ *
+ * Similar to require_sesskey() but returns boolean instead of throwing exception.
+ * Use this in optional sesskey validation scenarios (e.g., links with confirm dialogs,
+ * or when you need to handle invalid sesskey gracefully).
+ *
+ * Example usage:
+ * <code>
+ * if ($delete && confirm_sesskey()) {
+ *     // Process delete action
+ * }
+ * </code>
+ *
+ * @return bool True if sesskey is valid, false otherwise
+ */
+function confirm_sesskey(): bool {
+    $sesskey = optional_param('sesskey', '', 'raw');
+    return ($sesskey === sesskey());
+}
+
+/**
  * Get session key
  *
- * @return string
+ * Returns the current user's session key for CSRF protection.
+ * Include this in all forms and links that perform actions.
+ *
+ * @return string Session key
  */
 function sesskey(): string {
     return \core\session\manager::get_sesskey();
@@ -616,11 +644,17 @@ define('PARAM_JSON', 'json');
 
 /**
  * Constantes de madurez
+ *
+ * Define maturity levels for plugins and system components.
+ * These are also defined in public_html/index.php for early use,
+ * so we check if they're already defined to avoid redefinition warnings.
  */
-define('MATURITY_ALPHA', 50);
-define('MATURITY_BETA', 100);
-define('MATURITY_RC', 150);
-define('MATURITY_STABLE', 200);
+if (!defined('MATURITY_ALPHA')) {
+    define('MATURITY_ALPHA', 50);
+    define('MATURITY_BETA', 100);
+    define('MATURITY_RC', 150);
+    define('MATURITY_STABLE', 200);
+}
 
 /**
  * Constantes de SQL params

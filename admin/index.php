@@ -8,6 +8,7 @@
 require_once(__DIR__ . '/../config.php');
 
 require_login();
+require_capability('nexosupport/admin:viewdashboard');
 
 global $USER;
 

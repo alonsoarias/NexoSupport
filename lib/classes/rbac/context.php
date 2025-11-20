@@ -60,11 +60,39 @@ class context {
     /**
      * Get user context
      *
-     * @param int $userid
+     * @param int $userid User ID
      * @return context
      */
     public static function user(int $userid): context {
         return self::instance(CONTEXT_USER, $userid);
+    }
+
+    /**
+     * Get course context
+     *
+     * Creates or retrieves a context for a specific course/project.
+     * Course contexts are used for managing permissions at the course level,
+     * allowing different users to have different roles within different courses.
+     *
+     * @param int $courseid Course/Project ID
+     * @return context Course context instance
+     */
+    public static function course(int $courseid): context {
+        return self::instance(CONTEXT_COURSE, $courseid);
+    }
+
+    /**
+     * Get module context
+     *
+     * Creates or retrieves a context for a specific module/activity within a course.
+     * Module contexts allow fine-grained permission control at the activity level,
+     * enabling scenarios where users have access to specific activities but not others.
+     *
+     * @param int $moduleid Module/Activity ID
+     * @return context Module context instance
+     */
+    public static function module(int $moduleid): context {
+        return self::instance(CONTEXT_MODULE, $moduleid);
     }
 
     /**
