@@ -1,0 +1,219 @@
+{{!
+    Environment Information Template
+}}
+{{> core/header}}
+
+<style>
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-card {
+        background: var(--bg-primary);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .info-card h3 {
+        margin: 0 0 1rem 0;
+        color: var(--primary-color);
+        font-size: 1.125rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .info-table tr {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .info-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .info-table th,
+    .info-table td {
+        padding: 0.625rem 0.5rem;
+        text-align: left;
+    }
+
+    .info-table th {
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.8125rem;
+    }
+
+    .info-table td {
+        color: var(--text-primary);
+        font-family: monospace;
+        font-size: 0.875rem;
+    }
+
+    .badge-success {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--error);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .breadcrumb {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+</style>
+
+<div class="breadcrumb">
+    <a href="/admin">{{#str}}administration,core{{/str}}</a>
+    <span>/</span>
+    <span>{{#str}}environment,admin{{/str}}</span>
+</div>
+
+<div class="page-header">
+    <h1><i class="fas fa-server"></i> {{#str}}environment,admin{{/str}}</h1>
+</div>
+
+<div class="info-grid">
+    <div class="info-card">
+        <h3><i class="fab fa-php"></i> PHP</h3>
+        <table class="info-table">
+            <tr>
+                <th>{{#str}}version,core{{/str}}</th>
+                <td>{{environment.php_version}}</td>
+            </tr>
+            <tr>
+                <th>SAPI</th>
+                <td>{{environment.php_sapi}}</td>
+            </tr>
+            <tr>
+                <th>Memory Limit</th>
+                <td>{{environment.memory_limit}}</td>
+            </tr>
+            <tr>
+                <th>Max Execution Time</th>
+                <td>{{environment.max_execution_time}}s</td>
+            </tr>
+            <tr>
+                <th>Upload Max Filesize</th>
+                <td>{{environment.upload_max_filesize}}</td>
+            </tr>
+            <tr>
+                <th>Post Max Size</th>
+                <td>{{environment.post_max_size}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="info-card">
+        <h3><i class="fas fa-database"></i> {{#str}}database,core{{/str}}</h3>
+        <table class="info-table">
+            <tr>
+                <th>Type</th>
+                <td>{{db_info.type}}</td>
+            </tr>
+            <tr>
+                <th>Host</th>
+                <td>{{db_info.host}}</td>
+            </tr>
+            <tr>
+                <th>Database</th>
+                <td>{{db_info.name}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="info-card">
+        <h3><i class="fas fa-puzzle-piece"></i> PHP Extensions</h3>
+        <table class="info-table">
+            <tr>
+                <th>PDO</th>
+                <td>{{#extensions.pdo}}<span class="badge-success">OK</span>{{/extensions.pdo}}{{^extensions.pdo}}<span class="badge-danger">Missing</span>{{/extensions.pdo}}</td>
+            </tr>
+            <tr>
+                <th>PDO MySQL</th>
+                <td>{{#extensions.pdo_mysql}}<span class="badge-success">OK</span>{{/extensions.pdo_mysql}}{{^extensions.pdo_mysql}}<span class="badge-danger">Missing</span>{{/extensions.pdo_mysql}}</td>
+            </tr>
+            <tr>
+                <th>mbstring</th>
+                <td>{{#extensions.mbstring}}<span class="badge-success">OK</span>{{/extensions.mbstring}}{{^extensions.mbstring}}<span class="badge-danger">Missing</span>{{/extensions.mbstring}}</td>
+            </tr>
+            <tr>
+                <th>JSON</th>
+                <td>{{#extensions.json}}<span class="badge-success">OK</span>{{/extensions.json}}{{^extensions.json}}<span class="badge-danger">Missing</span>{{/extensions.json}}</td>
+            </tr>
+            <tr>
+                <th>OpenSSL</th>
+                <td>{{#extensions.openssl}}<span class="badge-success">OK</span>{{/extensions.openssl}}{{^extensions.openssl}}<span class="badge-danger">Missing</span>{{/extensions.openssl}}</td>
+            </tr>
+            <tr>
+                <th>cURL</th>
+                <td>{{#extensions.curl}}<span class="badge-success">OK</span>{{/extensions.curl}}{{^extensions.curl}}<span class="badge-danger">Missing</span>{{/extensions.curl}}</td>
+            </tr>
+            <tr>
+                <th>GD</th>
+                <td>{{#extensions.gd}}<span class="badge-success">OK</span>{{/extensions.gd}}{{^extensions.gd}}<span class="badge-danger">Missing</span>{{/extensions.gd}}</td>
+            </tr>
+            <tr>
+                <th>ZIP</th>
+                <td>{{#extensions.zip}}<span class="badge-success">OK</span>{{/extensions.zip}}{{^extensions.zip}}<span class="badge-danger">Missing</span>{{/extensions.zip}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="info-card">
+        <h3><i class="fas fa-info-circle"></i> System</h3>
+        <table class="info-table">
+            <tr>
+                <th>NexoSupport Version</th>
+                <td>{{version}}</td>
+            </tr>
+            <tr>
+                <th>Operating System</th>
+                <td>{{environment.os}}</td>
+            </tr>
+            <tr>
+                <th>Server Software</th>
+                <td>{{environment.server_software}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+{{> core/footer}}

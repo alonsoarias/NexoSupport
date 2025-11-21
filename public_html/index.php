@@ -348,6 +348,48 @@ $router->post('/admin/settings/debugging.php', function() {
     require(BASE_DIR . '/admin/settings/debugging.php');
 });
 
+// Settings - System Paths
+$router->get('/admin/settings/systempaths', function() {
+    require(BASE_DIR . '/admin/settings/systempaths.php');
+});
+$router->post('/admin/settings/systempaths', function() {
+    require(BASE_DIR . '/admin/settings/systempaths.php');
+});
+
+// Settings - Session Handling
+$router->get('/admin/settings/sessionhandling', function() {
+    require(BASE_DIR . '/admin/settings/sessionhandling.php');
+});
+$router->post('/admin/settings/sessionhandling', function() {
+    require(BASE_DIR . '/admin/settings/sessionhandling.php');
+});
+
+// Settings - HTTP
+$router->get('/admin/settings/http', function() {
+    require(BASE_DIR . '/admin/settings/http.php');
+});
+$router->post('/admin/settings/http', function() {
+    require(BASE_DIR . '/admin/settings/http.php');
+});
+
+// Settings - Maintenance Mode
+$router->get('/admin/settings/maintenancemode', function() {
+    require(BASE_DIR . '/admin/settings/maintenancemode.php');
+});
+$router->post('/admin/settings/maintenancemode', function() {
+    require(BASE_DIR . '/admin/settings/maintenancemode.php');
+});
+
+// ============================================
+// ADMIN ROUTES - ENVIRONMENT & SYSTEM INFO
+// ============================================
+$router->get('/admin/environment', function() {
+    require(BASE_DIR . '/admin/environment.php');
+});
+$router->get('/admin/phpinfo', function() {
+    require(BASE_DIR . '/admin/phpinfo.php');
+});
+
 // ============================================
 // ADMIN ROUTES - CACHE
 // ============================================

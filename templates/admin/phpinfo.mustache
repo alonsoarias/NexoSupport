@@ -1,0 +1,92 @@
+{{!
+    PHP Info Template
+}}
+{{> core/header}}
+
+<style>
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .phpinfo-container {
+        background: var(--bg-primary);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        overflow-x: auto;
+    }
+
+    /* Override phpinfo styles */
+    .phpinfo-container table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+    }
+
+    .phpinfo-container td, .phpinfo-container th {
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        text-align: left;
+        font-size: 0.875rem;
+    }
+
+    .phpinfo-container th {
+        background: var(--bg-tertiary);
+    }
+
+    .phpinfo-container h1 {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        margin: 1.5rem 0 1rem;
+    }
+
+    .phpinfo-container h2 {
+        font-size: 1.25rem;
+        color: var(--text-primary);
+        margin: 1.25rem 0 0.75rem;
+    }
+
+    .phpinfo-container .e {
+        background: var(--bg-tertiary);
+        font-weight: 600;
+    }
+
+    .phpinfo-container .v {
+        background: var(--bg-primary);
+    }
+
+    .breadcrumb {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+</style>
+
+<div class="breadcrumb">
+    <a href="/admin">{{#str}}administration,core{{/str}}</a>
+    <span>/</span>
+    <span>PHP Info</span>
+</div>
+
+<div class="page-header">
+    <h1><i class="fab fa-php"></i> PHP Info</h1>
+</div>
+
+<div class="phpinfo-container">
+    {{{phpinfo_content}}}
+</div>
+
+{{> core/footer}}

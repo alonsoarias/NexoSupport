@@ -1,0 +1,270 @@
+{{!
+    Maintenance Mode Settings Template
+}}
+{{> core/header}}
+
+<style>
+    .settings-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .settings-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .settings-card {
+        background: var(--bg-primary);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group .description {
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .toggle-switch {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-radius: 0.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .toggle-switch.active {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .toggle-switch input[type="checkbox"] {
+        width: 3rem;
+        height: 1.5rem;
+        appearance: none;
+        background: var(--border-color);
+        border-radius: 1rem;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .toggle-switch input[type="checkbox"]::before {
+        content: '';
+        position: absolute;
+        width: 1.25rem;
+        height: 1.25rem;
+        background: white;
+        border-radius: 50%;
+        top: 0.125rem;
+        left: 0.125rem;
+        transition: transform 0.2s;
+    }
+
+    .toggle-switch input[type="checkbox"]:checked {
+        background: var(--error);
+    }
+
+    .toggle-switch input[type="checkbox"]:checked::before {
+        transform: translateX(1.5rem);
+    }
+
+    .toggle-label {
+        flex: 1;
+    }
+
+    .toggle-label strong {
+        display: block;
+        color: var(--text-primary);
+    }
+
+    .toggle-label small {
+        color: var(--text-muted);
+    }
+
+    .warning-box {
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .warning-box i {
+        color: var(--warning);
+        font-size: 1.25rem;
+        margin-top: 0.125rem;
+    }
+
+    .warning-box p {
+        margin: 0;
+        color: var(--text-primary);
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+    }
+
+    .breadcrumb {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-success {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .status-active {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--error);
+    }
+
+    .status-inactive {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success);
+    }
+</style>
+
+<div class="settings-container">
+    <div class="breadcrumb">
+        <a href="/admin">{{#str}}administration,core{{/str}}</a>
+        <span>/</span>
+        <a href="/admin/settings">{{#str}}settings,core{{/str}}</a>
+        <span>/</span>
+        <span>{{#str}}maintenancemode,admin{{/str}}</span>
+    </div>
+
+    <div class="settings-header">
+        <h1><i class="fas fa-tools"></i> {{#str}}maintenancemode,admin{{/str}}</h1>
+    </div>
+
+    {{#success}}
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> {{success}}
+    </div>
+    {{/success}}
+
+    <div class="status-indicator {{#maintenance_enabled}}status-active{{/maintenance_enabled}}{{^maintenance_enabled}}status-inactive{{/maintenance_enabled}}">
+        {{#maintenance_enabled}}
+        <i class="fas fa-exclamation-triangle"></i> {{#str}}maintenancemodeactive,admin{{/str}}
+        {{/maintenance_enabled}}
+        {{^maintenance_enabled}}
+        <i class="fas fa-check-circle"></i> {{#str}}siteisactive,admin{{/str}}
+        {{/maintenance_enabled}}
+    </div>
+
+    <div class="warning-box">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>{{#str}}maintenancemodewarning,admin{{/str}}</p>
+    </div>
+
+    <form method="POST" class="settings-card">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+
+        <div class="form-group">
+            <div class="toggle-switch {{#maintenance_enabled}}active{{/maintenance_enabled}}">
+                <input type="checkbox" id="maintenance_enabled" name="maintenance_enabled" value="1"
+                       {{#maintenance_enabled}}checked{{/maintenance_enabled}}>
+                <div class="toggle-label">
+                    <strong>{{#str}}enablemaintenancemode,admin{{/str}}</strong>
+                    <small>{{#str}}maintenancemodedesc,admin{{/str}}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="maintenance_message">{{#str}}maintenancemessage,admin{{/str}}</label>
+            <p class="description">{{#str}}configmaintenancemessage,admin{{/str}}</p>
+            <textarea id="maintenance_message" name="maintenance_message" class="form-control"
+                      placeholder="{{default_message}}">{{maintenance_message}}</textarea>
+        </div>
+
+        <button type="submit" class="btn-primary">
+            <i class="fas fa-save"></i> {{#str}}savechanges,core{{/str}}
+        </button>
+    </form>
+</div>
+
+{{> core/footer}}

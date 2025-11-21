@@ -3,33 +3,23 @@
  * Debugging Settings - NexoSupport
  *
  * Configuration page for debugging and error display settings.
- * Similar to Moodle's debugging settings but adapted to NexoSupport's architecture.
  *
  * @package core
  * @subpackage admin
  */
 
-define('NEXOSUPPORT_INTERNAL', 1);
-require_once('../../lib/setup.php');
+require_once(__DIR__ . '/../../config.php');
 
-// Require login and admin access
 require_login();
 require_capability('nexosupport/admin:manageconfig');
 
-// Get current user
-global $USER, $DB, $OUTPUT, $CFG;
-
-// Page setup
-$PAGE->set_url('/admin/settings/debugging');
-$PAGE->set_title(get_string('debugging', 'core'));
-$PAGE->set_heading(get_string('debugging', 'core'));
-$PAGE->set_context(CONTEXT_SYSTEM);
+global $USER, $CFG;
 
 $success = null;
 $errors = [];
 
 // Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && validate_sesskey()) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
     $debug_level = required_param('debug', PARAM_INT);
     $debug_display = optional_param('debugdisplay', 0, PARAM_INT);
 
@@ -128,6 +118,9 @@ $context = [
     'current_debugdisplay' => (bool)$current_debugdisplay,
     'php_error_reporting' => error_reporting(),
     'php_display_errors' => ini_get('display_errors') ? 'On' : 'Off',
+    'pagetitle' => get_string('debugging', 'core'),
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
 ];
 
 // Render and output

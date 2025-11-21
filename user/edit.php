@@ -8,25 +8,19 @@
  * @subpackage user
  */
 
-require_once('../lib/setup.php');
+require_once(__DIR__ . '/../config.php');
 
 // Require login
 require_login();
 
 // Get current user
-global $USER, $DB, $OUTPUT;
-
-// Page setup
-$PAGE->set_url('/user/edit');
-$PAGE->set_title(get_string('editprofile', 'core'));
-$PAGE->set_heading(get_string('editprofile', 'core'));
-$PAGE->set_context(CONTEXT_SYSTEM);
+global $USER, $DB;
 
 $success = null;
 $errors = [];
 
 // Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && validate_sesskey()) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
     $firstname = required_param('firstname', PARAM_TEXT);
     $lastname = required_param('lastname', PARAM_TEXT);
     $email = required_param('email', PARAM_EMAIL);
@@ -60,11 +54,14 @@ $userdata = $DB->get_record('users', ['id' => $USER->id], '*', MUST_EXIST);
 
 // Prepare context for template
 $context = [
+    'pagetitle' => get_string('editprofile', 'core'),
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
     'user' => [
-        'firstname' => s($userdata->firstname),
-        'lastname' => s($userdata->lastname),
-        'username' => s($userdata->username),
-        'email' => s($userdata->email),
+        'firstname' => htmlspecialchars($userdata->firstname ?? ''),
+        'lastname' => htmlspecialchars($userdata->lastname ?? ''),
+        'username' => htmlspecialchars($userdata->username ?? ''),
+        'email' => htmlspecialchars($userdata->email ?? ''),
     ],
     'sesskey' => sesskey(),
     'success' => $success,

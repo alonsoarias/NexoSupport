@@ -8,19 +8,17 @@
  * @subpackage user
  */
 
-require_once('../../config.php');
+require_once(__DIR__ . '/../../config.php');
 
-// Require login
 require_login();
 
-// Get current user
 global $USER, $DB;
 
 $success = null;
 $errors = [];
 
 // Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && validate_sesskey()) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
     // Get preferences
     $email_notifications = optional_param('email_notifications', 0, PARAM_INT);
     $digest_type = optional_param('digest_type', 'none', PARAM_ALPHA);
