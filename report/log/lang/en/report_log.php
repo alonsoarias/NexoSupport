@@ -27,16 +27,33 @@ $string['gettheselogs'] = 'Get these logs';
 $string['downloadcsv'] = 'Download as CSV';
 
 // Table columns.
+$string['time'] = 'Time';
+$string['fullnameuser'] = 'Full name';
+$string['relateduser'] = 'Affected user';
+$string['eventcontext'] = 'Event context';
 $string['eventname'] = 'Event name';
+$string['description'] = 'Description';
 $string['component'] = 'Component';
+$string['action'] = 'Action';
 $string['origin'] = 'Origin';
 $string['ip_address'] = 'IP address';
+
+// Edu levels.
+$string['edulevel'] = 'Educational level';
+$string['other'] = 'Other';
+$string['participating'] = 'Participating';
+$string['teaching'] = 'Teaching';
 
 // Origins.
 $string['originweb'] = 'Web';
 $string['origincli'] = 'CLI';
 $string['originws'] = 'Web service';
 $string['originrestore'] = 'Restore';
+
+// Aggregations.
+$string['logsbyuser'] = 'Logs by user';
+$string['logsbyday'] = 'Logs by day';
+$string['logsbyaction'] = 'Logs by action';
 
 // Messages.
 $string['nologsfound'] = 'No logs found matching the selected criteria.';
