@@ -191,6 +191,14 @@ use core\routing\router;
 $router = new router();
 
 // ============================================
+// STATIC FILES
+// ============================================
+$router->get('/favicon.ico', function() {
+    // Return empty response for missing favicon
+    http_response_code(204);
+});
+
+// ============================================
 // RUTAS PRINCIPALES
 // ============================================
 $router->get('/', function() {
@@ -390,6 +398,49 @@ $router->post('/admin/settings/maintenancemode', function() {
     require(BASE_DIR . '/admin/settings/maintenancemode.php');
 });
 
+// Settings - Plugins
+$router->get('/admin/settings/plugins', function() {
+    require(BASE_DIR . '/admin/settings/plugins.php');
+});
+$router->post('/admin/settings/plugins', function() {
+    require(BASE_DIR . '/admin/settings/plugins.php');
+});
+$router->get('/admin/plugins', function() {
+    require(BASE_DIR . '/admin/settings/plugins.php');
+});
+
+// Settings - Security
+$router->get('/admin/settings/security', function() {
+    require(BASE_DIR . '/admin/settings/security.php');
+});
+$router->post('/admin/settings/security', function() {
+    require(BASE_DIR . '/admin/settings/security.php');
+});
+
+// Settings - Server
+$router->get('/admin/settings/server', function() {
+    require(BASE_DIR . '/admin/settings/server.php');
+});
+$router->post('/admin/settings/server', function() {
+    require(BASE_DIR . '/admin/settings/server.php');
+});
+
+// Settings - Development
+$router->get('/admin/settings/development', function() {
+    require(BASE_DIR . '/admin/settings/development.php');
+});
+$router->post('/admin/settings/development', function() {
+    require(BASE_DIR . '/admin/settings/development.php');
+});
+
+// Settings - General
+$router->get('/admin/settings/general', function() {
+    require(BASE_DIR . '/admin/settings/general.php');
+});
+$router->post('/admin/settings/general', function() {
+    require(BASE_DIR . '/admin/settings/general.php');
+});
+
 // ============================================
 // ADMIN ROUTES - ENVIRONMENT & SYSTEM INFO
 // ============================================
@@ -414,6 +465,59 @@ $router->get('/admin/cache/purge.php', function() {
 });
 $router->post('/admin/cache/purge.php', function() {
     require(BASE_DIR . '/admin/cache/purge.php');
+});
+
+// ============================================
+// REPORT ROUTES
+// ============================================
+$router->get('/report/log', function() {
+    require(BASE_DIR . '/report/log/index.php');
+});
+$router->get('/report/log/index.php', function() {
+    require(BASE_DIR . '/report/log/index.php');
+});
+$router->get('/report/loglive', function() {
+    require(BASE_DIR . '/report/loglive/index.php');
+});
+$router->get('/report/loglive/index.php', function() {
+    require(BASE_DIR . '/report/loglive/index.php');
+});
+$router->get('/report/loglive/loglive_ajax.php', function() {
+    require(BASE_DIR . '/report/loglive/loglive_ajax.php');
+});
+$router->get('/report/security', function() {
+    require(BASE_DIR . '/report/security/index.php');
+});
+$router->get('/report/security/index.php', function() {
+    require(BASE_DIR . '/report/security/index.php');
+});
+$router->get('/report/performance', function() {
+    require(BASE_DIR . '/report/performance/index.php');
+});
+$router->get('/report/performance/index.php', function() {
+    require(BASE_DIR . '/report/performance/index.php');
+});
+
+// ============================================
+// MFA ROUTES
+// ============================================
+$router->get('/admin/tool/mfa', function() {
+    require(BASE_DIR . '/admin/tool/mfa/settings.php');
+});
+$router->post('/admin/tool/mfa', function() {
+    require(BASE_DIR . '/admin/tool/mfa/settings.php');
+});
+$router->get('/admin/tool/mfa/auth', function() {
+    require(BASE_DIR . '/admin/tool/mfa/auth.php');
+});
+$router->post('/admin/tool/mfa/auth', function() {
+    require(BASE_DIR . '/admin/tool/mfa/auth.php');
+});
+$router->get('/admin/tool/mfa/auth.php', function() {
+    require(BASE_DIR . '/admin/tool/mfa/auth.php');
+});
+$router->post('/admin/tool/mfa/auth.php', function() {
+    require(BASE_DIR . '/admin/tool/mfa/auth.php');
 });
 
 // ============================================
