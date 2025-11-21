@@ -5,7 +5,7 @@
  * @package    core
  * @subpackage auth
  * @copyright  NexoSupport
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Proprietary - NexoSupport
  */
 
 require_once(__DIR__ . '/../config.php');

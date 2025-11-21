@@ -11,7 +11,7 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  *
  * @package    core\plugin
  * @copyright  NexoSupport
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Proprietary - NexoSupport
  */
 class plugin_manager {
 

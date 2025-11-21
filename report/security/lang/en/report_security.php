@@ -4,10 +4,10 @@
  *
  * @package    report_security
  * @copyright  2025 NexoSupport
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Proprietary - NexoSupport
  */
 
-defined('INTERNAL_ACCESS') || die();
+defined('NEXOSUPPORT_INTERNAL') || die();
 
 $string['pluginname'] = 'Security overview';
 $string['security:view'] = 'View security report';

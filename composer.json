@@ -14,7 +14,14 @@
     "psr-4": {
       "core\\": "lib/classes/",
       "auth_manual\\": "auth/manual/classes/",
-      "theme_core\\": "theme/core/classes/"
+      "theme_core\\": "theme/core/classes/",
+      "theme_boost\\": "theme/boost/classes/",
+      "tool_mfa\\": "admin/tool/mfa/classes/",
+      "factor_email\\": "admin/tool/mfa/factor/email/classes/",
+      "report_log\\": "report/log/classes/",
+      "report_loglive\\": "report/loglive/classes/",
+      "report_security\\": "report/security/classes/",
+      "report_performance\\": "report/performance/classes/"
     },
     "files": [
       "lib/functions.php"

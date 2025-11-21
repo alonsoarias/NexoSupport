@@ -4,12 +4,12 @@
  *
  * @package    report_loglive
  * @copyright  2025 NexoSupport
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Proprietary - NexoSupport
  */
 
 namespace report_loglive;
 
-defined('INTERNAL_ACCESS') || die();
+defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
  * Table for displaying live log entries.

@@ -1067,6 +1067,49 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.22 (2025011822) - Code Organization & Frankenstyle Compliance
+    // =========================================================
+    if ($oldversion < 2025011822) {
+        echo '<div style="background: #e3f2fd; border-left: 4px solid #1976d2; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #1976d2; margin-top: 0;">🔧 Upgrading to NexoSupport v1.1.22 - Code Organization</h2>';
+
+        echo '<h3 style="color: #1976d2;">✨ What\'s New in v1.1.22:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Frankenstyle Compliance:</strong> All code adapted for NexoSupport (was copied from Moodle)</li>';
+        echo '<li><strong>Constant Standardization:</strong> All INTERNAL_ACCESS changed to NEXOSUPPORT_INTERNAL</li>';
+        echo '<li><strong>License Updates:</strong> GPL licenses changed to Proprietary - NexoSupport</li>';
+        echo '<li><strong>Composer Autoloading:</strong> All plugins added to PSR-4 autoloading</li>';
+        echo '<li><strong>Code Consistency:</strong> Uniform coding standards across all files</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #1976d2;">📦 Files Updated:</h3>';
+        echo '<ul>';
+        echo '<li><strong>58 files:</strong> Changed INTERNAL_ACCESS to NEXOSUPPORT_INTERNAL</li>';
+        echo '<li><strong>100+ files:</strong> Updated license headers to Proprietary</li>';
+        echo '<li><strong>composer.json:</strong> Added autoloading for tool_mfa, factor_email, theme_boost, all report plugins</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #1976d2;">🔧 Plugins with Autoloading Added:</h3>';
+        echo '<ul>';
+        echo '<li>theme_boost\\ → theme/boost/classes/</li>';
+        echo '<li>tool_mfa\\ → admin/tool/mfa/classes/</li>';
+        echo '<li>factor_email\\ → admin/tool/mfa/factor/email/classes/</li>';
+        echo '<li>report_log\\ → report/log/classes/</li>';
+        echo '<li>report_loglive\\ → report/loglive/classes/</li>';
+        echo '<li>report_security\\ → report/security/classes/</li>';
+        echo '<li>report_performance\\ → report/performance/classes/</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.22 - Code organization only</p>';
+        echo '<p style="color: blue;">📝 Run: composer dump-autoload to regenerate autoloader</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.22 - code organization only
+        upgrade_core_savepoint(true, 2025011822);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 

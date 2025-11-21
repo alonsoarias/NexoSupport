@@ -4,14 +4,14 @@
  *
  * @package    report_loglive
  * @copyright  2025 NexoSupport
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Proprietary - NexoSupport
  */
 
 namespace report_loglive\privacy;
 
 use core_privacy\local\metadata\null_provider;
 
-defined('INTERNAL_ACCESS') || die();
+defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
  * Privacy provider - this plugin does not store user data.

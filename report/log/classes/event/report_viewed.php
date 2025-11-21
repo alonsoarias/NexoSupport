@@ -4,14 +4,14 @@
  *
  * @package    report_log
  * @copyright  2025 NexoSupport
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Proprietary - NexoSupport
  */
 
 namespace report_log\event;
 
 use core\event\base;
 
-defined('INTERNAL_ACCESS') || die();
+defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
  * Event for viewing the log report.

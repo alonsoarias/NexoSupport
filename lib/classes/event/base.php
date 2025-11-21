@@ -8,7 +8,7 @@
  * @package    core
  * @subpackage event
  * @copyright  NexoSupport
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Proprietary - NexoSupport
  */
 
 namespace core\event;
@@ -21,7 +21,7 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  * @package    core
  * @since      NexoSupport 1.1.6
  * @copyright  NexoSupport
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Proprietary - NexoSupport
  */
 abstract class base {
 

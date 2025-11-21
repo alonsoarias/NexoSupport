@@ -5,7 +5,7 @@
  * @package    core
  * @subpackage check
  * @copyright  2025 NexoSupport
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Proprietary - NexoSupport
  */
 
 namespace core\check\access;
@@ -13,7 +13,7 @@ namespace core\check\access;
 use core\check\check;
 use core\check\result;
 
-defined('INTERNAL_ACCESS') || die();
+defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
  * Checks the default role assigned to new users.

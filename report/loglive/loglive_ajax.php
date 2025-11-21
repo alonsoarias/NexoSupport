@@ -6,7 +6,7 @@
  *
  * @package    report_loglive
  * @copyright  2025 NexoSupport
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Proprietary - NexoSupport
  */
 
 define('AJAX_SCRIPT', true);

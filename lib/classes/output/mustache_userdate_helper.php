@@ -27,7 +27,7 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  *
  * @package    core\output
  * @copyright  NexoSupport
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Proprietary - NexoSupport
  */
 class mustache_userdate_helper {
 
