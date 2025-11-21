@@ -109,7 +109,7 @@ class dbschema extends check {
      */
     public function get_action_link(): ?\action_link {
         return new \action_link(
-            new \nexo_url('/admin/upgrade.php'),
+            new \core\nexo_url('/admin/upgrade.php'),
             'Run upgrade'
         );
     }

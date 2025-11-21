@@ -22,8 +22,8 @@ class table {
     /** @var string The type of checks to display */
     protected string $type;
 
-    /** @var \nexo_url The base URL for the page */
-    protected \nexo_url $url;
+    /** @var \core\nexo_url The base URL for the page */
+    protected \core\nexo_url $url;
 
     /** @var string|null The ID of a specific check to show in detail */
     protected ?string $detail;
@@ -35,10 +35,10 @@ class table {
      * Create a new check table.
      *
      * @param string $type The type of checks (security, performance, status)
-     * @param \nexo_url $url The page URL
+     * @param \core\nexo_url $url The page URL
      * @param string $detail Optional check ID for detail view
      */
-    public function __construct(string $type, \nexo_url $url, string $detail = '') {
+    public function __construct(string $type, \core\nexo_url $url, string $detail = '') {
         $this->type = $type;
         $this->url = $url;
         $this->detail = $detail ?: null;
@@ -48,10 +48,10 @@ class table {
     /**
      * Render the table as HTML.
      *
-     * @param \renderer_base $output The renderer
+     * @param object $output The output renderer (NexoOutput or renderer_base)
      * @return string The HTML output
      */
-    public function render(\renderer_base $output): string {
+    public function render(object $output): string {
         $html = '';
 
         // Show summary counts
@@ -200,7 +200,7 @@ class table {
         $html .= '<td>';
         $html .= htmlspecialchars($result->get_summary());
         if ($result->get_details()) {
-            $detailUrl = new \nexo_url($this->url, ['detail' => $check->get_id()]);
+            $detailUrl = new \core\nexo_url($this->url, ['detail' => $check->get_id()]);
             $html .= ' <a href="' . $detailUrl->out() . '" class="text-muted">[details]</a>';
         }
         $html .= '</td>';

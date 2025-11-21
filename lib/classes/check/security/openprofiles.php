@@ -71,7 +71,7 @@ class openprofiles extends check {
      */
     public function get_action_link(): ?\action_link {
         return new \action_link(
-            new \nexo_url('/admin/settings.php', ['section' => 'security']),
+            new \core\nexo_url('/admin/settings.php', ['section' => 'security']),
             'Security settings'
         );
     }

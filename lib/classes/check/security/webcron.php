@@ -72,7 +72,7 @@ class webcron extends check {
      */
     public function get_action_link(): ?\action_link {
         return new \action_link(
-            new \nexo_url('/admin/settings.php', ['section' => 'server']),
+            new \core\nexo_url('/admin/settings.php', ['section' => 'server']),
             'Server settings'
         );
     }

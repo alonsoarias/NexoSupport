@@ -83,7 +83,7 @@ class https extends check {
      */
     public function get_action_link(): ?\action_link {
         return new \action_link(
-            new \nexo_url('/admin/settings.php', ['section' => 'http']),
+            new \core\nexo_url('/admin/settings.php', ['section' => 'http']),
             'HTTP settings'
         );
     }
