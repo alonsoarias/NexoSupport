@@ -79,6 +79,10 @@ if (file_exists(BASE_DIR . '/vendor/autoload.php')) {
 require_once(__DIR__ . '/functions.php');
 require_once(__DIR__ . '/authlib.php');
 require_once(__DIR__ . '/userlib.php');
+
+// Load RBAC context classes (contains multiple classes in one file)
+require_once(__DIR__ . '/classes/rbac/context.php');
+
 require_once(__DIR__ . '/adminlib.php');
 
 // Load MFA plugin library if available
