@@ -233,6 +233,12 @@ function require_login(): void {
         redirect('/login?error=suspended');
         exit;
     }
+
+    // Hook for MFA (Multi-Factor Authentication)
+    // This must be called after basic auth checks but before page access
+    if (function_exists('tool_mfa_after_require_login')) {
+        tool_mfa_after_require_login();
+    }
 }
 
 /**

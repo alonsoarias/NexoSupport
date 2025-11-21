@@ -71,6 +71,12 @@ require_once(__DIR__ . '/authlib.php');
 require_once(__DIR__ . '/userlib.php');
 require_once(__DIR__ . '/adminlib.php');
 
+// Load MFA plugin library if available
+$mfa_lib = BASE_DIR . '/admin/tool/mfa/lib.php';
+if (file_exists($mfa_lib)) {
+    require_once($mfa_lib);
+}
+
 // ============================================
 // PASO 5: Inicializar objeto $CFG
 // ============================================
