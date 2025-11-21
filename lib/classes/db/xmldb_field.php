@@ -10,6 +10,15 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  */
 class xmldb_field {
 
+    /** Field type constants (Moodle-compatible) */
+    const TYPE_INT = 'int';
+    const TYPE_NUMBER = 'number';
+    const TYPE_FLOAT = 'float';
+    const TYPE_CHAR = 'char';
+    const TYPE_TEXT = 'text';
+    const TYPE_BINARY = 'binary';
+    const TYPE_DATETIME = 'datetime';
+
     /** @var string Nombre del campo */
     private string $name;
 
