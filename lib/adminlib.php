@@ -241,43 +241,6 @@ function admin_apply_default_settings(): void {
     $apply_defaults($root);
 }
 
-/**
- * Get enabled authentication plugins
- *
- * Helper function for plugin settings loading.
- *
- * @return array List of enabled auth plugin names
- */
-function get_enabled_auth_plugins(): array {
-    global $CFG;
-
-    $plugins = [];
-
-    // Check if auth directory exists
-    $authdir = BASE_DIR . '/auth';
-    if (!is_dir($authdir)) {
-        return $plugins;
-    }
-
-    // Get enabled auth plugins from config
-    $enabledplugins = get_config('core', 'auth') ?? 'manual';
-    $enabledlist = explode(',', $enabledplugins);
-
-    // Scan auth directory
-    $dirs = scandir($authdir);
-    foreach ($dirs as $dir) {
-        if ($dir === '.' || $dir === '..') {
-            continue;
-        }
-
-        $plugindir = $authdir . '/' . $dir;
-        if (is_dir($plugindir) && in_array($dir, $enabledlist)) {
-            $plugins[] = $dir;
-        }
-    }
-
-    return $plugins;
-}
 
 /**
  * Get available languages
