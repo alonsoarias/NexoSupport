@@ -415,3 +415,367 @@ function upgrade_print_footer($success = true) {
         echo '</div>';
     }
 }
+
+// ============================================
+// PLUGIN UPGRADE FUNCTIONS
+// Similar to Moodle's plugin upgrade system
+// ============================================
+
+/**
+ * Upgrade the core of NexoSupport
+ *
+ * Similar to Moodle's upgrade_core() function.
+ *
+ * @param float $version Target version
+ * @param bool $verbose Display progress
+ * @return bool Success
+ */
+function upgrade_core($version, $verbose = true) {
+    global $CFG, $DB;
+
+    // Raise memory limit
+    if (function_exists('raise_memory_limit')) {
+        raise_memory_limit(MEMORY_EXTRA);
+    }
+
+    require_once($CFG->dirroot . '/lib/db/upgrade.php');
+
+    try {
+        // 1. Purge caches
+        if ($verbose) {
+            upgrade_progress('Purging caches...', 5);
+        }
+        purge_all_caches();
+
+        // 2. Get current version
+        $oldversion = upgrade_get_current_version();
+
+        // 3. Run pre-upgrade script if exists
+        $preupgradefile = $CFG->dirroot . '/local/preupgrade.php';
+        if (file_exists($preupgradefile)) {
+            if ($verbose) {
+                upgrade_progress('Running pre-upgrade scripts...', 10);
+            }
+            require($preupgradefile);
+        }
+
+        // 4. Execute core upgrade
+        if ($verbose) {
+            upgrade_progress('Upgrading core...', 20);
+        }
+        $result = xmldb_core_upgrade($oldversion);
+
+        // 5. Save new version
+        if ($version > $CFG->version) {
+            upgrade_main_savepoint($result, $version);
+        }
+
+        // 6. Update component
+        upgrade_component_updated('moodle');
+
+        // 7. Purge caches again
+        if ($verbose) {
+            upgrade_progress('Purging caches...', 90);
+        }
+        purge_all_caches();
+
+        if ($verbose) {
+            upgrade_progress('Core upgrade complete!', 100);
+        }
+
+        return true;
+
+    } catch (Exception $ex) {
+        upgrade_handle_exception($ex);
+        return false;
+    }
+}
+
+/**
+ * Upgrade all non-core components (plugins)
+ *
+ * Similar to Moodle's upgrade_noncore() function.
+ *
+ * @param bool $verbose Display progress
+ * @return bool Success
+ */
+function upgrade_noncore($verbose = true) {
+    global $CFG;
+
+    $pluginman = \core\plugin\plugin_manager::instance();
+    $types = $pluginman->get_plugin_types();
+
+    $startcallback = function($component, $install, $verbose) {
+        if ($verbose) {
+            $action = $install ? 'Installing' : 'Upgrading';
+            upgrade_progress("{$action} {$component}...");
+        }
+    };
+
+    $endcallback = function($component, $install, $verbose) {
+        if ($verbose) {
+            debugging("{$component} updated successfully", DEBUG_DEVELOPER);
+        }
+    };
+
+    try {
+        foreach ($types as $type => $typedir) {
+            if ($verbose) {
+                upgrade_progress("Processing {$type} plugins...");
+            }
+            upgrade_plugins($type, $startcallback, $endcallback, $verbose);
+        }
+
+        // Update cache definitions
+        if (class_exists('\core\cache\helper')) {
+            \core\cache\helper::update_definitions(true);
+        }
+
+        return true;
+
+    } catch (Exception $ex) {
+        upgrade_handle_exception($ex);
+        return false;
+    }
+}
+
+/**
+ * Upgrade plugins of a specific type
+ *
+ * Similar to Moodle's upgrade_plugins() function.
+ *
+ * @param string $type Plugin type
+ * @param callable $startcallback Callback at start of each plugin
+ * @param callable $endcallback Callback at end of each plugin
+ * @param bool $verbose Display progress
+ * @return void
+ */
+function upgrade_plugins($type, $startcallback, $endcallback, $verbose) {
+    global $CFG, $DB;
+
+    $pluginman = \core\plugin\plugin_manager::instance();
+    $plugins = $pluginman->get_plugin_list($type);
+
+    foreach ($plugins as $name => $dir) {
+        $component = "{$type}_{$name}";
+        $status = $pluginman->get_plugin_status($type, $name);
+
+        if ($status === \core\plugin\plugin_manager::STATUS_UPTODATE) {
+            continue;
+        }
+
+        $installedversion = $pluginman->get_installed_version($type, $name);
+        $install = ($status === \core\plugin\plugin_manager::STATUS_NEW);
+
+        // Start callback
+        if ($startcallback) {
+            $startcallback($component, $install, $verbose);
+        }
+
+        // Process plugin
+        if ($install) {
+            $result = $pluginman->install_plugin($type, $name);
+        } else {
+            $result = $pluginman->upgrade_plugin($type, $name);
+        }
+
+        if (!$result) {
+            throw new \upgrade_exception("Failed to " . ($install ? "install" : "upgrade") . " {$component}");
+        }
+
+        // End callback
+        if ($endcallback) {
+            $endcallback($component, $install, $verbose);
+        }
+    }
+}
+
+/**
+ * Save main upgrade savepoint
+ *
+ * Similar to Moodle's upgrade_main_savepoint()
+ *
+ * @param bool $result Success status
+ * @param float $version New version
+ * @param bool $allowabort Allow abort (ignored for now)
+ * @return void
+ */
+function upgrade_main_savepoint($result, $version, $allowabort = true) {
+    global $CFG;
+
+    if (!$result) {
+        throw new \upgrade_exception("Upgrade failed at savepoint {$version}");
+    }
+
+    // Save version
+    set_config('version', $version);
+
+    // Update CFG
+    $CFG->version = $version;
+
+    debugging("Main savepoint: {$version}", DEBUG_DEVELOPER);
+}
+
+/**
+ * Save plugin upgrade savepoint
+ *
+ * Similar to Moodle's upgrade_plugin_savepoint()
+ *
+ * @param bool $result Success status
+ * @param float $version New version
+ * @param string $type Plugin type
+ * @param string $plugin Plugin name
+ * @param bool $allowabort Allow abort
+ * @return void
+ */
+function upgrade_plugin_savepoint($result, $version, $type, $plugin, $allowabort = true) {
+    if (!$result) {
+        throw new \upgrade_exception("Plugin upgrade failed at savepoint: {$type}_{$plugin} v{$version}");
+    }
+
+    // Save version to config
+    set_config('version', $version, "{$type}_{$plugin}");
+
+    debugging("Plugin savepoint: {$type}_{$plugin} v{$version}", DEBUG_DEVELOPER);
+}
+
+/**
+ * Save module upgrade savepoint (shorthand for mod_ plugins)
+ *
+ * @param bool $result Success
+ * @param float $version Version
+ * @param string $modname Module name
+ * @param bool $allowabort Allow abort
+ */
+function upgrade_mod_savepoint($result, $version, $modname, $allowabort = true) {
+    upgrade_plugin_savepoint($result, $version, 'mod', $modname, $allowabort);
+}
+
+/**
+ * Save block upgrade savepoint (shorthand for block_ plugins)
+ *
+ * @param bool $result Success
+ * @param float $version Version
+ * @param string $blockname Block name
+ * @param bool $allowabort Allow abort
+ */
+function upgrade_block_savepoint($result, $version, $blockname, $allowabort = true) {
+    upgrade_plugin_savepoint($result, $version, 'block', $blockname, $allowabort);
+}
+
+/**
+ * Save auth upgrade savepoint (shorthand for auth_ plugins)
+ *
+ * @param bool $result Success
+ * @param float $version Version
+ * @param string $authname Auth plugin name
+ * @param bool $allowabort Allow abort
+ */
+function upgrade_auth_savepoint($result, $version, $authname, $allowabort = true) {
+    upgrade_plugin_savepoint($result, $version, 'auth', $authname, $allowabort);
+}
+
+/**
+ * Mark a component as updated
+ *
+ * @param string $component Component name
+ * @return void
+ */
+function upgrade_component_updated($component) {
+    // This can be used to trigger cache invalidation or other post-upgrade actions
+    debugging("Component updated: {$component}", DEBUG_DEVELOPER);
+
+    // Trigger event if event system is available
+    if (class_exists('\core\event\component_updated')) {
+        try {
+            $event = \core\event\component_updated::create([
+                'context' => \core\rbac\context::system(),
+                'other' => ['component' => $component]
+            ]);
+            $event->trigger();
+        } catch (Exception $e) {
+            // Event system might not be fully available during upgrade
+        }
+    }
+}
+
+/**
+ * Check if major upgrade is required
+ *
+ * @return bool True if major upgrade needed
+ */
+function is_major_upgrade_required() {
+    $current = upgrade_get_current_version();
+    $target = upgrade_get_target_version();
+
+    if ($current === false || $target === false) {
+        return false;
+    }
+
+    // Major upgrade if major version changes (first 6 digits: YYYYMM)
+    $currentmajor = floor($current / 10000);
+    $targetmajor = floor($target / 10000);
+
+    return $targetmajor > $currentmajor;
+}
+
+/**
+ * Redirect if major upgrade is required
+ *
+ * @return void
+ */
+function redirect_if_major_upgrade_required() {
+    global $CFG;
+
+    if (is_major_upgrade_required()) {
+        redirect($CFG->wwwroot . '/admin/upgrade.php');
+    }
+}
+
+/**
+ * Check if upgrade is running
+ *
+ * @return bool True if upgrade is in progress
+ */
+function upgrade_is_running() {
+    global $CFG;
+
+    $running = get_config('core', 'upgraderunning');
+    if (empty($running)) {
+        return false;
+    }
+
+    // Check if the expected end time has passed
+    if (time() > $running) {
+        // Upgrade seems to have stalled, clear the flag
+        unset_config('upgraderunning');
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Mark upgrade as started
+ *
+ * @param int $duration Expected duration in seconds
+ * @return void
+ */
+function upgrade_started($duration = 300) {
+    set_config('upgraderunning', time() + $duration);
+}
+
+/**
+ * Mark upgrade as finished
+ *
+ * @return void
+ */
+function upgrade_finished() {
+    unset_config('upgraderunning');
+}
+
+/**
+ * Upgrade exception class
+ */
+class upgrade_exception extends \Exception {
+}

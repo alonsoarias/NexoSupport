@@ -1003,6 +1003,70 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // Upgrade to v1.1.17 (2025011817) - Moodle-style Install/Upgrade System
+    // =========================================================
+    if ($oldversion < 2025011817) {
+
+        $dbman = $DB->get_manager();
+
+        // Create config_plugins table for plugin versioning
+        if (!$dbman->table_exists('config_plugins')) {
+            $table = new \core\db\xmldb_table('config_plugins');
+            $table->add_field('id', \core\db\xmldb_field::TYPE_INT, 10, true, true);
+            $table->add_field('plugin', \core\db\xmldb_field::TYPE_CHAR, 100, true);
+            $table->add_field('name', \core\db\xmldb_field::TYPE_CHAR, 100, true);
+            $table->add_field('value', \core\db\xmldb_field::TYPE_TEXT);
+            $table->add_key('primary', \core\db\xmldb_key::TYPE_PRIMARY, ['id']);
+            $table->add_index('plugin_name', true, ['plugin', 'name']);
+
+            $dbman->create_table($table);
+            debugging('Created config_plugins table', DEBUG_DEVELOPER);
+        }
+
+        // Create upgrade_log table for tracking upgrade history
+        if (!$dbman->table_exists('upgrade_log')) {
+            $table = new \core\db\xmldb_table('upgrade_log');
+            $table->add_field('id', \core\db\xmldb_field::TYPE_INT, 10, true, true);
+            $table->add_field('type', \core\db\xmldb_field::TYPE_INT, 10, true);
+            $table->add_field('plugin', \core\db\xmldb_field::TYPE_CHAR, 100);
+            $table->add_field('version', \core\db\xmldb_field::TYPE_CHAR, 100);
+            $table->add_field('targetversion', \core\db\xmldb_field::TYPE_CHAR, 100);
+            $table->add_field('info', \core\db\xmldb_field::TYPE_CHAR, 255, true);
+            $table->add_field('details', \core\db\xmldb_field::TYPE_TEXT);
+            $table->add_field('backtrace', \core\db\xmldb_field::TYPE_TEXT);
+            $table->add_field('userid', \core\db\xmldb_field::TYPE_INT, 10, true);
+            $table->add_field('timemodified', \core\db\xmldb_field::TYPE_INT, 10, true);
+            $table->add_key('primary', \core\db\xmldb_key::TYPE_PRIMARY, ['id']);
+            $table->add_index('timemodified', false, ['timemodified']);
+            $table->add_index('type_timemodified', false, ['type', 'timemodified']);
+
+            $dbman->create_table($table);
+            debugging('Created upgrade_log table', DEBUG_DEVELOPER);
+        }
+
+        // Log this upgrade
+        try {
+            global $USER;
+            $DB->insert_record('upgrade_log', [
+                'type' => 0, // Core upgrade
+                'plugin' => 'core',
+                'version' => '2025011816',
+                'targetversion' => '2025011817',
+                'info' => 'Implemented Moodle-style install/upgrade system',
+                'details' => 'Added config_plugins and upgrade_log tables, plugin_manager class, installlib.php',
+                'backtrace' => '',
+                'userid' => $USER->id ?? 0,
+                'timemodified' => time()
+            ]);
+        } catch (\Exception $e) {
+            // Table might not be ready yet
+            debugging('Could not log upgrade: ' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
+
+        upgrade_core_savepoint(true, 2025011817);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 

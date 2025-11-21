@@ -265,5 +265,44 @@
       </INDEXES>
     </TABLE>
 
+    <!-- Tabla de configuración de plugins (Moodle-compatible) -->
+    <TABLE NAME="config_plugins">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="plugin" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="value" TYPE="text"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_plugin_name" UNIQUE="true" FIELDS="plugin,name"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Tabla de log de upgrades -->
+    <TABLE NAME="upgrade_log">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="type" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="plugin" TYPE="char" LENGTH="100"/>
+        <FIELD NAME="version" TYPE="char" LENGTH="100"/>
+        <FIELD NAME="targetversion" TYPE="char" LENGTH="100"/>
+        <FIELD NAME="info" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="details" TYPE="text"/>
+        <FIELD NAME="backtrace" TYPE="text"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_timemodified" UNIQUE="false" FIELDS="timemodified"/>
+        <INDEX NAME="idx_type_timemodified" UNIQUE="false" FIELDS="type,timemodified"/>
+      </INDEXES>
+    </TABLE>
+
   </TABLES>
 </XMLDB>
