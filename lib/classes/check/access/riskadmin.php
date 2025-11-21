@@ -82,7 +82,7 @@ class riskadmin extends check {
      */
     public function get_action_link(): ?\action_link {
         return new \action_link(
-            new \moodle_url('/admin/user/user_bulk.php'),
+            new \nexo_url('/admin/user/user_bulk.php'),
             'Manage users'
         );
     }

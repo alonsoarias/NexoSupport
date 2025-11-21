@@ -19,8 +19,8 @@ class table_log {
     /** @var \stdClass Filter parameters */
     protected \stdClass $filters;
 
-    /** @var \moodle_url Base URL */
-    protected \moodle_url $url;
+    /** @var \nexo_url Base URL */
+    protected \nexo_url $url;
 
     /** @var int Current page */
     protected int $page;
@@ -38,11 +38,11 @@ class table_log {
      * Constructor.
      *
      * @param \stdClass $filters Filter parameters
-     * @param \moodle_url $url Base URL
+     * @param \nexo_url $url Base URL
      * @param int $page Page number
      * @param int $perpage Records per page
      */
-    public function __construct(\stdClass $filters, \moodle_url $url, int $page, int $perpage) {
+    public function __construct(\stdClass $filters, \nexo_url $url, int $page, int $perpage) {
         $this->filters = $filters;
         $this->url = $url;
         $this->page = $page;

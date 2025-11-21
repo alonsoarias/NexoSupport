@@ -47,10 +47,10 @@ class report_viewed extends base {
     /**
      * Get the URL related to the event.
      *
-     * @return \moodle_url
+     * @return \nexo_url
      */
-    public function get_url(): \moodle_url {
-        return new \moodle_url('/report/security/index.php');
+    public function get_url(): \nexo_url {
+        return new \nexo_url('/report/security/index.php');
     }
 
     /**

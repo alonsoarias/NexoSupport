@@ -76,7 +76,7 @@ class debugging extends check {
      */
     public function get_action_link(): ?\action_link {
         return new \action_link(
-            new \moodle_url('/admin/settings.php', ['section' => 'debugging']),
+            new \nexo_url('/admin/settings.php', ['section' => 'debugging']),
             'Debugging settings'
         );
     }

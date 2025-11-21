@@ -47,7 +47,7 @@ function tool_mfa_extend_navigation_user($navigation): void {
     }
 
     // Add link to MFA settings
-    $url = new \moodle_url('/admin/tool/mfa/user.php');
+    $url = new \nexo_url('/admin/tool/mfa/user.php');
     $navigation->add(
         get_string('pluginname', 'tool_mfa'),
         $url,

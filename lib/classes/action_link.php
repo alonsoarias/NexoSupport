@@ -16,8 +16,8 @@ defined('INTERNAL_ACCESS') || die();
  */
 class action_link {
 
-    /** @var moodle_url The URL for the action */
-    public moodle_url $url;
+    /** @var nexo_url The URL for the action */
+    public nexo_url $url;
 
     /** @var string The link text */
     public string $text;
@@ -31,16 +31,16 @@ class action_link {
     /**
      * Create a new action link.
      *
-     * @param moodle_url|string $url The URL for the action
+     * @param nexo_url|string $url The URL for the action
      * @param string $text The link text
      * @param array $attributes Additional HTML attributes
      * @param string $icon Optional icon name
      */
     public function __construct($url, string $text, array $attributes = [], string $icon = '') {
-        if ($url instanceof moodle_url) {
+        if ($url instanceof nexo_url) {
             $this->url = $url;
         } else {
-            $this->url = new moodle_url($url);
+            $this->url = new nexo_url($url);
         }
 
         $this->text = $text;

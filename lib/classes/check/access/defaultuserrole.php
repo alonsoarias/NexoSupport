@@ -95,7 +95,7 @@ class defaultuserrole extends check {
      */
     public function get_action_link(): ?\action_link {
         return new \action_link(
-            new \moodle_url('/admin/roles/'),
+            new \nexo_url('/admin/roles/'),
             'Manage roles'
         );
     }

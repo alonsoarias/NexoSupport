@@ -94,7 +94,7 @@ class configrw extends check {
     public function get_action_link(): ?\action_link {
         global $CFG;
         return new \action_link(
-            new \moodle_url('/admin/environment.php'),
+            new \nexo_url('/admin/environment.php'),
             'Environment'
         );
     }

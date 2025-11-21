@@ -43,8 +43,8 @@ class renderable implements \renderable {
     /** @var int Records per page */
     public int $perpage;
 
-    /** @var \moodle_url Base URL */
-    public \moodle_url $url;
+    /** @var \nexo_url Base URL */
+    public \nexo_url $url;
 
     /** @var table_log|null The log table */
     protected ?table_log $table = null;
@@ -61,7 +61,7 @@ class renderable implements \renderable {
      * @param string $origin Origin
      * @param int $page Page number
      * @param int $perpage Records per page
-     * @param \moodle_url $url Base URL
+     * @param \nexo_url $url Base URL
      */
     public function __construct(
         int $courseid,
@@ -73,7 +73,7 @@ class renderable implements \renderable {
         string $origin,
         int $page,
         int $perpage,
-        \moodle_url $url
+        \nexo_url $url
     ) {
         $this->courseid = $courseid;
         $this->userid = $userid;

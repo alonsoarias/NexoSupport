@@ -60,7 +60,7 @@ function core_login_process_password_reset($username, $email) {
     global $CFG, $DB;
 
     if (empty($username) && empty($email)) {
-        throw new \moodle_exception('cannotmailconfirm');
+        throw new \nexo_exception('cannotmailconfirm');
     }
 
     // Find the user account
@@ -82,7 +82,7 @@ function core_login_process_password_reset($username, $email) {
             if (send_password_change_info($user)) {
                 $pwresetstatus = PWRESET_STATUS_OTHEREMAILSENT;
             } else {
-                throw new \moodle_exception('cannotmailconfirm');
+                throw new \nexo_exception('cannotmailconfirm');
             }
         } else {
             // Check for existing reset request
@@ -115,7 +115,7 @@ function core_login_process_password_reset($username, $email) {
                 if ($sendresult) {
                     $pwresetstatus = PWRESET_STATUS_TOKENSENT;
                 } else {
-                    throw new \moodle_exception('cannotmailconfirm');
+                    throw new \nexo_exception('cannotmailconfirm');
                 }
             }
         }
@@ -183,7 +183,7 @@ function core_login_process_password_set($token) {
 
     // Check this isn't guest user
     if (isguestuser($user)) {
-        throw new \moodle_exception('cannotresetguestpwd');
+        throw new \nexo_exception('cannotresetguestpwd');
     }
 
     // Token is correct and unexpired

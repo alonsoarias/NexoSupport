@@ -71,7 +71,7 @@ class manager {
         if ($redir == self::REDIRECT) {
             self::resolve_mfa_status(true);
         } else if ($redir == self::REDIRECT_EXCEPTION) {
-            throw new \moodle_exception('error:mloopdetected', 'tool_mfa');
+            throw new \nexo_exception('error:mloopdetected', 'tool_mfa');
         }
     }
 
@@ -285,7 +285,7 @@ class manager {
             case factor::STATE_LOCKED:
                 // Log out user on complete failure
                 require_logout();
-                throw new \moodle_exception('error:mfafailed', 'tool_mfa');
+                throw new \nexo_exception('error:mfafailed', 'tool_mfa');
 
             case factor::STATE_NEUTRAL:
             default:

@@ -26,7 +26,7 @@ class mustache_template_finder {
      * @param string $name Template name (e.g., 'core/notification' or 'mod_forum/post')
      * @param string $themename Theme name (optional, uses current theme if empty)
      * @return string Full path to the template file
-     * @throws \moodle_exception If template not found
+     * @throws \nexo_exception If template not found
      */
     public static function get_template_filepath(string $name, string $themename = ''): string {
         global $CFG;
@@ -50,7 +50,7 @@ class mustache_template_finder {
             }
         }
 
-        throw new \moodle_exception('templatenotfound', 'core', '', $name);
+        throw new \nexo_exception('templatenotfound', 'core', '', $name);
     }
 
     /**

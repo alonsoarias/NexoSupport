@@ -15,7 +15,7 @@ $ADMIN->add(
     new admin_externalpage(
         'reportsecurity',
         get_string('pluginname', 'report_security'),
-        new moodle_url('/report/security/index.php'),
+        new nexo_url('/report/security/index.php'),
         'report/security:view'
     )
 );

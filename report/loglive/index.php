@@ -23,7 +23,7 @@ $refresh = defined('REPORT_LOGLIVE_REFRESH') ? REPORT_LOGLIVE_REFRESH : 60;
 if ($courseid && $courseid != SITEID) {
     $course = $DB->get_record('courses', ['id' => $courseid]);
     if (!$course) {
-        throw new moodle_exception('invalidcourseid');
+        throw new nexo_exception('invalidcourseid');
     }
     require_login($course);
     $context = context_course::instance($courseid);
@@ -38,7 +38,7 @@ if ($courseid && $courseid != SITEID) {
 require_capability('report/loglive:view', $context);
 
 // Page URL.
-$url = new moodle_url('/report/loglive/index.php', ['id' => $courseid, 'page' => $page]);
+$url = new nexo_url('/report/loglive/index.php', ['id' => $courseid, 'page' => $page]);
 $PAGE->set_url($url);
 $PAGE->set_title(get_string('pluginname', 'report_loglive'));
 $PAGE->set_heading(get_string('pluginname', 'report_loglive'));
@@ -65,7 +65,7 @@ if ($page == 0) {
         'page' => $page,
         'interval' => $refresh * 1000, // Convert to milliseconds.
         'perpage' => 100,
-        'ajaxurl' => (new moodle_url('/report/loglive/loglive_ajax.php'))->out(false),
+        'ajaxurl' => (new nexo_url('/report/loglive/loglive_ajax.php'))->out(false),
     ];
 
     // Output the JavaScript initialization.

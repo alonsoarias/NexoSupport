@@ -19,8 +19,8 @@ class table_log {
     /** @var \stdClass Filter parameters */
     protected \stdClass $filters;
 
-    /** @var \moodle_url Base URL */
-    protected \moodle_url $url;
+    /** @var \nexo_url Base URL */
+    protected \nexo_url $url;
 
     /** @var int Current page */
     protected int $page;
@@ -41,11 +41,11 @@ class table_log {
      * Constructor.
      *
      * @param \stdClass $filters Filter parameters
-     * @param \moodle_url $url Base URL
+     * @param \nexo_url $url Base URL
      * @param int $page Page number
      * @param int $perpage Records per page
      */
-    public function __construct(\stdClass $filters, \moodle_url $url, int $page, int $perpage) {
+    public function __construct(\stdClass $filters, \nexo_url $url, int $page, int $perpage) {
         $this->filters = $filters;
         $this->url = $url;
         $this->page = $page;
@@ -291,7 +291,7 @@ class table_log {
 
         // Previous.
         $prevDisabled = $this->page <= 0 ? 'disabled' : '';
-        $prevUrl = new \moodle_url($this->url, ['page' => max(0, $this->page - 1)]);
+        $prevUrl = new \nexo_url($this->url, ['page' => max(0, $this->page - 1)]);
         $html .= '<li class="page-item ' . $prevDisabled . '">';
         $html .= '<a class="page-link" href="' . $prevUrl->out() . '">&laquo;</a></li>';
 
@@ -301,14 +301,14 @@ class table_log {
 
         for ($i = $startPage; $i <= $endPage; $i++) {
             $active = $i === $this->page ? 'active' : '';
-            $pageUrl = new \moodle_url($this->url, ['page' => $i]);
+            $pageUrl = new \nexo_url($this->url, ['page' => $i]);
             $html .= '<li class="page-item ' . $active . '">';
             $html .= '<a class="page-link" href="' . $pageUrl->out() . '">' . ($i + 1) . '</a></li>';
         }
 
         // Next.
         $nextDisabled = $this->page >= $totalPages - 1 ? 'disabled' : '';
-        $nextUrl = new \moodle_url($this->url, ['page' => min($totalPages - 1, $this->page + 1)]);
+        $nextUrl = new \nexo_url($this->url, ['page' => min($totalPages - 1, $this->page + 1)]);
         $html .= '<li class="page-item ' . $nextDisabled . '">';
         $html .= '<a class="page-link" href="' . $nextUrl->out() . '">&raquo;</a></li>';
 

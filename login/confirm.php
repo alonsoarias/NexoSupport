@@ -47,7 +47,7 @@ if (!empty($data) || (!empty($p) && !empty($s))) {
     } else if ($confirmed == AUTH_CONFIRM_OK) {
         // The user has confirmed successfully, let's log them in
         if (!$user = $DB->get_record('users', ['username' => $username])) {
-            throw new \moodle_exception('cannotfinduser', '', '', s($username));
+            throw new \nexo_exception('cannotfinduser', '', '', s($username));
         }
 
         if (!$user->suspended) {
@@ -75,10 +75,10 @@ if (!empty($data) || (!empty($p) && !empty($s))) {
         echo $OUTPUT->footer();
         exit;
     } else {
-        throw new \moodle_exception('invalidconfirmdata', 'core');
+        throw new \nexo_exception('invalidconfirmdata', 'core');
     }
 } else {
-    throw new \moodle_exception("errorwhenconfirming", 'core');
+    throw new \nexo_exception("errorwhenconfirming", 'core');
 }
 
 redirect("$CFG->wwwroot/");

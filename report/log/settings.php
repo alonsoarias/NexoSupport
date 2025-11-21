@@ -15,7 +15,7 @@ $ADMIN->add(
     new admin_externalpage(
         'reportlog',
         get_string('pluginname', 'report_log'),
-        new moodle_url('/report/log/index.php'),
+        new nexo_url('/report/log/index.php'),
         'report/log:view'
     )
 );

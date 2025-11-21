@@ -28,7 +28,7 @@ $origin = optional_param('origin', '', PARAM_TEXT);
 if ($courseid && $courseid != SITEID) {
     $course = $DB->get_record('courses', ['id' => $courseid]);
     if (!$course) {
-        throw new moodle_exception('invalidcourseid');
+        throw new nexo_exception('invalidcourseid');
     }
     require_login($course);
     $context = context_course::instance($courseid);
@@ -43,7 +43,7 @@ if ($courseid && $courseid != SITEID) {
 require_capability('report/log:view', $context);
 
 // Page URL with filters.
-$url = new moodle_url('/report/log/index.php', [
+$url = new nexo_url('/report/log/index.php', [
     'id' => $courseid,
     'user' => $userid,
     'date' => $date,

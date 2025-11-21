@@ -40,7 +40,7 @@ if (!has_capability('report/loglive:view', $context)) {
 }
 
 // Create renderable with 'since' timestamp.
-$url = new moodle_url('/report/loglive/index.php', ['id' => $courseid]);
+$url = new nexo_url('/report/loglive/index.php', ['id' => $courseid]);
 $renderable = new \report_loglive\renderable($courseid, $page, 100, $url, $since);
 
 // Get the renderer.

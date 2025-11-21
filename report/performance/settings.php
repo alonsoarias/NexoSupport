@@ -15,7 +15,7 @@ $ADMIN->add(
     new admin_externalpage(
         'reportperformance',
         get_string('pluginname', 'report_performance'),
-        new moodle_url('/report/performance/index.php'),
+        new nexo_url('/report/performance/index.php'),
         'report/performance:view'
     )
 );

@@ -28,8 +28,8 @@ class renderable implements \renderable {
     /** @var int Records per page */
     public int $perpage;
 
-    /** @var \moodle_url Base URL */
-    public \moodle_url $url;
+    /** @var \nexo_url Base URL */
+    public \nexo_url $url;
 
     /** @var int Timestamp to fetch logs since */
     public int $since;
@@ -43,14 +43,14 @@ class renderable implements \renderable {
      * @param int $courseid Course ID
      * @param int $page Page number
      * @param int $perpage Records per page
-     * @param \moodle_url $url Base URL
+     * @param \nexo_url $url Base URL
      * @param int $since Timestamp to fetch logs since (0 for cutoff)
      */
     public function __construct(
         int $courseid,
         int $page,
         int $perpage,
-        \moodle_url $url,
+        \nexo_url $url,
         int $since = 0
     ) {
         $this->courseid = $courseid;

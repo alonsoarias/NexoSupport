@@ -249,7 +249,7 @@ function require_login(): void {
  */
 function require_capability(string $capability): void {
     if (!has_capability($capability)) {
-        throw new \moodle_exception('nopermissions', 'error', '', $capability);
+        throw new \nexo_exception('nopermissions', 'error', '', $capability);
     }
 }
 
@@ -497,13 +497,13 @@ function debugging(string $message, string $level = 'notice'): void {
  * Use this in forms and actions that modify data.
  *
  * @return void
- * @throws moodle_exception If sesskey is invalid
+ * @throws nexo_exception If sesskey is invalid
  */
 function require_sesskey(): void {
     $sesskey = optional_param('sesskey', null, 'raw');
 
     if ($sesskey !== sesskey()) {
-        throw new \moodle_exception('invalidsesskey', 'error');
+        throw new \nexo_exception('invalidsesskey', 'error');
     }
 }
 
@@ -651,14 +651,17 @@ class coding_exception extends \Exception {
 }
 
 /**
- * Moodle exception (compatible)
+ * NexoSupport exception class
  */
-class moodle_exception extends \Exception {
+class nexo_exception extends \Exception {
     public function __construct($errorcode, $module = '', $link = '', $a = null, $debuginfo = null) {
         $message = get_string($errorcode, $module, $a);
         parent::__construct($message);
     }
 }
+
+// Backward compatibility alias
+class_alias('nexo_exception', 'moodle_exception');
 
 /**
  * Access exception - thrown when user doesn't have permission

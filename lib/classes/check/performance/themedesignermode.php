@@ -67,7 +67,7 @@ class themedesignermode extends check {
      */
     public function get_action_link(): ?\action_link {
         return new \action_link(
-            new \moodle_url('/admin/settings.php', ['section' => 'development']),
+            new \nexo_url('/admin/settings.php', ['section' => 'development']),
             'Development settings'
         );
     }

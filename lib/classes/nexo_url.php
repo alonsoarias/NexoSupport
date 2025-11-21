@@ -12,9 +12,9 @@ defined('INTERNAL_ACCESS') || die();
 /**
  * Class for creating and manipulating URLs.
  *
- * Similar to Moodle's moodle_url class.
+ * NexoSupport URL class based on Moodle's architecture.
  */
-class moodle_url {
+class nexo_url {
 
     /** @var string Base URL */
     protected string $url;
@@ -178,10 +178,13 @@ class moodle_url {
     /**
      * Create a URL from the current page.
      *
-     * @return moodle_url The current page URL
+     * @return nexo_url The current page URL
      */
-    public static function make_pluginfile_url(): moodle_url {
+    public static function make_pluginfile_url(): nexo_url {
         global $CFG;
         return new self($CFG->wwwroot . '/pluginfile.php');
     }
 }
+
+// Backward compatibility alias
+class_alias('nexo_url', 'moodle_url');

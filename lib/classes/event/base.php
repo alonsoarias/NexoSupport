@@ -192,7 +192,7 @@ abstract class base {
     /**
      * Get URL related to the event.
      *
-     * @return \moodle_url|null
+     * @return \nexo_url|null
      */
     public function get_url() {
         return null;

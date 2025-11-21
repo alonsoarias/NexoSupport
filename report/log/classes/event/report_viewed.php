@@ -48,11 +48,11 @@ class report_viewed extends base {
     /**
      * Get the URL related to the event.
      *
-     * @return \moodle_url
+     * @return \nexo_url
      */
-    public function get_url(): \moodle_url {
+    public function get_url(): \nexo_url {
         $courseid = $this->other['courseid'] ?? 0;
-        return new \moodle_url('/report/log/index.php', ['id' => $courseid]);
+        return new \nexo_url('/report/log/index.php', ['id' => $courseid]);
     }
 
     /**
