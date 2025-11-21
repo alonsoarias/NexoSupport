@@ -9,9 +9,16 @@
  * @license    Proprietary - NexoSupport
  */
 
-define('AJAX_SCRIPT', true);
+if (!defined('AJAX_SCRIPT')) {
+    define('AJAX_SCRIPT', true);
+}
 
-require('../../config.php');
+// Load config if not already loaded (direct access vs router)
+if (!defined('NEXOSUPPORT_INTERNAL')) {
+    require(__DIR__ . '/../../config.php');
+}
+
+global $CFG, $DB, $USER;
 
 // Parameters.
 $courseid = optional_param('id', 0, PARAM_INT);

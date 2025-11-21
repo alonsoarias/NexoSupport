@@ -10,9 +10,16 @@
  */
 
 // No output buffering - allows streaming for long operations.
-define('NO_OUTPUT_BUFFERING', true);
+if (!defined('NO_OUTPUT_BUFFERING')) {
+    define('NO_OUTPUT_BUFFERING', true);
+}
 
-require('../../config.php');
+// Load config if not already loaded (direct access vs router)
+if (!defined('NEXOSUPPORT_INTERNAL')) {
+    require(__DIR__ . '/../../config.php');
+}
+
+global $CFG, $DB, $USER, $PAGE, $OUTPUT;
 require_once($CFG->libdir . '/adminlib.php');
 
 // This page requires admin access.

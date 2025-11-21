@@ -9,7 +9,12 @@
  * @license    Proprietary - NexoSupport
  */
 
-require('../../config.php');
+// Load config if not already loaded (direct access vs router)
+if (!defined('NEXOSUPPORT_INTERNAL')) {
+    require(__DIR__ . '/../../config.php');
+}
+
+global $CFG, $DB, $USER, $PAGE, $OUTPUT;
 require_once($CFG->libdir . '/adminlib.php');
 
 // Parameters.
