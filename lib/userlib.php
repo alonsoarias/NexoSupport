@@ -230,45 +230,5 @@ function count_users($where = '', $params = []) {
     return $DB->count_records_select('users', $sql, $params);
 }
 
-/**
- * Get full name of user
- *
- * Similar to Moodle's fullname() function.
- * Returns the full name of a user by combining firstname and lastname.
- *
- * This function is used throughout the system for displaying user names
- * in a consistent format. Future versions may support alternative name
- * display formats based on user preferences or locale.
- *
- * @param stdClass|object $user User object with firstname and lastname properties
- * @param bool $override If true, return full name regardless of user preferences (future use)
- * @return string Full name (firstname + lastname), or 'Unknown user' if user is invalid
- */
-function fullname($user, $override = false) {
-    // Validate user object
-    if (empty($user)) {
-        return get_string('unknownuser', 'core');
-    }
-
-    // Extract name components
-    $firstname = isset($user->firstname) ? trim($user->firstname) : '';
-    $lastname = isset($user->lastname) ? trim($user->lastname) : '';
-
-    // Handle edge cases
-    if (empty($firstname) && empty($lastname)) {
-        // No name components available
-        if (isset($user->username) && !empty($user->username)) {
-            // Fallback to username if available
-            return htmlspecialchars($user->username);
-        }
-        return get_string('unknownuser', 'core');
-    }
-
-    // Combine firstname and lastname
-    // Future: This could be configurable based on locale (e.g., lastname-first in some cultures)
-    $fullname = trim("$firstname $lastname");
-
-    return $fullname;
-}
-
+// Note: fullname() is defined in lib/functions.php
 // Note: is_siteadmin() is defined in lib/functions.php
