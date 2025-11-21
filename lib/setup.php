@@ -102,6 +102,9 @@ $CFG->dbprefix = getenv('DB_PREFIX') ?: 'nxs_';
 // Configuración general
 $CFG->wwwroot = getenv('APP_URL') ?: 'http://localhost';
 
+// Theme configuration
+$CFG->theme = 'boost'; // Default theme - can be overridden by admin settings
+
 // Debug configuration - will be loaded from DB later if available
 // Default from .env for installation/early errors
 $CFG->debug = DEBUG_NONE;  // Will be overridden from DB
@@ -124,6 +127,16 @@ try {
 
     // Marcar como instalado (el front controller ya lo verificó)
     $CFG->installed = true;
+
+    // Load theme configuration from database
+    try {
+        $theme_record = $DB->get_record('config', ['name' => 'theme', 'component' => 'core']);
+        if ($theme_record && !empty($theme_record->value)) {
+            $CFG->theme = $theme_record->value;
+        }
+    } catch (Exception $e) {
+        // If config table doesn't exist, use default theme
+    }
 
     // Load debug configuration from database
     try {

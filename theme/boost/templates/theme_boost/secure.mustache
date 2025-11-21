@@ -1,0 +1,76 @@
+{{!
+    @template theme_boost/secure
+
+    Secure layout for assessments (quiz attempts, exams).
+
+    Context variables required:
+    * sitename - Site name
+    * output - Output renderer
+    * bodyattributes - Body HTML attributes
+    * userfullname - User's full name
+    * wwwroot - Site base URL
+}}
+{{{ output.doctype }}}
+<html {{{ output.htmlattributes }}}>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{{ output.page_title }}}</title>
+    <link rel="stylesheet" href="{{wwwroot}}/theme/boost/style/boost.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    {{{ output.standard_head_html }}}
+    <style>
+        /* Secure mode - no navigation, no distractions */
+        .navbar {
+            background: var(--bs-dark);
+        }
+        #page {
+            padding-top: var(--navbar-height);
+        }
+        /* Disable right-click context menu */
+        body.secure-mode {
+            user-select: none;
+        }
+    </style>
+</head>
+<body {{{ bodyattributes }}} class="secure-mode">
+{{{ output.standard_top_of_body_html }}}
+
+<div id="page-wrapper">
+    {{! Minimal navbar }}
+    <nav class="navbar">
+        <span class="navbar-brand">
+            <i class="fas fa-lock"></i>
+            <span>{{sitename}}</span>
+        </span>
+
+        <div class="d-flex align-items-center gap-3 text-white">
+            <span class="fs-sm">
+                <i class="fas fa-user me-1"></i>
+                {{userfullname}}
+            </span>
+        </div>
+    </nav>
+
+    {{! Page content }}
+    <div id="page">
+        <div id="page-content" class="pb-3">
+            {{{ output.notifications }}}
+
+            <section id="region-main">
+                {{{ output.main_content }}}
+            </section>
+        </div>
+    </div>
+</div>
+
+{{! Disable right-click }}
+{{#js}}
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+{{/js}}
+
+{{{ output.standard_end_of_body_html }}}
+</body>
+</html>

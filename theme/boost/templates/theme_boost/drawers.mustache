@@ -1,0 +1,171 @@
+{{!
+    @template theme_boost/drawers
+
+    Boost theme drawers layout with sidebar navigation.
+
+    Context variables required:
+    * sitename - Site name
+    * output - Output renderer
+    * bodyattributes - Body HTML attributes
+    * hasnavigation - Boolean if navigation exists
+    * navigation - Navigation HTML
+    * hasblocks - Boolean if blocks exist
+    * sidepreblocks - Block HTML content
+    * draweropen - Boolean if drawer should be open
+    * isloggedin - Boolean if user is logged in
+    * userfullname - User's full name
+    * wwwroot - Site base URL
+}}
+{{{ output.doctype }}}
+<html {{{ output.htmlattributes }}}>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{{ output.page_title }}}</title>
+    <link rel="stylesheet" href="{{wwwroot}}/theme/boost/style/boost.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    {{{ output.standard_head_html }}}
+</head>
+<body {{{ bodyattributes }}}>
+{{{ output.standard_top_of_body_html }}}
+
+<div id="page-wrapper">
+    {{! Navbar }}
+    <nav class="navbar">
+        <div class="d-flex align-items-center gap-3">
+            {{#hasnavigation}}
+            <button type="button" class="navbar-toggler" id="drawer-toggle" aria-label="{{#str}}togglenavigation, core{{/str}}">
+                <i class="fas fa-bars"></i>
+            </button>
+            {{/hasnavigation}}
+
+            <a href="{{wwwroot}}/" class="navbar-brand">
+                <i class="fas fa-cube"></i>
+                <span>{{sitename}}</span>
+            </a>
+        </div>
+
+        <ul class="navbar-nav">
+            <li><a href="{{wwwroot}}/" class="nav-link"><i class="fas fa-home"></i> {{#str}}home, core{{/str}}</a></li>
+            {{#isadmin}}
+            <li><a href="{{wwwroot}}/admin" class="nav-link"><i class="fas fa-cog"></i> {{#str}}administration, core{{/str}}</a></li>
+            {{/isadmin}}
+        </ul>
+
+        {{#isloggedin}}
+        <div class="usermenu dropdown">
+            <button type="button" class="dropdown-toggle" id="user-menu-toggle" aria-expanded="false">
+                <span class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </span>
+                <span class="d-none d-md-inline">{{userfullname}}</span>
+                <i class="fas fa-chevron-down fs-sm"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end" id="user-menu">
+                <a href="{{wwwroot}}/user/profile" class="dropdown-item">
+                    <i class="fas fa-user me-2"></i> {{#str}}profile, core{{/str}}
+                </a>
+                <a href="{{wwwroot}}/user/edit" class="dropdown-item">
+                    <i class="fas fa-edit me-2"></i> {{#str}}editmyprofile, core{{/str}}
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="{{wwwroot}}/logout" class="dropdown-item">
+                    <i class="fas fa-sign-out-alt me-2"></i> {{#str}}logout, core{{/str}}
+                </a>
+            </div>
+        </div>
+        {{/isloggedin}}
+
+        {{^isloggedin}}
+        <a href="{{wwwroot}}/login" class="btn btn-outline-primary" style="color: white; border-color: rgba(255,255,255,0.5);">
+            <i class="fas fa-sign-in-alt"></i> {{#str}}login, core{{/str}}
+        </a>
+        {{/isloggedin}}
+    </nav>
+
+    {{! Page with drawers }}
+    <div id="page" class="{{#draweropen}}show-drawer-left{{/draweropen}}">
+        {{! Left drawer - Navigation }}
+        {{#hasnavigation}}
+        <aside class="drawer drawer-left {{#draweropen}}show{{/draweropen}}" id="nav-drawer" data-region="drawer">
+            <div class="drawer-header">
+                {{#str}}navigation, core{{/str}}
+            </div>
+            <div class="drawer-content">
+                {{{navigation}}}
+            </div>
+        </aside>
+        {{/hasnavigation}}
+
+        {{! Main content }}
+        <div id="page-content" class="pb-3">
+            {{! Breadcrumbs }}
+            {{{ output.breadcrumbs }}}
+
+            {{! Notifications }}
+            {{{ output.notifications }}}
+
+            {{! Main region }}
+            <section id="region-main" aria-label="{{#str}}content, core{{/str}}">
+                {{{ output.main_content }}}
+            </section>
+        </div>
+
+        {{! Right drawer - Blocks }}
+        {{#hasblocks}}
+        <aside class="drawer drawer-right {{#blockdraweropen}}show{{/blockdraweropen}}" id="block-drawer" data-region="drawer">
+            <div class="drawer-header">
+                {{#str}}blocks, core{{/str}}
+            </div>
+            <div class="drawer-content">
+                {{{sidepreblocks}}}
+            </div>
+        </aside>
+        {{/hasblocks}}
+    </div>
+
+    {{! Footer }}
+    <footer class="page-footer mt-4 p-3 text-center text-muted fs-sm">
+        <p class="mb-0">&copy; {{#userdate}}{{timestamp}}, %Y{{/userdate}} {{sitename}}. {{#str}}allrights, core{{/str}}</p>
+    </footer>
+</div>
+
+{{! JavaScript for drawers }}
+{{#js}}
+(function() {
+    // Drawer toggle
+    var drawerToggle = document.getElementById('drawer-toggle');
+    var navDrawer = document.getElementById('nav-drawer');
+    var page = document.getElementById('page');
+
+    if (drawerToggle && navDrawer) {
+        drawerToggle.addEventListener('click', function() {
+            navDrawer.classList.toggle('show');
+            page.classList.toggle('show-drawer-left');
+        });
+    }
+
+    // User menu dropdown
+    var userMenuToggle = document.getElementById('user-menu-toggle');
+    var userMenu = document.getElementById('user-menu');
+
+    if (userMenuToggle && userMenu) {
+        userMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userMenu.classList.toggle('show');
+            userMenuToggle.setAttribute('aria-expanded', userMenu.classList.contains('show'));
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!userMenu.contains(e.target) && !userMenuToggle.contains(e.target)) {
+                userMenu.classList.remove('show');
+                userMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+})();
+{{/js}}
+
+{{{ output.standard_end_of_body_html }}}
+</body>
+</html>

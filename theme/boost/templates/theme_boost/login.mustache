@@ -1,0 +1,47 @@
+{{!
+    @template theme_boost/login
+
+    Login page layout.
+
+    Context variables required:
+    * sitename - Site name
+    * output - Output renderer
+    * bodyattributes - Body HTML attributes
+    * wwwroot - Site base URL
+}}
+{{{ output.doctype }}}
+<html {{{ output.htmlattributes }}}>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{{ output.page_title }}}</title>
+    <link rel="stylesheet" href="{{wwwroot}}/theme/boost/style/boost.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    {{{ output.standard_head_html }}}
+</head>
+<body {{{ bodyattributes }}}>
+{{{ output.standard_top_of_body_html }}}
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-logo">
+            <i class="fas fa-cube fa-3x" style="color: var(--bs-primary);"></i>
+        </div>
+        <h1 class="login-title h3">{{sitename}}</h1>
+
+        {{{ output.notifications }}}
+
+        {{{ output.main_content }}}
+
+        <div class="text-center mt-4">
+            <a href="{{wwwroot}}/" class="text-muted fs-sm">
+                <i class="fas fa-arrow-left me-1"></i>
+                {{#str}}backtohome, core{{/str}}
+            </a>
+        </div>
+    </div>
+</div>
+
+{{{ output.standard_end_of_body_html }}}
+</body>
+</html>

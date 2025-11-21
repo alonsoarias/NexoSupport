@@ -1,0 +1,39 @@
+{{!
+    @template theme_boost/embedded
+
+    Embedded content layout (for iframes, popups).
+
+    Context variables required:
+    * output - Output renderer
+    * bodyattributes - Body HTML attributes
+}}
+{{{ output.doctype }}}
+<html {{{ output.htmlattributes }}}>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{{ output.page_title }}}</title>
+    <link rel="stylesheet" href="{{wwwroot}}/theme/boost/style/boost.css">
+    {{{ output.standard_head_html }}}
+    <style>
+        body {
+            background: white;
+            padding: 1rem;
+        }
+        #region-main {
+            box-shadow: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body {{{ bodyattributes }}}>
+{{{ output.standard_top_of_body_html }}}
+
+<div id="page-wrapper">
+    {{{ output.notifications }}}
+    {{{ output.main_content }}}
+</div>
+
+{{{ output.standard_end_of_body_html }}}
+</body>
+</html>

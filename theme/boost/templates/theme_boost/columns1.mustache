@@ -1,0 +1,58 @@
+{{!
+    @template theme_boost/columns1
+
+    Single column layout without sidebar.
+
+    Context variables required:
+    * sitename - Site name
+    * output - Output renderer
+    * bodyattributes - Body HTML attributes
+    * wwwroot - Site base URL
+}}
+{{{ output.doctype }}}
+<html {{{ output.htmlattributes }}}>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{{ output.page_title }}}</title>
+    <link rel="stylesheet" href="{{wwwroot}}/theme/boost/style/boost.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    {{{ output.standard_head_html }}}
+</head>
+<body {{{ bodyattributes }}}>
+{{{ output.standard_top_of_body_html }}}
+
+<div id="page-wrapper">
+    {{! Navbar }}
+    <nav class="navbar">
+        <a href="{{wwwroot}}/" class="navbar-brand">
+            <i class="fas fa-cube"></i>
+            <span>{{sitename}}</span>
+        </a>
+
+        {{#isloggedin}}
+        <div class="usermenu">
+            <a href="{{wwwroot}}/user/profile" class="nav-link">
+                <i class="fas fa-user"></i>
+                <span>{{userfullname}}</span>
+            </a>
+        </div>
+        {{/isloggedin}}
+    </nav>
+
+    {{! Page content }}
+    <div id="page">
+        <div id="page-content" class="pb-3">
+            {{{ output.breadcrumbs }}}
+            {{{ output.notifications }}}
+
+            <section id="region-main">
+                {{{ output.main_content }}}
+            </section>
+        </div>
+    </div>
+</div>
+
+{{{ output.standard_end_of_body_html }}}
+</body>
+</html>
