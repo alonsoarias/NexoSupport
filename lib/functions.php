@@ -1355,3 +1355,167 @@ function get_developer_settings(): array {
         'string_cache_enabled' => env('STRING_CACHE_ENABLED', true) === true,
     ];
 }
+
+// ============================================
+// CONSTANTS
+// ============================================
+
+/**
+ * Site ID constant - represents the site-level course
+ */
+if (!defined('SITEID')) {
+    define('SITEID', 1);
+}
+
+/**
+ * Risk bitmask constants for capabilities
+ */
+if (!defined('RISK_CONFIG')) {
+    define('RISK_CONFIG', 1);
+    define('RISK_PERSONAL', 2);
+    define('RISK_SPAM', 4);
+    define('RISK_XSS', 8);
+    define('RISK_MANAGETRUST', 16);
+    define('RISK_DATALOSS', 32);
+}
+
+/**
+ * Capability permission constants
+ */
+if (!defined('CAP_ALLOW')) {
+    define('CAP_ALLOW', 1);
+    define('CAP_PREVENT', -1);
+    define('CAP_PROHIBIT', -1000);
+    define('CAP_INHERIT', 0);
+}
+
+/**
+ * Context level constants
+ */
+if (!defined('CONTEXT_SYSTEM')) {
+    define('CONTEXT_SYSTEM', 10);
+    define('CONTEXT_USER', 30);
+    define('CONTEXT_COURSE', 50);
+    define('CONTEXT_MODULE', 70);
+}
+
+// ============================================
+// ADDITIONAL HELPER FUNCTIONS
+// ============================================
+
+/**
+ * Format date/time using userdate format
+ *
+ * Similar to Moodle's userdate() function.
+ *
+ * @param int $timestamp Unix timestamp
+ * @param string $format strftime format string
+ * @param int|string $timezone Timezone (optional)
+ * @param bool $fixday Remove leading zero from day
+ * @return string Formatted date string
+ */
+function userdate(int $timestamp, string $format = '%d %B %Y, %H:%M', $timezone = 99, bool $fixday = true): string {
+    global $CFG;
+
+    if ($timestamp === 0) {
+        return '';
+    }
+
+    // Default format if not provided
+    if (empty($format)) {
+        $format = '%d %B %Y, %H:%M';
+    }
+
+    // Handle timezone
+    if ($timezone == 99 || $timezone === 'server') {
+        $timezone = $CFG->timezone ?? date_default_timezone_get();
+    }
+
+    // Create DateTime object
+    $date = new DateTime();
+    $date->setTimestamp($timestamp);
+
+    if (is_string($timezone)) {
+        try {
+            $date->setTimezone(new DateTimeZone($timezone));
+        } catch (Exception $e) {
+            // Use default timezone
+        }
+    }
+
+    // Convert strftime format to DateTime format
+    $dateFormat = strtr($format, [
+        '%d' => 'd',
+        '%e' => 'j',
+        '%m' => 'm',
+        '%n' => 'n',
+        '%Y' => 'Y',
+        '%y' => 'y',
+        '%H' => 'H',
+        '%I' => 'h',
+        '%M' => 'i',
+        '%S' => 's',
+        '%p' => 'A',
+        '%P' => 'a',
+        '%A' => 'l',
+        '%a' => 'D',
+        '%B' => 'F',
+        '%b' => 'M',
+        '%j' => 'z',
+        '%W' => 'W',
+        '%U' => 'W',
+        '%%' => '%',
+    ]);
+
+    return $date->format($dateFormat);
+}
+
+/**
+ * Get full name of a user
+ *
+ * Similar to Moodle's fullname() function.
+ *
+ * @param object|array $user User object or array with firstname/lastname
+ * @param bool $override Whether to override name display settings
+ * @return string Full name
+ */
+function fullname($user, bool $override = false): string {
+    if (is_array($user)) {
+        $user = (object)$user;
+    }
+
+    $firstname = $user->firstname ?? '';
+    $lastname = $user->lastname ?? '';
+
+    $name = trim($firstname . ' ' . $lastname);
+
+    if (empty($name) && isset($user->username)) {
+        return $user->username;
+    }
+
+    if (empty($name) && isset($user->id)) {
+        return 'User ' . $user->id;
+    }
+
+    return $name ?: 'Unknown';
+}
+
+/**
+ * Get context by name
+ *
+ * Helper function for context access.
+ *
+ * @param string $contextname Context name (system, user, course, module)
+ * @return object Context object
+ */
+function context_system() {
+    return \core\rbac\context::system();
+}
+
+function context_user(int $userid) {
+    return \core\rbac\context::user($userid);
+}
+
+function context_course(int $courseid) {
+    return \core\rbac\context::course($courseid);
+}

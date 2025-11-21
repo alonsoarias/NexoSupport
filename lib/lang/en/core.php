@@ -62,3 +62,25 @@ $string['info'] = 'Information';
 $string['installation'] = 'Installation';
 $string['installationwelcome'] = 'Welcome to NexoSupport installation';
 $string['installationcomplete'] = 'Installation completed successfully';
+
+// Time/Date
+$string['time'] = 'Time';
+$string['date'] = 'Date';
+
+// User related
+$string['guest'] = 'Guest';
+$string['user'] = 'User';
+
+// Actions - CRUD
+$string['action'] = 'Action';
+$string['create'] = 'Create';
+$string['view'] = 'View';
+$string['update'] = 'Update';
+$string['other'] = 'Other';
+
+// Educational levels
+$string['teaching'] = 'Teaching';
+$string['participating'] = 'Participating';
+
+// Reports
+$string['reports'] = 'Reports';
