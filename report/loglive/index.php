@@ -43,7 +43,7 @@ if ($courseid && $courseid != SITEID) {
 require_capability('report/loglive:view', $context);
 
 // Page URL.
-$url = new nexo_url('/report/loglive/index.php', ['id' => $courseid, 'page' => $page]);
+$url = new \core\nexo_url('/report/loglive/index.php', ['id' => $courseid, 'page' => $page]);
 $PAGE->set_url($url);
 $PAGE->set_title(get_string('pluginname', 'report_loglive'));
 $PAGE->set_heading(get_string('pluginname', 'report_loglive'));
@@ -70,7 +70,7 @@ if ($page == 0) {
         'page' => $page,
         'interval' => $refresh * 1000, // Convert to milliseconds.
         'perpage' => 100,
-        'ajaxurl' => (new nexo_url('/report/loglive/loglive_ajax.php'))->out(false),
+        'ajaxurl' => (new \core\nexo_url('/report/loglive/loglive_ajax.php'))->out(false),
     ];
 
     // Output the JavaScript initialization.

@@ -33,7 +33,7 @@ require_capability('report/performance:view', $context);
 $detail = optional_param('detail', '', PARAM_TEXT);
 
 // Page URL.
-$url = new nexo_url('/report/performance/index.php');
+$url = new \core\nexo_url('/report/performance/index.php');
 $PAGE->set_url($url);
 
 // Create the check table.

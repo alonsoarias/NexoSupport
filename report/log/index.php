@@ -48,7 +48,7 @@ if ($courseid && $courseid != SITEID) {
 require_capability('report/log:view', $context);
 
 // Page URL with filters.
-$url = new nexo_url('/report/log/index.php', [
+$url = new \core\nexo_url('/report/log/index.php', [
     'id' => $courseid,
     'user' => $userid,
     'date' => $date,
