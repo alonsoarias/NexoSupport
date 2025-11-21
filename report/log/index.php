@@ -40,7 +40,7 @@ if ($courseid && $courseid != SITEID) {
     $PAGE->set_context($context);
 } else {
     admin_externalpage_setup('reportlog', '', null, '', ['pagelayout' => 'report']);
-    $context = context_system::instance();
+    $context = \core\rbac\context_system::instance();
     $courseid = SITEID;
 }
 

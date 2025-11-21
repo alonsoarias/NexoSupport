@@ -36,7 +36,7 @@ if ($courseid && $courseid != SITEID) {
     $context = context_course::instance($courseid);
 } else {
     require_login();
-    $context = context_system::instance();
+    $context = \core\rbac\context_system::instance();
     $courseid = SITEID;
 }
 

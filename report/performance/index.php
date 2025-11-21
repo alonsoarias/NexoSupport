@@ -26,7 +26,7 @@ require_once($CFG->libdir . '/adminlib.php');
 admin_externalpage_setup('reportperformance', '', null, '', ['pagelayout' => 'report']);
 
 // Check capability.
-$context = context_system::instance();
+$context = \core\rbac\context_system::instance();
 require_capability('report/performance:view', $context);
 
 // Get detail parameter for specific check view.
