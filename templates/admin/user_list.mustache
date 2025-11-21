@@ -219,7 +219,7 @@
         <h1><i class="fas fa-users"></i> {{#str}}usermanagement,core{{/str}}</h1>
         <p class="stats-badge">{{#str}}totalusers,core{{/str}}: <strong>{{totalusers}}</strong></p>
     </div>
-    <a href="/admin/user/edit.php?id=0" class="btn">
+    <a href="/admin/user/edit?id=0" class="btn">
         <i class="fas fa-plus"></i> {{#str}}newuser,core{{/str}}
     </a>
 </div>
@@ -279,10 +279,10 @@
                     <td>{{{lastloginformatted}}}</td>
                     <td>
                         <div class="action-buttons">
-                            <a href="/admin/user/edit.php?id={{id}}" class="btn btn-sm" title="{{#str}}edit,core{{/str}}">
+                            <a href="/admin/user/edit?id={{id}}" class="btn btn-sm" title="{{#str}}edit,core{{/str}}">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="/admin/roles/assign.php?userid={{id}}" class="btn btn-sm btn-secondary" title="{{#str}}roles,core{{/str}}">
+                            <a href="/admin/roles/assign?userid={{id}}" class="btn btn-sm btn-secondary" title="{{#str}}roles,core{{/str}}">
                                 <i class="fas fa-shield-alt"></i>
                             </a>
 

@@ -182,7 +182,7 @@
 <div class="page-header">
     <h1><i class="fas fa-shield-alt"></i> {{#str}}rolemanagement,core{{/str}}</h1>
     {{#canmanageroles}}
-    <a href="/admin/roles/edit.php?id=0" class="btn">
+    <a href="/admin/roles/edit?id=0" class="btn">
         <i class="fas fa-plus"></i> {{#str}}createrole,core{{/str}}
     </a>
     {{/canmanageroles}}
@@ -230,13 +230,13 @@
 
             {{#canmanageroles}}
             <div class="action-buttons">
-                <a href="/admin/roles/edit.php?id={{id}}" class="btn btn-sm" title="{{#str}}edit,core{{/str}}">
+                <a href="/admin/roles/edit?id={{id}}" class="btn btn-sm" title="{{#str}}edit,core{{/str}}">
                     <i class="fas fa-edit"></i>
                 </a>
-                <a href="/admin/roles/define.php?roleid={{id}}" class="btn btn-sm" title="{{#str}}capabilities,core{{/str}}">
+                <a href="/admin/roles/define?roleid={{id}}" class="btn btn-sm" title="{{#str}}capabilities,core{{/str}}">
                     <i class="fas fa-key"></i>
                 </a>
-                <a href="/admin/roles/assign.php?roleid={{id}}" class="btn btn-sm" title="{{#str}}users,core{{/str}}">
+                <a href="/admin/roles/assign?roleid={{id}}" class="btn btn-sm" title="{{#str}}users,core{{/str}}">
                     <i class="fas fa-users"></i>
                 </a>
 
@@ -269,7 +269,7 @@
         <i class="fas fa-shield-alt"></i>
         <h3>{{#str}}noroles,core{{/str}}</h3>
         <p style="color: var(--text-secondary); margin-bottom: 1rem;">No hay roles definidos en el sistema.</p>
-        <a href="/admin/roles/edit.php?id=0" class="btn">
+        <a href="/admin/roles/edit?id=0" class="btn">
             <i class="fas fa-plus"></i> {{#str}}createfirstrole,core{{/str}}
         </a>
     </div>

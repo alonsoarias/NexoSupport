@@ -180,22 +180,26 @@ use core\routing\router;
 
 $router = new router();
 
-// Rutas principales
+// ============================================
+// RUTAS PRINCIPALES
+// ============================================
 $router->get('/', function() {
     require(BASE_DIR . '/dashboard.php');
 });
 
-// Login routes
+// ============================================
+// LOGIN / LOGOUT ROUTES
+// ============================================
 $router->get('/login', function() {
     require(BASE_DIR . '/login/index.php');
 });
-
 $router->post('/login', function() {
     require(BASE_DIR . '/login/index.php');
 });
-
-// Logout
 $router->get('/logout', function() {
+    require(BASE_DIR . '/login/logout.php');
+});
+$router->get('/login/logout.php', function() {
     require(BASE_DIR . '/login/logout.php');
 });
 
@@ -203,119 +207,194 @@ $router->get('/logout', function() {
 $router->get('/login/change_password', function() {
     require(BASE_DIR . '/login/change_password.php');
 });
-
 $router->post('/login/change_password', function() {
     require(BASE_DIR . '/login/change_password.php');
 });
-
 $router->get('/login/forgot_password', function() {
     require(BASE_DIR . '/login/forgot_password.php');
 });
-
 $router->post('/login/forgot_password', function() {
     require(BASE_DIR . '/login/forgot_password.php');
 });
-
 $router->get('/login/confirm', function() {
     require(BASE_DIR . '/login/confirm.php');
 });
 
-// Admin routes
+// ============================================
+// ADMIN ROUTES - DASHBOARD
+// ============================================
 $router->get('/admin', function() {
     require(BASE_DIR . '/admin/index.php');
 });
+$router->get('/admin/', function() {
+    require(BASE_DIR . '/admin/index.php');
+});
 
+// ============================================
+// ADMIN ROUTES - UPGRADE
+// ============================================
+$router->get('/admin/upgrade', function() {
+    require(BASE_DIR . '/admin/upgrade.php');
+});
+$router->post('/admin/upgrade', function() {
+    require(BASE_DIR . '/admin/upgrade.php');
+});
 $router->get('/admin/upgrade.php', function() {
     require(BASE_DIR . '/admin/upgrade.php');
 });
-
 $router->post('/admin/upgrade.php', function() {
     require(BASE_DIR . '/admin/upgrade.php');
 });
 
+// ============================================
+// ADMIN ROUTES - USER MANAGEMENT
+// ============================================
+$router->get('/admin/user', function() {
+    require(BASE_DIR . '/admin/user/index.php');
+});
+$router->get('/admin/user/', function() {
+    require(BASE_DIR . '/admin/user/index.php');
+});
 $router->get('/admin/users', function() {
     require(BASE_DIR . '/admin/user/index.php');
 });
-
-$router->get('/admin/roles', function() {
-    require(BASE_DIR . '/admin/roles/index.php');
+$router->get('/admin/users/', function() {
+    require(BASE_DIR . '/admin/user/index.php');
 });
-
 $router->get('/admin/user/edit', function() {
     require(BASE_DIR . '/admin/user/edit.php');
 });
-
 $router->post('/admin/user/edit', function() {
     require(BASE_DIR . '/admin/user/edit.php');
 });
+$router->get('/admin/user/edit.php', function() {
+    require(BASE_DIR . '/admin/user/edit.php');
+});
+$router->post('/admin/user/edit.php', function() {
+    require(BASE_DIR . '/admin/user/edit.php');
+});
 
+// ============================================
+// ADMIN ROUTES - ROLE MANAGEMENT
+// ============================================
+$router->get('/admin/roles', function() {
+    require(BASE_DIR . '/admin/roles/index.php');
+});
+$router->get('/admin/roles/', function() {
+    require(BASE_DIR . '/admin/roles/index.php');
+});
 $router->get('/admin/roles/edit', function() {
     require(BASE_DIR . '/admin/roles/edit.php');
 });
-
 $router->post('/admin/roles/edit', function() {
     require(BASE_DIR . '/admin/roles/edit.php');
 });
-
+$router->get('/admin/roles/edit.php', function() {
+    require(BASE_DIR . '/admin/roles/edit.php');
+});
+$router->post('/admin/roles/edit.php', function() {
+    require(BASE_DIR . '/admin/roles/edit.php');
+});
 $router->get('/admin/roles/define', function() {
     require(BASE_DIR . '/admin/roles/define.php');
 });
-
 $router->post('/admin/roles/define', function() {
     require(BASE_DIR . '/admin/roles/define.php');
 });
-
+$router->get('/admin/roles/define.php', function() {
+    require(BASE_DIR . '/admin/roles/define.php');
+});
+$router->post('/admin/roles/define.php', function() {
+    require(BASE_DIR . '/admin/roles/define.php');
+});
 $router->get('/admin/roles/assign', function() {
     require(BASE_DIR . '/admin/roles/assign.php');
 });
-
 $router->post('/admin/roles/assign', function() {
     require(BASE_DIR . '/admin/roles/assign.php');
 });
+$router->get('/admin/roles/assign.php', function() {
+    require(BASE_DIR . '/admin/roles/assign.php');
+});
+$router->post('/admin/roles/assign.php', function() {
+    require(BASE_DIR . '/admin/roles/assign.php');
+});
 
+// ============================================
+// ADMIN ROUTES - SETTINGS
+// ============================================
 $router->get('/admin/settings', function() {
     require(BASE_DIR . '/admin/settings/index.php');
 });
-
 $router->post('/admin/settings', function() {
     require(BASE_DIR . '/admin/settings/index.php');
 });
-
-$router->get('/admin/cache/purge', function() {
-    require(BASE_DIR . '/admin/cache/purge.php');
+$router->get('/admin/settings/', function() {
+    require(BASE_DIR . '/admin/settings/index.php');
 });
-
-$router->post('/admin/cache/purge', function() {
-    require(BASE_DIR . '/admin/cache/purge.php');
+$router->post('/admin/settings/', function() {
+    require(BASE_DIR . '/admin/settings/index.php');
 });
-
-// Settings routes
 $router->get('/admin/settings/debugging', function() {
     require(BASE_DIR . '/admin/settings/debugging.php');
 });
-
 $router->post('/admin/settings/debugging', function() {
     require(BASE_DIR . '/admin/settings/debugging.php');
 });
+$router->get('/admin/settings/debugging.php', function() {
+    require(BASE_DIR . '/admin/settings/debugging.php');
+});
+$router->post('/admin/settings/debugging.php', function() {
+    require(BASE_DIR . '/admin/settings/debugging.php');
+});
 
-// User routes
+// ============================================
+// ADMIN ROUTES - CACHE
+// ============================================
+$router->get('/admin/cache/purge', function() {
+    require(BASE_DIR . '/admin/cache/purge.php');
+});
+$router->post('/admin/cache/purge', function() {
+    require(BASE_DIR . '/admin/cache/purge.php');
+});
+$router->get('/admin/cache/purge.php', function() {
+    require(BASE_DIR . '/admin/cache/purge.php');
+});
+$router->post('/admin/cache/purge.php', function() {
+    require(BASE_DIR . '/admin/cache/purge.php');
+});
+
+// ============================================
+// USER ROUTES
+// ============================================
 $router->get('/user/profile', function() {
     require(BASE_DIR . '/user/profile.php');
 });
-
+$router->get('/user/profile.php', function() {
+    require(BASE_DIR . '/user/profile.php');
+});
 $router->get('/user/edit', function() {
     require(BASE_DIR . '/user/edit.php');
 });
-
 $router->post('/user/edit', function() {
     require(BASE_DIR . '/user/edit.php');
 });
-
+$router->get('/user/edit.php', function() {
+    require(BASE_DIR . '/user/edit.php');
+});
+$router->post('/user/edit.php', function() {
+    require(BASE_DIR . '/user/edit.php');
+});
 $router->get('/user/preferences/notification', function() {
     require(BASE_DIR . '/user/preferences/notification.php');
 });
-
 $router->post('/user/preferences/notification', function() {
+    require(BASE_DIR . '/user/preferences/notification.php');
+});
+$router->get('/user/preferences/notification.php', function() {
+    require(BASE_DIR . '/user/preferences/notification.php');
+});
+$router->post('/user/preferences/notification.php', function() {
     require(BASE_DIR . '/user/preferences/notification.php');
 });
 
