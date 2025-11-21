@@ -660,12 +660,8 @@ class nexo_exception extends \Exception {
     }
 }
 
-// Backward compatibility alias
-class_alias('nexo_exception', 'moodle_exception');
-
-// Context class aliases for Moodle compatibility
+// Context class aliases for global namespace access
 class_alias('core\\rbac\\context_system', 'context_system');
-class_alias('core\\rbac\\context_course', 'context_course');
 class_alias('core\\rbac\\context_user', 'context_user');
 
 /**

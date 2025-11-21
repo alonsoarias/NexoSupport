@@ -188,6 +188,5 @@ class nexo_url {
     }
 }
 
-// Backward compatibility aliases for global namespace
+// Backward compatibility alias for global namespace
 class_alias('core\\nexo_url', 'nexo_url');
-class_alias('core\\nexo_url', 'moodle_url');
