@@ -210,31 +210,7 @@ function confirm_user($user) {
     return true;
 }
 
-/**
- * Send confirmation email to user
- *
- * @param stdClass $user User object
- * @return bool True if email sent successfully
- */
-function send_confirmation_email($user) {
-    global $CFG;
-
-    // Already confirmed?
-    if ($user->confirmed) {
-        return false;
-    }
-
-    // In a full implementation, this would:
-    // 1. Generate confirmation link with token
-    // 2. Send email to user
-    // 3. Return success/failure
-
-    // For now, just log it
-    debugging("Confirmation email would be sent to user {$user->id} ({$user->email})", DEBUG_DEVELOPER);
-
-    // Simulate success
-    return true;
-}
+// Note: send_confirmation_email() is defined in lib/authlib.php
 
 /**
  * Get count of users matching a condition
