@@ -204,45 +204,36 @@ class context {
 }
 
 /**
- * System context class
+ * System context class - Factory for system-level context
  */
-class context_system extends context {
+class context_system {
+    /** @var context|null Cached system context */
+    private static ?context $instance = null;
+
     /**
      * Get system context instance
      *
-     * @return context_system
+     * @return context
      */
-    public static function instance(): context_system {
-        $ctx = context::instance(CONTEXT_SYSTEM, 0);
-        // Return as context_system instance
-        return new self((object)[
-            'id' => $ctx->id,
-            'contextlevel' => $ctx->contextlevel,
-            'instanceid' => $ctx->instanceid,
-            'path' => $ctx->path,
-            'depth' => $ctx->depth,
-        ]);
+    public static function instance(): context {
+        if (self::$instance === null) {
+            self::$instance = context::instance(CONTEXT_SYSTEM, 0);
+        }
+        return self::$instance;
     }
 }
 
 /**
- * User context class
+ * User context class - Factory for user-level context
  */
-class context_user extends context {
+class context_user {
     /**
      * Get user context instance
      *
      * @param int $userid User ID
-     * @return context_user
+     * @return context
      */
-    public static function instance(int $userid): context_user {
-        $ctx = context::instance(CONTEXT_USER, $userid);
-        return new self((object)[
-            'id' => $ctx->id,
-            'contextlevel' => $ctx->contextlevel,
-            'instanceid' => $ctx->instanceid,
-            'path' => $ctx->path,
-            'depth' => $ctx->depth,
-        ]);
+    public static function instance(int $userid): context {
+        return context::instance(CONTEXT_USER, $userid);
     }
 }

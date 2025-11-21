@@ -660,10 +660,6 @@ class nexo_exception extends \Exception {
     }
 }
 
-// Context class aliases for global namespace access
-class_alias('core\\rbac\\context_system', 'context_system');
-class_alias('core\\rbac\\context_user', 'context_user');
-
 /**
  * Access exception - thrown when user doesn't have permission
  */
