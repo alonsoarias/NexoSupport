@@ -178,4 +178,92 @@ $string['total_users'] = 'Total de Usuarios';
 $string['total_roles'] = 'Total de Roles';
 $string['system_version'] = 'Versión del Sistema';
 $string['cache_description'] = 'Gestionar y purgar caché del sistema';
-$string["continue"] = "Continuar";
+$string['continue'] = 'Continuar';
+
+// Server settings
+$string['server'] = 'Servidor';
+$string['systempaths'] = 'Rutas del Sistema';
+$string['systempathshelp'] = 'Configure las rutas de directorios del sistema';
+$string['dataroot'] = 'Directorio de Datos';
+$string['dataroothelp'] = 'Ruta al directorio de datos del sistema (fuera del directorio web)';
+$string['tempdir'] = 'Directorio Temporal';
+$string['tempdirhelp'] = 'Ruta al directorio de archivos temporales';
+$string['cachedir'] = 'Directorio de Caché';
+$string['cachedirhelp'] = 'Ruta al directorio de caché';
+
+// HTTP settings
+$string['http'] = 'HTTP';
+$string['httphelp'] = 'Configure los ajustes de conexión HTTP';
+$string['wwwroot'] = 'Dirección del sitio web';
+$string['wwwroothelp'] = 'URL completa del sitio (ej: https://ejemplo.com)';
+$string['sslproxy'] = 'Detrás de proxy SSL';
+$string['sslproxyhelp'] = 'Habilitar si el sitio está detrás de un proxy SSL (reverse proxy)';
+$string['proxysettings'] = 'Configuración de Proxy';
+$string['proxysettingshelp'] = 'Configure un proxy para conexiones salientes';
+$string['proxyhost'] = 'Host del Proxy';
+$string['proxyhosthelp'] = 'Dirección del servidor proxy';
+$string['proxyport'] = 'Puerto del Proxy';
+$string['proxyporthelp'] = 'Puerto del servidor proxy';
+$string['configproxybypass'] = 'Lista de hosts que no usan proxy (separados por coma)';
+
+// Maintenance mode
+$string['maintenancemode'] = 'Modo de Mantenimiento';
+$string['maintenancemodehelp'] = 'Configure el modo de mantenimiento del sitio';
+$string['enablemaintenancemode'] = 'Habilitar modo de mantenimiento';
+$string['enablemaintenancemodehelp'] = 'Cuando está habilitado, solo los administradores pueden acceder';
+$string['maintenancemessage'] = 'Mensaje de mantenimiento';
+$string['maintenancemessagehelp'] = 'Mensaje mostrado a los usuarios durante el mantenimiento';
+$string['sitemaintenancewarning'] = 'El sitio está en mantenimiento. Por favor, vuelva más tarde.';
+$string['maintenancemodeactive'] = 'Modo de mantenimiento ACTIVO';
+$string['siteisactive'] = 'Sitio activo';
+$string['maintenancemodewarning'] = 'Cuando el modo de mantenimiento está activo, solo los administradores pueden acceder al sitio.';
+$string['maintenancemodedesc'] = 'Impide el acceso a usuarios no administradores';
+
+// User settings
+$string['addnewuser'] = 'Agregar usuario';
+$string['browselistofusers'] = 'Ver lista de usuarios';
+$string['allowselfregistration'] = 'Permitir registro de usuarios';
+$string['allowselfregistrationhelp'] = 'Permite que los usuarios se registren por sí mismos';
+
+// Role management
+$string['defineroles'] = 'Definir roles';
+$string['assignroles'] = 'Asignar roles';
+
+// Debug settings
+$string['debug'] = 'Depuración';
+$string['debughelp'] = 'Nivel de depuración para mensajes de error';
+$string['debugnone'] = 'Ninguno (recomendado para producción)';
+$string['debugminimal'] = 'Mínimo - Solo errores fatales';
+$string['debugnormal'] = 'Normal - Errores y advertencias';
+$string['debugall'] = 'Todos - Incluye avisos';
+$string['debugdeveloper'] = 'Desarrollador - Máximo detalle';
+$string['perfdebug'] = 'Información de rendimiento';
+$string['perfdebughelp'] = 'Mostrar información de rendimiento en las páginas';
+
+// Plugins
+$string['localplugins'] = 'Plugins locales';
+$string['blocks'] = 'Bloques';
+
+// External pages
+$string['phpinfo'] = 'Información PHP';
+$string['environment'] = 'Entorno del sistema';
+$string['purgecaches'] = 'Purgar todos los cachés';
+
+// IP blocking
+$string['ipblocker'] = 'Bloqueo por IP';
+$string['ipblockerhelp'] = 'Configure restricciones de acceso por dirección IP';
+$string['allowedips'] = 'IPs permitidas';
+$string['allowedipshelp'] = 'Lista de IPs permitidas (una por línea). Si está vacío, todas las IPs están permitidas';
+$string['blockedips'] = 'IPs bloqueadas';
+$string['blockedipshelp'] = 'Lista de IPs bloqueadas (una por línea)';
+
+// Support contact
+$string['supportcontact'] = 'Contacto de soporte';
+$string['supportcontacthelp'] = 'Información de contacto para soporte técnico';
+$string['supportname'] = 'Nombre de soporte';
+$string['supportnamehelp'] = 'Nombre que aparecerá en los correos de soporte';
+$string['supportemail'] = 'Correo de soporte';
+$string['supportemailhelp'] = 'Correo electrónico para solicitudes de soporte';
+
+// Error messages
+$string['errorwritingsetting'] = 'Error al guardar la configuración';

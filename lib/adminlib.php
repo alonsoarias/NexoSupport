@@ -1,274 +1,95 @@
 <?php
 /**
- * Admin Settings Tree
+ * Admin Settings Library
  *
  * Functions for building and managing the admin settings tree.
- * Similar to Moodle's admin/settings/... structure.
+ * Similar to Moodle's adminlib.php structure.
  *
  * @package NexoSupport
  */
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
+/** @var \core\admin\admin_root|null Global admin tree root */
+$ADMIN = null;
+
 /**
  * Build and return the admin settings tree
  *
  * Creates the complete hierarchy of categories and settings pages
- * following Moodle's pattern.
+ * following Moodle's pattern with separate settings files.
  *
- * @return \core\admin\admin_category Root category
+ * @param bool $reload Force reload of the tree
+ * @param bool $requirefulltree Whether to load full tree
+ * @return \core\admin\admin_root Root of admin tree
  */
-function admin_get_root(): \core\admin\admin_category {
-    global $ADMIN;
+function admin_get_root(bool $reload = false, bool $requirefulltree = true): \core\admin\admin_root {
+    global $ADMIN, $CFG;
 
-    // Return cached tree if exists
-    if (isset($ADMIN) && $ADMIN instanceof \core\admin\admin_category) {
+    // Return cached tree if exists and not reloading
+    if (!$reload && isset($ADMIN) && $ADMIN instanceof \core\admin\admin_root && $ADMIN->loaded) {
         return $ADMIN;
     }
 
-    // Create root category
-    $root = new \core\admin\admin_category('root', get_string('administration', 'core'));
+    // Create new admin root
+    $ADMIN = new \core\admin\admin_root($requirefulltree);
 
-    // ========== GENERAL CATEGORY ==========
-    $general = new \core\admin\admin_category('general', get_string('generalsettings', 'core'));
+    // Check if user has site config capability
+    $hassiteconfig = has_capability('nexosupport/admin:manageconfig');
 
-    // General settings page
-    $generalsettings = new \core\admin\admin_settingpage(
-        'generalsettings',
-        get_string('generalsettings', 'core'),
-        'nexosupport/admin:manageconfig'
-    );
+    // Define settings directory
+    $settingsdir = BASE_DIR . '/admin/settings';
 
-    $generalsettings->add(new \core\admin\admin_setting_heading(
-        'generalsettingsheading',
-        get_string('generalsettings', 'core'),
-        get_string('configgeneralsettings', 'core')
-    ));
+    // ========================================================
+    // LOAD SETTINGS FILES IN ORDER
+    // ========================================================
 
-    $generalsettings->add(new \core\admin\admin_setting_configtext(
-        'sitename',
-        get_string('sitename', 'core'),
-        get_string('sitenamehelp', 'core'),
-        'NexoSupport',
-        50
-    ));
+    // 1. Load top.php FIRST - creates all main categories
+    $topfile = $settingsdir . '/top.php';
+    if (file_exists($topfile)) {
+        include($topfile);
+    }
 
-    $generalsettings->add(new \core\admin\admin_setting_configtext(
-        'sitedescription',
-        get_string('sitedescription', 'core'),
-        get_string('sitedescriptionhelp', 'core'),
-        '',
-        100
-    ));
+    // 2. Load all other settings files (except top.php and plugins.php)
+    $settingsfiles = glob($settingsdir . '/*.php');
+    foreach ($settingsfiles as $file) {
+        $filename = basename($file);
 
-    $general->add_page($generalsettings);
-    $root->add_category($general);
-
-    // ========== USERS CATEGORY ==========
-    $users = new \core\admin\admin_category('users', get_string('users', 'core'));
-
-    // User settings page
-    $usersettings = new \core\admin\admin_settingpage(
-        'usersettings',
-        get_string('usersettings', 'core'),
-        'nexosupport/admin:manageusers'
-    );
-
-    $usersettings->add(new \core\admin\admin_setting_heading(
-        'usersettingsheading',
-        get_string('usersettings', 'core'),
-        get_string('configusersettings', 'core')
-    ));
-
-    $usersettings->add(new \core\admin\admin_setting_configtext(
-        'defaultlang',
-        get_string('defaultlang', 'core'),
-        get_string('defaultlanghelp', 'core'),
-        'es',
-        10
-    ));
-
-    $usersettings->add(new \core\admin\admin_setting_configcheckbox(
-        'requireconfirmemail',
-        get_string('requireconfirmemail', 'core'),
-        get_string('requireconfirmemailhelp', 'core'),
-        '0'
-    ));
-
-    $users->add_page($usersettings);
-    $root->add_category($users);
-
-    // ========== SECURITY CATEGORY ==========
-    $security = new \core\admin\admin_category('security', get_string('security', 'core'));
-
-    // Session settings page
-    $sessionsettings = new \core\admin\admin_settingpage(
-        'sessionsettings',
-        get_string('sessions', 'core'),
-        'nexosupport/admin:manageconfig'
-    );
-
-    $sessionsettings->add(new \core\admin\admin_setting_heading(
-        'sessionsettingsheading',
-        get_string('sessions', 'core'),
-        get_string('configsessionsettings', 'core')
-    ));
-
-    $sessionsettings->add(new \core\admin\admin_setting_confignumber(
-        'sessiontimeout',
-        get_string('sessiontimeout', 'core'),
-        get_string('sessiontimeouthelp', 'core'),
-        7200,
-        10,
-        600,    // min 10 minutes
-        86400   // max 24 hours
-    ));
-
-    $sessionsettings->add(new \core\admin\admin_setting_confignumber(
-        'sessioncookie',
-        get_string('sessioncookie', 'core'),
-        get_string('sessioncookiehelp', 'core'),
-        86400,
-        10,
-        3600,
-        2592000
-    ));
-
-    $security->add_page($sessionsettings);
-
-    // Password policy page
-    $passwordpolicy = new \core\admin\admin_settingpage(
-        'passwordpolicy',
-        get_string('passwordpolicy', 'core'),
-        'nexosupport/admin:manageconfig'
-    );
-
-    $passwordpolicy->add(new \core\admin\admin_setting_heading(
-        'passwordpolicyheading',
-        get_string('passwordpolicy', 'core'),
-        get_string('configpasswordpolicy', 'core')
-    ));
-
-    $passwordpolicy->add(new \core\admin\admin_setting_confignumber(
-        'minpasswordlength',
-        get_string('minpasswordlength', 'core'),
-        get_string('minpasswordlengthhelp', 'core'),
-        8,
-        5,
-        4,
-        16
-    ));
-
-    $passwordpolicy->add(new \core\admin\admin_setting_configcheckbox(
-        'passwordrequiredigit',
-        get_string('passwordrequiredigit', 'core'),
-        get_string('passwordrequiredigithelp', 'core'),
-        '1'
-    ));
-
-    $passwordpolicy->add(new \core\admin\admin_setting_configcheckbox(
-        'passwordrequirelower',
-        get_string('passwordrequirelower', 'core'),
-        get_string('passwordrequirelowerhelp', 'core'),
-        '1'
-    ));
-
-    $passwordpolicy->add(new \core\admin\admin_setting_configcheckbox(
-        'passwordrequireupper',
-        get_string('passwordrequireupper', 'core'),
-        get_string('passwordrequireupperhelp', 'core'),
-        '1'
-    ));
-
-    $security->add_page($passwordpolicy);
-    $root->add_category($security);
-
-    // ========== DEVELOPMENT CATEGORY ==========
-    $development = new \core\admin\admin_category('development', get_string('developmentsettings', 'core'));
-
-    // Debug settings page
-    $debugsettings = new \core\admin\admin_settingpage(
-        'debugsettings',
-        get_string('debugmode', 'core'),
-        'nexosupport/admin:manageconfig'
-    );
-
-    $debugsettings->add(new \core\admin\admin_setting_heading(
-        'debugsettingsheading',
-        get_string('debugmode', 'core'),
-        get_string('configdebugsettings', 'core')
-    ));
-
-    $debugsettings->add(new \core\admin\admin_setting_configcheckbox(
-        'debug',
-        get_string('debugmode', 'core'),
-        get_string('debughelp', 'core'),
-        '0'
-    ));
-
-    $debugsettings->add(new \core\admin\admin_setting_configcheckbox(
-        'debugdisplay',
-        get_string('debugdisplay', 'core'),
-        get_string('debugdisplayhelp', 'core'),
-        '0'
-    ));
-
-    $development->add_page($debugsettings);
-    $root->add_category($development);
-
-    // ========== PLUGINS CATEGORY ==========
-    $plugins = new \core\admin\admin_category('plugins', get_string('plugins', 'core'));
-
-    // Authentication plugins
-    $auth = new \core\admin\admin_category('authentication', get_string('authentication', 'core'));
-
-    // Load auth plugin settings
-    $authplugins = get_enabled_auth_plugins();
-    foreach ($authplugins as $authplugin) {
-        $settingsfile = BASE_DIR . "/auth/{$authplugin}/settings.php";
-        if (file_exists($settingsfile)) {
-            // Create settings page for this plugin
-            $settings = new \core\admin\admin_settingpage(
-                "auth_{$authplugin}",
-                get_string('pluginname', "auth_{$authplugin}"),
-                'nexosupport/admin:manageconfig'
-            );
-
-            // Set fulltree flag (Moodle compatibility)
-            $fulltree = true;
-
-            // Load the settings file
-            // This file will add settings to $settings object
-            include($settingsfile);
-
-            // Only add the page if it has settings
-            if (!empty($settings->settings)) {
-                $auth->add_page($settings);
-            }
+        // Skip top.php (already loaded) and plugins.php (load last)
+        if ($filename === 'top.php' || $filename === 'plugins.php') {
+            continue;
         }
+
+        // Skip index.php and debugging.php (they are controller pages, not settings definitions)
+        if ($filename === 'index.php' || $filename === 'debugging.php') {
+            continue;
+        }
+
+        // Skip files that aren't settings definitions
+        if (in_array($filename, ['http.php', 'maintenancemode.php', 'sessionhandling.php', 'systempaths.php'])) {
+            continue;
+        }
+
+        include($file);
     }
 
-    // Add authentication category if it has pages
-    if (!empty($auth->get_pages())) {
-        $plugins->add_category($auth);
+    // 3. Load plugins.php LAST - loads all plugin settings
+    $pluginsfile = $settingsdir . '/plugins.php';
+    if (file_exists($pluginsfile)) {
+        include($pluginsfile);
     }
 
-    // Add plugins category if it has content
-    if (!empty($plugins->get_categories())) {
-        $root->add_category($plugins);
-    }
+    // Mark tree as loaded
+    $ADMIN->loaded = true;
 
-    // Cache for future calls
-    $ADMIN = $root;
-
-    return $root;
+    return $ADMIN;
 }
 
 /**
  * Find a settings page by name
  *
  * @param string $name Page name
- * @return \core\admin\admin_settingpage|null Found page
+ * @return \core\admin\admin_settingpage|null Found page or null
  */
 function admin_find_page(string $name): ?\core\admin\admin_settingpage {
     $root = admin_get_root();
@@ -276,9 +97,20 @@ function admin_find_page(string $name): ?\core\admin\admin_settingpage {
 }
 
 /**
- * Get all categories
+ * Find any node in the admin tree by name
  *
- * @return array Array of categories
+ * @param string $name Node name
+ * @return \core\admin\part_of_admin_tree|null Found node or null
+ */
+function admin_locate(string $name): ?\core\admin\part_of_admin_tree {
+    $root = admin_get_root();
+    return $root->locate($name);
+}
+
+/**
+ * Get all top-level categories
+ *
+ * @return \core\admin\admin_category[] Array of categories
  */
 function admin_get_categories(): array {
     $root = admin_get_root();
@@ -286,7 +118,18 @@ function admin_get_categories(): array {
 }
 
 /**
- * Save all settings from form data
+ * Search the admin tree for a query
+ *
+ * @param string $query Search query
+ * @return array Matching nodes
+ */
+function admin_search(string $query): array {
+    $root = admin_get_root();
+    return $root->search($query);
+}
+
+/**
+ * Save all settings from form data for a page
  *
  * @param string $pagename Settings page name
  * @param array $data Form data
@@ -299,4 +142,180 @@ function admin_save_settings(string $pagename, array $data): array {
     }
 
     return $page->save_settings($data);
+}
+
+/**
+ * Write a single setting value
+ *
+ * @param string $name Setting name (format: plugin/setting or just setting)
+ * @param mixed $value Value to write
+ * @return bool Success
+ */
+function admin_write_setting(string $name, $value): bool {
+    // Parse plugin/name format
+    if (strpos($name, '/') !== false) {
+        list($plugin, $settingname) = explode('/', $name, 2);
+    } else {
+        $plugin = 'core';
+        $settingname = $name;
+    }
+
+    return set_config($settingname, $value, $plugin);
+}
+
+/**
+ * Read a single setting value
+ *
+ * @param string $name Setting name (format: plugin/setting or just setting)
+ * @param mixed $default Default value if not set
+ * @return mixed Setting value
+ */
+function admin_read_setting(string $name, $default = null) {
+    // Parse plugin/name format
+    if (strpos($name, '/') !== false) {
+        list($plugin, $settingname) = explode('/', $name, 2);
+    } else {
+        $plugin = 'core';
+        $settingname = $name;
+    }
+
+    $value = get_config($plugin, $settingname);
+    return ($value !== null) ? $value : $default;
+}
+
+/**
+ * Get navigation data for admin tree rendering
+ *
+ * @return array Navigation tree data for templates
+ */
+function admin_get_navigation_data(): array {
+    $root = admin_get_root();
+    return $root->get_template_data();
+}
+
+/**
+ * Check if a page exists in the admin tree
+ *
+ * @param string $name Page name
+ * @return bool True if exists
+ */
+function admin_page_exists(string $name): bool {
+    return admin_find_page($name) !== null;
+}
+
+/**
+ * Apply config defaults from admin tree
+ *
+ * Useful after installation to set initial config values.
+ *
+ * @return void
+ */
+function admin_apply_default_settings(): void {
+    $root = admin_get_root();
+
+    // Iterate through all categories and pages
+    $apply_defaults = function($node) use (&$apply_defaults) {
+        if ($node instanceof \core\admin\admin_settingpage) {
+            foreach ($node->get_settings() as $setting) {
+                // Skip headings
+                if ($setting instanceof \core\admin\admin_setting_heading) {
+                    continue;
+                }
+
+                // Check if setting already has a value
+                $current = $setting->get_setting();
+                if ($current === $setting->defaultsetting) {
+                    // Write default to ensure it's in database
+                    $setting->write_setting($setting->defaultsetting);
+                }
+            }
+        } elseif ($node instanceof \core\admin\admin_category || $node instanceof \core\admin\admin_root) {
+            if (method_exists($node, 'get_children')) {
+                foreach ($node->get_children() as $child) {
+                    $apply_defaults($child);
+                }
+            }
+        }
+    };
+
+    $apply_defaults($root);
+}
+
+/**
+ * Get enabled authentication plugins
+ *
+ * Helper function for plugin settings loading.
+ *
+ * @return array List of enabled auth plugin names
+ */
+function get_enabled_auth_plugins(): array {
+    global $CFG;
+
+    $plugins = [];
+
+    // Check if auth directory exists
+    $authdir = BASE_DIR . '/auth';
+    if (!is_dir($authdir)) {
+        return $plugins;
+    }
+
+    // Get enabled auth plugins from config
+    $enabledplugins = get_config('core', 'auth') ?? 'manual';
+    $enabledlist = explode(',', $enabledplugins);
+
+    // Scan auth directory
+    $dirs = scandir($authdir);
+    foreach ($dirs as $dir) {
+        if ($dir === '.' || $dir === '..') {
+            continue;
+        }
+
+        $plugindir = $authdir . '/' . $dir;
+        if (is_dir($plugindir) && in_array($dir, $enabledlist)) {
+            $plugins[] = $dir;
+        }
+    }
+
+    return $plugins;
+}
+
+/**
+ * Get available languages
+ *
+ * Helper function for language settings.
+ *
+ * @return array Language code => Language name
+ */
+function get_available_languages(): array {
+    $langdir = BASE_DIR . '/lang';
+    $languages = [];
+
+    if (is_dir($langdir)) {
+        $dirs = scandir($langdir);
+        foreach ($dirs as $dir) {
+            if ($dir === '.' || $dir === '..') {
+                continue;
+            }
+
+            $langfile = $langdir . '/' . $dir . '/langconfig.php';
+            if (file_exists($langfile)) {
+                $string = [];
+                include($langfile);
+                $languages[$dir] = $string['thislanguage'] ?? $dir;
+            } else {
+                // Fallback to directory name
+                $languages[$dir] = $dir;
+            }
+        }
+    }
+
+    // Ensure at least Spanish and English
+    if (empty($languages)) {
+        $languages = [
+            'es' => 'Español',
+            'en' => 'English',
+        ];
+    }
+
+    return $languages;
 }

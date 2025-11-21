@@ -602,4 +602,16 @@ $string['dailydigesthelp'] = 'Recibir un único correo al día con todas las not
 $string['weeklydigest'] = 'Resumen semanal';
 $string['weeklydigesthelp'] = 'Recibir un único correo a la semana con todas las notificaciones acumuladas.';
 $string['preferencessaved'] = 'Preferencias guardadas exitosamente';
-$string["coming_soon"] = "Próximamente";
+$string['coming_soon'] = 'Próximamente';
+
+// Admin settings additional (v1.2.0)
+$string['general'] = 'General';
+$string['sitesettings'] = 'Configuración del Sitio';
+$string['sitesettingshelp'] = 'Configuración general del sitio web';
+$string['passwordrequirespecial'] = 'Requerir caracteres especiales';
+$string['passwordrequirespecialhelp'] = 'Las contraseñas deben contener caracteres especiales (!@#$%^&*)';
+$string['wrongpassword'] = 'La contraseña actual es incorrecta';
+$string['exists'] = 'Existe';
+$string['notexists'] = 'No existe';
+$string['writable'] = 'Escribible';
+$string['notwritable'] = 'No escribible';
