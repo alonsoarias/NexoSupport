@@ -311,27 +311,104 @@ function admin_externalpage_setup(string $section, $extrabuttons = null, $actual
     $pagelayout = $options['pagelayout'] ?? 'admin';
 
     // Initialize PAGE if needed
-    if (!isset($PAGE) || !is_object($PAGE)) {
-        $PAGE = new stdClass();
+    if (!isset($PAGE) || !($PAGE instanceof NexoPage)) {
+        $PAGE = new NexoPage();
     }
 
     // Set page properties
-    if (!isset($PAGE->context)) {
-        $PAGE->context = \core\rbac\context_system::instance();
-    }
+    $PAGE->set_context(\core\rbac\context_system::instance());
 
     // Set URL if provided
     if ($actualurl !== null) {
         if (is_array($actualurl)) {
-            $PAGE->url = new \core\nexo_url($actualurl[0], $actualurl[1] ?? []);
+            $PAGE->set_url(new \core\nexo_url($actualurl[0], $actualurl[1] ?? []));
         } else {
-            $PAGE->url = new \core\nexo_url($actualurl);
+            $PAGE->set_url(new \core\nexo_url($actualurl));
         }
     }
 
     // Set page section
     $PAGE->section = $section;
     $PAGE->pagelayout = $pagelayout;
+
+    // Initialize OUTPUT if needed
+    if (!isset($OUTPUT) || !($OUTPUT instanceof NexoOutput)) {
+        $OUTPUT = new NexoOutput($PAGE);
+    }
+}
+
+/**
+ * Simple page object for NexoSupport
+ */
+class NexoPage {
+    public $url;
+    public $context;
+    public $section;
+    public $pagelayout;
+    public $title = '';
+    public $heading = '';
+
+    public function set_url($url): void {
+        $this->url = $url;
+    }
+
+    public function set_context($context): void {
+        $this->context = $context;
+    }
+
+    public function set_title(string $title): void {
+        $this->title = $title;
+    }
+
+    public function set_heading(string $heading): void {
+        $this->heading = $heading;
+    }
+}
+
+/**
+ * Simple output object for NexoSupport
+ */
+class NexoOutput {
+    private NexoPage $page;
+
+    public function __construct(NexoPage $page) {
+        $this->page = $page;
+    }
+
+    public function header(): string {
+        $html = '<!DOCTYPE html><html><head>';
+        $html .= '<meta charset="UTF-8">';
+        $html .= '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
+        $html .= '<title>' . htmlspecialchars($this->page->title ?: 'NexoSupport') . '</title>';
+        $html .= '<style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+            .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            h1, h2 { color: #333; }
+            .lead { color: #666; font-size: 1.1em; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+            th { background: #f8f9fa; font-weight: 600; }
+            .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85em; }
+            .badge-success { background: #d4edda; color: #155724; }
+            .badge-warning { background: #fff3cd; color: #856404; }
+            .badge-danger { background: #f8d7da; color: #721c24; }
+            .badge-info { background: #d1ecf1; color: #0c5460; }
+        </style>';
+        $html .= '</head><body><div class="container">';
+        return $html;
+    }
+
+    public function footer(): string {
+        return '</div></body></html>';
+    }
+
+    public function heading(string $text, int $level = 2): string {
+        return "<h{$level}>" . htmlspecialchars($text) . "</h{$level}>";
+    }
+
+    public function notification(string $message, string $type = 'info'): string {
+        return '<div class="alert alert-' . $type . '">' . htmlspecialchars($message) . '</div>';
+    }
 }
 
 /**
