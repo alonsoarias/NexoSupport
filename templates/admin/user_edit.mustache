@@ -254,7 +254,7 @@
                 <button type="submit" class="btn">
                     {{#isnew}}{{#str}}createuser,core{{/str}}{{/isnew}}{{^isnew}}{{#str}}save,core{{/str}}{{/isnew}}
                 </button>
-                <a href="/admin/users" class="btn btn-secondary">{{#str}}cancel,core{{/str}}</a>
+                <a href="/admin/user/" class="btn btn-secondary">{{#str}}cancel,core{{/str}}</a>
 
                 {{^isnew}}
                     <a href="/admin/roles/assign?userid={{edituser.id}}" class="btn btn-secondary">
