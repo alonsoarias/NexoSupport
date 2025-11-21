@@ -317,7 +317,7 @@ function admin_externalpage_setup(string $section, $extrabuttons = null, $actual
 
     // Set page properties
     if (!isset($PAGE->context)) {
-        $PAGE->context = context_system::instance();
+        $PAGE->context = \core\rbac\context_system::instance();
     }
 
     // Set URL if provided
