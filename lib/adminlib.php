@@ -282,3 +282,65 @@ function get_available_languages(): array {
 
     return $languages;
 }
+
+/**
+ * Setup an external admin page
+ *
+ * This function sets up the page for admin external pages like reports.
+ * Similar to Moodle's admin_externalpage_setup().
+ *
+ * @param string $section The name of the admin page
+ * @param string|array|null $extrabuttons Additional URL parameters
+ * @param array|null $actualurl The actual URL if different from $PAGE->url
+ * @param string|array $extraurlparams Extra URL parameters
+ * @param array $options Additional options (pagelayout, etc.)
+ * @return void
+ */
+function admin_externalpage_setup(string $section, $extrabuttons = null, $actualurl = null, $extraurlparams = '', array $options = []): void {
+    global $CFG, $PAGE, $USER, $OUTPUT;
+
+    // Require login first
+    require_login();
+
+    // Check user is admin
+    if (!is_siteadmin()) {
+        throw new \nexo_exception('accessdenied', 'core');
+    }
+
+    // Set up page layout
+    $pagelayout = $options['pagelayout'] ?? 'admin';
+
+    // Initialize PAGE if needed
+    if (!isset($PAGE) || !is_object($PAGE)) {
+        $PAGE = new stdClass();
+    }
+
+    // Set page properties
+    if (!isset($PAGE->context)) {
+        $PAGE->context = context_system::instance();
+    }
+
+    // Set URL if provided
+    if ($actualurl !== null) {
+        if (is_array($actualurl)) {
+            $PAGE->url = new \core\nexo_url($actualurl[0], $actualurl[1] ?? []);
+        } else {
+            $PAGE->url = new \core\nexo_url($actualurl);
+        }
+    }
+
+    // Set page section
+    $PAGE->section = $section;
+    $PAGE->pagelayout = $pagelayout;
+}
+
+/**
+ * Get system context instance
+ *
+ * Helper function to get system context.
+ *
+ * @return object System context object
+ */
+function context_system_instance(): object {
+    return context_system::instance();
+}

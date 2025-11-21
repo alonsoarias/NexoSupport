@@ -19,6 +19,9 @@ if (!defined('CONTEXT_SYSTEM')) {
 if (!defined('CONTEXT_USER')) {
     define('CONTEXT_USER', 30);
 }
+if (!defined('CONTEXT_COURSE')) {
+    define('CONTEXT_COURSE', 50);
+}
 
 class context {
 
@@ -200,5 +203,71 @@ class context {
         }
 
         return str_starts_with($other->path, $this->path . '/');
+    }
+}
+
+/**
+ * System context class (Moodle-compatible)
+ */
+class context_system extends context {
+    /**
+     * Get system context instance
+     *
+     * @return context_system
+     */
+    public static function instance(): context_system {
+        $ctx = context::instance(CONTEXT_SYSTEM, 0);
+        // Return as context_system instance
+        return new self((object)[
+            'id' => $ctx->id,
+            'contextlevel' => $ctx->contextlevel,
+            'instanceid' => $ctx->instanceid,
+            'path' => $ctx->path,
+            'depth' => $ctx->depth,
+        ]);
+    }
+}
+
+/**
+ * Course context class (Moodle-compatible)
+ */
+class context_course extends context {
+    /**
+     * Get course context instance
+     *
+     * @param int $courseid Course ID
+     * @return context_course
+     */
+    public static function instance(int $courseid): context_course {
+        $ctx = context::instance(CONTEXT_COURSE, $courseid);
+        return new self((object)[
+            'id' => $ctx->id,
+            'contextlevel' => $ctx->contextlevel,
+            'instanceid' => $ctx->instanceid,
+            'path' => $ctx->path,
+            'depth' => $ctx->depth,
+        ]);
+    }
+}
+
+/**
+ * User context class (Moodle-compatible)
+ */
+class context_user extends context {
+    /**
+     * Get user context instance
+     *
+     * @param int $userid User ID
+     * @return context_user
+     */
+    public static function instance(int $userid): context_user {
+        $ctx = context::instance(CONTEXT_USER, $userid);
+        return new self((object)[
+            'id' => $ctx->id,
+            'contextlevel' => $ctx->contextlevel,
+            'instanceid' => $ctx->instanceid,
+            'path' => $ctx->path,
+            'depth' => $ctx->depth,
+        ]);
     }
 }
