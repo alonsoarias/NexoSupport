@@ -7,6 +7,8 @@
  * @license    Proprietary - NexoSupport
  */
 
+namespace core;
+
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
@@ -82,3 +84,6 @@ class action_link {
         return $this->render();
     }
 }
+
+// Backward compatibility alias for global namespace
+class_alias('core\\action_link', 'action_link');

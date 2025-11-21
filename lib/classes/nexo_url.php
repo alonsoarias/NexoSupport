@@ -7,6 +7,8 @@
  * @license    Proprietary - NexoSupport
  */
 
+namespace core;
+
 defined('NEXOSUPPORT_INTERNAL') || die();
 
 /**
@@ -186,5 +188,6 @@ class nexo_url {
     }
 }
 
-// Backward compatibility alias
-class_alias('nexo_url', 'moodle_url');
+// Backward compatibility aliases for global namespace
+class_alias('core\\nexo_url', 'nexo_url');
+class_alias('core\\nexo_url', 'moodle_url');
