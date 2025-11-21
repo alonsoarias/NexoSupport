@@ -615,3 +615,96 @@ $string['exists'] = 'Existe';
 $string['notexists'] = 'No existe';
 $string['writable'] = 'Escribible';
 $string['notwritable'] = 'No escribible';
+
+// Authentication and Login (v1.2.1)
+$string['accountlocked'] = 'Cuenta bloqueada';
+$string['accountlockednotification'] = 'Hola {$a->firstname},
+
+Su cuenta en {$a->sitename} ha sido bloqueada debido a múltiples intentos de inicio de sesión fallidos.
+
+Para desbloquear su cuenta, haga clic en el siguiente enlace:
+{$a->link}
+
+Si no solicitó esto, puede ignorar este mensaje.
+
+Saludos,
+El equipo de {$a->sitename}';
+$string['accountunlocked'] = 'Su cuenta ha sido desbloqueada. Ahora puede iniciar sesión.';
+$string['toomanyloginattempts'] = 'Demasiados intentos de inicio de sesión fallidos. Su cuenta ha sido bloqueada temporalmente.';
+
+// Email confirmation
+$string['emailconfirmationsubject'] = '{$a}: Confirma tu cuenta';
+$string['emailconfirmation'] = 'Hola {$a->firstname},
+
+Se ha creado una nueva cuenta en {$a->sitename} usando tu dirección de correo.
+
+Para confirmar tu cuenta, por favor haz clic en el siguiente enlace:
+{$a->link}
+
+En la mayoría de programas de correo, esto aparecerá como un enlace azul en el que puedes hacer clic. Si esto no funciona, copia y pega la dirección en la barra de direcciones de tu navegador.
+
+Si necesitas ayuda, por favor contacta al administrador del sitio.
+
+{$a->admin}';
+
+// Password reset
+$string['emailresetconfirmation'] = 'Hola {$a->firstname},
+
+Alguien (probablemente usted) ha solicitado restablecer la contraseña de su cuenta en {$a->sitename}.
+
+Para confirmar esta solicitud y establecer una nueva contraseña, haga clic en el siguiente enlace:
+{$a->link}
+
+Este enlace es válido por {$a->resetminutes} minutos.
+
+Si no solicitó restablecer su contraseña, puede ignorar este mensaje.
+
+Saludos,
+{$a->admin}';
+$string['emailresetconfirmationsubject'] = '{$a}: Solicitud de restablecimiento de contraseña';
+$string['passwordforgotteninstructions2'] = 'Para restablecer su contraseña, ingrese su nombre de usuario o su dirección de correo electrónico. Si encontramos su cuenta, le enviaremos un correo con instrucciones para restablecer su contraseña.';
+$string['setpasswordinstructions'] = 'Por favor ingrese su nueva contraseña a continuación.';
+$string['passwordset'] = 'Su contraseña ha sido cambiada exitosamente.';
+$string['noresetrecord'] = 'El enlace de restablecimiento de contraseña no es válido o ha expirado. Por favor solicite uno nuevo.';
+$string['resetrecordexpired'] = 'El enlace de restablecimiento de contraseña ha expirado. Los enlaces son válidos por {$a} minutos. Por favor solicite uno nuevo.';
+$string['cannotresetguestpwd'] = 'La contraseña del usuario invitado no puede ser restablecida.';
+$string['emailpasswordconfirmmaybesent'] = 'Si su cuenta existe y tiene una dirección de correo válida, se le ha enviado un correo con instrucciones.';
+$string['emailpasswordconfirmnotsent'] = 'No se encontró ninguna cuenta con esa información.';
+$string['emailpasswordconfirmnoemail'] = 'La cuenta no tiene una dirección de correo registrada.';
+$string['emailalreadysent'] = 'Ya se ha enviado un correo de restablecimiento. Por favor espere antes de solicitar otro.';
+$string['emailpasswordconfirmsent'] = 'Se ha enviado un correo a {$a} con instrucciones para restablecer su contraseña.';
+$string['emailresetconfirmsent'] = 'Se ha enviado un correo a {$a} con instrucciones para restablecer su contraseña.';
+$string['usernameoremail'] = 'Por favor ingrese su nombre de usuario O su correo electrónico, no ambos.';
+$string['emailnotfound'] = 'No se encontró ninguna cuenta con ese correo electrónico.';
+$string['usernamenotfound'] = 'No se encontró ninguna cuenta con ese nombre de usuario.';
+$string['confirmednot'] = 'Su cuenta aún no ha sido confirmada. Se ha reenviado el correo de confirmación.';
+
+// Password change
+$string['changepassword'] = 'Cambiar contraseña';
+$string['currentpassword'] = 'Contraseña actual';
+$string['newpassword'] = 'Nueva contraseña';
+$string['newpassword2'] = 'Confirmar nueva contraseña';
+$string['passwordchanged'] = 'Su contraseña ha sido cambiada exitosamente.';
+$string['passwordsdiffer'] = 'Las contraseñas no coinciden.';
+$string['wrongcurrentpassword'] = 'La contraseña actual es incorrecta.';
+$string['nopasswordchange'] = 'Su método de autenticación no permite cambiar la contraseña.';
+$string['errorpasswordupdate'] = 'Error al actualizar la contraseña.';
+$string['logoutothersessions'] = 'Cerrar otras sesiones';
+$string['logoutothersessionshelp'] = 'Al cambiar su contraseña, cierre sesión en todos los demás dispositivos donde haya iniciado sesión.';
+
+// Email related
+$string['emailpasswordchangeinfo'] = 'Hola {$a->firstname},
+
+Alguien (probablemente usted) ha solicitado cambiar la contraseña de su cuenta en {$a->sitename}.
+
+Sin embargo, su tipo de cuenta no permite cambiar la contraseña a través del sitio web.
+
+Por favor contacte a {$a->supportemail} para obtener ayuda.
+
+Saludos,
+{$a->admin}';
+$string['emailpasswordchangeinfosubject'] = '{$a}: Información sobre cambio de contraseña';
+
+// General auth strings
+$string['administrator'] = 'Administrador';
+$string['cannotmailconfirm'] = 'No se pudo enviar el correo de confirmación.';
