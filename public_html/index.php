@@ -129,6 +129,16 @@ if ($DB === null) {
 }
 
 // ============================================
+// VERIFICAR MODO MANTENIMIENTO (Patrón Moodle)
+// ============================================
+// Similar a Moodle: si el sitio está en mantenimiento,
+// solo administradores pueden acceder.
+// Se verifica ANTES del upgrade para evitar acceso durante mantenimiento.
+
+require_once(BASE_DIR . '/lib/maintenancelib.php');
+check_maintenance_mode($uri);
+
+// ============================================
 // VERIFICAR SI NECESITA ACTUALIZACIÓN (Patrón Moodle)
 // ============================================
 // Similar a Moodle: si hay upgrade pendiente, solo permitir:
