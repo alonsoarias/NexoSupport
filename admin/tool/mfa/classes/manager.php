@@ -46,6 +46,11 @@ class manager {
             $cm = null, $setwantsurltome = null, $preventredirect = null): void {
         global $SESSION, $USER;
 
+        // Session must be initialized
+        if (!isset($SESSION) || $SESSION === null) {
+            return;
+        }
+
         // Guest users are not subject to MFA
         if (!isset($USER->id) || $USER->id == 0) {
             return;
