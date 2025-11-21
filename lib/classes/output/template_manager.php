@@ -6,18 +6,29 @@ defined('NEXOSUPPORT_INTERNAL') || die();
 /**
  * Template Manager
  *
- * Gestiona el renderizado de templates usando Mustache.
- * Similar a Moodle's core_renderer y template system.
+ * Manages Mustache template rendering with Moodle-style helpers.
+ * Similar to Moodle's core_renderer template system.
  *
- * @package core\output
+ * Features:
+ * - Theme template overrides
+ * - Moodle-compatible helpers (str, pix, js, quote, shortentext, userdate, uniqid, cleanstr)
+ * - Automatic context injection
+ * - Template caching
+ *
+ * @package    core\output
+ * @copyright  NexoSupport
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class template_manager {
 
     /** @var \Mustache\Engine Mustache engine instance */
     private static ?\Mustache\Engine $engine = null;
 
-    /** @var array Template cache */
-    private static array $cache = [];
+    /** @var array Registered helpers */
+    private static array $helpers = [];
+
+    /** @var bool Whether helpers have been initialized */
+    private static bool $helpers_initialized = false;
 
     /**
      * Get Mustache engine instance
@@ -28,42 +39,88 @@ class template_manager {
         if (self::$engine === null) {
             global $CFG;
 
+            // Initialize helpers first
+            self::init_helpers();
+
             $options = [
                 'cache' => $CFG->cachedir . '/mustache',
                 'escape' => function($value) {
-                    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+                    return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
                 },
                 'strict_callables' => true,
                 'pragmas' => [\Mustache\Engine::PRAGMA_BLOCKS],
             ];
 
-            // Add template loader
-            $options['loader'] = new \Mustache\Loader\FilesystemLoader(
-                BASE_DIR . '/templates',
-                ['extension' => '.mustache']
-            );
-
-            // Add partials loader (for {{> partial }})
-            $options['partials_loader'] = new \Mustache\Loader\FilesystemLoader(
-                BASE_DIR . '/templates',
-                ['extension' => '.mustache']
-            );
+            // Create custom loader that uses template finder
+            $options['loader'] = new mustache_filesystem_loader();
+            $options['partials_loader'] = new mustache_filesystem_loader();
 
             // Create cache directory if not exists
             if (!file_exists($options['cache'])) {
-                mkdir($options['cache'], 0755, true);
+                @mkdir($options['cache'], 0755, true);
             }
 
             self::$engine = new \Mustache\Engine($options);
+
+            // Add all helpers
+            foreach (self::$helpers as $name => $helper) {
+                self::$engine->addHelper($name, $helper);
+            }
         }
 
         return self::$engine;
     }
 
     /**
+     * Initialize all Mustache helpers
+     *
+     * @return void
+     */
+    private static function init_helpers(): void {
+        if (self::$helpers_initialized) {
+            return;
+        }
+
+        // String helper (i18n)
+        self::$helpers['str'] = function($text, $helper) {
+            $text = $helper->render($text);
+            $parts = array_map('trim', explode(',', $text));
+            $identifier = $parts[0] ?? '';
+            $component = $parts[1] ?? 'core';
+            $param = $parts[2] ?? null;
+
+            if (empty($identifier)) {
+                return '';
+            }
+
+            return get_string($identifier, $component, $param);
+        };
+
+        // Pix icon helper
+        self::$helpers['pix'] = new mustache_pix_helper();
+
+        // JavaScript helper
+        self::$helpers['js'] = new mustache_javascript_helper();
+
+        // Quote helper (for JS strings)
+        self::$helpers['quote'] = new mustache_quote_helper();
+
+        // Shorten text helper
+        self::$helpers['shortentext'] = new mustache_shortentext_helper();
+
+        // User date helper
+        self::$helpers['userdate'] = new mustache_userdate_helper();
+
+        // Clean string helper
+        self::$helpers['cleanstr'] = new mustache_cleanstr_helper();
+
+        self::$helpers_initialized = true;
+    }
+
+    /**
      * Render a template
      *
-     * @param string $templatename Template name (component/templatename or core/templatename)
+     * @param string $templatename Template name (component/templatename)
      * @param array|object $context Data context for template
      * @return string Rendered HTML
      */
@@ -72,29 +129,26 @@ class template_manager {
 
         // Convert object to array if needed
         if (is_object($context)) {
-            $context = (array)$context;
+            $context = self::object_to_array($context);
         }
 
         // Add common context variables
-        $context = array_merge([
-            'wwwroot' => self::get_wwwroot(),
-            'sesskey' => sesskey(),
-            'currentlang' => \core\string_manager::get_language(),
-        ], $context);
+        $context = array_merge(self::get_common_context(), $context);
 
-        // Add string helper for i18n
-        $context['str'] = function($text) {
-            // Parse {{#str}}identifier,component{{/str}}
-            $parts = explode(',', trim($text));
-            $identifier = trim($parts[0]);
-            $component = isset($parts[1]) ? trim($parts[1]) : 'core';
-            return get_string($identifier, $component);
-        };
+        // Add unique ID helper (fresh instance for each render)
+        $context['uniqid'] = new mustache_uniqid_helper();
 
         try {
-            return $engine->render($templatename, $context);
+            $html = $engine->render($templatename, $context);
+
+            // Append any collected JavaScript
+            if (mustache_javascript_helper::has_javascript()) {
+                $html .= mustache_javascript_helper::get_javascript_html();
+            }
+
+            return $html;
         } catch (\Exception $e) {
-            debugging('Error rendering template ' . $templatename . ': ' . $e->getMessage());
+            debugging('Error rendering template ' . $templatename . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
             return '<div class="alert alert-danger">Template error: ' . htmlspecialchars($templatename) . '</div>';
         }
     }
@@ -110,15 +164,56 @@ class template_manager {
         $engine = self::get_engine();
 
         if (is_object($context)) {
-            $context = (array)$context;
+            $context = self::object_to_array($context);
         }
+
+        $context = array_merge(self::get_common_context(), $context);
+        $context['uniqid'] = new mustache_uniqid_helper();
 
         try {
             return $engine->render($template, $context);
         } catch (\Exception $e) {
-            debugging('Error rendering template from string: ' . $e->getMessage());
+            debugging('Error rendering template from string: ' . $e->getMessage(), DEBUG_DEVELOPER);
             return '<div class="alert alert-danger">Template error</div>';
         }
+    }
+
+    /**
+     * Get common context variables
+     *
+     * @return array Common context data
+     */
+    private static function get_common_context(): array {
+        global $CFG, $USER;
+
+        return [
+            'wwwroot' => $CFG->wwwroot ?? '',
+            'sesskey' => sesskey(),
+            'currentlang' => \core\string_manager::get_language(),
+            'isloggedin' => !empty($USER->id),
+            'userid' => $USER->id ?? 0,
+            'userfullname' => isset($USER->firstname) ? ($USER->firstname . ' ' . ($USER->lastname ?? '')) : '',
+            'isadmin' => function_exists('is_siteadmin') && !empty($USER->id) ? is_siteadmin($USER->id) : false,
+            'debug' => !empty($CFG->debug),
+        ];
+    }
+
+    /**
+     * Convert object to array recursively
+     *
+     * @param mixed $data Data to convert
+     * @return mixed Converted data
+     */
+    private static function object_to_array($data) {
+        if (is_object($data)) {
+            $data = get_object_vars($data);
+        }
+
+        if (is_array($data)) {
+            return array_map([self::class, 'object_to_array'], $data);
+        }
+
+        return $data;
     }
 
     /**
@@ -128,8 +223,7 @@ class template_manager {
      * @return bool True if template exists
      */
     public static function template_exists(string $templatename): bool {
-        $filepath = BASE_DIR . '/templates/' . $templatename . '.mustache';
-        return file_exists($filepath);
+        return mustache_template_finder::template_exists($templatename);
     }
 
     /**
@@ -139,13 +233,12 @@ class template_manager {
      * @return string|null Template source or null if not found
      */
     public static function get_template_source(string $templatename): ?string {
-        $filepath = BASE_DIR . '/templates/' . $templatename . '.mustache';
-
-        if (file_exists($filepath)) {
+        try {
+            $filepath = mustache_template_finder::get_template_filepath($templatename);
             return file_get_contents($filepath);
+        } catch (\Exception $e) {
+            return null;
         }
-
-        return null;
     }
 
     /**
@@ -160,20 +253,11 @@ class template_manager {
 
         if (file_exists($cachedir)) {
             self::delete_directory($cachedir);
-            mkdir($cachedir, 0755, true);
+            @mkdir($cachedir, 0755, true);
         }
 
-        self::$cache = [];
-    }
-
-    /**
-     * Get wwwroot URL
-     *
-     * @return string WWW root URL
-     */
-    private static function get_wwwroot(): string {
-        global $CFG;
-        return $CFG->wwwroot ?? '';
+        // Reset engine to force reload
+        self::$engine = null;
     }
 
     /**
@@ -191,21 +275,66 @@ class template_manager {
 
         foreach ($files as $file) {
             $path = $dir . '/' . $file;
-            is_dir($path) ? self::delete_directory($path) : unlink($path);
+            is_dir($path) ? self::delete_directory($path) : @unlink($path);
         }
 
-        rmdir($dir);
+        @rmdir($dir);
     }
 
     /**
-     * Add helper function to templates
+     * Add a custom helper function
      *
      * @param string $name Helper name
      * @param callable $helper Helper function
      * @return void
      */
     public static function add_helper(string $name, callable $helper): void {
-        $engine = self::get_engine();
-        $engine->addHelper($name, $helper);
+        self::$helpers[$name] = $helper;
+
+        // If engine already exists, add helper to it
+        if (self::$engine !== null) {
+            self::$engine->addHelper($name, $helper);
+        }
+    }
+
+    /**
+     * Get list of all registered helpers
+     *
+     * @return array Helper names
+     */
+    public static function get_helper_names(): array {
+        self::init_helpers();
+        return array_keys(self::$helpers);
+    }
+}
+
+
+/**
+ * Custom Filesystem Loader that uses template finder
+ *
+ * @package    core\output
+ */
+class mustache_filesystem_loader implements \Mustache\Loader {
+
+    /**
+     * Load a template by name
+     *
+     * @param string $name Template name
+     * @return string Template source
+     */
+    public function load($name): string {
+        try {
+            $filepath = mustache_template_finder::get_template_filepath($name);
+            return file_get_contents($filepath);
+        } catch (\Exception $e) {
+            // Try legacy path as fallback
+            $legacypath = BASE_DIR . '/templates/' . $name . '.mustache';
+
+            if (file_exists($legacypath)) {
+                return file_get_contents($legacypath);
+            }
+
+            throw new \Mustache\Exception\UnknownTemplateException($name);
+        }
     }
 }
