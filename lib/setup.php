@@ -30,6 +30,16 @@ define('DEBUG_DEVELOPER', E_ALL & ~E_STRICT & ~E_DEPRECATED);
 /** All debug messages including strict and deprecated (for developers only) */
 define('DEBUG_ALL', E_ALL);
 
+// Database record retrieval constants (Moodle-compatible)
+/** Throw exception if record not found */
+define('MUST_EXIST', 1);
+
+/** Return false/null if record not found */
+define('IGNORE_MISSING', 0);
+
+/** Allow multiple records (don't throw if more than one) */
+define('IGNORE_MULTIPLE', 2);
+
 // ============================================
 // PASO 1: Configuración básica de PHP
 // ============================================

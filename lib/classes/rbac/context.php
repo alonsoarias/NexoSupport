@@ -12,9 +12,13 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  * @package core\rbac
  */
 
-// Context levels
-define('CONTEXT_SYSTEM', 10);
-define('CONTEXT_USER', 30);
+// Context levels (check if already defined to avoid duplicate definition warnings)
+if (!defined('CONTEXT_SYSTEM')) {
+    define('CONTEXT_SYSTEM', 10);
+}
+if (!defined('CONTEXT_USER')) {
+    define('CONTEXT_USER', 30);
+}
 
 class context {
 

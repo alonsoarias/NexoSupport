@@ -103,10 +103,12 @@ class database {
      * @param string $table
      * @param array $conditions
      * @param string $fields Campos a seleccionar (default '*')
+     * @param int $strictness MUST_EXIST throws exception, IGNORE_MISSING returns null
      * @return object|null
+     * @throws \nexo_exception If MUST_EXIST and record not found
      */
-    public function get_record(string $table, array $conditions, string $fields = '*'): ?object {
-        $table = $this->add_prefix($table);
+    public function get_record(string $table, array $conditions, string $fields = '*', int $strictness = IGNORE_MISSING): ?object {
+        $tablename = $this->add_prefix($table);
 
         $where = [];
         $params = [];
@@ -116,12 +118,19 @@ class database {
             $params[] = $value;
         }
 
-        $sql = "SELECT $fields FROM $table WHERE " . implode(' AND ', $where) . " LIMIT 1";
+        $sql = "SELECT $fields FROM $tablename WHERE " . implode(' AND ', $where) . " LIMIT 1";
 
         $stmt = $this->execute($sql, $params);
         $result = $stmt->fetch();
 
-        return $result !== false ? $result : null;
+        if ($result === false || $result === null) {
+            if ($strictness === MUST_EXIST) {
+                throw new \nexo_exception("Record not found in table '$table'");
+            }
+            return null;
+        }
+
+        return $result;
     }
 
     /**
