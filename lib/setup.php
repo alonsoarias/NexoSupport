@@ -97,6 +97,7 @@ $CFG = new stdClass();
 
 // Directorios
 $CFG->dirroot = BASE_DIR;
+$CFG->libdir = BASE_DIR . '/lib';
 $CFG->dataroot = BASE_DIR . '/var';
 $CFG->cachedir = BASE_DIR . '/var/cache';
 $CFG->logdir = BASE_DIR . '/var/logs';
