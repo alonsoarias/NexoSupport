@@ -442,6 +442,26 @@ $router->post('/admin/settings/general', function() {
 });
 
 // ============================================
+// ADMIN ROUTES - PLACEHOLDER (Not Yet Implemented)
+// ============================================
+$notImplemented = function() {
+    require_login();
+    admin_externalpage_setup('admin');
+    echo render_template('admin/not_implemented', [
+        'pagetitle' => get_string('notimplemented', 'core'),
+        'message' => get_string('pagenotimplemented', 'core'),
+    ]);
+};
+
+$router->get('/admin/auth', $notImplemented);
+$router->get('/admin/plugins/install', $notImplemented);
+$router->get('/admin/settings/navigation', $notImplemented);
+$router->get('/admin/settings/htmlsettings', $notImplemented);
+$router->get('/admin/settings/additionalhtml', $notImplemented);
+$router->get('/admin/settings/supportcontact', $notImplemented);
+$router->get('/admin/reports/configchanges', $notImplemented);
+
+// ============================================
 // ADMIN ROUTES - ENVIRONMENT & SYSTEM INFO
 // ============================================
 $router->get('/admin/environment', function() {
@@ -465,6 +485,26 @@ $router->get('/admin/cache/purge.php', function() {
 });
 $router->post('/admin/cache/purge.php', function() {
     require(BASE_DIR . '/admin/cache/purge.php');
+});
+
+// ============================================
+// ADMIN REPORT REDIRECTS (alias to /report/*)
+// ============================================
+$router->get('/admin/reports/logs', function() {
+    header('Location: /report/log');
+    exit;
+});
+$router->get('/admin/reports/livelogs', function() {
+    header('Location: /report/loglive');
+    exit;
+});
+$router->get('/admin/reports/security', function() {
+    header('Location: /report/security');
+    exit;
+});
+$router->get('/admin/reports/performance', function() {
+    header('Location: /report/performance');
+    exit;
 });
 
 // ============================================

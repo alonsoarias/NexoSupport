@@ -1,0 +1,59 @@
+{{!
+    Not Implemented Template
+
+    Context:
+    * pagetitle - Page title
+    * message - Message to display
+}}
+{{> core/header}}
+
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+    }
+    .not-implemented {
+        background: white;
+        border-radius: 8px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-top: 40px;
+    }
+    .not-implemented h1 {
+        color: #667eea;
+        margin-bottom: 20px;
+    }
+    .not-implemented p {
+        color: #666;
+        font-size: 1.1em;
+        margin-bottom: 30px;
+    }
+    .not-implemented .icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+    }
+    .back-link {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #667eea;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    .back-link:hover {
+        background: #5a6fd6;
+    }
+</style>
+
+<div class="not-implemented">
+    <div class="icon">🚧</div>
+    <h1>{{pagetitle}}</h1>
+    <p>{{message}}</p>
+    <a href="/admin" class="back-link">{{#str}}backtoadmin, core{{/str}}</a>
+</div>
+
+{{> core/footer}}

@@ -708,3 +708,8 @@ $string['emailpasswordchangeinfosubject'] = '{$a}: Información sobre cambio de 
 // General auth strings
 $string['administrator'] = 'Administrador';
 $string['cannotmailconfirm'] = 'No se pudo enviar el correo de confirmación.';
+
+// Not implemented pages
+$string['notimplemented'] = 'No Implementado';
+$string['pagenotimplemented'] = 'Esta pagina aun no esta implementada. Estara disponible en una version futura.';
+$string['backtoadmin'] = 'Volver a Administracion';

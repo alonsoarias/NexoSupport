@@ -12,6 +12,11 @@
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
+// Define $hassiteconfig if not already defined (should be set by calling script)
+if (!isset($hassiteconfig)) {
+    $hassiteconfig = is_siteadmin();
+}
+
 // Only load if user has config capability
 if (!$hassiteconfig) {
     return;

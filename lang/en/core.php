@@ -591,3 +591,8 @@ $string['weeklydigest'] = 'Weekly digest';
 $string['weeklydigesthelp'] = 'Receive a single email per week with all accumulated notifications.';
 $string['preferencessaved'] = 'Preferences saved successfully';
 $string["coming_soon"] = "Coming Soon";
+
+// Not implemented pages
+$string['notimplemented'] = 'Not Implemented';
+$string['pagenotimplemented'] = 'This page is not yet implemented. It will be available in a future version.';
+$string['backtoadmin'] = 'Back to Administration';
