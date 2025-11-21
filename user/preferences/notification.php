@@ -8,19 +8,13 @@
  * @subpackage user
  */
 
-require_once('../../lib/setup.php');
+require_once('../../config.php');
 
 // Require login
 require_login();
 
 // Get current user
-global $USER, $DB, $OUTPUT;
-
-// Page setup
-$PAGE->set_url('/user/preferences/notification');
-$PAGE->set_title(get_string('notificationpreferences', 'core'));
-$PAGE->set_heading(get_string('notificationpreferences', 'core'));
-$PAGE->set_context(CONTEXT_SYSTEM);
+global $USER, $DB;
 
 $success = null;
 $errors = [];
@@ -50,6 +44,9 @@ $digest_type = get_user_preference('digest_type', 'none');
 
 // Prepare context for template
 $context = [
+    'pagetitle' => get_string('notificationpreferences', 'core'),
+    'has_navigation' => true,
+    'navigation_html' => get_navigation_html(),
     'sesskey' => sesskey(),
     'success' => $success,
     'errors' => $errors,
