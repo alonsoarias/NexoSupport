@@ -37,9 +37,8 @@ if ($hassiteconfig) {
         get_string('sitedescription', 'core'),
         get_string('sitedescriptionhelp', 'core'),
         '',
-        PARAM_TEXT,
-        60,
-        3
+        3,
+        60
     ));
 
     // Support contact
