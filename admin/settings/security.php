@@ -115,9 +115,8 @@ if ($hassiteconfig) {
         get_string('allowedips', 'admin'),
         get_string('allowedipshelp', 'admin'),
         '',
-        PARAM_RAW,
-        60,
-        5
+        5,
+        60
     ));
 
     $ipblocker->add(new \core\admin\admin_setting_configtextarea(
@@ -125,9 +124,8 @@ if ($hassiteconfig) {
         get_string('blockedips', 'admin'),
         get_string('blockedipshelp', 'admin'),
         '',
-        PARAM_RAW,
-        60,
-        5
+        5,
+        60
     ));
 
     $ADMIN->add('security', $ipblocker);
