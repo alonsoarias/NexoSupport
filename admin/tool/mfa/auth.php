@@ -47,10 +47,10 @@ if ($status === factor::STATE_FAIL || $status === factor::STATE_LOCKED) {
 }
 
 // Setup page
-$PAGE = get_page();
+global $PAGE, $OUTPUT;
 $PAGE->set_title(get_string('auth:title', 'tool_mfa'));
 $PAGE->set_heading(get_string('auth:title', 'tool_mfa'));
-$PAGE->set_url($CFG->wwwroot . '/admin/tool/mfa/auth.php');
+$PAGE->set_url(new \core\nexo_url('/admin/tool/mfa/auth.php'));
 
 // Handle form submission
 $errors = [];
@@ -101,8 +101,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $factor->login_form_definition_after_data(null);
 
 // Render the page
-$OUTPUT = get_renderer();
-
 echo $OUTPUT->header();
 ?>
 
