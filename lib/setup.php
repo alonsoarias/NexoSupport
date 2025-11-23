@@ -368,8 +368,8 @@ function load_environment(string $filepath): void {
             $name = trim($name);
             $value = trim($value);
 
-            // Remover comillas
-            $value = trim($value, '"\'");
+            // Remover comillas (comillas dobles y simples)
+            $value = trim($value, "\"'");
 
             // Establecer variable de entorno
             putenv("$name=$value");
