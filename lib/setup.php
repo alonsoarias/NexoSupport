@@ -310,7 +310,14 @@ global $LANG;
 $LANG = [];
 
 // ============================================
-// PASO 10: Verificar si hay actualizaciones pendientes
+// PASO 10: Inicializar objeto $PAGE
+// ============================================
+
+global $PAGE;
+$PAGE = new \core\page_manager();
+
+// ============================================
+// PASO 11: Verificar si hay actualizaciones pendientes
 // ============================================
 // NOTE: Upgrade detection is handled in public_html/index.php
 // using environment_checker BEFORE loading this file.
@@ -362,7 +369,7 @@ function load_environment(string $filepath): void {
             $value = trim($value);
 
             // Remover comillas
-            $value = trim($value, '"\'');
+            $value = trim($value, '"\'");
 
             // Establecer variable de entorno
             putenv("$name=$value");
