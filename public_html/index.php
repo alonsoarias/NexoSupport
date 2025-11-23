@@ -2,7 +2,7 @@
 /**
  * Front Controller - Single Entry Point
  *
- * Este es el ÚNICO archivo en public_html.
+ * Este es el Único archivo en public_html.
  * Todo el sistema es accesible a través de este punto.
  *
  * Funciones:
@@ -120,6 +120,9 @@ if ($envChecker->needs_install()) {
 // Cargar setup del sistema
 require_once(BASE_DIR . '/lib/setup.php');
 
+// Acceder a variables globales inicializadas en setup.php
+global $DB, $CFG, $USER, $PAGE, $OUTPUT;
+
 // Verificar que la base de datos está accesible
 if ($DB === null) {
     http_response_code(500);
@@ -165,8 +168,6 @@ if ($envChecker->needs_upgrade()) {
     if (!$is_allowed) {
         // Check if user is logged in and is siteadmin
         // Note: $USER is loaded in lib/setup.php which was already required
-        global $USER;
-
         $is_logged_in = isset($USER->id) && $USER->id > 0;
 
         if ($is_logged_in) {
@@ -603,7 +604,6 @@ try {
     echo '<p>The requested page was not found.</p>';
     echo '<p><a href="/">Return to home</a></p>';
 } catch (\Exception $e) {
-    global $CFG;  // ← FIX: Agregar acceso a variable global
     http_response_code(500);
 
     if (isset($CFG) && $CFG->debug) {
