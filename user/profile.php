@@ -1,15 +1,9 @@
 <?php
-/**
- * User profile view
- *
- * @package NexoSupport
- */
-
+defined('NEXOSUPPORT_INTERNAL') || die();
+global $USER, $DB, $CFG, $PAGE, $OUTPUT;
 require_once(__DIR__ . '/../config.php');
 
 require_login();
-
-global $USER;
 
 // Preparar contexto para el template
 $context = [
