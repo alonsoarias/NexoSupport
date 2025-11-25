@@ -70,6 +70,29 @@ class context {
     }
 
     /**
+     * Get context instance by ID
+     *
+     * @param int $id Context ID
+     * @param bool $strictness IGNORE_MISSING or MUST_EXIST
+     * @return context|null
+     */
+    public static function instance_by_id(int $id, int $strictness = MUST_EXIST): ?context {
+        global $DB;
+
+        $record = $DB->get_record('contexts', ['id' => $id]);
+
+        if ($record) {
+            return new self($record);
+        }
+
+        if ($strictness == MUST_EXIST) {
+            throw new \coding_exception("Context not found with id: $id");
+        }
+
+        return null;
+    }
+
+    /**
      * Get context instance
      *
      * @param int $level
