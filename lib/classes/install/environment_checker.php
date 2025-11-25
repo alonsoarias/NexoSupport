@@ -118,12 +118,21 @@ class environment_checker {
         }
 
         // Verificar que la configuración sea válida
-        $this->state['config_valid'] = (
-            !empty($this->dbconfig['host']) &&
-            !empty($this->dbconfig['database']) &&
-            !empty($this->dbconfig['username']) &&
-            !empty($this->dbconfig['prefix'])
-        );
+        // SQLite no necesita host ni username
+        $driver = $this->dbconfig['driver'] ?? 'mysql';
+        if ($driver === 'sqlite' || $driver === 'sqlite3') {
+            $this->state['config_valid'] = (
+                !empty($this->dbconfig['database']) &&
+                !empty($this->dbconfig['prefix'])
+            );
+        } else {
+            $this->state['config_valid'] = (
+                !empty($this->dbconfig['host']) &&
+                !empty($this->dbconfig['database']) &&
+                !empty($this->dbconfig['username']) &&
+                !empty($this->dbconfig['prefix'])
+            );
+        }
     }
 
     /**
@@ -146,20 +155,41 @@ class environment_checker {
             $username = $this->dbconfig['username'];
             $password = $this->dbconfig['password'] ?? '';
 
-            // Construir DSN
+            // Construir DSN según driver
             switch ($driver) {
                 case 'mysql':
                     $dsn = "mysql:host={$host};dbname={$database};charset=utf8mb4";
+                    $this->testpdo = new \PDO($dsn, $username, $password);
                     break;
+
                 case 'pgsql':
                     $dsn = "pgsql:host={$host};dbname={$database}";
+                    $this->testpdo = new \PDO($dsn, $username, $password);
                     break;
+
+                case 'sqlite':
+                case 'sqlite3':
+                    // SQLite: database es la ruta al archivo
+                    $dbpath = $database;
+                    if (!str_starts_with($dbpath, '/') && !str_starts_with($dbpath, ':')) {
+                        // Ruta relativa - usar BASE_DIR
+                        $dbpath = BASE_DIR . '/' . $dbpath;
+                    }
+                    // Crear directorio si no existe
+                    $dbdir = dirname($dbpath);
+                    if (!is_dir($dbdir) && $dbpath !== ':memory:') {
+                        @mkdir($dbdir, 0755, true);
+                    }
+                    $dsn = "sqlite:{$dbpath}";
+                    $this->testpdo = new \PDO($dsn);
+                    // Habilitar foreign keys en SQLite
+                    $this->testpdo->exec('PRAGMA foreign_keys = ON');
+                    break;
+
                 default:
                     throw new \Exception("Unsupported database driver: {$driver}");
             }
 
-            // Intentar conectar
-            $this->testpdo = new \PDO($dsn, $username, $password);
             $this->testpdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             $this->state['db_connected'] = true;
@@ -189,27 +219,11 @@ class environment_checker {
             $prefix = $this->dbconfig['prefix'];
             $driver = $this->dbconfig['driver'] ?? 'mysql';
 
-            // Verificar tabla config (compatible MySQL y PostgreSQL)
-            if ($driver === 'mysql') {
-                $stmt = $this->testpdo->query("SHOW TABLES LIKE '{$prefix}config'");
-                $configExists = ($stmt->rowCount() > 0);
-            } else {
-                // PostgreSQL
-                $stmt = $this->testpdo->prepare("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = ?)");
-                $stmt->execute(["{$prefix}config"]);
-                $configExists = (bool)$stmt->fetchColumn();
-            }
+            // Verificar tabla config según driver
+            $configExists = $this->table_exists_check($driver, $prefix, 'config');
 
             // Verificar tabla users (tabla crítica)
-            if ($driver === 'mysql') {
-                $stmt = $this->testpdo->query("SHOW TABLES LIKE '{$prefix}users'");
-                $usersExists = ($stmt->rowCount() > 0);
-            } else {
-                // PostgreSQL
-                $stmt = $this->testpdo->prepare("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = ?)");
-                $stmt->execute(["{$prefix}users"]);
-                $usersExists = (bool)$stmt->fetchColumn();
-            }
+            $usersExists = $this->table_exists_check($driver, $prefix, 'users');
 
             // Sistema instalado si ambas tablas existen
             $this->state['tables_exist'] = $configExists && $usersExists;
@@ -217,6 +231,42 @@ class environment_checker {
         } catch (\PDOException $e) {
             $this->state['tables_exist'] = false;
             $this->state['tables_error'] = $e->getMessage();
+        }
+    }
+
+    /**
+     * Check if a table exists (driver-aware)
+     *
+     * @param string $driver Database driver
+     * @param string $prefix Table prefix
+     * @param string $table Table name (without prefix)
+     * @return bool
+     */
+    private function table_exists_check(string $driver, string $prefix, string $table): bool {
+        $tablename = $prefix . $table;
+
+        switch ($driver) {
+            case 'mysql':
+                $stmt = $this->testpdo->query("SHOW TABLES LIKE '{$tablename}'");
+                return ($stmt->rowCount() > 0);
+
+            case 'pgsql':
+                $stmt = $this->testpdo->prepare(
+                    "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = ?)"
+                );
+                $stmt->execute([$tablename]);
+                return (bool)$stmt->fetchColumn();
+
+            case 'sqlite':
+            case 'sqlite3':
+                $stmt = $this->testpdo->prepare(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name = ?"
+                );
+                $stmt->execute([$tablename]);
+                return ($stmt->fetch() !== false);
+
+            default:
+                return false;
         }
     }
 

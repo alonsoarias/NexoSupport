@@ -219,33 +219,88 @@ require_once(__DIR__ . '/functions.php');
 global $DB;
 $DB = null;
 
-// Only initialize database if .env exists and has database config
-if (!empty($CFG->dbhost) && !empty($CFG->dbname)) {
-    try {
-        $dsn = sprintf(
-            '%s:host=%s;port=%s;dbname=%s;charset=%s',
-            $CFG->dbdriver,
-            $CFG->dbhost,
-            $CFG->dbport,
-            $CFG->dbname,
-            $CFG->dbcharset
-        );
+// Build DSN based on driver
+$dsn = null;
+$pdo_options = [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+    PDO::ATTR_EMULATE_PREPARES => false,
+];
 
-        $pdo = new PDO($dsn, $CFG->dbuser, $CFG->dbpass, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]);
+try {
+    switch ($CFG->dbdriver) {
+        case 'mysql':
+            if (!empty($CFG->dbhost) && !empty($CFG->dbname)) {
+                $dsn = sprintf(
+                    'mysql:host=%s;port=%s;dbname=%s;charset=%s',
+                    $CFG->dbhost,
+                    $CFG->dbport,
+                    $CFG->dbname,
+                    $CFG->dbcharset
+                );
+                $pdo = new PDO($dsn, $CFG->dbuser, $CFG->dbpass, $pdo_options);
+            }
+            break;
 
-        $DB = new \core\db\database($pdo, $CFG->dbprefix, $CFG->dbdriver);
+        case 'pgsql':
+            if (!empty($CFG->dbhost) && !empty($CFG->dbname)) {
+                $dsn = sprintf(
+                    'pgsql:host=%s;port=%s;dbname=%s',
+                    $CFG->dbhost,
+                    $CFG->dbport ?: '5432',
+                    $CFG->dbname
+                );
+                $pdo = new PDO($dsn, $CFG->dbuser, $CFG->dbpass, $pdo_options);
+            }
+            break;
 
-    } catch (PDOException $e) {
-        // Database not available - this is OK during installation
-        if ($CFG->debug) {
-            error_log('NexoSupport DB Error: ' . $e->getMessage());
-        }
-        $DB = null;
+        case 'sqlite':
+        case 'sqlite3':
+            if (!empty($CFG->dbname)) {
+                // SQLite: dbname is the path to the database file
+                $dbpath = $CFG->dbname;
+                if (!str_starts_with($dbpath, '/') && !str_starts_with($dbpath, ':')) {
+                    // Relative path - use BASE_DIR
+                    $dbpath = BASE_DIR . '/' . $dbpath;
+                }
+                // Create directory if not exists
+                $dbdir = dirname($dbpath);
+                if (!is_dir($dbdir) && $dbpath !== ':memory:') {
+                    @mkdir($dbdir, 0755, true);
+                }
+                $dsn = "sqlite:{$dbpath}";
+                $pdo = new PDO($dsn, null, null, $pdo_options);
+                // Enable foreign keys in SQLite
+                $pdo->exec('PRAGMA foreign_keys = ON');
+            }
+            break;
+
+        default:
+            // Fallback to MySQL format
+            if (!empty($CFG->dbhost) && !empty($CFG->dbname)) {
+                $dsn = sprintf(
+                    '%s:host=%s;port=%s;dbname=%s;charset=%s',
+                    $CFG->dbdriver,
+                    $CFG->dbhost,
+                    $CFG->dbport,
+                    $CFG->dbname,
+                    $CFG->dbcharset
+                );
+                $pdo = new PDO($dsn, $CFG->dbuser, $CFG->dbpass, $pdo_options);
+            }
+            break;
     }
+
+    if (isset($pdo)) {
+        $DB = new \core\db\database($pdo, $CFG->dbprefix, $CFG->dbdriver);
+    }
+
+} catch (PDOException $e) {
+    // Database not available - this is OK during installation
+    if ($CFG->debug) {
+        error_log('NexoSupport DB Error: ' . $e->getMessage());
+    }
+    $DB = null;
 }
 
 // ============================================
