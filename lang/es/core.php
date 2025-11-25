@@ -130,8 +130,8 @@ $string['generalsettings'] = 'General';
 $string['developmentsettings'] = 'Desarrollo';
 $string['plugins'] = 'Plugins';
 $string['authentication'] = 'Autenticación';
-$string['sitename'] = 'Nombre del Sitio';
-$string['sitenamehelp'] = 'Nombre que aparece en el encabezado y correos';
+// sitename ya definido en línea 12
+$string['sitenamehelp'] = 'Nombre que aparecerá en todo el sitio';
 $string['debugmode'] = 'Modo Debug';
 $string['debughelp'] = 'Habilita mensajes de debug en logs. Solo para desarrollo.';
 $string['sessiontimeouthelp'] = 'Tiempo de inactividad antes de cerrar sesión. Rango: 10 min (600) - 24 hrs (86400). Valor recomendado: 7200 (2 horas)';
@@ -346,7 +346,7 @@ $string['errorconfig'] = 'Error al guardar configuración: {$a}';
 $string['pagenotfound'] = 'Página no encontrada';
 $string['nopermission'] = 'No tiene permiso para acceder a esta página';
 $string['unknown'] = 'Desconocido';
-$string['sitenamehelp'] = 'Nombre que aparecerá en todo el sitio';
+// sitenamehelp ya definido arriba
 $string['sitedescription'] = 'Descripción del sitio';
 $string['sitedescriptionhelp'] = 'Descripción breve del propósito del sitio';
 $string['sessiontimeout'] = 'Tiempo de espera de sesión';

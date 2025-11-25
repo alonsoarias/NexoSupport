@@ -51,14 +51,37 @@ class mustache_engine {
         ]);
 
         // Add string helper for i18n
+        // Syntax: {{#str}}identifier,component{{/str}} or {{#str}}identifier,component,data{{/str}}
         $this->engine->addHelper('str', function($text, \Mustache_LambdaHelper $helper) {
             $rendered = $helper->render($text);
-            $parts = explode(',', $rendered, 2);
-            $identifier = trim($parts[0]);
-            $component = isset($parts[1]) ? trim($parts[1]) : 'core';
+
+            // Parse the string carefully - we need to handle JSON data with commas
+            // Format: identifier,component or identifier,component,{json}
+            $identifier = '';
+            $component = 'core';
+            $a = null;
+
+            // Check if there's JSON data (starts with { after second comma)
+            if (preg_match('/^([^,]+),([^,]+),(\{.+\})$/', $rendered, $matches)) {
+                $identifier = trim($matches[1]);
+                $component = trim($matches[2]);
+                $jsonData = $matches[3];
+                $a = json_decode($jsonData);
+            } else {
+                // No JSON data - simple split
+                $parts = explode(',', $rendered, 3);
+                $identifier = trim($parts[0]);
+                if (isset($parts[1])) {
+                    $component = trim($parts[1]);
+                }
+                // Third part could be a simple value
+                if (isset($parts[2])) {
+                    $a = trim($parts[2]);
+                }
+            }
 
             if (function_exists('get_string')) {
-                return get_string($identifier, $component);
+                return get_string($identifier, $component, $a);
             }
             return $identifier;
         });

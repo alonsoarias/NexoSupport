@@ -178,13 +178,8 @@ class installer {
      */
     public function validate_database_config(array $dbconfig): array {
         // Validar driver
-        if (!in_array($dbconfig['driver'] ?? '', ['mysql', 'pgsql'], true)) {
+        if (!in_array($dbconfig['driver'] ?? '', ['mysql', 'pgsql', 'sqlite'], true)) {
             return ['success' => false, 'error' => get_string('installer_invalid_driver', 'install')];
-        }
-
-        // Validar nombre de BD (seguridad)
-        if (!preg_match('/^[a-zA-Z0-9_]+$/', $dbconfig['database'] ?? '')) {
-            return ['success' => false, 'error' => get_string('installer_invalid_dbname', 'install')];
         }
 
         // Validar prefijo (seguridad)
@@ -192,7 +187,21 @@ class installer {
             return ['success' => false, 'error' => get_string('installer_invalid_prefix', 'install')];
         }
 
-        // Validar campos requeridos
+        // SQLite tiene requisitos diferentes
+        if ($dbconfig['driver'] === 'sqlite') {
+            // Solo necesita database (ruta del archivo) y prefix
+            if (empty($dbconfig['database']) || empty($dbconfig['prefix'])) {
+                return ['success' => false, 'error' => get_string('installer_required_fields', 'install')];
+            }
+            return ['success' => true, 'error' => null];
+        }
+
+        // Validar nombre de BD (seguridad) - para MySQL/PostgreSQL
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $dbconfig['database'] ?? '')) {
+            return ['success' => false, 'error' => get_string('installer_invalid_dbname', 'install')];
+        }
+
+        // Validar campos requeridos para MySQL/PostgreSQL
         if (empty($dbconfig['host']) || empty($dbconfig['database']) || empty($dbconfig['username'])) {
             return ['success' => false, 'error' => get_string('installer_required_fields', 'install')];
         }
@@ -208,18 +217,38 @@ class installer {
      */
     public function test_database_connection(array $dbconfig): array {
         try {
-            $dsn = $dbconfig['driver'] === 'mysql'
-                ? "mysql:host={$dbconfig['host']};charset=utf8mb4"
-                : "pgsql:host={$dbconfig['host']}";
+            $driver = $dbconfig['driver'];
 
-            $pdo = new \PDO($dsn, $dbconfig['username'], $dbconfig['password'] ?? '');
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            if ($driver === 'sqlite') {
+                // SQLite: database es la ruta al archivo
+                $dbpath = $dbconfig['database'];
+                if (!str_starts_with($dbpath, '/') && !str_starts_with($dbpath, ':')) {
+                    // Ruta relativa - usar BASE_DIR
+                    $dbpath = BASE_DIR . '/' . $dbpath;
+                }
+                // Crear directorio si no existe
+                $dbdir = dirname($dbpath);
+                if (!is_dir($dbdir) && $dbpath !== ':memory:') {
+                    @mkdir($dbdir, 0755, true);
+                }
+                $dsn = "sqlite:{$dbpath}";
+                $pdo = new \PDO($dsn);
+                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                $pdo->exec('PRAGMA foreign_keys = ON');
+            } else {
+                $dsn = $driver === 'mysql'
+                    ? "mysql:host={$dbconfig['host']};charset=utf8mb4"
+                    : "pgsql:host={$dbconfig['host']}";
 
-            // Crear BD si no existe (solo MySQL)
-            if ($dbconfig['driver'] === 'mysql') {
-                $dbname = $dbconfig['database'];
-                $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-                $pdo->exec("USE `$dbname`");
+                $pdo = new \PDO($dsn, $dbconfig['username'], $dbconfig['password'] ?? '');
+                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+                // Crear BD si no existe (solo MySQL)
+                if ($driver === 'mysql') {
+                    $dbname = $dbconfig['database'];
+                    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                    $pdo->exec("USE `$dbname`");
+                }
             }
 
             return ['success' => true, 'error' => null, 'pdo' => $pdo];
@@ -292,12 +321,22 @@ class installer {
                 return ['success' => false, 'error' => get_string('installer_dbconfig_not_found', 'install'), 'log' => $log];
             }
 
-            // Conectar
-            $dsn = $dbconfig['driver'] === 'mysql'
-                ? "mysql:host={$dbconfig['host']};dbname={$dbconfig['database']};charset=utf8mb4"
-                : "pgsql:host={$dbconfig['host']};dbname={$dbconfig['database']}";
-
-            $pdo = new \PDO($dsn, $dbconfig['username'], $dbconfig['password'] ?? '');
+            // Conectar según el driver
+            $driver = $dbconfig['driver'];
+            if ($driver === 'sqlite') {
+                $dbpath = $dbconfig['database'];
+                if (!str_starts_with($dbpath, '/') && !str_starts_with($dbpath, ':')) {
+                    $dbpath = BASE_DIR . '/' . $dbpath;
+                }
+                $dsn = "sqlite:{$dbpath}";
+                $pdo = new \PDO($dsn);
+                $pdo->exec('PRAGMA foreign_keys = ON');
+            } else {
+                $dsn = $driver === 'mysql'
+                    ? "mysql:host={$dbconfig['host']};dbname={$dbconfig['database']};charset=utf8mb4"
+                    : "pgsql:host={$dbconfig['host']};dbname={$dbconfig['database']}";
+                $pdo = new \PDO($dsn, $dbconfig['username'], $dbconfig['password'] ?? '');
+            }
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             $log[] = get_string('installer_log_connected', 'install');
@@ -384,11 +423,7 @@ class installer {
                 return ['success' => false, 'error' => get_string('installer_dbconfig_not_found', 'install'), 'userid' => null];
             }
 
-            $dsn = $dbconfig['driver'] === 'mysql'
-                ? "mysql:host={$dbconfig['host']};dbname={$dbconfig['database']};charset=utf8mb4"
-                : "pgsql:host={$dbconfig['host']};dbname={$dbconfig['database']}";
-
-            $pdo = new \PDO($dsn, $dbconfig['username'], $dbconfig['password'] ?? '');
+            $pdo = $this->create_pdo_connection($dbconfig);
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             require_once(BASE_DIR . '/lib/classes/db/database.php');
@@ -437,11 +472,7 @@ class installer {
             }
 
             // Conectar
-            $dsn = $dbconfig['driver'] === 'mysql'
-                ? "mysql:host={$dbconfig['host']};dbname={$dbconfig['database']};charset=utf8mb4"
-                : "pgsql:host={$dbconfig['host']};dbname={$dbconfig['database']}";
-
-            $pdo = new \PDO($dsn, $dbconfig['username'], $dbconfig['password'] ?? '');
+            $pdo = $this->create_pdo_connection($dbconfig);
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             require_once(BASE_DIR . '/lib/classes/db/database.php');
@@ -505,6 +536,34 @@ class installer {
      */
     public function get_data(string $key) {
         return $this->state['data'][$key] ?? null;
+    }
+
+    /**
+     * Crear conexión PDO según el driver configurado
+     *
+     * @param array $dbconfig Configuración de la base de datos
+     * @return \PDO Conexión PDO
+     */
+    private function create_pdo_connection(array $dbconfig): \PDO {
+        $driver = $dbconfig['driver'];
+
+        if ($driver === 'sqlite') {
+            $dbpath = $dbconfig['database'];
+            if (!str_starts_with($dbpath, '/') && !str_starts_with($dbpath, ':')) {
+                $dbpath = BASE_DIR . '/' . $dbpath;
+            }
+            $dsn = "sqlite:{$dbpath}";
+            $pdo = new \PDO($dsn);
+            $pdo->exec('PRAGMA foreign_keys = ON');
+            return $pdo;
+        }
+
+        // MySQL o PostgreSQL
+        $dsn = $driver === 'mysql'
+            ? "mysql:host={$dbconfig['host']};dbname={$dbconfig['database']};charset=utf8mb4"
+            : "pgsql:host={$dbconfig['host']};dbname={$dbconfig['database']}";
+
+        return new \PDO($dsn, $dbconfig['username'], $dbconfig['password'] ?? '');
     }
 
     /**
