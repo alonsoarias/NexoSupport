@@ -220,33 +220,6 @@ function isloggedin(): bool {
 }
 
 /**
- * Check if current user is a guest user
- *
- * @param object|int|null $user User object or ID (null = current user)
- * @return bool True if guest user
- */
-function isguestuser($user = null): bool {
-    global $USER;
-
-    if ($user === null) {
-        $user = $USER;
-    }
-
-    if (!is_object($user)) {
-        return true; // Not a valid user object = treat as guest
-    }
-
-    // Check if user ID is 0 or not set (guest)
-    if (!isset($user->id) || empty($user->id)) {
-        return true;
-    }
-
-    // Guest user typically has a special flag or ID
-    // For now, return false for any valid user
-    return false;
-}
-
-/**
  * Require login
  *
  * CRITICAL: This function MUST prevent access to pages without authentication.
