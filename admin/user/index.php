@@ -26,13 +26,17 @@ foreach ($users as $user) {
     if (!empty($search) && stripos($user->username . $user->firstname . $user->lastname . $user->email, $search) === false) {
         continue;
     }
+    $issuspended = !empty($user->suspended);
     $usersformatted[] = [
         'id' => $user->id,
         'username' => htmlspecialchars($user->username),
         'fullname' => htmlspecialchars($user->firstname . ' ' . $user->lastname),
         'email' => htmlspecialchars($user->email),
-        'suspended' => !empty($user->suspended),
-        'lastlogin' => $user->lastlogin ? date('d/m/Y H:i', $user->lastlogin) : get_string('never', 'core'),
+        'issuspended' => $issuspended,
+        'lastloginformatted' => $user->lastlogin ? date('d/m/Y H:i', $user->lastlogin) : get_string('never', 'core'),
+        'cansuspend' => !$issuspended && $user->id != $USER->id,
+        'canunsuspend' => $issuspended,
+        'candelete' => $user->id != $USER->id,
     ];
 }
 

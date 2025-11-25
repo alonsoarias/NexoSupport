@@ -12,7 +12,7 @@ require_capability('nexosupport/admin:manageroles');
 
 global $USER, $CFG, $DB, $PAGE, $OUTPUT;
 
-$roleid = required_param('id', PARAM_INT);
+$roleid = required_param('roleid', PARAM_INT);
 
 // Load role
 $role = $DB->get_record('roles', ['id' => $roleid]);
@@ -62,23 +62,32 @@ foreach ($currentperms as $perm) {
 }
 
 // Format capabilities for template
-$capgroups = [];
+$components = [];
 foreach ($capabilities as $cap) {
     $component = $cap->component ?: 'core';
-    if (!isset($capgroups[$component])) {
-        $capgroups[$component] = [
-            'component' => $component,
+    if (!isset($components[$component])) {
+        $components[$component] = [
+            'component_name' => $component,
             'capabilities' => [],
         ];
     }
-    $capgroups[$component]['capabilities'][] = [
-        'id' => $cap->id,
-        'name' => $cap->name,
-        'displayname' => str_replace('/', ' / ', $cap->name),
-        'permission' => $permsbyname[$cap->name] ?? 0,
-        'allowed' => ($permsbyname[$cap->name] ?? 0) == 1,
-        'prohibited' => ($permsbyname[$cap->name] ?? 0) == -1,
+    $perm = $permsbyname[$cap->name] ?? 0;
+    $components[$component]['capabilities'][] = [
+        'cap_id' => $cap->id,
+        'cap_name' => $cap->name,
+        'cap_type' => $cap->captype ?? 'write',
+        'field_name' => 'cap_' . $cap->id,
+        'current_perm' => $perm,
+        'is_inherit' => $perm == 0,
+        'is_allow' => $perm == 1,
+        'is_prevent' => $perm == -1,
+        'is_prohibit' => $perm == -1000,
     ];
+}
+
+// Add capability count to each component
+foreach ($components as &$comp) {
+    $comp['capability_count'] = count($comp['capabilities']);
 }
 
 // Prepare context
@@ -87,12 +96,11 @@ $context = [
     'showadmin' => true,
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
-    'role' => [
-        'id' => $role->id,
-        'name' => htmlspecialchars($role->name),
-        'shortname' => htmlspecialchars($role->shortname),
-    ],
-    'capgroups' => array_values($capgroups),
+    'role_id' => $role->id,
+    'role_name' => htmlspecialchars($role->name),
+    'role_shortname' => htmlspecialchars($role->shortname),
+    'role_description' => htmlspecialchars($role->description ?? ''),
+    'components' => array_values($components),
     'success' => $success,
     'errors' => $errors,
     'haserrors' => !empty($errors),

@@ -69,23 +69,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// System roles
+$systemroles = ['admin', 'manager', 'user', 'guest'];
+$is_system_role = !$isNew && in_array($role->shortname, $systemroles);
+
 // Prepare context
 $context = [
     'pagetitle' => $isNew ? get_string('newrole', 'core') : get_string('editrole', 'core'),
     'showadmin' => true,
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
-    'isnew' => $isNew,
-    'role' => [
-        'id' => $role->id,
-        'name' => htmlspecialchars($role->name),
-        'shortname' => htmlspecialchars($role->shortname),
-        'description' => htmlspecialchars($role->description ?? ''),
-        'archetype' => htmlspecialchars($role->archetype ?? ''),
-    ],
+    'title_key' => $isNew ? 'newrole' : 'editrole',
+    'role_id' => $role->id,
+    'role_name' => htmlspecialchars($role->name),
+    'role_shortname' => htmlspecialchars($role->shortname),
+    'role_description' => htmlspecialchars($role->description ?? ''),
+    'is_system_role' => $is_system_role,
+    'show_delete_button' => !$isNew && !$is_system_role,
+    'show_define_button' => !$isNew,
+    'submit_button_key' => $isNew ? 'create' : 'save',
     'success' => $success,
     'errors' => $errors,
-    'haserrors' => !empty($errors),
+    'has_errors' => !empty($errors),
     'sesskey' => sesskey(),
 ];
 
