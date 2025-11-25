@@ -9,6 +9,11 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  * Provides a Moodle Universal Cache (MUC) compatible interface for caching.
  * Supports application, session, and request scoped caches.
  *
+ * Stores are automatically selected based on configuration:
+ *   - File store (default)
+ *   - Redis store (for distributed caching)
+ *   - APCu store (for high-performance single-server)
+ *
  * @package    core\cache
  * @copyright  NexoSupport
  * @license    Proprietary - NexoSupport
@@ -21,22 +26,25 @@ class cache {
     const MODE_REQUEST = 4;
 
     /** @var string Component name */
-    protected $component;
+    protected string $component;
 
     /** @var string Area name */
-    protected $area;
+    protected string $area;
 
     /** @var int Cache mode */
-    protected $mode;
+    protected int $mode;
 
     /** @var array Static cache for request mode */
-    protected static $staticcache = [];
+    protected static array $staticcache = [];
 
     /** @var array Definition configuration */
-    protected $definition;
+    protected array $definition;
 
     /** @var string Cache key prefix */
-    protected $prefix;
+    protected string $prefix;
+
+    /** @var cache_store|null Store for APPLICATION mode */
+    protected ?cache_store $store = null;
 
     /**
      * Create a cache instance
@@ -89,6 +97,11 @@ class cache {
         if (!empty($identifiers)) {
             $this->prefix .= '/' . implode('/', $identifiers);
         }
+
+        // Initialize store for APPLICATION mode
+        if ($this->mode === self::MODE_APPLICATION) {
+            $this->store = cache_config::get_store($this->mode, $definition, $this->prefix);
+        }
     }
 
     /**
@@ -109,7 +122,10 @@ class cache {
 
             case self::MODE_APPLICATION:
             default:
-                return $this->get_from_store($fullkey);
+                if ($this->store !== null) {
+                    return $this->store->get($key);
+                }
+                return false;
         }
     }
 
@@ -120,6 +136,10 @@ class cache {
      * @return array Array of key => value pairs
      */
     public function get_many(array $keys): array {
+        if ($this->mode === self::MODE_APPLICATION && $this->store !== null) {
+            return $this->store->get_many($keys);
+        }
+
         $result = [];
         foreach ($keys as $key) {
             $result[$key] = $this->get($key);
@@ -151,7 +171,10 @@ class cache {
 
             case self::MODE_APPLICATION:
             default:
-                return $this->set_in_store($fullkey, $value);
+                if ($this->store !== null) {
+                    return $this->store->set($key, $value);
+                }
+                return false;
         }
     }
 
@@ -162,6 +185,10 @@ class cache {
      * @return int Number of items successfully set
      */
     public function set_many(array $keyvaluearray): int {
+        if ($this->mode === self::MODE_APPLICATION && $this->store !== null) {
+            return $this->store->set_many($keyvaluearray);
+        }
+
         $count = 0;
         foreach ($keyvaluearray as $key => $value) {
             if ($this->set($key, $value)) {
@@ -191,7 +218,10 @@ class cache {
 
             case self::MODE_APPLICATION:
             default:
-                return $this->delete_from_store($fullkey);
+                if ($this->store !== null) {
+                    return $this->store->delete($key);
+                }
+                return false;
         }
     }
 
@@ -202,6 +232,10 @@ class cache {
      * @return int Number of items successfully deleted
      */
     public function delete_many(array $keys): int {
+        if ($this->mode === self::MODE_APPLICATION && $this->store !== null) {
+            return $this->store->delete_many($keys);
+        }
+
         $count = 0;
         foreach ($keys as $key) {
             if ($this->delete($key)) {
@@ -229,7 +263,10 @@ class cache {
 
             case self::MODE_APPLICATION:
             default:
-                return $this->has_in_store($fullkey);
+                if ($this->store !== null) {
+                    return $this->store->has($key);
+                }
+                return false;
         }
     }
 
@@ -261,7 +298,10 @@ class cache {
 
             case self::MODE_APPLICATION:
             default:
-                return $this->purge_store();
+                if ($this->store !== null) {
+                    return $this->store->purge();
+                }
+                return false;
         }
     }
 
@@ -277,167 +317,6 @@ class cache {
         }
         // Hash complex keys
         return $this->prefix . '/' . md5($key);
-    }
-
-    // =========================================
-    // FILE STORE OPERATIONS (Application mode)
-    // =========================================
-
-    /**
-     * Get cache directory
-     *
-     * @return string Cache directory path
-     */
-    protected function get_cache_dir(): string {
-        global $CFG;
-        $dir = $CFG->cachedir . '/muc/' . str_replace('/', '_', $this->prefix);
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0755, true);
-        }
-        return $dir;
-    }
-
-    /**
-     * Get cache file path for a key
-     *
-     * @param string $key Cache key
-     * @return string File path
-     */
-    protected function get_cache_file(string $key): string {
-        $dir = $this->get_cache_dir();
-        $filename = md5($key) . '.cache';
-        return $dir . '/' . $filename;
-    }
-
-    /**
-     * Get value from file store
-     *
-     * @param string $key Cache key
-     * @return mixed|false Cached value or false
-     */
-    protected function get_from_store(string $key) {
-        $file = $this->get_cache_file($key);
-
-        if (!file_exists($file)) {
-            return false;
-        }
-
-        // Check TTL if defined
-        if (!empty($this->definition['ttl'])) {
-            $mtime = filemtime($file);
-            if (time() - $mtime > $this->definition['ttl']) {
-                @unlink($file);
-                return false;
-            }
-        }
-
-        $content = @file_get_contents($file);
-        if ($content === false) {
-            return false;
-        }
-
-        return $this->unserialize($content);
-    }
-
-    /**
-     * Set value in file store
-     *
-     * @param string $key Cache key
-     * @param mixed $value Value
-     * @return bool Success
-     */
-    protected function set_in_store(string $key, $value): bool {
-        $file = $this->get_cache_file($key);
-        $content = $this->serialize($value);
-        return file_put_contents($file, $content, LOCK_EX) !== false;
-    }
-
-    /**
-     * Delete value from file store
-     *
-     * @param string $key Cache key
-     * @return bool Success
-     */
-    protected function delete_from_store(string $key): bool {
-        $file = $this->get_cache_file($key);
-        if (file_exists($file)) {
-            return @unlink($file);
-        }
-        return true;
-    }
-
-    /**
-     * Check if key exists in file store
-     *
-     * @param string $key Cache key
-     * @return bool Exists
-     */
-    protected function has_in_store(string $key): bool {
-        $file = $this->get_cache_file($key);
-
-        if (!file_exists($file)) {
-            return false;
-        }
-
-        // Check TTL
-        if (!empty($this->definition['ttl'])) {
-            $mtime = filemtime($file);
-            if (time() - $mtime > $this->definition['ttl']) {
-                @unlink($file);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Purge file store
-     *
-     * @return bool Success
-     */
-    protected function purge_store(): bool {
-        $dir = $this->get_cache_dir();
-        if (!is_dir($dir)) {
-            return true;
-        }
-
-        $files = glob($dir . '/*.cache');
-        foreach ($files as $file) {
-            @unlink($file);
-        }
-        return true;
-    }
-
-    /**
-     * Serialize value for storage
-     *
-     * @param mixed $value Value
-     * @return string Serialized value
-     */
-    protected function serialize($value): string {
-        if (!empty($this->definition['simpledata']) && is_scalar($value)) {
-            return (string)$value;
-        }
-        return serialize($value);
-    }
-
-    /**
-     * Unserialize value from storage
-     *
-     * @param string $content Stored content
-     * @return mixed Unserialized value
-     */
-    protected function unserialize(string $content) {
-        if (!empty($this->definition['simpledata'])) {
-            // Try to detect if it's actually serialized
-            $data = @unserialize($content);
-            if ($data !== false || $content === 'b:0;') {
-                return $data;
-            }
-            return $content;
-        }
-        return unserialize($content);
     }
 
     /**
@@ -485,5 +364,37 @@ class cache {
      */
     public function get_area(): string {
         return $this->area;
+    }
+
+    /**
+     * Get store name (for debugging)
+     *
+     * @return string Store name
+     */
+    public function get_store_name(): string {
+        if ($this->store !== null) {
+            return $this->store->get_name();
+        }
+
+        switch ($this->mode) {
+            case self::MODE_REQUEST:
+                return 'static';
+            case self::MODE_SESSION:
+                return 'session';
+            default:
+                return 'unknown';
+        }
+    }
+
+    /**
+     * Get store statistics (if available)
+     *
+     * @return array|null Statistics or null
+     */
+    public function get_store_stats(): ?array {
+        if ($this->store !== null && method_exists($this->store, 'get_stats')) {
+            return $this->store->get_stats();
+        }
+        return null;
     }
 }

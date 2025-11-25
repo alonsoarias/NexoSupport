@@ -1519,3 +1519,179 @@ function context_user(int $userid) {
 function context_course(int $courseid) {
     return \core\rbac\context::course($courseid);
 }
+
+// ============================================
+// CACHE FUNCTIONS
+// ============================================
+
+/**
+ * Purge all system caches
+ *
+ * Similar to Moodle's purge_all_caches() - clears all caches in the system.
+ * This includes:
+ * - OPcache (PHP bytecode cache)
+ * - MUC application caches (file/redis/apcu)
+ * - Template caches (Mustache)
+ * - Language string caches
+ * - Configuration caches
+ * - Session caches (optional)
+ *
+ * @param bool $includepsessions Whether to also purge session caches
+ * @return array Results of each cache purge operation
+ */
+function purge_all_caches(bool $includesessions = false): array {
+    $results = [];
+
+    // Use cache_manager for comprehensive purging
+    if (class_exists('\\core\\cache\\cache_manager')) {
+        $results = \core\cache\cache_manager::purge_all();
+    }
+
+    // Reset static caches in cache class
+    if (class_exists('\\core\\cache\\cache')) {
+        \core\cache\cache::reset_static_caches();
+    }
+
+    // Clear cache definitions cache
+    if (class_exists('\\core\\cache\\cache_definition')) {
+        \core\cache\cache_definition::reset();
+    }
+
+    // Clear cache config cache
+    if (class_exists('\\core\\cache\\cache_config')) {
+        \core\cache\cache_config::reset();
+    }
+
+    // Clear string manager cache
+    if (class_exists('\\core\\string_manager')) {
+        \core\string_manager::clear_cache();
+    }
+
+    // Clear template cache
+    if (class_exists('\\core\\output\\template_manager')) {
+        \core\output\template_manager::clear_cache();
+        $results['templates'] = ['success' => true, 'message' => 'Template cache cleared'];
+    }
+
+    // Clear RBAC/access cache
+    if (class_exists('\\core\\rbac\\access')) {
+        \core\rbac\access::clear_all_cache();
+        $results['rbac'] = ['success' => true, 'message' => 'RBAC cache cleared'];
+    }
+
+    // Clear file-based caches
+    global $CFG;
+    if (isset($CFG->cachedir) && is_dir($CFG->cachedir)) {
+        $count = purge_directory_contents($CFG->cachedir . '/muc');
+        $results['muc'] = ['success' => true, 'message' => "MUC file cache cleared ($count items)"];
+    }
+
+    // Clear sessions if requested
+    if ($includesessions) {
+        if (isset($_SESSION['cache'])) {
+            unset($_SESSION['cache']);
+        }
+        $results['session_cache'] = ['success' => true, 'message' => 'Session cache cleared'];
+    }
+
+    return $results;
+}
+
+/**
+ * Purge caches for a specific component
+ *
+ * @param string $component Component name (e.g., 'core', 'mod_forum')
+ * @return bool Success
+ */
+function purge_caches(string $component = 'core'): bool {
+    // Get all cache definitions for the component
+    if (!class_exists('\\core\\cache\\cache_definition')) {
+        return false;
+    }
+
+    $definitions = \core\cache\cache_definition::get_all_definitions();
+
+    foreach ($definitions as $key => $def) {
+        if (($def['component'] ?? '') === $component) {
+            try {
+                $cache = \core\cache\cache::make($def['component'], $def['area']);
+                $cache->purge();
+            } catch (\Exception $e) {
+                debugging("Failed to purge cache $key: " . $e->getMessage(), DEBUG_DEVELOPER);
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Purge directory contents recursively
+ *
+ * @param string $dir Directory path
+ * @param bool $removedir Also remove the directory itself
+ * @return int Number of items deleted
+ */
+function purge_directory_contents(string $dir, bool $removedir = false): int {
+    if (!is_dir($dir)) {
+        return 0;
+    }
+
+    $count = 0;
+    $items = new \RecursiveIteratorIterator(
+        new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+        \RecursiveIteratorIterator::CHILD_FIRST
+    );
+
+    foreach ($items as $item) {
+        if ($item->isDir()) {
+            @rmdir($item->getPathname());
+        } else {
+            if (@unlink($item->getPathname())) {
+                $count++;
+            }
+        }
+    }
+
+    if ($removedir) {
+        @rmdir($dir);
+    }
+
+    return $count;
+}
+
+/**
+ * Get user's IP address
+ *
+ * Returns the client IP address, checking for proxies.
+ *
+ * @return string IP address
+ */
+function get_user_ip(): string {
+    // Check for various proxy headers
+    $headers = [
+        'HTTP_CF_CONNECTING_IP',     // Cloudflare
+        'HTTP_X_FORWARDED_FOR',      // Standard proxy header
+        'HTTP_X_REAL_IP',            // Nginx proxy
+        'HTTP_CLIENT_IP',            // Shared client
+        'REMOTE_ADDR',               // Standard
+    ];
+
+    foreach ($headers as $header) {
+        if (!empty($_SERVER[$header])) {
+            $ip = $_SERVER[$header];
+
+            // X-Forwarded-For can contain multiple IPs, take first
+            if (strpos($ip, ',') !== false) {
+                $ip = trim(explode(',', $ip)[0]);
+            }
+
+            // Validate IP
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                return $ip;
+            }
+        }
+    }
+
+    return '127.0.0.1';
+}

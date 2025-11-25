@@ -81,20 +81,8 @@ class template_manager {
             return;
         }
 
-        // String helper (i18n)
-        self::$helpers['str'] = function($text, $helper) {
-            $text = $helper->render($text);
-            $parts = array_map('trim', explode(',', $text));
-            $identifier = $parts[0] ?? '';
-            $component = $parts[1] ?? 'core';
-            $param = $parts[2] ?? null;
-
-            if (empty($identifier)) {
-                return '';
-            }
-
-            return get_string($identifier, $component, $param);
-        };
+        // String helper (i18n) - using dedicated helper class for JSON param support
+        self::$helpers['str'] = mustache_string_helper::create();
 
         // Pix icon helper
         self::$helpers['pix'] = new mustache_pix_helper();

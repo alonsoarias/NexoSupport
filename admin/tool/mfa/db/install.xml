@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="admin/tool/mfa/db" VERSION="20250121">
+  <TABLES>
+
+    <!-- Main MFA factors table - stores user configured factors -->
+    <TABLE NAME="tool_mfa">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="factor" TYPE="char" LENGTH="100" NOTNULL="true" DEFAULT=""/>
+        <FIELD NAME="secret" TYPE="char" LENGTH="1333"/>
+        <FIELD NAME="label" TYPE="char" LENGTH="1333"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="15" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="createdfromip" TYPE="char" LENGTH="100"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="15" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="lastverified" TYPE="int" LENGTH="15" DEFAULT="0"/>
+        <FIELD NAME="revoked" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="lockcounter" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="idx_factor" UNIQUE="false" FIELDS="factor"/>
+        <INDEX NAME="idx_userid_factor_lockcounter" UNIQUE="false" FIELDS="userid,factor,lockcounter"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Temporary secrets/tokens table -->
+    <TABLE NAME="tool_mfa_secrets">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="factor" TYPE="char" LENGTH="100" NOTNULL="true" DEFAULT=""/>
+        <FIELD NAME="secret" TYPE="char" LENGTH="1333"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="15" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="expiry" TYPE="int" LENGTH="15" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="revoked" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="sessionid" TYPE="char" LENGTH="100"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="idx_factor" UNIQUE="false" FIELDS="factor"/>
+        <INDEX NAME="idx_expiry" UNIQUE="false" FIELDS="expiry"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- MFA authentication tracking table -->
+    <TABLE NAME="tool_mfa_auth">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="lastverified" TYPE="int" LENGTH="15" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid" UNIQUE="true" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+
+  </TABLES>
+</XMLDB>

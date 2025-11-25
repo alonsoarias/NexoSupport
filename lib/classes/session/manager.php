@@ -311,4 +311,124 @@ class manager {
 
         return $DB->count_records_select('sessions', 'timemodified > ?', [$cutoff]);
     }
+
+    /**
+     * Initialize session for a logged in user
+     *
+     * Similar to Moodle's \core\session\manager::login_user()
+     *
+     * @param object $user User object
+     * @return void
+     */
+    public static function login_user(object $user): void {
+        global $USER, $CFG;
+
+        // Ensure session is started
+        if (!self::$started) {
+            self::start();
+        }
+
+        // Regenerate session ID on login (security best practice)
+        session_regenerate_id(true);
+
+        // Store user in session
+        $_SESSION['USER'] = $user;
+        $_SESSION['REALUSER'] = $user; // For login-as functionality
+        $_SESSION['last_regenerate'] = time();
+
+        // Generate a new sesskey for CSRF protection
+        $_SESSION['sesskey'] = bin2hex(random_bytes(16));
+
+        // Update global USER
+        $USER = $user;
+        $USER->sesskey = $_SESSION['sesskey'];
+
+        // Set login time
+        $_SESSION['LOGIN_TIME'] = time();
+    }
+
+    /**
+     * Check if there is a logged in user
+     *
+     * @return bool True if user is logged in
+     */
+    public static function is_loggedin(): bool {
+        return isset($_SESSION['USER']) && !empty($_SESSION['USER']->id) && $_SESSION['USER']->id > 0;
+    }
+
+    /**
+     * Get the currently logged in user
+     *
+     * @return object|null User object or null if not logged in
+     */
+    public static function get_user(): ?object {
+        if (!self::is_loggedin()) {
+            return null;
+        }
+        return $_SESSION['USER'];
+    }
+
+    /**
+     * Set a value in the session
+     *
+     * @param string $key Session key
+     * @param mixed $value Value to store
+     * @return void
+     */
+    public static function set(string $key, $value): void {
+        if (!self::$started) {
+            self::start();
+        }
+        $_SESSION[$key] = $value;
+    }
+
+    /**
+     * Get a value from the session
+     *
+     * @param string $key Session key
+     * @param mixed $default Default value if key doesn't exist
+     * @return mixed Session value or default
+     */
+    public static function get(string $key, $default = null) {
+        if (!self::$started) {
+            self::start();
+        }
+        return $_SESSION[$key] ?? $default;
+    }
+
+    /**
+     * Remove a value from the session
+     *
+     * @param string $key Session key
+     * @return void
+     */
+    public static function unset(string $key): void {
+        if (!self::$started) {
+            self::start();
+        }
+        unset($_SESSION[$key]);
+    }
+
+    /**
+     * Touch session to update last activity time
+     *
+     * @return void
+     */
+    public static function touch(): void {
+        if (!self::$started) {
+            return;
+        }
+        $_SESSION['LAST_ACTIVITY'] = time();
+    }
+
+    /**
+     * Write and close session
+     *
+     * Useful before long-running operations
+     *
+     * @return void
+     */
+    public static function write_close(): void {
+        session_write_close();
+    }
 }
