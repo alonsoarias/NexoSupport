@@ -1,5 +1,39 @@
 # NexoSupport Changelog
 
+## Version 1.1.23 (2025-11-25) - Frankenstyle Compliance Fixes
+
+### Overview
+Fixes to ensure full compliance with the Frankenstyle plugin architecture specification.
+
+### Changes
+
+#### Security & Architecture
+- **Removed .htaccess from public_html**: Per specification, only `index.php` should exist in `public_html/`. Apache rewrite rules should be configured in the VirtualHost.
+
+#### Plugin System Fixes
+- **auth_manual**: Created proper `classes/plugin.php` extending `\core\plugininfo\auth`. The plugin now follows the standard Frankenstyle pattern.
+- **tool_mfa**: Created `classes/plugin.php` extending `\core\plugininfo\tool`. MFA tool now properly integrates with the plugin discovery system.
+
+#### Internationalization
+- **report_log**: Added Spanish translations (`lang/es/report_log.php`)
+- **report_loglive**: Added Spanish translations (`lang/es/report_loglive.php`)
+- **report_security**: Added Spanish translations (`lang/es/report_security.php`)
+- **report_performance**: Added Spanish translations (`lang/es/report_performance.php`)
+
+### Plugin Compliance Status
+| Plugin | Status |
+|--------|--------|
+| auth_manual | COMPLIANT |
+| theme_boost | COMPLIANT |
+| report_log | COMPLIANT |
+| report_loglive | COMPLIANT |
+| report_security | COMPLIANT |
+| report_performance | COMPLIANT |
+| tool_mfa | COMPLIANT |
+| factor_email | COMPLIANT (MFA subplugin pattern) |
+
+---
+
 ## Version 1.1.6 (2025-01-18) - Comprehensive Logging System
 
 ### 🎯 Overview

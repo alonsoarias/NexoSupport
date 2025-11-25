@@ -9,6 +9,9 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  * Autentica usuarios contra la base de datos local
  * usando password_hash/password_verify.
  *
+ * Sigue el patrón Frankenstyle de NexoSupport,
+ * extendiendo la clase base \core\plugininfo\auth.
+ *
  * @package auth_manual
  */
 class plugin extends \core\plugininfo\auth {
@@ -131,11 +134,24 @@ class plugin extends \core\plugininfo\auth {
             $errors[] = get_string('passwordtooshort', 'auth_manual');
         }
 
-        // Agregar más validaciones según política
-        // - Al menos una mayúscula
-        // - Al menos un número
-        // - Al menos un carácter especial
-        // etc.
+        // Agregar más validaciones según política configurada
+        $config = $this->get_config();
+
+        if (!empty($config['requireuppercase']) && !preg_match('/[A-Z]/', $password)) {
+            $errors[] = get_string('passwordrequireuppercase', 'auth_manual');
+        }
+
+        if (!empty($config['requirelowercase']) && !preg_match('/[a-z]/', $password)) {
+            $errors[] = get_string('passwordrequirelowercase', 'auth_manual');
+        }
+
+        if (!empty($config['requirenumbers']) && !preg_match('/[0-9]/', $password)) {
+            $errors[] = get_string('passwordrequirenumbers', 'auth_manual');
+        }
+
+        if (!empty($config['requirespecialchars']) && !preg_match('/[^A-Za-z0-9]/', $password)) {
+            $errors[] = get_string('passwordrequirespecialchars', 'auth_manual');
+        }
 
         return $errors;
     }
@@ -147,6 +163,6 @@ class plugin extends \core\plugininfo\auth {
      */
     public function can_signup(): bool {
         $config = $this->get_config();
-        return $config['allowsignup'] ?? false;
+        return !empty($config['allowsignup']);
     }
 }
