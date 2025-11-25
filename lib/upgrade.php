@@ -1110,6 +1110,65 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.24 (2025011824) - Plugin Management System
+    // =========================================================
+    if ($oldversion < 2025011824) {
+        echo '<div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #4caf50; margin-top: 0;">🧩 Upgrading to NexoSupport v1.1.24 - Plugin Management System</h2>';
+
+        echo '<h3 style="color: #4caf50;">✨ What\'s New in v1.1.24:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Plugin Install from ZIP:</strong> Upload and install plugins directly from ZIP files</li>';
+        echo '<li><strong>Plugin Uninstall:</strong> Safely uninstall plugins with proper cleanup (tables, capabilities, configs, files)</li>';
+        echo '<li><strong>Plugin Upgrade:</strong> Upgrade plugins when new versions are detected</li>';
+        echo '<li><strong>Protected Plugins:</strong> Core plugins (boost theme, manual auth) cannot be uninstalled</li>';
+        echo '<li><strong>Plugin Types:</strong> Support for report, tool, theme, auth, and block plugins</li>';
+        echo '<li><strong>Admin Interface:</strong> Complete plugin management UI at /admin/plugins</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #4caf50;">🔌 Plugin Manager Features:</h3>';
+        echo '<ul>';
+        echo '<li><code>install_from_zip()</code> - Extract and install plugin from ZIP archive</li>';
+        echo '<li><code>uninstall_plugin()</code> - Complete plugin removal with cleanup</li>';
+        echo '<li><code>can_uninstall()</code> - Check if plugin can be safely removed</li>';
+        echo '<li><code>get_type_display_name()</code> - Localized plugin type names</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #4caf50;">🎨 Admin Interface:</h3>';
+        echo '<ul>';
+        echo '<li>Plugin install form with file upload and type selection</li>';
+        echo '<li>Plugins grouped by type (Reports, Tools, Themes, etc.)</li>';
+        echo '<li>Status badges: Installed, Upgrade Required, Not Installed</li>';
+        echo '<li>Action buttons: Upgrade, Uninstall (with confirmation)</li>';
+        echo '<li>Version information: Code version and DB version</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #4caf50;">🌍 Language Support:</h3>';
+        echo '<ul>';
+        echo '<li>20+ new language strings added (EN/ES)</li>';
+        echo '<li>Plugin type translations</li>';
+        echo '<li>Action messages and confirmations</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #4caf50;">📦 Files Modified:</h3>';
+        echo '<ul>';
+        echo '<li><strong>lib/classes/plugin/plugin_manager.php:</strong> Added uninstall, ZIP install, and helper methods</li>';
+        echo '<li><strong>admin/settings/plugins.php:</strong> Complete rewrite with plugin management actions</li>';
+        echo '<li><strong>templates/admin/plugins.mustache:</strong> New UI with install form and plugin listing</li>';
+        echo '<li><strong>lang/en/admin.php:</strong> Added plugin management strings</li>';
+        echo '<li><strong>lang/es/admin.php:</strong> Added plugin management strings</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.24 - Plugin management functionality only</p>';
+        echo '<p style="color: blue;">🧩 Plugin management now available at: Site Administration → Plugins</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.24 - plugin management only
+        upgrade_core_savepoint(true, 2025011824);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 
