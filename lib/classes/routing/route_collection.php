@@ -96,15 +96,15 @@ class route_collection {
     /**
      * Add route that responds to both GET and POST
      *
+     * Uses ANY method internally to handle both HTTP methods with a single route.
+     * This allows chaining methods like ->name() on the returned route.
+     *
      * @param string $path Route path
      * @param string|callable $handler Route handler
-     * @return array Two routes (GET and POST)
+     * @return route Single route responding to GET and POST
      */
-    public function match(string $path, $handler): array {
-        return [
-            $this->get($path, $handler),
-            $this->post($path, $handler),
-        ];
+    public function match(string $path, $handler): route {
+        return $this->any($path, $handler);
     }
 
     /**
