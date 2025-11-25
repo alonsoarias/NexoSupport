@@ -238,23 +238,6 @@ return function(route_collection $routes) {
             });
         });
 
-        // Placeholder routes for not-yet-implemented features
-        $notImplemented = function() {
-            require_login();
-            admin_externalpage_setup('admin');
-            echo render_template('admin/not_implemented', [
-                'pagetitle' => get_string('notimplemented', 'core'),
-                'message' => get_string('pagenotimplemented', 'core'),
-            ]);
-        };
-
-        $routes->get('/auth', $notImplemented);
-        $routes->get('/plugins/install', $notImplemented);
-        $routes->get('/settings/navigation', $notImplemented);
-        $routes->get('/settings/htmlsettings', $notImplemented);
-        $routes->get('/settings/additionalhtml', $notImplemented);
-        $routes->get('/settings/supportcontact', $notImplemented);
-        $routes->get('/reports/configchanges', $notImplemented);
     });
 
     // ============================================
