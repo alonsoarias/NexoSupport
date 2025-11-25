@@ -671,27 +671,31 @@ class access_exception extends \Exception {
 
 /**
  * Constantes de tipo de parámetro
+ *
+ * Note: These may also be defined in params.php (with numeric values).
+ * The string values here are used for clean_param() type checking.
+ * We guard against redefinition to avoid warnings.
  */
-// Parameter type constants
-define('PARAM_RAW', 'raw');
-define('PARAM_INT', 'int');
-define('PARAM_FLOAT', 'float');
-define('PARAM_BOOL', 'bool');
-define('PARAM_EMAIL', 'email');
-define('PARAM_URL', 'url');
-define('PARAM_ALPHANUMEXT', 'alphanumext');
-define('PARAM_ALPHANUM', 'alphanum');
-define('PARAM_ALPHA', 'alpha');
-define('PARAM_TEXT', 'text');
-define('PARAM_NOTAGS', 'notags');
-define('PARAM_PATH', 'path');
-define('PARAM_FILE', 'file');
-define('PARAM_SAFEDIR', 'safedir');
-define('PARAM_USERNAME', 'username');
-define('PARAM_HOST', 'host');
-define('PARAM_SEQUENCE', 'sequence');
-define('PARAM_ARRAY', 'array');
-define('PARAM_JSON', 'json');
+// Parameter type constants - only define if not already defined
+if (!defined('PARAM_RAW')) define('PARAM_RAW', 'raw');
+if (!defined('PARAM_INT')) define('PARAM_INT', 'int');
+if (!defined('PARAM_FLOAT')) define('PARAM_FLOAT', 'float');
+if (!defined('PARAM_BOOL')) define('PARAM_BOOL', 'bool');
+if (!defined('PARAM_EMAIL')) define('PARAM_EMAIL', 'email');
+if (!defined('PARAM_URL')) define('PARAM_URL', 'url');
+if (!defined('PARAM_ALPHANUMEXT')) define('PARAM_ALPHANUMEXT', 'alphanumext');
+if (!defined('PARAM_ALPHANUM')) define('PARAM_ALPHANUM', 'alphanum');
+if (!defined('PARAM_ALPHA')) define('PARAM_ALPHA', 'alpha');
+if (!defined('PARAM_TEXT')) define('PARAM_TEXT', 'text');
+if (!defined('PARAM_NOTAGS')) define('PARAM_NOTAGS', 'notags');
+if (!defined('PARAM_PATH')) define('PARAM_PATH', 'path');
+if (!defined('PARAM_FILE')) define('PARAM_FILE', 'file');
+if (!defined('PARAM_SAFEDIR')) define('PARAM_SAFEDIR', 'safedir');
+if (!defined('PARAM_USERNAME')) define('PARAM_USERNAME', 'username');
+if (!defined('PARAM_HOST')) define('PARAM_HOST', 'host');
+if (!defined('PARAM_SEQUENCE')) define('PARAM_SEQUENCE', 'sequence');
+if (!defined('PARAM_ARRAY')) define('PARAM_ARRAY', 'array');
+if (!defined('PARAM_JSON')) define('PARAM_JSON', 'json');
 
 /**
  * Constantes de madurez
@@ -710,8 +714,8 @@ if (!defined('MATURITY_ALPHA')) {
 /**
  * Constantes de SQL params
  */
-define('SQL_PARAMS_QM', 0);     // Question mark placeholders (?)
-define('SQL_PARAMS_NAMED', 1);  // Named placeholders (:param)
+if (!defined('SQL_PARAMS_QM')) define('SQL_PARAMS_QM', 0);     // Question mark placeholders (?)
+if (!defined('SQL_PARAMS_NAMED')) define('SQL_PARAMS_NAMED', 1);  // Named placeholders (:param)
 
 // ============================================
 // RBAC Helper Functions (Fase 2)
