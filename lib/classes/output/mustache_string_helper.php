@@ -30,10 +30,10 @@ class mustache_string_helper {
      * Invoke the helper
      *
      * @param string $text The template text containing the arguments
-     * @param \Mustache_LambdaHelper $helper Mustache helper instance
+     * @param \Mustache\LambdaHelper $helper Mustache helper instance
      * @return string The localized string
      */
-    public function __invoke(string $text, \Mustache_LambdaHelper $helper): string {
+    public function __invoke(string $text, \Mustache\LambdaHelper $helper): string {
         // First render any variables in the text
         $text = $helper->render($text);
         $text = trim($text);
