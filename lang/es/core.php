@@ -630,6 +630,7 @@ Si no solicitó esto, puede ignorar este mensaje.
 Saludos,
 El equipo de {$a->sitename}';
 $string['accountunlocked'] = 'Su cuenta ha sido desbloqueada. Ahora puede iniciar sesión.';
+$string['accountsuspended'] = 'Su cuenta ha sido suspendida. Por favor contacte al administrador.';
 $string['toomanyloginattempts'] = 'Demasiados intentos de inicio de sesión fallidos. Su cuenta ha sido bloqueada temporalmente.';
 
 // Email confirmation
