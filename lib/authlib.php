@@ -502,15 +502,13 @@ function complete_user_login($user, array $extrauserinfo = []) {
 
     // 3. Update login times
     $now = time();
-    $user->lastlogin = $user->currentlogin ?? $now;
-    $user->currentlogin = $now;
+    $user->lastlogin = $now;
     $user->lastip = $_SERVER['REMOTE_ADDR'] ?? '';
 
     // Update in database
     $DB->update_record('users', (object)[
         'id' => $user->id,
         'lastlogin' => $user->lastlogin,
-        'currentlogin' => $user->currentlogin,
         'lastip' => $user->lastip
     ]);
 

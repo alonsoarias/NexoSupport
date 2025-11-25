@@ -29,6 +29,12 @@ class manager {
             return;
         }
 
+        // If session is already active (started by setup.php), just mark as started
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            self::$started = true;
+            return;
+        }
+
         // Configurar handler de sesión
         session_set_save_handler(
             [__CLASS__, 'open'],
@@ -52,9 +58,7 @@ class manager {
         session_name('NEXOSUPPORT_SESSION');
 
         // Iniciar sesión
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        session_start();
 
         self::$started = true;
 
