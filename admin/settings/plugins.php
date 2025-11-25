@@ -91,14 +91,17 @@ foreach ($typeorder as $ptype) {
 
     $plugins = [];
     foreach ($allplugins[$ptype] as $pname => $pinfo) {
+        // Handle both object and array formats
+        $pinfo = (array)$pinfo;
         $installedversion = $pluginman->get_installed_version($ptype, $pname);
-        $needsupgrade = $installedversion && $pinfo['version'] > $installedversion;
+        $pluginversion = $pinfo['version'] ?? 0;
+        $needsupgrade = $installedversion && $pluginversion > $installedversion;
         $canuninstall = $pluginman->can_uninstall($ptype, $pname);
 
         $plugins[] = [
             'name' => $pname,
             'displayname' => $pinfo['name'] ?? ucfirst($pname),
-            'version' => $pinfo['version'],
+            'version' => $pluginversion,
             'installedversion' => $installedversion,
             'description' => $pinfo['component'] ?? '',
             'requires' => $pinfo['requires'] ?? '',
