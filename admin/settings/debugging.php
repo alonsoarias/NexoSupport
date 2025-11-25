@@ -29,16 +29,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get current settings
-$debug = get_config('core', 'debug') ?? 0;
-$debugdisplay = get_config('core', 'debugdisplay') ?? 0;
+$debug = (int)(get_config('core', 'debug') ?? 0);
+$debugdisplay = (int)(get_config('core', 'debugdisplay') ?? 0);
 
-// Debug levels
-$debuglevels = [
-    ['value' => 0, 'name' => get_string('debugnone', 'admin'), 'selected' => $debug == 0],
-    ['value' => 5, 'name' => get_string('debugminimal', 'admin'), 'selected' => $debug == 5],
-    ['value' => 15, 'name' => get_string('debugnormal', 'admin'), 'selected' => $debug == 15],
-    ['value' => 6143, 'name' => get_string('debugall', 'admin'), 'selected' => $debug == 6143],
-    ['value' => 32767, 'name' => get_string('debugdeveloper', 'admin'), 'selected' => $debug == 32767],
+// Debug level names mapping
+$debug_names = [
+    0 => get_string('debugnone', 'admin'),
+    5 => get_string('debugminimal', 'admin'),
+    15 => get_string('debugnormal', 'admin'),
+    6143 => get_string('debugall', 'admin'),
+    32767 => get_string('debugdeveloper', 'admin'),
+];
+
+// Debug levels for template
+$debug_levels = [
+    ['key' => 'none', 'value' => 0, 'selected' => $debug == 0],
+    ['key' => 'minimal', 'value' => 5, 'selected' => $debug == 5],
+    ['key' => 'normal', 'value' => 15, 'selected' => $debug == 15],
+    ['key' => 'all', 'value' => 6143, 'selected' => $debug == 6143, 'badge' => 'development', 'badge_type' => 'warning'],
+    ['key' => 'developer', 'value' => 32767, 'selected' => $debug == 32767, 'badge' => 'development', 'badge_type' => 'danger'],
 ];
 
 // Prepare context
@@ -47,8 +56,13 @@ $context = [
     'showadmin' => true,
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
-    'debuglevels' => $debuglevels,
-    'debugdisplay' => $debugdisplay,
+    'debug_levels' => $debug_levels,
+    'debugdisplay_checked' => $debugdisplay == 1,
+    'current_debug' => $debug,
+    'current_debug_name' => $debug_names[$debug] ?? get_string('unknown', 'core'),
+    'current_debugdisplay' => $debugdisplay == 1,
+    'php_error_reporting' => error_reporting(),
+    'php_display_errors' => ini_get('display_errors') ? 'On' : 'Off',
     'success' => $success,
     'errors' => $errors,
     'haserrors' => !empty($errors),

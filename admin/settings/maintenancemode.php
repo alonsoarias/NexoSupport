@@ -19,18 +19,18 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_sesskey();
 
-    $maintenance = optional_param('maintenance', 0, PARAM_INT);
-    $maintenancemessage = optional_param('maintenancemessage', '', PARAM_TEXT);
+    $maintenance_enabled = optional_param('maintenance_enabled', 0, PARAM_INT);
+    $maintenance_message = optional_param('maintenance_message', '', PARAM_TEXT);
 
-    set_config('maintenance_enabled', $maintenance);
-    set_config('maintenance_message', $maintenancemessage);
+    set_config('maintenance_enabled', $maintenance_enabled);
+    set_config('maintenance_message', $maintenance_message);
 
     $success = get_string('changessaved', 'admin');
 }
 
 // Get current settings
-$maintenance = get_config('core', 'maintenance_enabled') ?? 0;
-$maintenancemessage = get_config('core', 'maintenance_message') ?? '';
+$maintenance_enabled = (int)(get_config('core', 'maintenance_enabled') ?? 0);
+$maintenance_message = get_config('core', 'maintenance_message') ?? '';
 
 // Prepare context
 $context = [
@@ -38,8 +38,9 @@ $context = [
     'showadmin' => true,
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
-    'maintenance' => $maintenance,
-    'maintenancemessage' => htmlspecialchars($maintenancemessage),
+    'maintenance_enabled' => $maintenance_enabled == 1,
+    'maintenance_message' => htmlspecialchars($maintenance_message),
+    'default_message' => get_string('saboringmaintenance', 'admin'),
     'success' => $success,
     'errors' => $errors,
     'haserrors' => !empty($errors),

@@ -12,14 +12,18 @@ require_capability('nexosupport/admin:manageconfig');
 
 global $USER, $CFG, $DB, $PAGE, $OUTPUT;
 
-// System paths are read-only from .env
-$paths = [
-    ['name' => 'dirroot', 'value' => $CFG->dirroot ?? BASE_DIR],
-    ['name' => 'dataroot', 'value' => $CFG->dataroot ?? BASE_DIR . '/var'],
-    ['name' => 'cachedir', 'value' => $CFG->cachedir ?? BASE_DIR . '/var/cache'],
-    ['name' => 'tempdir', 'value' => $CFG->tempdir ?? BASE_DIR . '/var/temp'],
-    ['name' => 'sessionsdir', 'value' => $CFG->sessionsdir ?? BASE_DIR . '/var/sessions'],
-];
+// Get system paths
+$dataroot = $CFG->dataroot ?? BASE_DIR . '/var';
+$tempdir = $CFG->tempdir ?? BASE_DIR . '/var/temp';
+$cachedir = $CFG->cachedir ?? BASE_DIR . '/var/cache';
+
+// Check path status
+$dataroot_exists = is_dir($dataroot);
+$dataroot_writable = $dataroot_exists && is_writable($dataroot);
+$tempdir_exists = is_dir($tempdir);
+$tempdir_writable = $tempdir_exists && is_writable($tempdir);
+$cachedir_exists = is_dir($cachedir);
+$cachedir_writable = $cachedir_exists && is_writable($cachedir);
 
 // Prepare context
 $context = [
@@ -27,7 +31,15 @@ $context = [
     'showadmin' => true,
     'has_navigation' => true,
     'navigation_html' => get_navigation_html(),
-    'paths' => $paths,
+    'dataroot' => $dataroot,
+    'dataroot_exists' => $dataroot_exists,
+    'dataroot_writable' => $dataroot_writable,
+    'tempdir' => $tempdir,
+    'tempdir_exists' => $tempdir_exists,
+    'tempdir_writable' => $tempdir_writable,
+    'cachedir' => $cachedir,
+    'cachedir_exists' => $cachedir_exists,
+    'cachedir_writable' => $cachedir_writable,
     'sesskey' => sesskey(),
 ];
 
