@@ -18,6 +18,7 @@
     .alert-error { background: rgba(239, 68, 68, 0.15); color: var(--error); border: 1px solid var(--error); }
 
     /* Install form */
+    .install-help { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; }
     .install-form { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
     .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
     .form-group label { font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); }
@@ -81,18 +82,10 @@
     <!-- Install Plugin -->
     <div class="settings-card">
         <h3><i class="fas fa-upload"></i> {{#str}}installplugin,admin{{/str}}</h3>
+        <p class="install-help">{{#str}}plugininstallhelp,admin{{/str}}</p>
         <form method="post" enctype="multipart/form-data" class="install-form">
             <input type="hidden" name="sesskey" value="{{sesskey}}">
             <input type="hidden" name="action" value="install">
-
-            <div class="form-group">
-                <label for="plugintype">{{#str}}plugintype,admin{{/str}}</label>
-                <select name="plugintype" id="plugintype" required>
-                    {{#availabletypes}}
-                    <option value="{{type}}">{{typename}}</option>
-                    {{/availabletypes}}
-                </select>
-            </div>
 
             <div class="form-group">
                 <label for="pluginzip">{{#str}}pluginzipfile,admin{{/str}}</label>

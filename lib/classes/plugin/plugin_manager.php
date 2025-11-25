@@ -740,25 +740,18 @@ class plugin_manager {
     }
 
     /**
-     * Install a plugin from a ZIP file
+     * Install a plugin from a ZIP file (auto-detects type from version.php)
      *
      * @param string $zippath Path to ZIP file
-     * @param string $type Plugin type
+     * @param string|null $type Plugin type (optional - will auto-detect if not provided)
      * @return array Result with success status and message
      */
-    public function install_from_zip(string $zippath, string $type): array {
+    public function install_from_zip(string $zippath, ?string $type = null): array {
         global $CFG;
 
         if (!file_exists($zippath)) {
-            return ['success' => false, 'message' => 'ZIP file not found'];
+            return ['success' => false, 'error' => get_string('pluginzipnotfound', 'admin')];
         }
-
-        $types = $this->get_plugin_types();
-        if (!isset($types[$type])) {
-            return ['success' => false, 'message' => 'Invalid plugin type'];
-        }
-
-        $targetdir = $types[$type];
 
         // Create temp directory for extraction
         $tempdir = sys_get_temp_dir() . '/nexo_plugin_' . uniqid();
@@ -767,31 +760,67 @@ class plugin_manager {
         // Extract ZIP
         $zip = new \ZipArchive();
         if ($zip->open($zippath) !== true) {
-            return ['success' => false, 'message' => 'Failed to open ZIP file'];
+            return ['success' => false, 'error' => get_string('pluginzipopenfailed', 'admin')];
         }
 
         $zip->extractTo($tempdir);
         $zip->close();
 
-        // Find the plugin directory
-        $extracted = scandir($tempdir);
-        $pluginname = null;
-        foreach ($extracted as $item) {
-            if ($item !== '.' && $item !== '..' && is_dir($tempdir . '/' . $item)) {
-                $pluginname = $item;
-                break;
-            }
+        // Find the plugin directory (could be nested or direct)
+        $plugindir = $this->find_plugin_dir_in_extracted($tempdir);
+
+        if (!$plugindir) {
+            $this->delete_directory($tempdir);
+            return ['success' => false, 'error' => get_string('plugininvalidstructure', 'admin')];
         }
 
-        if (!$pluginname) {
-            $this->delete_directory($tempdir);
-            return ['success' => false, 'message' => 'Invalid plugin structure'];
-        }
+        // Get plugin name from directory
+        $pluginname = basename($plugindir);
 
         // Verify version.php exists
-        if (!file_exists($tempdir . '/' . $pluginname . '/version.php')) {
+        $versionfile = $plugindir . '/version.php';
+        if (!file_exists($versionfile)) {
             $this->delete_directory($tempdir);
-            return ['success' => false, 'message' => 'Plugin version.php not found'];
+            return ['success' => false, 'error' => get_string('pluginversionnotfound', 'admin')];
+        }
+
+        // Auto-detect plugin type from version.php
+        $detected = $this->detect_plugin_type_from_version($versionfile);
+
+        if (!$detected) {
+            $this->delete_directory($tempdir);
+            return ['success' => false, 'error' => get_string('plugintypenotdetected', 'admin')];
+        }
+
+        $detectedtype = $detected['type'];
+        $detectedname = $detected['name'];
+
+        // Use detected type, or validate provided type matches
+        if ($type !== null && $type !== $detectedtype) {
+            $this->delete_directory($tempdir);
+            return ['success' => false, 'error' => get_string('plugintypemismatch', 'admin', (object)[
+                'detected' => $detectedtype,
+                'selected' => $type
+            ])];
+        }
+        $type = $detectedtype;
+
+        // Use the name from component if different from directory name
+        if ($detectedname && $detectedname !== $pluginname) {
+            $pluginname = $detectedname;
+        }
+
+        $types = $this->get_plugin_types();
+        if (!isset($types[$type])) {
+            $this->delete_directory($tempdir);
+            return ['success' => false, 'error' => get_string('plugintypeinvalid', 'admin', $type)];
+        }
+
+        $targetdir = $types[$type];
+
+        // Ensure target directory exists
+        if (!is_dir($targetdir)) {
+            mkdir($targetdir, 0755, true);
         }
 
         // Move to target directory
@@ -800,7 +829,12 @@ class plugin_manager {
             $this->delete_directory($finaldir);
         }
 
-        rename($tempdir . '/' . $pluginname, $finaldir);
+        // Rename/move the extracted plugin to final location
+        if (!rename($plugindir, $finaldir)) {
+            $this->delete_directory($tempdir);
+            return ['success' => false, 'error' => get_string('pluginmovefailed', 'admin')];
+        }
+
         $this->delete_directory($tempdir);
 
         // Reset caches and install
@@ -809,10 +843,91 @@ class plugin_manager {
         $result = $this->install_plugin($type, $pluginname);
 
         if ($result) {
-            return ['success' => true, 'message' => 'Plugin installed successfully', 'name' => $pluginname];
+            return [
+                'success' => true,
+                'name' => $pluginname,
+                'type' => $type,
+                'component' => "{$type}_{$pluginname}"
+            ];
         } else {
-            return ['success' => false, 'message' => 'Failed to install plugin'];
+            return ['success' => false, 'error' => get_string('plugininstallfailed', 'admin')];
         }
+    }
+
+    /**
+     * Find plugin directory in extracted ZIP (handles nested structures)
+     *
+     * @param string $tempdir Extracted directory
+     * @return string|null Path to plugin directory or null
+     */
+    private function find_plugin_dir_in_extracted(string $tempdir): ?string {
+        $items = scandir($tempdir);
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+
+            $fullpath = $tempdir . '/' . $item;
+
+            if (!is_dir($fullpath)) {
+                continue;
+            }
+
+            // Check if this directory has version.php
+            if (file_exists($fullpath . '/version.php')) {
+                return $fullpath;
+            }
+
+            // Check one level deeper (for nested ZIPs like plugin-master/)
+            $subitems = scandir($fullpath);
+            foreach ($subitems as $subitem) {
+                if ($subitem === '.' || $subitem === '..') {
+                    continue;
+                }
+                $subpath = $fullpath . '/' . $subitem;
+                if (is_dir($subpath) && file_exists($subpath . '/version.php')) {
+                    return $subpath;
+                }
+            }
+        }
+
+        // Check if version.php is directly in tempdir
+        if (file_exists($tempdir . '/version.php')) {
+            return $tempdir;
+        }
+
+        return null;
+    }
+
+    /**
+     * Detect plugin type and name from version.php content
+     *
+     * @param string $versionfile Path to version.php
+     * @return array|null ['type' => ..., 'name' => ...] or null
+     */
+    private function detect_plugin_type_from_version(string $versionfile): ?array {
+        $content = file_get_contents($versionfile);
+
+        // Look for $plugin->component = 'type_name'
+        if (preg_match('/\$plugin\s*->\s*component\s*=\s*[\'"]([a-z]+)_([a-z0-9_]+)[\'"]/i', $content, $matches)) {
+            return [
+                'type' => $matches[1],
+                'name' => $matches[2],
+                'component' => $matches[1] . '_' . $matches[2]
+            ];
+        }
+
+        // Alternative: Look for component in comments or @package
+        if (preg_match('/@package\s+([a-z]+)_([a-z0-9_]+)/i', $content, $matches)) {
+            return [
+                'type' => $matches[1],
+                'name' => $matches[2],
+                'component' => $matches[1] . '_' . $matches[2]
+            ];
+        }
+
+        return null;
     }
 
     /**

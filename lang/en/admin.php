@@ -189,6 +189,7 @@ $string['installedplugins'] = 'Installed plugins';
 $string['installplugin'] = 'Install plugin';
 $string['plugintype'] = 'Plugin type';
 $string['pluginzipfile'] = 'Plugin ZIP file';
+$string['plugininstallhelp'] = 'Upload a plugin ZIP file. The plugin type will be auto-detected from the version.php file.';
 $string['nopluginsinstalled'] = 'No plugins installed';
 $string['nopluginsinstalledhelp'] = 'Install plugins to extend system functionality';
 $string['pluginuninstalled'] = 'Plugin "{$a}" uninstalled successfully';
@@ -206,6 +207,15 @@ $string['notinstalled'] = 'Not installed';
 $string['upgraderequired'] = 'Upgrade required';
 $string['dbversion'] = 'DB version';
 $string['tools'] = 'Tools';
+// Plugin install errors
+$string['pluginzipnotfound'] = 'ZIP file not found';
+$string['pluginzipopenfailed'] = 'Failed to open ZIP file';
+$string['plugininvalidstructure'] = 'Invalid plugin structure in ZIP file';
+$string['pluginversionnotfound'] = 'Plugin version.php not found';
+$string['plugintypenotdetected'] = 'Could not detect plugin type from version.php. Make sure $plugin->component is defined.';
+$string['plugintypemismatch'] = 'Plugin type mismatch: detected "{$a->detected}" but selected "{$a->selected}"';
+$string['plugintypeinvalid'] = 'Invalid plugin type: {$a}';
+$string['pluginmovefailed'] = 'Failed to move plugin files to target directory';
 
 // Plugin types
 $string['plugintype_report'] = 'Reports';

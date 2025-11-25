@@ -44,10 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
 
         case 'install':
             if (isset($_FILES['pluginzip']) && $_FILES['pluginzip']['error'] === UPLOAD_ERR_OK) {
-                $targettype = required_param('plugintype', PARAM_ALPHANUMEXT);
-                $result = $pluginman->install_from_zip($_FILES['pluginzip']['tmp_name'], $targettype);
+                // Auto-detect plugin type from ZIP - no need to select manually
+                $result = $pluginman->install_from_zip($_FILES['pluginzip']['tmp_name']);
                 if ($result['success']) {
-                    $message = get_string('plugininstalled', 'admin', $result['name'] ?? '');
+                    $plugininfo = $result['component'] ?? $result['name'];
+                    $message = get_string('plugininstalled', 'admin', $plugininfo);
                     $messagetype = 'success';
                 } else {
                     $message = $result['error'] ?? get_string('plugininstallfailed', 'admin');
@@ -137,11 +138,6 @@ $context = [
     'hasmessage' => !empty($message),
     'issuccess' => $messagetype === 'success',
     'iserror' => $messagetype === 'error',
-    'availabletypes' => [
-        ['type' => 'report', 'typename' => get_string('reports', 'admin')],
-        ['type' => 'tool', 'typename' => get_string('tools', 'admin')],
-        ['type' => 'theme', 'typename' => get_string('themes', 'admin')],
-    ],
 ];
 
 echo render_template('admin/plugins', $context);

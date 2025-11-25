@@ -1169,6 +1169,58 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.25 (2025011825) - Auto-detect Plugin Type + Plugin Improvements
+    // =========================================================
+    if ($oldversion < 2025011825) {
+        echo '<div style="background: #e3f2fd; border-left: 4px solid #1976d2; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #1976d2; margin-top: 0;">🔍 Upgrading to NexoSupport v1.1.25 - Smart Plugin Detection</h2>';
+
+        echo '<h3 style="color: #1976d2;">✨ What\'s New in v1.1.25:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Auto-Detect Plugin Type:</strong> System now automatically detects plugin type from version.php</li>';
+        echo '<li><strong>Simplified Install Form:</strong> No need to select plugin type - just upload the ZIP file</li>';
+        echo '<li><strong>Nested ZIP Support:</strong> Handles ZIP files with nested directories (e.g., plugin-master/)</li>';
+        echo '<li><strong>Component Detection:</strong> Reads $plugin->component from version.php to determine type</li>';
+        echo '<li><strong>Better Error Messages:</strong> Clear feedback when plugin detection fails</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #1976d2;">🔧 Technical Improvements:</h3>';
+        echo '<ul>';
+        echo '<li><code>install_from_zip()</code> - Now auto-detects plugin type, type parameter is optional</li>';
+        echo '<li><code>detect_plugin_type_from_version()</code> - New method to parse version.php content</li>';
+        echo '<li><code>find_plugin_dir_in_extracted()</code> - Handles nested ZIP structures</li>';
+        echo '<li>Plugin UI simplified - removed type selection dropdown</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #1976d2;">📦 Files Modified:</h3>';
+        echo '<ul>';
+        echo '<li><strong>lib/classes/plugin/plugin_manager.php:</strong> Enhanced install_from_zip with auto-detection</li>';
+        echo '<li><strong>admin/settings/plugins.php:</strong> Simplified install action</li>';
+        echo '<li><strong>templates/admin/plugins.mustache:</strong> Removed type selector from form</li>';
+        echo '<li><strong>lang/en/admin.php:</strong> Added new error messages</li>';
+        echo '<li><strong>lang/es/admin.php:</strong> Added new error messages</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #1976d2;">🎯 How It Works:</h3>';
+        echo '<p>When installing a plugin from ZIP, the system now:</p>';
+        echo '<ol>';
+        echo '<li>Extracts the ZIP file to a temporary directory</li>';
+        echo '<li>Finds the plugin directory (handles nested structures)</li>';
+        echo '<li>Reads version.php and looks for <code>$plugin->component = \'type_name\'</code></li>';
+        echo '<li>Automatically determines the plugin type (report, tool, theme, auth, block)</li>';
+        echo '<li>Moves the plugin to the correct directory and installs it</li>';
+        echo '</ol>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.25 - Code improvements only</p>';
+        echo '<p style="color: blue;">🔍 Plugin type detection now automatic</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.25 - code improvements only
+        upgrade_core_savepoint(true, 2025011825);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 
