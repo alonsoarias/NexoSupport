@@ -6,17 +6,30 @@ defined('NEXOSUPPORT_INTERNAL') || die();
 /**
  * Router
  *
- * Sistema simple de routing para NexoSupport.
+ * Sistema de routing para NexoSupport.
+ * Supports both legacy route registration and route_collection.
  *
  * @package core\routing
  */
 class router {
 
-    /** @var array Rutas registradas */
+    /** @var array Rutas registradas (legacy) */
     private array $routes = [];
 
+    /** @var route_collection|null Route collection */
+    private ?route_collection $collection = null;
+
     /**
-     * Registrar ruta GET
+     * Constructor
+     *
+     * @param route_collection|null $collection Optional route collection
+     */
+    public function __construct(?route_collection $collection = null) {
+        $this->collection = $collection;
+    }
+
+    /**
+     * Registrar ruta GET (legacy API)
      *
      * @param string $path
      * @param string|callable $handler
@@ -27,7 +40,7 @@ class router {
     }
 
     /**
-     * Registrar ruta POST
+     * Registrar ruta POST (legacy API)
      *
      * @param string $path
      * @param string|callable $handler
@@ -38,7 +51,7 @@ class router {
     }
 
     /**
-     * Registrar ruta para cualquier método
+     * Registrar ruta para cualquier método (legacy API)
      *
      * @param string $method
      * @param string $path
@@ -61,17 +74,22 @@ class router {
      * @return mixed
      */
     public function dispatch(string $uri, string $method = 'GET'): mixed {
-        // DEFENSIVE: Strip query strings if they somehow made it here
-        // This should never happen (front controller should parse correctly)
-        // but we protect against cache issues or bugs
+        // Strip query strings if present
         if (strpos($uri, '?') !== false) {
             $uri = parse_url($uri, PHP_URL_PATH) ?? $uri;
-            debugging("Router: WARNING - Received URI with query string, stripped to: $uri", DEBUG_DEVELOPER);
         }
 
-        debugging("Router: Dispatching $method $uri", DEBUG_DEVELOPER);
-        debugging("Router: Total routes registered: " . count($this->routes), DEBUG_DEVELOPER);
+        // Try route collection first (new system)
+        if ($this->collection !== null) {
+            $params = [];
+            $route = $this->collection->find($method, $uri, $params);
 
+            if ($route !== null) {
+                return $this->call_handler($route->handler, $params);
+            }
+        }
+
+        // Fall back to legacy routes
         foreach ($this->routes as $route) {
             if ($route['method'] !== $method) {
                 continue;
@@ -79,17 +97,15 @@ class router {
 
             $params = [];
             if ($this->match_path($route['path'], $uri, $params)) {
-                debugging("Router: Matched route {$route['path']}", DEBUG_DEVELOPER);
                 return $this->call_handler($route['handler'], $params);
             }
         }
 
-        debugging("Router: No route matched for $method $uri", DEBUG_DEVELOPER);
         throw new route_not_found_exception("Route not found: $method $uri");
     }
 
     /**
-     * Verificar si un path coincide con la ruta
+     * Verificar si un path coincide con la ruta (legacy)
      *
      * @param string $routepath
      * @param string $uri
@@ -119,9 +135,8 @@ class router {
         $pattern = '#^' . $pattern . '$#';
 
         if (preg_match($pattern, $uri, $matches)) {
-            array_shift($matches); // Remover match completo
+            array_shift($matches);
 
-            // Extraer nombres de parámetros
             if (preg_match_all('/\{([a-zA-Z0-9_]+)\}/', $routepath, $paramnames)) {
                 $params = array_combine($paramnames[1], $matches);
             }
@@ -162,5 +177,24 @@ class router {
         }
 
         throw new \coding_exception("Invalid handler format");
+    }
+
+    /**
+     * Get route collection
+     *
+     * @return route_collection|null
+     */
+    public function get_collection(): ?route_collection {
+        return $this->collection;
+    }
+
+    /**
+     * Set route collection
+     *
+     * @param route_collection $collection
+     * @return void
+     */
+    public function set_collection(route_collection $collection): void {
+        $this->collection = $collection;
     }
 }

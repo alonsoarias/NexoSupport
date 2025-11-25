@@ -2,13 +2,16 @@
 /**
  * Front Controller - Single Entry Point
  *
- * Este es el Único archivo en public_html.
- * Todo el sistema es accesible a través de este punto.
+ * Este es el UNICO archivo en public_html.
+ * Todo el sistema es accesible a traves de este punto.
  *
  * Funciones:
  * 1. Servir assets de themes (/theme/nombre/...)
- * 2. Redirigir a instalador si no está instalado
- * 3. Cargar sistema y despachar rutas
+ * 2. Redirigir a instalador si no esta instalado
+ * 3. Cargar sistema y despachar rutas dinamicamente
+ *
+ * Las rutas ya NO estan hardcodeadas en este archivo.
+ * Se cargan desde lib/routing/routes.php y desde los plugins.
  *
  * @package NexoSupport
  */
@@ -32,7 +35,7 @@ if (preg_match('#^/theme/([a-z0-9_]+)/(.+)$#', $uri, $matches)) {
     $themename = $matches[1];
     $resource = $matches[2];
 
-    // Validación de seguridad: evitar path traversal
+    // Validacion de seguridad: evitar path traversal
     if (strpos($resource, '..') !== false || strpos($themename, '..') !== false) {
         http_response_code(403);
         die('Forbidden');
@@ -77,19 +80,15 @@ if (preg_match('#^/theme/([a-z0-9_]+)/(.+)$#', $uri, $matches)) {
 }
 
 // ============================================
-// SISTEMA PRINCIPAL - DETECCIÓN DE INSTALACIÓN
+// SISTEMA PRINCIPAL - DETECCION DE INSTALACION
 // ============================================
-// Similar a Moodle: verifica si existe config.php (.env en nuestro caso)
-// y si la BD tiene las tablas del sistema
 
 // Cargar autoloader para usar environment_checker
-// (necesario antes de cargar setup.php)
 if (file_exists(BASE_DIR . '/vendor/autoload.php')) {
     require_once(BASE_DIR . '/vendor/autoload.php');
 }
 
 // Define MATURITY constants needed by lib/version.php
-// (environment_checker needs to read version.php before setup.php is loaded)
 if (!defined('MATURITY_ALPHA')) {
     define('MATURITY_ALPHA', 50);
     define('MATURITY_BETA', 100);
@@ -100,7 +99,7 @@ if (!defined('MATURITY_ALPHA')) {
 // Usar environment_checker para determinar estado del sistema
 $envChecker = new \core\install\environment_checker();
 
-// ¿Necesita instalación?
+// ¿Necesita instalacion?
 if ($envChecker->needs_install()) {
     // Sistema no instalado, redirigir a instalador
     if ($uri !== '/install' && !str_starts_with($uri, '/install/')) {
@@ -123,7 +122,7 @@ require_once(BASE_DIR . '/lib/setup.php');
 // Acceder a variables globales inicializadas en setup.php
 global $DB, $CFG, $USER, $PAGE, $OUTPUT;
 
-// Verificar que la base de datos está accesible
+// Verificar que la base de datos esta accesible
 if ($DB === null) {
     http_response_code(500);
     echo '<h1>Database Error</h1>';
@@ -132,27 +131,21 @@ if ($DB === null) {
 }
 
 // ============================================
-// VERIFICAR MODO MANTENIMIENTO (Patrón Moodle)
+// VERIFICAR MODO MANTENIMIENTO (Patron Moodle)
 // ============================================
-// Similar a Moodle: si el sitio está en mantenimiento,
-// solo administradores pueden acceder.
-// Se verifica ANTES del upgrade para evitar acceso durante mantenimiento.
-
-require_once(BASE_DIR . '/lib/maintenancelib.php');
-check_maintenance_mode($uri);
+if (file_exists(BASE_DIR . '/lib/maintenancelib.php')) {
+    require_once(BASE_DIR . '/lib/maintenancelib.php');
+    check_maintenance_mode($uri);
+}
 
 // ============================================
-// VERIFICAR SI NECESITA ACTUALIZACIÓN (Patrón Moodle)
+// VERIFICAR SI NECESITA ACTUALIZACION (Patron Moodle)
 // ============================================
-// Similar a Moodle: si hay upgrade pendiente, solo permitir:
-// - /admin/upgrade.php (para ejecutar upgrade)
-// - /login (para autenticarse)
-// - /logout (para salir)
-
 if ($envChecker->needs_upgrade()) {
     // Lista de URIs permitidas durante upgrade
     $allowed_during_upgrade = [
         '/admin/upgrade.php',
+        '/admin/upgrade',
         '/login',
         '/logout',
     ];
@@ -166,16 +159,12 @@ if ($envChecker->needs_upgrade()) {
     }
 
     if (!$is_allowed) {
-        // Check if user is logged in and is siteadmin
-        // Note: $USER is loaded in lib/setup.php which was already required
         $is_logged_in = isset($USER->id) && $USER->id > 0;
 
         if ($is_logged_in) {
-            // User is logged in, redirect to upgrade page
             header('Location: /admin/upgrade.php');
             exit;
         } else {
-            // User not logged in, redirect to login with return URL
             $return = urlencode('/admin/upgrade.php');
             header("Location: /login?returnurl={$return}");
             exit;
@@ -184,418 +173,23 @@ if ($envChecker->needs_upgrade()) {
 }
 
 // ============================================
-// ROUTING
+// ROUTING - DYNAMIC SYSTEM
+// ============================================
+// Las rutas se cargan dinamicamente desde:
+// 1. lib/routing/routes.php (rutas core)
+// 2. Plugins que implementan register_routes()
 // ============================================
 
 use core\routing\router;
+use core\routing\route_manager;
 
-$router = new router();
+// Cargar todas las rutas del core y plugins
+$route_collection = route_manager::load_all_routes();
 
-// ============================================
-// STATIC FILES
-// ============================================
-$router->get('/favicon.ico', function() {
-    // Return empty response for missing favicon
-    http_response_code(204);
-});
+// Crear router con la coleccion de rutas
+$router = new router($route_collection);
 
-// ============================================
-// RUTAS PRINCIPALES
-// ============================================
-$router->get('/', function() {
-    require(BASE_DIR . '/dashboard.php');
-});
-
-// ============================================
-// LOGIN / LOGOUT ROUTES
-// ============================================
-$router->get('/login', function() {
-    require(BASE_DIR . '/login/index.php');
-});
-$router->post('/login', function() {
-    require(BASE_DIR . '/login/index.php');
-});
-$router->get('/logout', function() {
-    require(BASE_DIR . '/login/logout.php');
-});
-$router->get('/login/logout.php', function() {
-    require(BASE_DIR . '/login/logout.php');
-});
-
-// Password management routes
-$router->get('/login/change_password', function() {
-    require(BASE_DIR . '/login/change_password.php');
-});
-$router->post('/login/change_password', function() {
-    require(BASE_DIR . '/login/change_password.php');
-});
-$router->get('/login/forgot_password', function() {
-    require(BASE_DIR . '/login/forgot_password.php');
-});
-$router->post('/login/forgot_password', function() {
-    require(BASE_DIR . '/login/forgot_password.php');
-});
-$router->get('/login/confirm', function() {
-    require(BASE_DIR . '/login/confirm.php');
-});
-
-// ============================================
-// ADMIN ROUTES - DASHBOARD
-// ============================================
-$router->get('/admin', function() {
-    require(BASE_DIR . '/admin/index.php');
-});
-$router->get('/admin/', function() {
-    require(BASE_DIR . '/admin/index.php');
-});
-
-// ============================================
-// ADMIN ROUTES - UPGRADE
-// ============================================
-$router->get('/admin/upgrade', function() {
-    require(BASE_DIR . '/admin/upgrade.php');
-});
-$router->post('/admin/upgrade', function() {
-    require(BASE_DIR . '/admin/upgrade.php');
-});
-$router->get('/admin/upgrade.php', function() {
-    require(BASE_DIR . '/admin/upgrade.php');
-});
-$router->post('/admin/upgrade.php', function() {
-    require(BASE_DIR . '/admin/upgrade.php');
-});
-
-// ============================================
-// ADMIN ROUTES - USER MANAGEMENT
-// ============================================
-$router->get('/admin/user', function() {
-    require(BASE_DIR . '/admin/user/index.php');
-});
-$router->get('/admin/user/', function() {
-    require(BASE_DIR . '/admin/user/index.php');
-});
-$router->get('/admin/users', function() {
-    require(BASE_DIR . '/admin/user/index.php');
-});
-$router->get('/admin/users/', function() {
-    require(BASE_DIR . '/admin/user/index.php');
-});
-$router->get('/admin/user/edit', function() {
-    require(BASE_DIR . '/admin/user/edit.php');
-});
-$router->post('/admin/user/edit', function() {
-    require(BASE_DIR . '/admin/user/edit.php');
-});
-$router->get('/admin/user/edit.php', function() {
-    require(BASE_DIR . '/admin/user/edit.php');
-});
-$router->post('/admin/user/edit.php', function() {
-    require(BASE_DIR . '/admin/user/edit.php');
-});
-
-// ============================================
-// ADMIN ROUTES - ROLE MANAGEMENT
-// ============================================
-$router->get('/admin/roles', function() {
-    require(BASE_DIR . '/admin/roles/index.php');
-});
-$router->get('/admin/roles/', function() {
-    require(BASE_DIR . '/admin/roles/index.php');
-});
-$router->get('/admin/roles/edit', function() {
-    require(BASE_DIR . '/admin/roles/edit.php');
-});
-$router->post('/admin/roles/edit', function() {
-    require(BASE_DIR . '/admin/roles/edit.php');
-});
-$router->get('/admin/roles/edit.php', function() {
-    require(BASE_DIR . '/admin/roles/edit.php');
-});
-$router->post('/admin/roles/edit.php', function() {
-    require(BASE_DIR . '/admin/roles/edit.php');
-});
-$router->get('/admin/roles/define', function() {
-    require(BASE_DIR . '/admin/roles/define.php');
-});
-$router->post('/admin/roles/define', function() {
-    require(BASE_DIR . '/admin/roles/define.php');
-});
-$router->get('/admin/roles/define.php', function() {
-    require(BASE_DIR . '/admin/roles/define.php');
-});
-$router->post('/admin/roles/define.php', function() {
-    require(BASE_DIR . '/admin/roles/define.php');
-});
-$router->get('/admin/roles/assign', function() {
-    require(BASE_DIR . '/admin/roles/assign.php');
-});
-$router->post('/admin/roles/assign', function() {
-    require(BASE_DIR . '/admin/roles/assign.php');
-});
-$router->get('/admin/roles/assign.php', function() {
-    require(BASE_DIR . '/admin/roles/assign.php');
-});
-$router->post('/admin/roles/assign.php', function() {
-    require(BASE_DIR . '/admin/roles/assign.php');
-});
-
-// ============================================
-// ADMIN ROUTES - SETTINGS
-// ============================================
-$router->get('/admin/settings', function() {
-    require(BASE_DIR . '/admin/settings/index.php');
-});
-$router->post('/admin/settings', function() {
-    require(BASE_DIR . '/admin/settings/index.php');
-});
-$router->get('/admin/settings/', function() {
-    require(BASE_DIR . '/admin/settings/index.php');
-});
-$router->post('/admin/settings/', function() {
-    require(BASE_DIR . '/admin/settings/index.php');
-});
-$router->get('/admin/settings/debugging', function() {
-    require(BASE_DIR . '/admin/settings/debugging.php');
-});
-$router->post('/admin/settings/debugging', function() {
-    require(BASE_DIR . '/admin/settings/debugging.php');
-});
-$router->get('/admin/settings/debugging.php', function() {
-    require(BASE_DIR . '/admin/settings/debugging.php');
-});
-$router->post('/admin/settings/debugging.php', function() {
-    require(BASE_DIR . '/admin/settings/debugging.php');
-});
-
-// Settings - System Paths
-$router->get('/admin/settings/systempaths', function() {
-    require(BASE_DIR . '/admin/settings/systempaths.php');
-});
-$router->post('/admin/settings/systempaths', function() {
-    require(BASE_DIR . '/admin/settings/systempaths.php');
-});
-
-// Settings - Session Handling
-$router->get('/admin/settings/sessionhandling', function() {
-    require(BASE_DIR . '/admin/settings/sessionhandling.php');
-});
-$router->post('/admin/settings/sessionhandling', function() {
-    require(BASE_DIR . '/admin/settings/sessionhandling.php');
-});
-
-// Settings - HTTP
-$router->get('/admin/settings/http', function() {
-    require(BASE_DIR . '/admin/settings/http.php');
-});
-$router->post('/admin/settings/http', function() {
-    require(BASE_DIR . '/admin/settings/http.php');
-});
-
-// Settings - Maintenance Mode
-$router->get('/admin/settings/maintenancemode', function() {
-    require(BASE_DIR . '/admin/settings/maintenancemode.php');
-});
-$router->post('/admin/settings/maintenancemode', function() {
-    require(BASE_DIR . '/admin/settings/maintenancemode.php');
-});
-
-// Settings - Plugins
-$router->get('/admin/settings/plugins', function() {
-    require(BASE_DIR . '/admin/settings/plugins.php');
-});
-$router->post('/admin/settings/plugins', function() {
-    require(BASE_DIR . '/admin/settings/plugins.php');
-});
-$router->get('/admin/plugins', function() {
-    require(BASE_DIR . '/admin/settings/plugins.php');
-});
-
-// Settings - Security
-$router->get('/admin/settings/security', function() {
-    require(BASE_DIR . '/admin/settings/security.php');
-});
-$router->post('/admin/settings/security', function() {
-    require(BASE_DIR . '/admin/settings/security.php');
-});
-
-// Settings - Server
-$router->get('/admin/settings/server', function() {
-    require(BASE_DIR . '/admin/settings/server.php');
-});
-$router->post('/admin/settings/server', function() {
-    require(BASE_DIR . '/admin/settings/server.php');
-});
-
-// Settings - Development
-$router->get('/admin/settings/development', function() {
-    require(BASE_DIR . '/admin/settings/development.php');
-});
-$router->post('/admin/settings/development', function() {
-    require(BASE_DIR . '/admin/settings/development.php');
-});
-
-// Settings - General
-$router->get('/admin/settings/general', function() {
-    require(BASE_DIR . '/admin/settings/general.php');
-});
-$router->post('/admin/settings/general', function() {
-    require(BASE_DIR . '/admin/settings/general.php');
-});
-
-// ============================================
-// ADMIN ROUTES - PLACEHOLDER (Not Yet Implemented)
-// ============================================
-$notImplemented = function() {
-    require_login();
-    admin_externalpage_setup('admin');
-    echo render_template('admin/not_implemented', [
-        'pagetitle' => get_string('notimplemented', 'core'),
-        'message' => get_string('pagenotimplemented', 'core'),
-    ]);
-};
-
-$router->get('/admin/auth', $notImplemented);
-$router->get('/admin/plugins/install', $notImplemented);
-$router->get('/admin/settings/navigation', $notImplemented);
-$router->get('/admin/settings/htmlsettings', $notImplemented);
-$router->get('/admin/settings/additionalhtml', $notImplemented);
-$router->get('/admin/settings/supportcontact', $notImplemented);
-$router->get('/admin/reports/configchanges', $notImplemented);
-
-// ============================================
-// ADMIN ROUTES - ENVIRONMENT & SYSTEM INFO
-// ============================================
-$router->get('/admin/environment', function() {
-    require(BASE_DIR . '/admin/environment.php');
-});
-$router->get('/admin/phpinfo', function() {
-    require(BASE_DIR . '/admin/phpinfo.php');
-});
-
-// ============================================
-// ADMIN ROUTES - CACHE
-// ============================================
-$router->get('/admin/cache/purge', function() {
-    require(BASE_DIR . '/admin/cache/purge.php');
-});
-$router->post('/admin/cache/purge', function() {
-    require(BASE_DIR . '/admin/cache/purge.php');
-});
-$router->get('/admin/cache/purge.php', function() {
-    require(BASE_DIR . '/admin/cache/purge.php');
-});
-$router->post('/admin/cache/purge.php', function() {
-    require(BASE_DIR . '/admin/cache/purge.php');
-});
-
-// ============================================
-// ADMIN REPORT REDIRECTS (alias to /report/*)
-// ============================================
-$router->get('/admin/reports/logs', function() {
-    header('Location: /report/log');
-    exit;
-});
-$router->get('/admin/reports/livelogs', function() {
-    header('Location: /report/loglive');
-    exit;
-});
-$router->get('/admin/reports/security', function() {
-    header('Location: /report/security');
-    exit;
-});
-$router->get('/admin/reports/performance', function() {
-    header('Location: /report/performance');
-    exit;
-});
-
-// ============================================
-// REPORT ROUTES
-// ============================================
-$router->get('/report/log', function() {
-    require(BASE_DIR . '/report/log/index.php');
-});
-$router->get('/report/log/index.php', function() {
-    require(BASE_DIR . '/report/log/index.php');
-});
-$router->get('/report/loglive', function() {
-    require(BASE_DIR . '/report/loglive/index.php');
-});
-$router->get('/report/loglive/index.php', function() {
-    require(BASE_DIR . '/report/loglive/index.php');
-});
-$router->get('/report/loglive/loglive_ajax.php', function() {
-    require(BASE_DIR . '/report/loglive/loglive_ajax.php');
-});
-$router->get('/report/security', function() {
-    require(BASE_DIR . '/report/security/index.php');
-});
-$router->get('/report/security/index.php', function() {
-    require(BASE_DIR . '/report/security/index.php');
-});
-$router->get('/report/performance', function() {
-    require(BASE_DIR . '/report/performance/index.php');
-});
-$router->get('/report/performance/index.php', function() {
-    require(BASE_DIR . '/report/performance/index.php');
-});
-
-// ============================================
-// MFA ROUTES
-// ============================================
-$router->get('/admin/tool/mfa', function() {
-    require(BASE_DIR . '/admin/tool/mfa/settings.php');
-});
-$router->post('/admin/tool/mfa', function() {
-    require(BASE_DIR . '/admin/tool/mfa/settings.php');
-});
-$router->get('/admin/tool/mfa/auth', function() {
-    require(BASE_DIR . '/admin/tool/mfa/auth.php');
-});
-$router->post('/admin/tool/mfa/auth', function() {
-    require(BASE_DIR . '/admin/tool/mfa/auth.php');
-});
-$router->get('/admin/tool/mfa/auth.php', function() {
-    require(BASE_DIR . '/admin/tool/mfa/auth.php');
-});
-$router->post('/admin/tool/mfa/auth.php', function() {
-    require(BASE_DIR . '/admin/tool/mfa/auth.php');
-});
-
-// ============================================
-// USER ROUTES
-// ============================================
-$router->get('/user/profile', function() {
-    require(BASE_DIR . '/user/profile.php');
-});
-$router->get('/user/profile.php', function() {
-    require(BASE_DIR . '/user/profile.php');
-});
-$router->get('/user/edit', function() {
-    require(BASE_DIR . '/user/edit.php');
-});
-$router->post('/user/edit', function() {
-    require(BASE_DIR . '/user/edit.php');
-});
-$router->get('/user/edit.php', function() {
-    require(BASE_DIR . '/user/edit.php');
-});
-$router->post('/user/edit.php', function() {
-    require(BASE_DIR . '/user/edit.php');
-});
-$router->get('/user/preferences/notification', function() {
-    require(BASE_DIR . '/user/preferences/notification.php');
-});
-$router->post('/user/preferences/notification', function() {
-    require(BASE_DIR . '/user/preferences/notification.php');
-});
-$router->get('/user/preferences/notification.php', function() {
-    require(BASE_DIR . '/user/preferences/notification.php');
-});
-$router->post('/user/preferences/notification.php', function() {
-    require(BASE_DIR . '/user/preferences/notification.php');
-});
-
-// Despachar
+// Despachar la peticion
 try {
     $router->dispatch($uri, $method);
 } catch (\core\routing\route_not_found_exception $e) {
