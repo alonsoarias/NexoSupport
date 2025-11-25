@@ -198,6 +198,55 @@ function has_capability(string $capability, ?int $userid = null, ?\core\rbac\con
 }
 
 /**
+ * Check if user is logged in
+ *
+ * Returns true if there is a valid user session.
+ *
+ * @return bool True if logged in, false otherwise
+ */
+function isloggedin(): bool {
+    global $USER;
+
+    // Check if USER is set and has a valid id
+    if (!isset($USER) || !is_object($USER)) {
+        return false;
+    }
+
+    if (!isset($USER->id) || empty($USER->id)) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Check if current user is a guest user
+ *
+ * @param object|int|null $user User object or ID (null = current user)
+ * @return bool True if guest user
+ */
+function isguestuser($user = null): bool {
+    global $USER;
+
+    if ($user === null) {
+        $user = $USER;
+    }
+
+    if (!is_object($user)) {
+        return true; // Not a valid user object = treat as guest
+    }
+
+    // Check if user ID is 0 or not set (guest)
+    if (!isset($user->id) || empty($user->id)) {
+        return true;
+    }
+
+    // Guest user typically has a special flag or ID
+    // For now, return false for any valid user
+    return false;
+}
+
+/**
  * Require login
  *
  * CRITICAL: This function MUST prevent access to pages without authentication.
