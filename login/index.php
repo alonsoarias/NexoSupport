@@ -2,17 +2,15 @@
 /**
  * Login page
  *
+ * This is an entry point script - it should be accessed directly.
+ *
  * @package core
  */
 
-defined('NEXOSUPPORT_INTERNAL') || die();
+// Load configuration first (this defines NEXOSUPPORT_INTERNAL)
+require_once(__DIR__ . '/../config.php');
 
 global $USER, $CFG, $DB, $PAGE, $OUTPUT;
-
-// Include config if not already loaded
-if (!isset($CFG) || !isset($DB)) {
-    require_once(__DIR__ . '/../config.php');
-}
 
 // Include auth library
 require_once(BASE_DIR . '/lib/authlib.php');
