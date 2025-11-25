@@ -1,7 +1,14 @@
 <?php
-defined('NEXOSUPPORT_INTERNAL') || die();
-global $USER, $DB, $CFG, $PAGE, $OUTPUT;
+/**
+ * User profile page
+ *
+ * @package core
+ */
+
+// Load configuration first (this defines NEXOSUPPORT_INTERNAL)
 require_once(__DIR__ . '/../config.php');
+
+global $USER, $DB, $CFG, $PAGE, $OUTPUT;
 
 require_login();
 
