@@ -1,0 +1,82 @@
+{{> core/header}}
+
+<style>
+    .report-container { max-width: 1200px; margin: 0 auto; }
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .report-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+    .stats-badge { background: var(--bg-tertiary); padding: 0.5rem 1rem; border-radius: 0.5rem; color: var(--text-secondary); }
+    .stats-badge strong { color: var(--primary-color); }
+    .data-table { width: 100%; border-collapse: collapse; background: var(--bg-primary); border-radius: 0.75rem; overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
+    .data-table thead { background: var(--bg-tertiary); }
+    .data-table th, .data-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.875rem; }
+    .data-table th { font-weight: 600; color: var(--text-primary); text-transform: uppercase; font-size: 0.75rem; }
+    .data-table tbody tr:hover { background: var(--bg-secondary); }
+    .empty-state { text-align: center; padding: 3rem; background: var(--bg-primary); border-radius: 0.75rem; border: 2px dashed var(--border-color); }
+    .empty-state i { font-size: 2.5rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; }
+    .pagination a, .pagination span { padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; }
+    .pagination a { background: var(--primary-color); color: white; }
+    .pagination span { background: var(--bg-tertiary); color: var(--text-muted); }
+    .breadcrumb { display: flex; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted); }
+    .breadcrumb a { color: var(--primary-color); text-decoration: none; }
+</style>
+
+<div class="report-container">
+    <div class="breadcrumb">
+        <a href="/admin">{{#str}}administration,core{{/str}}</a>
+        <span>/</span>
+        <span>{{#str}}logs,core{{/str}}</span>
+    </div>
+
+    <div class="report-header">
+        <h1><i class="fas fa-clipboard-list"></i> {{#str}}logs,core{{/str}}</h1>
+        <span class="stats-badge">{{#str}}total,core{{/str}}: <strong>{{totalcount}}</strong></span>
+    </div>
+
+    {{#haslogs}}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>{{#str}}time,core{{/str}}</th>
+                <th>{{#str}}user,core{{/str}}</th>
+                <th>{{#str}}action,core{{/str}}</th>
+                <th>{{#str}}target,core{{/str}}</th>
+                <th>{{#str}}component,core{{/str}}</th>
+                <th>IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#logs}}
+            <tr>
+                <td>{{time}}</td>
+                <td><strong>{{username}}</strong><br><small>{{fullname}}</small></td>
+                <td>{{action}}</td>
+                <td>{{target}}</td>
+                <td>{{component}}</td>
+                <td>{{ip}}</td>
+            </tr>
+            {{/logs}}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        {{#hasprevious}}
+        <a href="?page={{previouspage}}"><i class="fas fa-chevron-left"></i> {{#str}}previous,core{{/str}}</a>
+        {{/hasprevious}}
+        <span>{{#str}}page,core{{/str}} {{page}} / {{totalpages}}</span>
+        {{#hasnext}}
+        <a href="?page={{nextpage}}">{{#str}}next,core{{/str}} <i class="fas fa-chevron-right"></i></a>
+        {{/hasnext}}
+    </div>
+    {{/haslogs}}
+
+    {{^haslogs}}
+    <div class="empty-state">
+        <i class="fas fa-clipboard"></i>
+        <h3>{{#str}}nologs,core{{/str}}</h3>
+        <p>{{#str}}norecordsfound,core{{/str}}</p>
+    </div>
+    {{/haslogs}}
+</div>
+
+{{> core/footer}}

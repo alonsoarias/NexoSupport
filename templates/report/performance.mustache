@@ -1,0 +1,66 @@
+{{> core/header}}
+
+<style>
+    .report-container { max-width: 900px; margin: 0 auto; }
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .report-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+    .server-info { font-size: 0.875rem; color: var(--text-secondary); }
+    .metrics-table { width: 100%; border-collapse: collapse; background: var(--bg-primary); border-radius: 0.75rem; overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
+    .metrics-table th, .metrics-table td { padding: 1rem 1.25rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+    .metrics-table thead { background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end)); }
+    .metrics-table th { font-weight: 600; color: white; text-transform: uppercase; font-size: 0.75rem; }
+    .metrics-table tbody tr:hover { background: var(--bg-secondary); }
+    .metrics-table tbody tr:last-child td { border-bottom: none; }
+    .metric-name { font-weight: 600; color: var(--text-primary); }
+    .metric-category { font-size: 0.75rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 0.25rem 0.5rem; border-radius: 0.25rem; display: inline-block; margin-bottom: 0.25rem; }
+    .metric-value { font-family: monospace; font-size: 0.9375rem; }
+    .status-indicator { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 0.5rem; }
+    .status-indicator.ok { background: var(--success); }
+    .status-indicator.warning { background: var(--warning); }
+    .status-indicator.critical { background: var(--error); }
+    .breadcrumb { display: flex; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted); }
+    .breadcrumb a { color: var(--primary-color); text-decoration: none; }
+</style>
+
+<div class="report-container">
+    <div class="breadcrumb">
+        <a href="/admin">{{#str}}administration,core{{/str}}</a>
+        <span>/</span>
+        <span>{{#str}}performancereport,core{{/str}}</span>
+    </div>
+
+    <div class="report-header">
+        <h1><i class="fas fa-tachometer-alt"></i> {{#str}}performancereport,core{{/str}}</h1>
+        <span class="server-info"><i class="fas fa-clock"></i> {{servertime}}</span>
+    </div>
+
+    {{#hasmetrics}}
+    <table class="metrics-table">
+        <thead>
+            <tr>
+                <th>{{#str}}metric,core{{/str}}</th>
+                <th>{{#str}}value,core{{/str}}</th>
+                <th>{{#str}}status,core{{/str}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#metrics}}
+            <tr>
+                <td>
+                    <span class="metric-category">{{category}}</span>
+                    <div class="metric-name">{{name}}</div>
+                </td>
+                <td class="metric-value">{{value}}</td>
+                <td>
+                    {{#status_ok}}<span class="status-indicator ok"></span> OK{{/status_ok}}
+                    {{#status_warning}}<span class="status-indicator warning"></span> Warning{{/status_warning}}
+                    {{#status_critical}}<span class="status-indicator critical"></span> Critical{{/status_critical}}
+                </td>
+            </tr>
+            {{/metrics}}
+        </tbody>
+    </table>
+    {{/hasmetrics}}
+</div>
+
+{{> core/footer}}

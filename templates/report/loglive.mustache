@@ -1,0 +1,78 @@
+{{> core/header}}
+
+<style>
+    .report-container { max-width: 1200px; margin: 0 auto; }
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .report-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+    .live-badge { background: var(--success); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .refresh-info { display: flex; align-items: center; gap: 1rem; }
+    .btn { padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 0.5rem; text-decoration: none; font-size: 0.875rem; }
+    .data-table { width: 100%; border-collapse: collapse; background: var(--bg-primary); border-radius: 0.75rem; overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
+    .data-table thead { background: var(--bg-tertiary); }
+    .data-table th, .data-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.875rem; }
+    .data-table th { font-weight: 600; color: var(--text-primary); text-transform: uppercase; font-size: 0.75rem; }
+    .data-table tbody tr:hover { background: var(--bg-secondary); }
+    .empty-state { text-align: center; padding: 3rem; background: var(--bg-primary); border-radius: 0.75rem; border: 2px dashed var(--border-color); }
+    .empty-state i { font-size: 2.5rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .breadcrumb { display: flex; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted); }
+    .breadcrumb a { color: var(--primary-color); text-decoration: none; }
+</style>
+
+<div class="report-container">
+    <div class="breadcrumb">
+        <a href="/admin">{{#str}}administration,core{{/str}}</a>
+        <span>/</span>
+        <span>{{#str}}livelogs,core{{/str}}</span>
+    </div>
+
+    <div class="report-header">
+        <h1><i class="fas fa-stream"></i> {{#str}}livelogs,core{{/str}}</h1>
+        <div class="refresh-info">
+            <span class="live-badge"><i class="fas fa-circle"></i> Live</span>
+            <a href="{{refreshurl}}" class="btn"><i class="fas fa-sync-alt"></i> {{#str}}refresh,core{{/str}}</a>
+        </div>
+    </div>
+
+    {{#haslogs}}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>{{#str}}time,core{{/str}}</th>
+                <th>{{#str}}user,core{{/str}}</th>
+                <th>{{#str}}action,core{{/str}}</th>
+                <th>{{#str}}target,core{{/str}}</th>
+                <th>IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#logs}}
+            <tr>
+                <td><strong>{{time}}</strong></td>
+                <td>{{username}}</td>
+                <td>{{action}}</td>
+                <td>{{target}}</td>
+                <td>{{ip}}</td>
+            </tr>
+            {{/logs}}
+        </tbody>
+    </table>
+    {{/haslogs}}
+
+    {{^haslogs}}
+    <div class="empty-state">
+        <i class="fas fa-clock"></i>
+        <h3>{{#str}}norecentlogs,core{{/str}}</h3>
+        <p>{{#str}}norecentlogshelp,core{{/str}}</p>
+    </div>
+    {{/haslogs}}
+</div>
+
+<script>
+    // Auto-refresh every 10 seconds
+    setTimeout(function() {
+        location.reload();
+    }, 10000);
+</script>
+
+{{> core/footer}}
