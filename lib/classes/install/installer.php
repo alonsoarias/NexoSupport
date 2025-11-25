@@ -73,6 +73,11 @@ class installer {
      */
     private function save_state(): void {
         $_SESSION['nexosupport_install'] = $this->state;
+        // Forzar escritura de sesión para asegurar persistencia antes de redirecciones
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+            session_start();
+        }
     }
 
     /**
@@ -317,6 +322,18 @@ class installer {
 
         try {
             $dbconfig = $this->state['data']['database'] ?? null;
+
+            // Si no hay config en sesión, intentar leer desde .env
+            if (!$dbconfig && file_exists(BASE_DIR . '/.env')) {
+                $dbconfig = $this->load_dbconfig_from_env();
+                if ($dbconfig) {
+                    $log[] = 'Configuración cargada desde .env';
+                    // Guardar en estado para futuras operaciones
+                    $this->state['data']['database'] = $dbconfig;
+                    $this->save_state();
+                }
+            }
+
             if (!$dbconfig) {
                 return ['success' => false, 'error' => get_string('installer_dbconfig_not_found', 'install'), 'log' => $log];
             }
@@ -419,6 +436,16 @@ class installer {
 
             // Conectar a BD
             $dbconfig = $this->state['data']['database'] ?? null;
+
+            // Si no hay config en sesión, intentar leer desde .env
+            if (!$dbconfig && file_exists(BASE_DIR . '/.env')) {
+                $dbconfig = $this->load_dbconfig_from_env();
+                if ($dbconfig) {
+                    $this->state['data']['database'] = $dbconfig;
+                    $this->save_state();
+                }
+            }
+
             if (!$dbconfig) {
                 return ['success' => false, 'error' => get_string('installer_dbconfig_not_found', 'install'), 'userid' => null];
             }
@@ -466,6 +493,15 @@ class installer {
         try {
             $dbconfig = $this->state['data']['database'] ?? null;
             $adminuserid = $this->state['data']['admin_userid'] ?? null;
+
+            // Si no hay config en sesión, intentar leer desde .env
+            if (!$dbconfig && file_exists(BASE_DIR . '/.env')) {
+                $dbconfig = $this->load_dbconfig_from_env();
+                if ($dbconfig) {
+                    $this->state['data']['database'] = $dbconfig;
+                    $this->save_state();
+                }
+            }
 
             if (!$dbconfig || !$adminuserid) {
                 return ['success' => false, 'error' => get_string('installer_incomplete_data', 'install'), 'log' => $log];
@@ -564,6 +600,47 @@ class installer {
             : "pgsql:host={$dbconfig['host']};dbname={$dbconfig['database']}";
 
         return new \PDO($dsn, $dbconfig['username'], $dbconfig['password'] ?? '');
+    }
+
+    /**
+     * Cargar configuración de BD desde archivo .env
+     *
+     * @return array|null Configuración de BD o null si no existe
+     */
+    private function load_dbconfig_from_env(): ?array {
+        $envfile = BASE_DIR . '/.env';
+        if (!file_exists($envfile)) {
+            return null;
+        }
+
+        $env = [];
+        $content = file_get_contents($envfile);
+        $lines = explode("\n", $content);
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line) || $line[0] === '#') {
+                continue;
+            }
+            if (strpos($line, '=') !== false) {
+                list($key, $value) = explode('=', $line, 2);
+                $env[trim($key)] = trim($value);
+            }
+        }
+
+        // Verificar que existan los campos necesarios
+        if (empty($env['DB_DRIVER']) || empty($env['DB_DATABASE'])) {
+            return null;
+        }
+
+        return [
+            'driver' => $env['DB_DRIVER'] ?? 'mysql',
+            'host' => $env['DB_HOST'] ?? 'localhost',
+            'database' => $env['DB_DATABASE'] ?? '',
+            'username' => $env['DB_USERNAME'] ?? '',
+            'password' => $env['DB_PASSWORD'] ?? '',
+            'prefix' => $env['DB_PREFIX'] ?? 'nxs_'
+        ];
     }
 
     /**
