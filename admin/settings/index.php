@@ -61,4 +61,4 @@ $context = [
     'categories' => $categories,
 ];
 
-echo render_template('admin/settings_index', $context);
+echo render_template('admin/settings', $context);

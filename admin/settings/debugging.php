@@ -55,4 +55,4 @@ $context = [
     'sesskey' => sesskey(),
 ];
 
-echo render_template('admin/settings_debugging', $context);
+echo render_template('admin/debugging', $context);

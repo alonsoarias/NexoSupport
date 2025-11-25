@@ -31,4 +31,4 @@ $context = [
     'sesskey' => sesskey(),
 ];
 
-echo render_template('admin/settings_paths', $context);
+echo render_template('admin/settings_systempaths', $context);

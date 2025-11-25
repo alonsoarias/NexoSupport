@@ -1,0 +1,75 @@
+{{!
+    User Settings Template
+}}
+{{> core/header}}
+
+<style>
+    .settings-container { max-width: 800px; margin: 0 auto; }
+    .settings-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .settings-card { background: var(--bg-primary); border-radius: 0.75rem; padding: 1.5rem; border: 1px solid var(--border-color); margin-bottom: 1.5rem; }
+    .settings-card h3 { font-size: 1.125rem; color: var(--primary-color); margin: 0 0 1rem 0; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; }
+    .form-group .description { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .form-control { width: 100%; padding: 0.625rem 0.875rem; border: 1px solid var(--border-color); border-radius: 0.5rem; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; max-width: 300px; }
+    .form-check { display: flex; align-items: center; gap: 0.5rem; }
+    .form-check input[type="checkbox"] { width: 1.125rem; height: 1.125rem; }
+    .btn-primary { background: var(--primary-color); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .breadcrumb { display: flex; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted); }
+    .breadcrumb a { color: var(--primary-color); text-decoration: none; }
+    .alert { padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
+    .alert-success { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+</style>
+
+<div class="settings-container">
+    <div class="breadcrumb">
+        <a href="/admin">{{#str}}administration,core{{/str}}</a>
+        <span>/</span>
+        <a href="/admin/settings">{{#str}}settings,core{{/str}}</a>
+        <span>/</span>
+        <span>{{#str}}usersettings,admin{{/str}}</span>
+    </div>
+
+    <div class="settings-header">
+        <h1><i class="fas fa-users-cog"></i> {{#str}}usersettings,admin{{/str}}</h1>
+    </div>
+
+    {{#success}}
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> {{success}}
+    </div>
+    {{/success}}
+
+    <form method="POST">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+
+        <div class="settings-card">
+            <h3><i class="fas fa-sign-in-alt"></i> {{#str}}authentication,admin{{/str}}</h3>
+
+            <div class="form-group">
+                <label for="defaultauth">{{#str}}defaultauth,admin{{/str}}</label>
+                <p class="description">{{#str}}defaultauth_desc,admin{{/str}}</p>
+                <select id="defaultauth" name="defaultauth" class="form-control">
+                    {{#authmethods}}
+                    <option value="{{code}}" {{#selected}}selected{{/selected}}>{{name}}</option>
+                    {{/authmethods}}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="selfregistration" name="selfregistration" value="1" {{#selfregistration}}checked{{/selfregistration}}>
+                    <label for="selfregistration">{{#str}}selfregistration,admin{{/str}}</label>
+                </div>
+                <p class="description">{{#str}}selfregistration_desc,admin{{/str}}</p>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary">
+            <i class="fas fa-save"></i> {{#str}}savechanges,core{{/str}}
+        </button>
+    </form>
+</div>
+
+{{> core/footer}}

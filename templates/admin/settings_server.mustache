@@ -1,0 +1,74 @@
+{{!
+    Server Settings Template
+}}
+{{> core/header}}
+
+<style>
+    .settings-container { max-width: 800px; margin: 0 auto; }
+    .settings-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .settings-card { background: var(--bg-primary); border-radius: 0.75rem; padding: 1.5rem; border: 1px solid var(--border-color); margin-bottom: 1.5rem; }
+    .settings-card h3 { font-size: 1.125rem; color: var(--primary-color); margin: 0 0 1rem 0; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+    .info-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-color); }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--text-muted); font-weight: 500; }
+    .info-value { color: var(--text-primary); font-family: monospace; }
+    .breadcrumb { display: flex; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted); }
+    .breadcrumb a { color: var(--primary-color); text-decoration: none; }
+</style>
+
+<div class="settings-container">
+    <div class="breadcrumb">
+        <a href="/admin">{{#str}}administration,core{{/str}}</a>
+        <span>/</span>
+        <a href="/admin/settings">{{#str}}settings,core{{/str}}</a>
+        <span>/</span>
+        <span>{{#str}}server,admin{{/str}}</span>
+    </div>
+
+    <div class="settings-header">
+        <h1><i class="fas fa-server"></i> {{#str}}server,admin{{/str}}</h1>
+    </div>
+
+    <div class="settings-card">
+        <h3><i class="fas fa-info-circle"></i> {{#str}}serverinfo,admin{{/str}}</h3>
+
+        <div class="info-row">
+            <span class="info-label">PHP Version</span>
+            <span class="info-value">{{serverinfo.php_version}}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Server Software</span>
+            <span class="info-value">{{serverinfo.server_software}}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Database Driver</span>
+            <span class="info-value">{{serverinfo.database_driver}}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Memory Limit</span>
+            <span class="info-value">{{serverinfo.memory_limit}}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Max Execution Time</span>
+            <span class="info-value">{{serverinfo.max_execution_time}}s</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Upload Max Filesize</span>
+            <span class="info-value">{{serverinfo.upload_max_filesize}}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Post Max Size</span>
+            <span class="info-value">{{serverinfo.post_max_size}}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Timezone</span>
+            <span class="info-value">{{serverinfo.timezone}}</span>
+        </div>
+    </div>
+
+    <p style="color: var(--text-muted); font-size: 0.875rem;">
+        <i class="fas fa-info-circle"></i> {{#str}}serverinfodesc,admin{{/str}}
+    </p>
+</div>
+
+{{> core/footer}}

@@ -44,4 +44,4 @@ $context = [
     'cancreate' => has_capability('nexosupport/admin:manageroles'),
 ];
 
-echo render_template('admin/roles', $context);
+echo render_template('admin/role_list', $context);

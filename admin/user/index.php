@@ -50,4 +50,4 @@ $context = [
     'cancreate' => has_capability('nexosupport/user:create'),
 ];
 
-echo render_template('admin/users', $context);
+echo render_template('admin/user_list', $context);

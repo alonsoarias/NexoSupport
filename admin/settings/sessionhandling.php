@@ -46,4 +46,4 @@ $context = [
     'sesskey' => sesskey(),
 ];
 
-echo render_template('admin/settings_session', $context);
+echo render_template('admin/settings_sessionhandling', $context);
