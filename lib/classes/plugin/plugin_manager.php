@@ -645,6 +645,218 @@ class plugin_manager {
 
         return $success;
     }
+
+    /**
+     * Uninstall a plugin
+     *
+     * @param string $type Plugin type
+     * @param string $name Plugin name
+     * @return array Result with success status and message
+     */
+    public function uninstall_plugin(string $type, string $name): array {
+        global $DB;
+
+        // Check if plugin exists
+        $present = $this->get_present_plugins();
+        $info = $present[$type][$name] ?? null;
+
+        if (!$info) {
+            return ['success' => false, 'message' => 'Plugin not found'];
+        }
+
+        // Check if plugin can be uninstalled
+        if (!$this->can_uninstall($type, $name)) {
+            return ['success' => false, 'message' => 'This plugin cannot be uninstalled'];
+        }
+
+        $component = "{$type}_{$name}";
+        $plugindir = $info->rootdir;
+
+        try {
+            // 1. Run uninstall.php if exists
+            $uninstallphp = $plugindir . '/db/uninstall.php';
+            if (file_exists($uninstallphp)) {
+                require_once($uninstallphp);
+                $function = "xmldb_{$type}_{$name}_uninstall";
+                if (function_exists($function)) {
+                    $function();
+                }
+            }
+
+            // 2. Remove plugin tables if install.xml exists
+            $installxml = $plugindir . '/db/install.xml';
+            if (file_exists($installxml)) {
+                $DB->get_manager()->uninstall_from_xmldb_file($installxml);
+            }
+
+            // 3. Remove capabilities
+            $DB->delete_records('capabilities', ['component' => $component]);
+
+            // 4. Remove role capabilities
+            $DB->delete_records('role_capabilities', ['capability' => $component . '/%']);
+
+            // 5. Remove config
+            $DB->delete_records('config', ['component' => $component]);
+            if ($DB->get_manager()->table_exists('config_plugins')) {
+                $DB->delete_records('config_plugins', ['plugin' => $component]);
+            }
+
+            // 6. Delete plugin files
+            $deleted = $this->delete_directory($plugindir);
+
+            if (!$deleted) {
+                return ['success' => false, 'message' => 'Failed to delete plugin files'];
+            }
+
+            // Reset caches
+            self::reset_caches();
+
+            return ['success' => true, 'message' => 'Plugin uninstalled successfully'];
+
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Check if a plugin can be uninstalled
+     *
+     * @param string $type Plugin type
+     * @param string $name Plugin name
+     * @return bool
+     */
+    public function can_uninstall(string $type, string $name): bool {
+        // Core plugins that cannot be uninstalled
+        $protected = [
+            'theme' => ['boost'],
+            'auth' => ['manual'],
+        ];
+
+        if (isset($protected[$type]) && in_array($name, $protected[$type])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Install a plugin from a ZIP file
+     *
+     * @param string $zippath Path to ZIP file
+     * @param string $type Plugin type
+     * @return array Result with success status and message
+     */
+    public function install_from_zip(string $zippath, string $type): array {
+        global $CFG;
+
+        if (!file_exists($zippath)) {
+            return ['success' => false, 'message' => 'ZIP file not found'];
+        }
+
+        $types = $this->get_plugin_types();
+        if (!isset($types[$type])) {
+            return ['success' => false, 'message' => 'Invalid plugin type'];
+        }
+
+        $targetdir = $types[$type];
+
+        // Create temp directory for extraction
+        $tempdir = sys_get_temp_dir() . '/nexo_plugin_' . uniqid();
+        mkdir($tempdir, 0755, true);
+
+        // Extract ZIP
+        $zip = new \ZipArchive();
+        if ($zip->open($zippath) !== true) {
+            return ['success' => false, 'message' => 'Failed to open ZIP file'];
+        }
+
+        $zip->extractTo($tempdir);
+        $zip->close();
+
+        // Find the plugin directory
+        $extracted = scandir($tempdir);
+        $pluginname = null;
+        foreach ($extracted as $item) {
+            if ($item !== '.' && $item !== '..' && is_dir($tempdir . '/' . $item)) {
+                $pluginname = $item;
+                break;
+            }
+        }
+
+        if (!$pluginname) {
+            $this->delete_directory($tempdir);
+            return ['success' => false, 'message' => 'Invalid plugin structure'];
+        }
+
+        // Verify version.php exists
+        if (!file_exists($tempdir . '/' . $pluginname . '/version.php')) {
+            $this->delete_directory($tempdir);
+            return ['success' => false, 'message' => 'Plugin version.php not found'];
+        }
+
+        // Move to target directory
+        $finaldir = $targetdir . '/' . $pluginname;
+        if (is_dir($finaldir)) {
+            $this->delete_directory($finaldir);
+        }
+
+        rename($tempdir . '/' . $pluginname, $finaldir);
+        $this->delete_directory($tempdir);
+
+        // Reset caches and install
+        self::reset_caches();
+
+        $result = $this->install_plugin($type, $pluginname);
+
+        if ($result) {
+            return ['success' => true, 'message' => 'Plugin installed successfully', 'name' => $pluginname];
+        } else {
+            return ['success' => false, 'message' => 'Failed to install plugin'];
+        }
+    }
+
+    /**
+     * Recursively delete a directory
+     *
+     * @param string $dir Directory path
+     * @return bool
+     */
+    private function delete_directory(string $dir): bool {
+        if (!is_dir($dir)) {
+            return false;
+        }
+
+        $files = array_diff(scandir($dir), ['.', '..']);
+        foreach ($files as $file) {
+            $path = $dir . '/' . $file;
+            if (is_dir($path)) {
+                $this->delete_directory($path);
+            } else {
+                unlink($path);
+            }
+        }
+
+        return rmdir($dir);
+    }
+
+    /**
+     * Get plugin type display name
+     *
+     * @param string $type Plugin type
+     * @return string
+     */
+    public function get_type_display_name(string $type): string {
+        $names = [
+            'auth' => get_string('authentication', 'core'),
+            'block' => get_string('blocks', 'core'),
+            'local' => get_string('localplugins', 'core'),
+            'theme' => get_string('themes', 'core'),
+            'tool' => get_string('tools', 'core'),
+            'report' => get_string('reports', 'core'),
+        ];
+
+        return $names[$type] ?? ucfirst($type);
+    }
 }
 
 // Define ANY_VERSION constant if not defined

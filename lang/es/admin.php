@@ -244,6 +244,36 @@ $string['perfdebughelp'] = 'Mostrar información de rendimiento en las páginas'
 $string['localplugins'] = 'Plugins locales';
 $string['blocks'] = 'Bloques';
 
+// Plugin management
+$string['installedplugins'] = 'Plugins instalados';
+$string['installplugin'] = 'Instalar plugin';
+$string['plugintype'] = 'Tipo de plugin';
+$string['pluginzipfile'] = 'Archivo ZIP del plugin';
+$string['nopluginsinstalled'] = 'No hay plugins instalados';
+$string['nopluginsinstalledhelp'] = 'Instale plugins para extender la funcionalidad del sistema';
+$string['pluginuninstalled'] = 'Plugin "{$a}" desinstalado exitosamente';
+$string['pluginuninstallfailed'] = 'Error al desinstalar el plugin';
+$string['plugincannotuninstall'] = 'Este plugin no puede ser desinstalado';
+$string['plugininstalled'] = 'Plugin "{$a}" instalado exitosamente';
+$string['plugininstallfailed'] = 'Error al instalar el plugin';
+$string['pluginnofileuploaded'] = 'No se subió ningún archivo';
+$string['pluginupgraded'] = 'Plugin "{$a}" actualizado exitosamente';
+$string['pluginupgradefailed'] = 'Error al actualizar el plugin';
+$string['confirmpluginuninstall'] = '¿Está seguro de que desea desinstalar este plugin? Esta acción no puede deshacerse.';
+$string['uninstall'] = 'Desinstalar';
+$string['installed'] = 'Instalado';
+$string['notinstalled'] = 'No instalado';
+$string['upgraderequired'] = 'Actualización requerida';
+$string['dbversion'] = 'Versión BD';
+$string['tools'] = 'Herramientas';
+
+// Plugin types
+$string['plugintype_report'] = 'Reportes';
+$string['plugintype_tool'] = 'Herramientas';
+$string['plugintype_theme'] = 'Temas';
+$string['plugintype_auth'] = 'Autenticación';
+$string['plugintype_block'] = 'Bloques';
+
 // External pages
 $string['phpinfo'] = 'Información PHP';
 $string['environment'] = 'Entorno del sistema';

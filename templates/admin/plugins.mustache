@@ -4,21 +4,58 @@
 {{> core/header}}
 
 <style>
-    .settings-container { max-width: 900px; margin: 0 auto; }
-    .settings-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .settings-container { max-width: 1000px; margin: 0 auto; }
+    .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .settings-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.75rem; margin: 0; }
     .settings-card { background: var(--bg-primary); border-radius: 0.75rem; padding: 1.5rem; border: 1px solid var(--border-color); margin-bottom: 1.5rem; }
-    .settings-card h3 { font-size: 1.125rem; color: var(--primary-color); margin: 0 0 1rem 0; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+    .settings-card h3 { font-size: 1.125rem; color: var(--primary-color); margin: 0 0 1rem 0; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.5rem; }
     .breadcrumb { display: flex; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted); }
     .breadcrumb a { color: var(--primary-color); text-decoration: none; }
+
+    /* Messages */
+    .alert { padding: 1rem 1.25rem; border-radius: 0.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+    .alert-success { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid var(--success); }
+    .alert-error { background: rgba(239, 68, 68, 0.15); color: var(--error); border: 1px solid var(--error); }
+
+    /* Install form */
+    .install-form { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .form-group label { font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); }
+    .form-group select, .form-group input[type="file"] { padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; background: var(--bg-primary); color: var(--text-primary); font-size: 0.875rem; }
+    .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s; }
+    .btn-primary { background: var(--primary-color); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-danger { background: var(--error); color: white; }
+    .btn-danger:hover { opacity: 0.9; }
+    .btn-warning { background: var(--warning); color: #1f2937; }
+    .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
+
+    /* Plugin type section */
+    .plugin-type-section { margin-bottom: 2rem; }
+    .plugin-type-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end)); color: white; border-radius: 0.75rem 0.75rem 0 0; }
+    .plugin-type-header h4 { margin: 0; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .plugin-type-count { background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; }
+
+    /* Plugin list */
+    .plugin-list { background: var(--bg-primary); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 0.75rem 0.75rem; }
+    .plugin-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); }
+    .plugin-item:last-child { border-bottom: none; }
+    .plugin-item:hover { background: var(--bg-secondary); }
+    .plugin-info { flex: 1; }
+    .plugin-info h5 { margin: 0 0 0.25rem 0; font-size: 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; }
+    .plugin-info .plugin-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; gap: 1rem; flex-wrap: wrap; }
+    .plugin-info .plugin-desc { font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem; }
+    .plugin-actions { display: flex; gap: 0.5rem; align-items: center; }
+
+    /* Status badges */
+    .status-badge { padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; }
+    .status-installed { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-upgrade { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+    .status-notinstalled { background: rgba(107, 114, 128, 0.15); color: var(--text-muted); }
+
+    /* Empty state */
     .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
     .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
-    .plugin-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--border-color); }
-    .plugin-item:last-child { border-bottom: none; }
-    .plugin-info h4 { margin: 0 0 0.25rem 0; color: var(--text-primary); }
-    .plugin-info p { margin: 0; font-size: 0.875rem; color: var(--text-muted); }
-    .plugin-status { padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; }
-    .status-enabled { background: rgba(16, 185, 129, 0.15); color: var(--success); }
-    .status-disabled { background: rgba(239, 68, 68, 0.15); color: var(--error); }
 </style>
 
 <div class="settings-container">
@@ -34,31 +71,122 @@
         <h1><i class="fas fa-puzzle-piece"></i> {{#str}}plugins,admin{{/str}}</h1>
     </div>
 
+    {{#hasmessage}}
+    <div class="alert {{#issuccess}}alert-success{{/issuccess}}{{#iserror}}alert-error{{/iserror}}">
+        <i class="fas {{#issuccess}}fa-check-circle{{/issuccess}}{{#iserror}}fa-exclamation-circle{{/iserror}}"></i>
+        {{message}}
+    </div>
+    {{/hasmessage}}
+
+    <!-- Install Plugin -->
     <div class="settings-card">
-        <h3><i class="fas fa-list"></i> {{#str}}installedplugins,admin{{/str}}</h3>
+        <h3><i class="fas fa-upload"></i> {{#str}}installplugin,admin{{/str}}</h3>
+        <form method="post" enctype="multipart/form-data" class="install-form">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <input type="hidden" name="action" value="install">
 
-        {{#hasplugins}}
-        {{#plugins}}
-        <div class="plugin-item">
-            <div class="plugin-info">
-                <h4>{{name}}</h4>
-                <p>{{description}}</p>
+            <div class="form-group">
+                <label for="plugintype">{{#str}}plugintype,admin{{/str}}</label>
+                <select name="plugintype" id="plugintype" required>
+                    {{#availabletypes}}
+                    <option value="{{type}}">{{typename}}</option>
+                    {{/availabletypes}}
+                </select>
             </div>
-            <span class="plugin-status {{#enabled}}status-enabled{{/enabled}}{{^enabled}}status-disabled{{/enabled}}">
-                {{#enabled}}{{#str}}enabled,core{{/str}}{{/enabled}}
-                {{^enabled}}{{#str}}disabled,core{{/str}}{{/enabled}}
-            </span>
-        </div>
-        {{/plugins}}
-        {{/hasplugins}}
 
-        {{^hasplugins}}
+            <div class="form-group">
+                <label for="pluginzip">{{#str}}pluginzipfile,admin{{/str}}</label>
+                <input type="file" name="pluginzip" id="pluginzip" accept=".zip" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-upload"></i> {{#str}}installplugin,admin{{/str}}
+            </button>
+        </form>
+    </div>
+
+    <!-- Installed Plugins -->
+    {{#hastypes}}
+    {{#plugintypes}}
+    <div class="plugin-type-section">
+        <div class="plugin-type-header">
+            <h4>
+                {{#type}}
+                {{#str}}plugintype_{{type}},admin{{/str}}
+                {{/type}}
+                {{typename}}
+            </h4>
+            <span class="plugin-type-count">{{count}} {{#str}}plugins,admin{{/str}}</span>
+        </div>
+        <div class="plugin-list">
+            {{#plugins}}
+            <div class="plugin-item">
+                <div class="plugin-info">
+                    <h5>
+                        {{displayname}}
+                        {{#installed}}
+                        {{#needsupgrade}}
+                        <span class="status-badge status-upgrade"><i class="fas fa-arrow-up"></i> {{#str}}upgraderequired,admin{{/str}}</span>
+                        {{/needsupgrade}}
+                        {{^needsupgrade}}
+                        <span class="status-badge status-installed"><i class="fas fa-check"></i> {{#str}}installed,admin{{/str}}</span>
+                        {{/needsupgrade}}
+                        {{/installed}}
+                        {{^installed}}
+                        <span class="status-badge status-notinstalled">{{#str}}notinstalled,admin{{/str}}</span>
+                        {{/installed}}
+                    </h5>
+                    <div class="plugin-meta">
+                        <span><i class="fas fa-tag"></i> v{{version}}</span>
+                        {{#installedversion}}
+                        <span><i class="fas fa-database"></i> {{#str}}dbversion,admin{{/str}}: {{installedversion}}</span>
+                        {{/installedversion}}
+                        <span><i class="fas fa-folder"></i> {{type}}/{{name}}</span>
+                    </div>
+                    {{#description}}
+                    <div class="plugin-desc">{{description}}</div>
+                    {{/description}}
+                </div>
+                <div class="plugin-actions">
+                    {{#needsupgrade}}
+                    <form method="post" style="display: inline;">
+                        <input type="hidden" name="sesskey" value="{{sesskey}}">
+                        <input type="hidden" name="action" value="upgrade">
+                        <input type="hidden" name="type" value="{{type}}">
+                        <input type="hidden" name="name" value="{{name}}">
+                        <button type="submit" class="btn btn-warning btn-sm">
+                            <i class="fas fa-arrow-up"></i> {{#str}}upgrade,core{{/str}}
+                        </button>
+                    </form>
+                    {{/needsupgrade}}
+                    {{#canuninstall}}
+                    <form method="post" style="display: inline;" onsubmit="return confirm('{{#str}}confirmpluginuninstall,admin{{/str}}');">
+                        <input type="hidden" name="sesskey" value="{{sesskey}}">
+                        <input type="hidden" name="action" value="uninstall">
+                        <input type="hidden" name="type" value="{{type}}">
+                        <input type="hidden" name="name" value="{{name}}">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> {{#str}}uninstall,admin{{/str}}
+                        </button>
+                    </form>
+                    {{/canuninstall}}
+                </div>
+            </div>
+            {{/plugins}}
+        </div>
+    </div>
+    {{/plugintypes}}
+    {{/hastypes}}
+
+    {{^hastypes}}
+    <div class="settings-card">
         <div class="empty-state">
             <i class="fas fa-puzzle-piece"></i>
-            <p>{{#str}}nopluginsinstalled,admin{{/str}}</p>
+            <h3>{{#str}}nopluginsinstalled,admin{{/str}}</h3>
+            <p>{{#str}}nopluginsinstalledhelp,admin{{/str}}</p>
         </div>
-        {{/hasplugins}}
     </div>
+    {{/hastypes}}
 </div>
 
 {{> core/footer}}

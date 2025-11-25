@@ -179,3 +179,37 @@ $string['total_roles'] = 'Total Roles';
 $string['system_version'] = 'System Version';
 $string['cache_description'] = 'Manage and purge system cache';
 $string["continue"] = "Continue";
+
+// Plugins
+$string['localplugins'] = 'Local plugins';
+$string['blocks'] = 'Blocks';
+
+// Plugin management
+$string['installedplugins'] = 'Installed plugins';
+$string['installplugin'] = 'Install plugin';
+$string['plugintype'] = 'Plugin type';
+$string['pluginzipfile'] = 'Plugin ZIP file';
+$string['nopluginsinstalled'] = 'No plugins installed';
+$string['nopluginsinstalledhelp'] = 'Install plugins to extend system functionality';
+$string['pluginuninstalled'] = 'Plugin "{$a}" uninstalled successfully';
+$string['pluginuninstallfailed'] = 'Error uninstalling plugin';
+$string['plugincannotuninstall'] = 'This plugin cannot be uninstalled';
+$string['plugininstalled'] = 'Plugin "{$a}" installed successfully';
+$string['plugininstallfailed'] = 'Error installing plugin';
+$string['pluginnofileuploaded'] = 'No file was uploaded';
+$string['pluginupgraded'] = 'Plugin "{$a}" upgraded successfully';
+$string['pluginupgradefailed'] = 'Error upgrading plugin';
+$string['confirmpluginuninstall'] = 'Are you sure you want to uninstall this plugin? This action cannot be undone.';
+$string['uninstall'] = 'Uninstall';
+$string['installed'] = 'Installed';
+$string['notinstalled'] = 'Not installed';
+$string['upgraderequired'] = 'Upgrade required';
+$string['dbversion'] = 'DB version';
+$string['tools'] = 'Tools';
+
+// Plugin types
+$string['plugintype_report'] = 'Reports';
+$string['plugintype_tool'] = 'Tools';
+$string['plugintype_theme'] = 'Themes';
+$string['plugintype_auth'] = 'Authentication';
+$string['plugintype_block'] = 'Blocks';
