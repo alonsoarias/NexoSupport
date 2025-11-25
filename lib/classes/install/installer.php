@@ -12,6 +12,31 @@ namespace core\install;
 
 defined('NEXOSUPPORT_INTERNAL') || die();
 
+// Ensure database constants are defined (normally defined in setup.php)
+if (!defined('IGNORE_MISSING')) {
+    define('IGNORE_MISSING', 0);
+}
+if (!defined('IGNORE_MULTIPLE')) {
+    define('IGNORE_MULTIPLE', 1);
+}
+if (!defined('MUST_EXIST')) {
+    define('MUST_EXIST', 2);
+}
+
+// Ensure maturity constants are defined
+if (!defined('MATURITY_ALPHA')) {
+    define('MATURITY_ALPHA', 50);
+}
+if (!defined('MATURITY_BETA')) {
+    define('MATURITY_BETA', 100);
+}
+if (!defined('MATURITY_RC')) {
+    define('MATURITY_RC', 150);
+}
+if (!defined('MATURITY_STABLE')) {
+    define('MATURITY_STABLE', 200);
+}
+
 /**
  * Main Installer Class
  */
@@ -535,14 +560,16 @@ class installer {
             }
 
             // Guardar versión del core
+            global $plugin;
             require_once(BASE_DIR . '/lib/version.php');
+            $version = $plugin->version ?? 2025011823; // Fallback version
             $GLOBALS['DB']->insert_record('config', [
                 'component' => 'core',
                 'name' => 'version',
-                'value' => (string)$plugin->version
+                'value' => (string)$version
             ]);
 
-            $log[] = get_string('installer_log_version_set', 'install', $plugin->version);
+            $log[] = get_string('installer_log_version_set', 'install', $version);
 
             // Guardar siteadmins
             $GLOBALS['DB']->insert_record('config', [
