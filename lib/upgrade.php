@@ -1221,6 +1221,48 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.26 (2025011826) - Automatic Plugin Installation During Upgrade
+    // =========================================================
+    if ($oldversion < 2025011826) {
+        echo '<div style="background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #9c27b0; margin-top: 0;">🔌 Upgrading to NexoSupport v1.1.26 - Automatic Plugin Installation</h2>';
+
+        echo '<h3 style="color: #9c27b0;">✨ What\'s New in v1.1.26:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Automatic Plugin Installation:</strong> All plugins are now installed/upgraded during system upgrade</li>';
+        echo '<li><strong>Plugin Processing in Upgrader:</strong> The upgrader class now handles plugin lifecycle</li>';
+        echo '<li><strong>Better Logging:</strong> Plugin install/upgrade status is logged during upgrade</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #9c27b0;">📦 Plugins That Will Be Installed:</h3>';
+        echo '<ul>';
+        echo '<li><strong>auth_manual:</strong> Manual authentication plugin</li>';
+        echo '<li><strong>report_log:</strong> System logs viewer</li>';
+        echo '<li><strong>report_loglive:</strong> Live logs viewer with auto-refresh</li>';
+        echo '<li><strong>report_performance:</strong> System performance metrics</li>';
+        echo '<li><strong>report_security:</strong> Security checks report</li>';
+        echo '<li><strong>theme_boost:</strong> Default theme with SCSS support</li>';
+        echo '<li><strong>tool_mfa:</strong> Multi-Factor Authentication</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #9c27b0;">🔧 Technical Changes:</h3>';
+        echo '<ul>';
+        echo '<li><code>upgrader::process_plugins()</code> - New method to install/upgrade plugins</li>';
+        echo '<li>Plugin processing runs after core upgrade completes</li>';
+        echo '<li>Each plugin\'s version.php is read and compared to database version</li>';
+        echo '<li>New plugins are installed, existing plugins are upgraded if needed</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ Plugins will be installed automatically after this upgrade block</p>';
+        echo '<p style="color: blue;">🔌 Check /admin/plugins to see all installed plugins</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.26 - upgrader enhancement only
+        upgrade_core_savepoint(true, 2025011826);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 

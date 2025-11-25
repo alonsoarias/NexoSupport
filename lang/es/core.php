@@ -14,6 +14,7 @@ $string['sitename'] = 'NexoSupport';
 // Errores comunes
 $string['error'] = 'Error';
 $string['success'] = 'Éxito';
+$string['failed'] = 'Fallido';
 $string['warning'] = 'Advertencia';
 $string['info'] = 'Información';
 $string['unknown'] = 'Desconocido';

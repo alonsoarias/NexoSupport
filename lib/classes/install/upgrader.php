@@ -155,6 +155,10 @@ class upgrader {
             if ($success) {
                 $this->add_log(get_string('upgrader_log_complete', 'install'));
 
+                // Process plugins (install/upgrade)
+                $this->add_log(get_string('upgrader_log_plugins', 'install'));
+                $this->process_plugins();
+
                 // Limpiar cache
                 $this->add_log(get_string('upgrader_log_purging', 'install'));
                 $this->purge_caches();
@@ -172,6 +176,49 @@ class upgrader {
             $this->add_error('Stack trace: ' . $e->getTraceAsString());
 
             return ['success' => false, 'log' => $this->log, 'errors' => $this->errors];
+        }
+    }
+
+    /**
+     * Process all plugins (install new, upgrade existing)
+     *
+     * @return void
+     */
+    private function process_plugins(): void {
+        try {
+            $pluginman = \core\plugin\plugin_manager::instance();
+            $updates = $pluginman->get_plugins_to_update();
+
+            if (empty($updates)) {
+                $this->add_log('  - ' . get_string('upgrader_plugins_uptodate', 'install'));
+                return;
+            }
+
+            foreach ($updates as $info) {
+                $component = $info->component ?? "{$info->type}_{$info->name}";
+                $status = $info->status ?? 'new';
+
+                if ($status === \core\plugin\plugin_manager::STATUS_NEW) {
+                    $this->add_log("  - " . get_string('upgrader_plugin_installing', 'install', $component));
+                    $result = $pluginman->install_plugin($info->type, $info->name);
+                } else {
+                    $this->add_log("  - " . get_string('upgrader_plugin_upgrading', 'install', $component));
+                    $result = $pluginman->upgrade_plugin($info->type, $info->name);
+                }
+
+                if ($result) {
+                    $this->add_log("    ✓ " . get_string('success', 'core'));
+                } else {
+                    $this->add_log("    ✗ " . get_string('failed', 'core'));
+                    $this->add_error(get_string('upgrader_plugin_failed', 'install', $component));
+                }
+            }
+
+            // Reset plugin caches
+            \core\plugin\plugin_manager::reset_caches();
+
+        } catch (\Exception $e) {
+            $this->add_error(get_string('upgrader_plugins_error', 'install') . ': ' . $e->getMessage());
         }
     }
 
