@@ -307,3 +307,39 @@ $string['supportemailhelp'] = 'Correo electrónico para solicitudes de soporte';
 
 // Error messages
 $string['errorwritingsetting'] = 'Error al guardar la configuración';
+
+// Development settings (v1.1.30)
+$string['development'] = 'Desarrollo';
+$string['developmentwarning'] = 'Estas opciones están diseñadas para desarrollo. No habilite estas opciones en sitios de producción.';
+$string['activefeatures'] = 'Características activas';
+$string['themesettings'] = 'Configuración del Tema';
+$string['themedesignermode'] = 'Modo diseñador de tema';
+$string['themedesignermode_desc'] = 'Reconstruye hojas de estilo en cada carga de página. Útil al desarrollar temas pero ralentiza el sitio.';
+$string['themedesignermodewarning'] = 'El modo diseñador de tema está activo. Los cachés han sido purgados automáticamente.';
+$string['cachesettings'] = 'Configuración de Caché';
+$string['cachejs'] = 'Caché de JavaScript';
+$string['cachejs_desc'] = 'Cachear archivos JavaScript combinados. Desactivar para desarrollo de JavaScript.';
+$string['cachetemplates'] = 'Caché de plantillas';
+$string['cachetemplates_desc'] = 'Cachear plantillas Mustache compiladas. Desactivar para desarrollo de plantillas.';
+$string['langstringcache'] = 'Caché de strings de idioma';
+$string['langstringcache_desc'] = 'Cachear strings de idioma. Desactivar cuando traduzca o modifique archivos de idioma.';
+$string['cachedisabled'] = 'Caché deshabilitado';
+$string['performance'] = 'Rendimiento';
+$string['perfdebug'] = 'Información de rendimiento';
+$string['perfdebug_desc'] = 'Mostrar información de rendimiento (tiempo, memoria, consultas) en el pie de página.';
+$string['debugpageinfo'] = 'Información de página';
+$string['debugpageinfo_desc'] = 'Mostrar información de la página actual en el pie de página para depuración.';
+$string['debuggingoptions'] = 'Opciones de depuración';
+$string['debugsqltrace'] = 'Traza SQL';
+$string['debugsqltrace_desc'] = 'Registrar todas las consultas SQL ejecutadas durante la carga de la página.';
+$string['debugvalidators'] = 'Validadores estrictos';
+$string['debugvalidators_desc'] = 'Habilitar validación estricta de HTML y parámetros.';
+$string['debugsmtp'] = 'Depuración SMTP';
+$string['debugsmtp_desc'] = 'Registrar comunicación detallada con el servidor de correo.';
+$string['yuiloglevel'] = 'Nivel de log JavaScript';
+$string['yuiloglevel_desc'] = 'Nivel de registro para mensajes de depuración en la consola del navegador.';
+$string['yuicomboloading'] = 'Combinar carga JavaScript';
+$string['yuicomboloading_desc'] = 'Combinar múltiples archivos JavaScript en una sola solicitud para mejor rendimiento.';
+$string['systeminfo'] = 'Información del sistema';
+$string['cacheadmin'] = 'Administrar caché';
+$string['javascriptsettings'] = 'Configuración JavaScript';

@@ -1437,6 +1437,63 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.30 - MUC Cache Admin and Developer Options
+    // =========================================================
+    if ($oldversion < 2025011830) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #2e7d32; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #2e7d32; margin-top: 0;">🔧 Upgrading to NexoSupport v1.1.30 - MUC Cache Admin & Developer Options</h2>';
+
+        echo '<h3 style="color: #2e7d32;">✨ What\'s New in v1.1.30:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Cache Administration Page:</strong> Complete cache configuration and management interface</li>';
+        echo '<li><strong>Purge Caches Page:</strong> Selective and bulk cache purging functionality</li>';
+        echo '<li><strong>Developer Settings:</strong> Enhanced development options following Moodle patterns</li>';
+        echo '<li><strong>System Information:</strong> OPcache, APCu, and Redis status monitoring</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #2e7d32;">📦 New Files:</h3>';
+        echo '<ul>';
+        echo '<li><strong>admin/purgecaches.php:</strong> Selective cache purging page</li>';
+        echo '<li><strong>cache/admin.php:</strong> Cache stores, definitions, and statistics management</li>';
+        echo '<li><strong>cache/classes/, cache/stores/, cache/locks/:</strong> Cache directory structure</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #2e7d32;">🔧 Enhanced Developer Options:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Theme Designer Mode:</strong> Rebuild stylesheets on every page load</li>';
+        echo '<li><strong>Cache Controls:</strong> JS, Templates, and Language string caching toggles</li>';
+        echo '<li><strong>Performance Debug:</strong> Performance info and page info display</li>';
+        echo '<li><strong>SQL Tracing:</strong> Log all SQL queries during page loads</li>';
+        echo '<li><strong>SMTP Debug:</strong> Detailed mail server communication logging</li>';
+        echo '<li><strong>YUI/AMD Settings:</strong> JavaScript log level and combo loading</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #2e7d32;">📊 Cache Store Management:</h3>';
+        echo '<ul>';
+        echo '<li><strong>File Store:</strong> File-based cache (always available)</li>';
+        echo '<li><strong>Session Store:</strong> PHP session cache</li>';
+        echo '<li><strong>Static Store:</strong> In-memory request cache</li>';
+        echo '<li><strong>Redis:</strong> High-performance caching (when available)</li>';
+        echo '<li><strong>APCu:</strong> User cache (when available)</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #2e7d32;">🛠️ Updated Files:</h3>';
+        echo '<ul>';
+        echo '<li><strong>admin/settings/development.php:</strong> Complete Moodle-style developer settings</li>';
+        echo '<li><strong>templates/admin/settings_development.mustache:</strong> Enhanced UI with system info</li>';
+        echo '<li><strong>lang/es/admin.php:</strong> 30+ new language strings for developer options</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ MUC Cache Admin and Developer Options now available</p>';
+        echo '<p style="color: blue;">🔗 Access: Site Administration → Development → Development / Purge Caches</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.30 - admin pages only
+        upgrade_core_savepoint(true, 2025011830);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 

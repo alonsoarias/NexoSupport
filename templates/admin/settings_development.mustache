@@ -1,25 +1,48 @@
 {{!
     Development Settings Template
+    Moodle-style developer options for NexoSupport
 }}
 {{> core/header}}
 
 <style>
-    .settings-container { max-width: 800px; margin: 0 auto; }
+    .settings-container { max-width: 900px; margin: 0 auto; }
     .settings-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; }
     .settings-card { background: var(--bg-primary); border-radius: 0.75rem; padding: 1.5rem; border: 1px solid var(--border-color); margin-bottom: 1.5rem; }
-    .settings-card h3 { font-size: 1.125rem; color: var(--primary-color); margin: 0 0 1rem 0; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+    .settings-card h3 { font-size: 1.125rem; color: var(--primary-color); margin: 0 0 1rem 0; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.5rem; }
     .form-group { margin-bottom: 1.25rem; }
     .form-group label { display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; }
-    .form-group .description { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.5rem; }
-    .form-check { display: flex; align-items: center; gap: 0.5rem; }
-    .form-check input[type="checkbox"] { width: 1.125rem; height: 1.125rem; }
+    .form-group .description { font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .form-check { display: flex; align-items: flex-start; gap: 0.5rem; }
+    .form-check input[type="checkbox"] { width: 1.125rem; height: 1.125rem; margin-top: 0.125rem; flex-shrink: 0; }
+    .form-check .check-content { flex: 1; }
+    .form-check .check-label { font-weight: 600; color: var(--text-primary); }
+    .form-select { width: 100%; max-width: 300px; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.375rem; background: var(--bg-primary); }
     .btn-primary { background: var(--primary-color); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; }
     .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.375rem; }
+    .btn-secondary:hover { background: var(--bg-tertiary); }
     .breadcrumb { display: flex; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted); }
     .breadcrumb a { color: var(--primary-color); text-decoration: none; }
     .alert { padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
     .alert-success { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
-    .alert-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .alert-warning { background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .alert-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .alert-info { background: rgba(59, 130, 246, 0.15); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .quick-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .status-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600; }
+    .status-badge.enabled { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-badge.disabled { background: rgba(156, 163, 175, 0.15); color: var(--text-muted); }
+    .status-badge.warning { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+    .system-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .info-item { background: var(--bg-secondary); padding: 0.75rem; border-radius: 0.5rem; }
+    .info-item .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem; }
+    .info-item .value { font-weight: 600; color: var(--text-primary); }
+    .section-divider { border: none; border-top: 1px solid var(--border-color); margin: 1rem 0; }
+    .developer-warning { display: flex; align-items: flex-start; gap: 0.75rem; }
+    .developer-warning i { font-size: 1.25rem; }
+    .active-features { margin-top: 0.5rem; }
+    .active-features ul { margin: 0.5rem 0 0 1rem; padding: 0; }
+    .active-features li { color: var(--text-muted); font-size: 0.875rem; }
 </style>
 
 <div class="settings-container">
@@ -35,8 +58,32 @@
         <h1><i class="fas fa-code"></i> {{#str}}development,admin{{/str}}</h1>
     </div>
 
+    <!-- Quick Links -->
+    <div class="quick-links">
+        <a href="{{purgecaches_url}}" class="btn-secondary"><i class="fas fa-sync-alt"></i> {{#str}}purgecaches,admin{{/str}}</a>
+        <a href="{{cacheadmin_url}}" class="btn-secondary"><i class="fas fa-database"></i> {{#str}}cacheadmin,admin{{/str}}</a>
+        <a href="{{debugging_url}}" class="btn-secondary"><i class="fas fa-bug"></i> {{#str}}debugging,admin{{/str}}</a>
+        <a href="{{phpinfo_url}}" class="btn-secondary"><i class="fab fa-php"></i> PHP Info</a>
+    </div>
+
+    <!-- Developer Warning -->
     <div class="alert alert-warning">
-        <i class="fas fa-exclamation-triangle"></i> {{#str}}developmentwarning,admin{{/str}}
+        <div class="developer-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>{{#str}}developmentwarning,admin{{/str}}</strong>
+                {{#has_developer_features}}
+                <div class="active-features">
+                    <strong>{{#str}}activefeatures,admin{{/str}}:</strong>
+                    <ul>
+                    {{#developer_features_enabled}}
+                        <li>{{.}}</li>
+                    {{/developer_features_enabled}}
+                    </ul>
+                </div>
+                {{/has_developer_features}}
+            </div>
+        </div>
     </div>
 
     {{#success}}
@@ -45,30 +92,227 @@
     </div>
     {{/success}}
 
+    {{#haswarnings}}
+    {{#warnings}}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> {{.}}
+    </div>
+    {{/warnings}}
+    {{/haswarnings}}
+
+    {{#haserrors}}
+    {{#errors}}
+    <div class="alert alert-danger">
+        <i class="fas fa-times-circle"></i> {{.}}
+    </div>
+    {{/errors}}
+    {{/haserrors}}
+
     <form method="POST">
         <input type="hidden" name="sesskey" value="{{sesskey}}">
 
+        <!-- Theme Designer Mode -->
         <div class="settings-card">
             <h3><i class="fas fa-paint-brush"></i> {{#str}}themesettings,admin{{/str}}</h3>
 
             <div class="form-group">
                 <div class="form-check">
-                    <input type="checkbox" id="themedesignermode" name="themedesignermode" value="1" {{#themedesignermode}}checked{{/themedesignermode}}>
-                    <label for="themedesignermode">{{#str}}themedesignermode,admin{{/str}}</label>
+                    <input type="checkbox" id="themedesignermode" name="themedesignermode" value="1" {{#themedesignermode_checked}}checked{{/themedesignermode_checked}}>
+                    <div class="check-content">
+                        <span class="check-label">{{#str}}themedesignermode,admin{{/str}}</span>
+                        {{#themedesignermode_checked}}<span class="status-badge warning">{{#str}}enabled,core{{/str}}</span>{{/themedesignermode_checked}}
+                        <p class="description">{{#str}}themedesignermode_desc,admin{{/str}}</p>
+                    </div>
                 </div>
-                <p class="description">{{#str}}themedesignermode_desc,admin{{/str}}</p>
             </div>
         </div>
 
+        <!-- Cache Settings -->
         <div class="settings-card">
-            <h3><i class="fas fa-file-code"></i> {{#str}}javascriptsettings,admin{{/str}}</h3>
+            <h3><i class="fas fa-database"></i> {{#str}}cachesettings,admin{{/str}}</h3>
 
             <div class="form-group">
                 <div class="form-check">
-                    <input type="checkbox" id="cachejs" name="cachejs" value="1" {{#cachejs}}checked{{/cachejs}}>
-                    <label for="cachejs">{{#str}}cachejs,admin{{/str}}</label>
+                    <input type="checkbox" id="cachejs" name="cachejs" value="1" {{#cachejs_checked}}checked{{/cachejs_checked}}>
+                    <div class="check-content">
+                        <span class="check-label">{{#str}}cachejs,admin{{/str}}</span>
+                        <p class="description">{{#str}}cachejs_desc,admin{{/str}}</p>
+                    </div>
                 </div>
-                <p class="description">{{#str}}cachejs_desc,admin{{/str}}</p>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="cachetemplates" name="cachetemplates" value="1" {{#cachetemplates_checked}}checked{{/cachetemplates_checked}}>
+                    <div class="check-content">
+                        <span class="check-label">{{#str}}cachetemplates,admin{{/str}}</span>
+                        <p class="description">{{#str}}cachetemplates_desc,admin{{/str}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="langstringcache" name="langstringcache" value="1" {{#langstringcache_checked}}checked{{/langstringcache_checked}}>
+                    <div class="check-content">
+                        <span class="check-label">{{#str}}langstringcache,admin{{/str}}</span>
+                        <p class="description">{{#str}}langstringcache_desc,admin{{/str}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Debug -->
+        <div class="settings-card">
+            <h3><i class="fas fa-tachometer-alt"></i> {{#str}}performance,admin{{/str}}</h3>
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="perfdebug" name="perfdebug" value="1" {{#perfdebug_checked}}checked{{/perfdebug_checked}}>
+                    <div class="check-content">
+                        <span class="check-label">{{#str}}perfdebug,admin{{/str}}</span>
+                        {{#perfdebug_checked}}<span class="status-badge warning">{{#str}}enabled,core{{/str}}</span>{{/perfdebug_checked}}
+                        <p class="description">{{#str}}perfdebug_desc,admin{{/str}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="debugpageinfo" name="debugpageinfo" value="1" {{#debugpageinfo_checked}}checked{{/debugpageinfo_checked}}>
+                    <div class="check-content">
+                        <span class="check-label">{{#str}}debugpageinfo,admin{{/str}}</span>
+                        <p class="description">{{#str}}debugpageinfo_desc,admin{{/str}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SQL and Validation Debug -->
+        <div class="settings-card">
+            <h3><i class="fas fa-bug"></i> {{#str}}debuggingoptions,admin{{/str}}</h3>
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="debugsqltrace" name="debugsqltrace" value="1" {{#debugsqltrace_checked}}checked{{/debugsqltrace_checked}}>
+                    <div class="check-content">
+                        <span class="check-label">{{#str}}debugsqltrace,admin{{/str}}</span>
+                        {{#debugsqltrace_checked}}<span class="status-badge warning">{{#str}}enabled,core{{/str}}</span>{{/debugsqltrace_checked}}
+                        <p class="description">{{#str}}debugsqltrace_desc,admin{{/str}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="debugvalidators" name="debugvalidators" value="1" {{#debugvalidators_checked}}checked{{/debugvalidators_checked}}>
+                    <div class="check-content">
+                        <span class="check-label">{{#str}}debugvalidators,admin{{/str}}</span>
+                        <p class="description">{{#str}}debugvalidators_desc,admin{{/str}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="debugsmtp" name="debugsmtp" value="1" {{#debugsmtp_checked}}checked{{/debugsmtp_checked}}>
+                    <div class="check-content">
+                        <span class="check-label">{{#str}}debugsmtp,admin{{/str}}</span>
+                        <p class="description">{{#str}}debugsmtp_desc,admin{{/str}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JavaScript Settings -->
+        <div class="settings-card">
+            <h3><i class="fab fa-js"></i> JavaScript / AMD</h3>
+
+            <div class="form-group">
+                <label for="yuiloglevel">{{#str}}yuiloglevel,admin{{/str}}</label>
+                <select name="yuiloglevel" id="yuiloglevel" class="form-select">
+                    {{#yui_log_levels}}
+                    <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                    {{/yui_log_levels}}
+                </select>
+                <p class="description">{{#str}}yuiloglevel_desc,admin{{/str}}</p>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="yuicomboloading" name="yuicomboloading" value="1" {{#yuicomboloading_checked}}checked{{/yuicomboloading_checked}}>
+                    <div class="check-content">
+                        <span class="check-label">{{#str}}yuicomboloading,admin{{/str}}</span>
+                        <p class="description">{{#str}}yuicomboloading_desc,admin{{/str}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Information -->
+        <div class="settings-card">
+            <h3><i class="fas fa-server"></i> {{#str}}systeminfo,admin{{/str}}</h3>
+
+            <div class="system-info">
+                <div class="info-item">
+                    <div class="label">PHP OPcache</div>
+                    <div class="value">
+                        {{#opcache_available}}
+                            {{#opcache_enabled}}
+                                <span class="status-badge enabled"><i class="fas fa-check"></i> {{#str}}enabled,core{{/str}}</span>
+                                <br><small>{{opcache_memory}} MB | {{opcache_hitrate}}% hits</small>
+                            {{/opcache_enabled}}
+                            {{^opcache_enabled}}
+                                <span class="status-badge disabled">{{#str}}disabled,core{{/str}}</span>
+                            {{/opcache_enabled}}
+                        {{/opcache_available}}
+                        {{^opcache_available}}
+                            <span class="status-badge disabled">{{#str}}notavailable,core{{/str}}</span>
+                        {{/opcache_available}}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="label">APCu</div>
+                    <div class="value">
+                        {{#apcu_available}}
+                            {{#apcu_enabled}}
+                                <span class="status-badge enabled"><i class="fas fa-check"></i> {{#str}}enabled,core{{/str}}</span>
+                                <br><small>{{apcu_memory}} MB | {{apcu_entries}} entries</small>
+                            {{/apcu_enabled}}
+                            {{^apcu_enabled}}
+                                <span class="status-badge disabled">{{#str}}disabled,core{{/str}}</span>
+                            {{/apcu_enabled}}
+                        {{/apcu_available}}
+                        {{^apcu_available}}
+                            <span class="status-badge disabled">{{#str}}notavailable,core{{/str}}</span>
+                        {{/apcu_available}}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="label">Redis</div>
+                    <div class="value">
+                        {{#redis_available}}
+                            <span class="status-badge enabled"><i class="fas fa-check"></i> {{#str}}available,core{{/str}}</span>
+                        {{/redis_available}}
+                        {{^redis_available}}
+                            <span class="status-badge disabled">{{#str}}notavailable,core{{/str}}</span>
+                        {{/redis_available}}
+                    </div>
+                </div>
             </div>
         </div>
 
