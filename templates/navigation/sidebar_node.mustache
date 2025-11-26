@@ -1,33 +1,32 @@
 {{!
-    Sidebar Node Partial
+    Sidebar Node Partial Template
 
     Renders a single navigation node (category, item, or separator).
-    Calls itself recursively for children.
-}}
+    This template is recursive for nested categories.
+    Updated for ISER branding.
 
+    @package core
+    @template navigation/sidebar_node
+}}
+{{#visible}}
 {{#is_separator}}
-<li class="nexo-nav-separator" role="separator"></li>
+<li class="nexo-sidebar-separator"></li>
 {{/is_separator}}
 
 {{#is_category}}
-<li class="nexo-nav-item nexo-nav-category {{#expanded}}expanded{{/expanded}}">
-    <div class="nexo-nav-category-header">
+<li class="nexo-sidebar-category{{#expanded}} expanded{{/expanded}}" data-key="{{key}}">
+    <div class="nexo-sidebar-category-header" role="button" tabindex="0" aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}">
         {{#has_icon}}
-            {{#icon_class}}
-            <span class="nexo-nav-icon"><i class="{{icon_class}}"></i></span>
-            {{/icon_class}}
-            {{#icon_emoji}}
-            <span class="nexo-nav-icon">{{icon_emoji}}</span>
-            {{/icon_emoji}}
+        {{#icon_class}}<i class="{{icon_class}}" aria-hidden="true"></i>{{/icon_class}}
+        {{#icon_emoji}}<span class="icon-emoji" aria-hidden="true">{{icon_emoji}}</span>{{/icon_emoji}}
         {{/has_icon}}
-        <span class="nexo-nav-text">{{text}}</span>
-        <span class="nexo-nav-toggle">▼</span>
+        <span class="nexo-sidebar-category-text">{{text}}</span>
+        <i class="fas fa-chevron-down nexo-sidebar-category-arrow" aria-hidden="true"></i>
     </div>
-
     {{#has_children}}
-    <ul class="nexo-nav-children">
+    <ul class="nexo-sidebar-category-items">
         {{#children}}
-            {{> navigation/sidebar_node}}
+        {{> navigation/sidebar_node}}
         {{/children}}
     </ul>
     {{/has_children}}
@@ -35,25 +34,21 @@
 {{/is_category}}
 
 {{#is_item}}
-<li class="nexo-nav-item">
-    <a href="{{url}}" class="nexo-nav-link {{#active}}active{{/active}}">
+<li class="nexo-sidebar-item{{#active}} active{{/active}}" data-key="{{key}}">
+    <a href="{{url}}" {{#active}}aria-current="page"{{/active}}>
         {{#has_icon}}
-            {{#icon_class}}
-            <span class="nexo-nav-icon"><i class="{{icon_class}}"></i></span>
-            {{/icon_class}}
-            {{#icon_emoji}}
-            <span class="nexo-nav-icon">{{icon_emoji}}</span>
-            {{/icon_emoji}}
+        {{#icon_class}}<i class="{{icon_class}}" aria-hidden="true"></i>{{/icon_class}}
+        {{#icon_emoji}}<span class="icon-emoji" aria-hidden="true">{{icon_emoji}}</span>{{/icon_emoji}}
         {{/has_icon}}
-        <span class="nexo-nav-text">{{text}}</span>
+        <span class="nexo-sidebar-item-text">{{text}}</span>
+        {{#data_badge}}
+        <span class="nexo-sidebar-badge nexo-badge-{{data_badge_type}}">{{data_badge}}</span>
+        {{/data_badge}}
     </a>
-
-    {{#has_children}}
-    <ul class="nexo-nav-children">
-        {{#children}}
-            {{> navigation/sidebar_node}}
-        {{/children}}
-    </ul>
-    {{/has_children}}
 </li>
 {{/is_item}}
+{{/visible}}
+
+{{^visible}}
+{{! Hidden nodes are not rendered }}
+{{/visible}}

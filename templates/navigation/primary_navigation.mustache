@@ -1,0 +1,113 @@
+{{!
+    Primary Navigation Template
+
+    Renders the primary navigation header bar following Moodle 4.x architecture
+    with ISER branding.
+
+    Context variables required:
+    * nodes - array of navigation nodes
+    * has_nodes - boolean
+    * user - user data object
+    * has_user - boolean
+    * site_name - string
+    * logo_url - string (optional)
+    * has_logo - boolean
+
+    @package core
+    @template navigation/primary_navigation
+}}
+<header class="nexo-header-primary" role="banner">
+    <div class="nexo-header-container">
+        {{! Hamburger menu for mobile }}
+        <button class="nexo-hamburger" id="nexoHamburger" aria-label="{{#str}}menu, core{{/str}}" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        {{! Logo }}
+        <a href="/" class="nexo-logo" aria-label="{{site_name}} - {{#str}}home, core{{/str}}">
+            {{#has_logo}}
+            <img src="{{logo_url}}" alt="{{site_name}}" />
+            {{/has_logo}}
+            <span>{{site_name}}</span>
+        </a>
+
+        {{! Primary navigation menu }}
+        <nav class="nexo-nav-primary-menu" id="nexoPrimaryNav" role="navigation" aria-label="{{#str}}primarynavigation, core{{/str}}">
+            {{#has_nodes}}
+            {{#nodes}}
+            <div class="nexo-nav-primary-item{{#active}} active{{/active}}" data-key="{{key}}">
+                <a href="{{url}}" {{#active}}aria-current="page"{{/active}}>
+                    {{#has_icon}}
+                    {{#icon_class}}<i class="{{icon_class}}" aria-hidden="true"></i>{{/icon_class}}
+                    {{#icon_emoji}}<span class="icon-emoji" aria-hidden="true">{{icon_emoji}}</span>{{/icon_emoji}}
+                    {{/has_icon}}
+                    <span class="nexo-nav-text">{{text}}</span>
+                </a>
+            </div>
+            {{/nodes}}
+            {{/has_nodes}}
+        </nav>
+
+        {{! User menu }}
+        {{#has_user}}
+        {{#user}}
+        {{#logged_in}}
+        <div class="nexo-user-menu">
+            {{! Notifications }}
+            <div class="nexo-notifications">
+                <button class="nexo-notification-icon" aria-label="{{#str}}notifications, core{{/str}}">
+                    <i class="fas fa-bell" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            {{! User dropdown }}
+            <div class="nexo-user-dropdown" id="nexoUserDropdown">
+                <button class="nexo-user-trigger" aria-expanded="false" aria-haspopup="true" aria-controls="nexoUserDropdownMenu">
+                    {{#has_avatar}}
+                    <img src="{{avatar_url}}" alt="" class="nexo-user-avatar" />
+                    {{/has_avatar}}
+                    {{^has_avatar}}
+                    <div class="nexo-user-avatar" aria-hidden="true">{{initials}}</div>
+                    {{/has_avatar}}
+                    <span class="nexo-user-name">{{fullname}}</span>
+                    <i class="fas fa-chevron-down nexo-dropdown-arrow" aria-hidden="true"></i>
+                </button>
+
+                <div class="nexo-dropdown-menu" id="nexoUserDropdownMenu" role="menu">
+                    <a href="{{profile_url}}" class="nexo-dropdown-item" role="menuitem">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                        {{#str}}profile, core{{/str}}
+                    </a>
+                    <a href="/user/edit" class="nexo-dropdown-item" role="menuitem">
+                        <i class="fas fa-edit" aria-hidden="true"></i>
+                        {{#str}}editprofile, core{{/str}}
+                    </a>
+                    <a href="/login/change_password" class="nexo-dropdown-item" role="menuitem">
+                        <i class="fas fa-key" aria-hidden="true"></i>
+                        {{#str}}changepassword, core{{/str}}
+                    </a>
+                    <div class="nexo-dropdown-divider" role="separator"></div>
+                    <a href="{{logout_url}}" class="nexo-dropdown-item nexo-dropdown-item-danger" role="menuitem">
+                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                        {{#str}}logout, core{{/str}}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {{/logged_in}}
+        {{^logged_in}}
+        <div class="nexo-user-menu">
+            <a href="/login" class="nexo-login-btn">{{#str}}login, core{{/str}}</a>
+        </div>
+        {{/logged_in}}
+        {{/user}}
+        {{/has_user}}
+        {{^has_user}}
+        <div class="nexo-user-menu">
+            <a href="/login" class="nexo-login-btn">{{#str}}login, core{{/str}}</a>
+        </div>
+        {{/has_user}}
+    </div>
+</header>

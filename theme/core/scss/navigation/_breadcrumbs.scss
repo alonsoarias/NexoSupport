@@ -1,0 +1,108 @@
+/**
+ * Breadcrumbs Styles
+ *
+ * Styles for navigation breadcrumbs with ISER branding.
+ *
+ * @package theme_core
+ */
+
+@import 'iser-branding';
+
+// ============================================
+// BREADCRUMBS CONTAINER
+// ============================================
+.nexo-breadcrumbs {
+    padding: 15px 20px;
+    background: transparent;
+
+    ol {
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        gap: 5px;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+// ============================================
+// BREADCRUMB ITEM
+// ============================================
+.nexo-breadcrumb-item {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    font-family: $font-nav-primary;
+
+    a {
+        color: $iser-verde;
+        text-decoration: none;
+        transition: color $transition-fast;
+
+        &:hover {
+            text-decoration: underline;
+            color: darken($iser-verde, 10%);
+        }
+
+        &:focus {
+            outline: 2px solid $iser-verde;
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+    }
+
+    span {
+        color: $iser-gris-medio;
+    }
+
+    &.active span {
+        color: $iser-gris-oscuro;
+        font-weight: 500;
+    }
+}
+
+// ============================================
+// SEPARATOR
+// ============================================
+.nexo-breadcrumb-separator {
+    margin: 0 5px;
+    color: $iser-gris-medio;
+    font-size: 14px;
+    user-select: none;
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+@media (max-width: $breakpoint-mobile) {
+    .nexo-breadcrumbs {
+        padding: 10px;
+
+        ol {
+            gap: 3px;
+        }
+    }
+
+    .nexo-breadcrumb-item {
+        font-size: 12px;
+    }
+
+    .nexo-breadcrumb-separator {
+        margin: 0 3px;
+    }
+
+    // Hide middle items on mobile, show first and last
+    .nexo-breadcrumb-item:not(:first-child):not(:last-child) {
+        display: none;
+    }
+
+    // Show ellipsis between first and last
+    .nexo-breadcrumb-item:first-child + .nexo-breadcrumb-separator {
+        &::after {
+            content: '...';
+            margin-left: 5px;
+            color: $iser-gris-medio;
+        }
+    }
+}

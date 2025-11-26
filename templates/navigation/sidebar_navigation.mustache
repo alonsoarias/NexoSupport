@@ -2,23 +2,24 @@
     Sidebar Navigation Template
 
     Renders the sidebar navigation tree with categories, items, and separators.
-    Updated for ISER branding - uses CSS variables defined in renderer.
+
+    Context variables required:
+    * nodes - array of navigation nodes
+    * has_nodes - boolean
+    * active_node - currently active node object
+    * breadcrumbs - array of breadcrumb nodes
+    * has_breadcrumbs - boolean
+    * depth - maximum tree depth
 
     @package core
-    @template navigation/sidebar
+    @template navigation/sidebar_navigation
 }}
+{{#has_nodes}}
 <nav class="nexo-sidebar-nav" role="navigation" aria-label="{{#str}}sidebarnavigation, core{{/str}}">
-    {{#has_nodes}}
     <ul class="nexo-sidebar-list">
         {{#nodes}}
         {{> navigation/sidebar_node}}
         {{/nodes}}
     </ul>
-    {{/has_nodes}}
-
-    {{^has_nodes}}
-    <div class="nexo-sidebar-empty">
-        <p>{{#str}}nonavigation, core{{/str}}</p>
-    </div>
-    {{/has_nodes}}
 </nav>
+{{/has_nodes}}

@@ -1,0 +1,212 @@
+/**
+ * Mobile Navigation Styles
+ *
+ * Styles for mobile drawer and responsive navigation with ISER branding.
+ *
+ * @package theme_core
+ */
+
+@import 'iser-branding';
+
+// ============================================
+// MOBILE OVERLAY
+// ============================================
+.nexo-mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba($iser-negro, 0.5);
+    z-index: $z-overlay;
+    opacity: 0;
+    visibility: hidden;
+    transition: all $transition-normal;
+
+    &.show {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+// ============================================
+// MOBILE DRAWER
+// ============================================
+.nexo-mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: -$sidebar-width-full;
+    width: $sidebar-width-full;
+    height: 100vh;
+    background: $iser-blanco;
+    z-index: $z-drawer;
+    overflow-y: auto;
+    transition: left $transition-normal;
+    padding-top: 20px;
+    box-shadow: $shadow-lg;
+
+    &.open {
+        left: 0;
+    }
+
+    // Drawer header
+    .nexo-drawer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px 20px;
+        border-bottom: 1px solid $iser-gris-claro;
+        margin-bottom: 10px;
+    }
+
+    .nexo-drawer-logo {
+        display: flex;
+        align-items: center;
+        color: $iser-verde;
+        font-weight: bold;
+        font-size: 18px;
+
+        img {
+            height: 32px;
+            margin-right: 10px;
+        }
+    }
+
+    .nexo-drawer-close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: transparent;
+        border: none;
+        border-radius: $border-radius-full;
+        color: $iser-gris-oscuro;
+        font-size: 20px;
+        cursor: pointer;
+        transition: background $transition-fast;
+
+        &:hover {
+            background: rgba($iser-gris-claro, 0.5);
+        }
+    }
+
+    // User info in drawer
+    .nexo-drawer-user {
+        padding: 15px 20px;
+        border-bottom: 1px solid $iser-gris-claro;
+        margin-bottom: 10px;
+    }
+
+    .nexo-drawer-user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .nexo-drawer-user-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: $border-radius-full;
+        background: $iser-verde;
+        color: $iser-blanco;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .nexo-drawer-user-name {
+        font-weight: 600;
+        color: $iser-negro;
+        font-size: 15px;
+    }
+
+    .nexo-drawer-user-email {
+        font-size: 12px;
+        color: $iser-gris-medio;
+    }
+
+    // Navigation uses sidebar styles
+    .nexo-sidebar-nav {
+        padding: 0;
+    }
+}
+
+// ============================================
+// HAMBURGER BUTTON
+// ============================================
+.nexo-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: $border-radius-sm;
+    transition: background $transition-fast;
+
+    &:hover {
+        background: rgba($iser-blanco, 0.1);
+    }
+
+    &:focus {
+        outline: 2px solid $iser-amarillo;
+        outline-offset: 2px;
+    }
+
+    span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: $iser-blanco;
+        margin: 3px 0;
+        transition: all $transition-fast;
+        border-radius: 2px;
+    }
+
+    &.active {
+        span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        span:nth-child(2) {
+            opacity: 0;
+        }
+        span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+    }
+}
+
+// ============================================
+// BODY STATE
+// ============================================
+body.drawer-open {
+    overflow: hidden;
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+@media (max-width: $breakpoint-mobile) {
+    .nexo-hamburger {
+        display: flex;
+    }
+
+    .nexo-mobile-drawer {
+        width: 280px;
+        left: -280px;
+    }
+}
+
+// Tablet - show hamburger but larger drawer
+@media (min-width: $breakpoint-mobile) and (max-width: $breakpoint-tablet) {
+    .nexo-hamburger {
+        display: none;
+    }
+}

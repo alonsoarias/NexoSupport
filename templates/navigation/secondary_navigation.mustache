@@ -1,0 +1,52 @@
+{{!
+    Secondary Navigation Template
+
+    Renders contextual tab navigation following Moodle 4.x architecture.
+
+    Context variables required:
+    * tabs - array of tab nodes
+    * has_tabs - boolean
+    * more_tabs - array of overflow tabs
+    * has_more_tabs - boolean
+    * context - string
+    * active_key - string
+
+    @package core
+    @template navigation/secondary_navigation
+}}
+{{#has_tabs}}
+<nav class="nexo-nav-secondary" role="navigation" aria-label="{{#str}}secondarynavigation, core{{/str}}">
+    <ul class="nexo-nav-secondary-tabs">
+        {{#tabs}}
+        <li class="nexo-nav-secondary-tab{{#active}} active{{/active}}" data-key="{{key}}">
+            <a href="{{url}}" {{#active}}aria-current="page"{{/active}}>
+                {{#has_icon}}
+                {{#icon_class}}<i class="{{icon_class}}" aria-hidden="true"></i>{{/icon_class}}
+                {{#icon_emoji}}<span class="icon-emoji" aria-hidden="true">{{icon_emoji}}</span>{{/icon_emoji}}
+                {{/has_icon}}
+                <span>{{text}}</span>
+            </a>
+        </li>
+        {{/tabs}}
+    </ul>
+
+    {{#has_more_tabs}}
+    <div class="nexo-nav-secondary-more">
+        <button class="nexo-nav-secondary-more-btn" aria-expanded="false" aria-haspopup="true" id="nexoSecondaryMoreBtn">
+            {{#str}}more, core{{/str}}
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </button>
+        <div class="nexo-nav-secondary-more-menu" id="nexoSecondaryMoreMenu" role="menu">
+            {{#more_tabs}}
+            <a href="{{url}}" role="menuitem">
+                {{#has_icon}}
+                {{#icon_class}}<i class="{{icon_class}}" aria-hidden="true"></i>{{/icon_class}}
+                {{/has_icon}}
+                {{text}}
+            </a>
+            {{/more_tabs}}
+        </div>
+    </div>
+    {{/has_more_tabs}}
+</nav>
+{{/has_tabs}}
