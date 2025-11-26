@@ -207,6 +207,12 @@ $string['year'] = 'año';
 $string['years'] = 'años';
 $string['ago'] = 'hace {$a}';
 $string['never'] = 'Nunca';
+$string['or'] = 'o';
+$string['resend'] = 'Reenviar';
+$string['enabled'] = 'Habilitado';
+$string['disabled'] = 'Deshabilitado';
+$string['available'] = 'Disponible';
+$string['notavailable'] = 'No disponible';
 
 // Descripciones de capabilities
 $string['capability:nexosupport/admin:viewdashboard'] = 'Ver dashboard administrativo';

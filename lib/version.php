@@ -10,8 +10,8 @@ defined('NEXOSUPPORT_INTERNAL') || die();
 $plugin = new stdClass();
 
 // Información del core
-$plugin->version  = 2025011830;      // YYYYMMDDXX - v1.1.30: MUC cache admin and developer options
-$plugin->release  = '1.1.30';        // Versión semántica
+$plugin->version  = 2025011831;      // YYYYMMDDXX - v1.1.31: Complete MFA system with email factor
+$plugin->release  = '1.1.31';        // Versión semántica
 $plugin->maturity = MATURITY_STABLE; // Nivel de madurez
 $plugin->component = 'core';         // Componente
 

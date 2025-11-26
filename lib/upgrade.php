@@ -1494,6 +1494,64 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.31 - Complete MFA System with Email Factor
+    // =========================================================
+    if ($oldversion < 2025011831) {
+        echo '<div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #667eea; margin-top: 0;">🔐 Upgrading to NexoSupport v1.1.31 - Complete MFA System</h2>';
+
+        echo '<h3 style="color: #667eea;">✨ What\'s New in v1.1.31:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Multi-Factor Authentication:</strong> Complete MFA system following Moodle patterns</li>';
+        echo '<li><strong>Email Verification Factor:</strong> 6-digit codes via email with one-click login</li>';
+        echo '<li><strong>Security Features:</strong> Lockout protection, session management, unauthorized access blocking</li>';
+        echo '<li><strong>Modern UI:</strong> Responsive MFA authentication page with auto-submit</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">📦 MFA Components:</h3>';
+        echo '<ul>';
+        echo '<li><strong>admin/tool/mfa/auth.php:</strong> Main MFA authentication page with modern UI</li>';
+        echo '<li><strong>admin/tool/mfa/classes/manager.php:</strong> Core MFA orchestration (~400 lines)</li>';
+        echo '<li><strong>admin/tool/mfa/classes/plugininfo/factor.php:</strong> Factor plugin system</li>';
+        echo '<li><strong>admin/tool/mfa/factor/email/:</strong> Complete email verification factor</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🔧 MFA Features:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Weight-Based System:</strong> Factors contribute points (100 required to pass)</li>';
+        echo '<li><strong>State Management:</strong> UNKNOWN, PASS, FAIL, NEUTRAL, LOCKED states</li>';
+        echo '<li><strong>Loop Detection:</strong> Prevents infinite redirect loops</li>';
+        echo '<li><strong>URL Exclusions:</strong> Configurable URLs exempt from MFA</li>';
+        echo '<li><strong>Admin Exemption:</strong> Optional exemption for administrators</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">📧 Email Factor Features:</h3>';
+        echo '<ul>';
+        echo '<li><strong>6-Digit Codes:</strong> Secure random verification codes</li>';
+        echo '<li><strong>30-Minute Validity:</strong> Configurable code expiration</li>';
+        echo '<li><strong>One-Click Login:</strong> Direct authentication via email link</li>';
+        echo '<li><strong>Block Unauthorized:</strong> Revoke access and terminate sessions</li>';
+        echo '<li><strong>Security Info:</strong> IP address, geolocation, device info in emails</li>';
+        echo '<li><strong>Auto-Resend:</strong> Request new codes easily</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #667eea;">🗄️ Database Tables:</h3>';
+        echo '<ul>';
+        echo '<li><strong>tool_mfa:</strong> User factor configurations and codes</li>';
+        echo '<li><strong>tool_mfa_secrets:</strong> Temporary verification tokens</li>';
+        echo '<li><strong>tool_mfa_auth:</strong> Last MFA authentication timestamps</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ MFA System ready for use</p>';
+        echo '<p style="color: blue;">🔗 Enable: Site Administration → Security → MFA Settings</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.31 - MFA tables already exist
+        upgrade_core_savepoint(true, 2025011831);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 
