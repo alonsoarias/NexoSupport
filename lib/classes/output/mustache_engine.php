@@ -14,8 +14,8 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  */
 class mustache_engine {
 
-    /** @var \Mustache\Engine Mustache engine instance */
-    private \Mustache\Engine $engine;
+    /** @var \Mustache_Engine Mustache engine instance */
+    private \Mustache_Engine $engine;
 
     /**
      * Constructor
@@ -36,23 +36,23 @@ class mustache_engine {
         }
 
         // Initialize Mustache engine
-        $this->engine = new \Mustache\Engine([
-            'loader' => new \Mustache\Loader\FilesystemLoader($templatePath, [
+        $this->engine = new \Mustache_Engine([
+            'loader' => new \Mustache_Loader_FilesystemLoader($templatePath, [
                 'extension' => '.mustache',
             ]),
-            'partials_loader' => new \Mustache\Loader\FilesystemLoader($templatePath, [
+            'partials_loader' => new \Mustache_Loader_FilesystemLoader($templatePath, [
                 'extension' => '.mustache',
             ]),
             'cache' => $cacheDir,
             'escape' => function($value) {
                 return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
             },
-            'pragmas' => [\Mustache\Engine::PRAGMA_BLOCKS],
+            'pragmas' => [\Mustache_Engine::PRAGMA_BLOCKS],
         ]);
 
         // Add string helper for i18n
         // Syntax: {{#str}}identifier,component{{/str}} or {{#str}}identifier,component,data{{/str}}
-        $this->engine->addHelper('str', function($text, \Mustache\LambdaHelper $helper) {
+        $this->engine->addHelper('str', function($text, \Mustache_LambdaHelper $helper) {
             $rendered = $helper->render($text);
 
             // Parse the string carefully - we need to handle JSON data with commas
@@ -163,9 +163,9 @@ class mustache_engine {
     /**
      * Get the underlying Mustache engine
      *
-     * @return \Mustache\Engine
+     * @return \Mustache_Engine
      */
-    public function getEngine(): \Mustache\Engine {
+    public function getEngine(): \Mustache_Engine {
         return $this->engine;
     }
 }

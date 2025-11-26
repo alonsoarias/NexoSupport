@@ -21,8 +21,8 @@ defined('NEXOSUPPORT_INTERNAL') || die();
  */
 class template_manager {
 
-    /** @var \Mustache\Engine Mustache engine instance */
-    private static ?\Mustache\Engine $engine = null;
+    /** @var \Mustache_Engine Mustache engine instance */
+    private static ?\Mustache_Engine $engine = null;
 
     /** @var array Registered helpers */
     private static array $helpers = [];
@@ -33,9 +33,9 @@ class template_manager {
     /**
      * Get Mustache engine instance
      *
-     * @return \Mustache\Engine
+     * @return \Mustache_Engine
      */
-    private static function get_engine(): \Mustache\Engine {
+    private static function get_engine(): \Mustache_Engine {
         if (self::$engine === null) {
             global $CFG;
 
@@ -48,7 +48,7 @@ class template_manager {
                     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
                 },
                 'strict_callables' => true,
-                'pragmas' => [\Mustache\Engine::PRAGMA_BLOCKS],
+                'pragmas' => [\Mustache_Engine::PRAGMA_BLOCKS],
             ];
 
             // Create custom loader that uses template finder
@@ -60,7 +60,7 @@ class template_manager {
                 @mkdir($options['cache'], 0755, true);
             }
 
-            self::$engine = new \Mustache\Engine($options);
+            self::$engine = new \Mustache_Engine($options);
 
             // Add all helpers
             foreach (self::$helpers as $name => $helper) {
@@ -302,7 +302,7 @@ class template_manager {
  *
  * @package    core\output
  */
-class mustache_filesystem_loader implements \Mustache\Loader {
+class mustache_filesystem_loader implements \Mustache_Loader {
 
     /**
      * Load a template by name
@@ -322,7 +322,7 @@ class mustache_filesystem_loader implements \Mustache\Loader {
                 return file_get_contents($legacypath);
             }
 
-            throw new \Mustache\Exception\UnknownTemplateException($name);
+            throw new \Mustache_Exception_UnknownTemplateException($name);
         }
     }
 }

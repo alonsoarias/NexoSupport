@@ -35,10 +35,10 @@ class mustache_javascript_helper {
      * Collect JavaScript code
      *
      * @param string $text The JavaScript code
-     * @param \Mustache\LambdaHelper $helper The lambda helper
+     * @param \Mustache_LambdaHelper $helper The lambda helper
      * @return string Empty string (JS is collected, not rendered inline)
      */
-    public function __invoke(string $text, \Mustache\LambdaHelper $helper): string {
+    public function __invoke(string $text, \Mustache_LambdaHelper $helper): string {
         // Render any Mustache variables in the JavaScript
         $js = $helper->render($text);
 

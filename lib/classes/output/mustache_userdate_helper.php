@@ -35,10 +35,10 @@ class mustache_userdate_helper {
      * Format a timestamp
      *
      * @param string $text The helper arguments (timestamp, format)
-     * @param \Mustache\LambdaHelper $helper The lambda helper
+     * @param \Mustache_LambdaHelper $helper The lambda helper
      * @return string Formatted date
      */
-    public function __invoke(string $text, \Mustache\LambdaHelper $helper): string {
+    public function __invoke(string $text, \Mustache_LambdaHelper $helper): string {
         // Render any Mustache variables first
         $text = $helper->render($text);
 

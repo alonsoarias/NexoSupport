@@ -22,10 +22,10 @@ class mustache_cleanstr_helper {
      * Get a language string with HTML stripped
      *
      * @param string $text The helper arguments
-     * @param \Mustache\LambdaHelper $helper The lambda helper
+     * @param \Mustache_LambdaHelper $helper The lambda helper
      * @return string Language string without HTML
      */
-    public function __invoke(string $text, \Mustache\LambdaHelper $helper): string {
+    public function __invoke(string $text, \Mustache_LambdaHelper $helper): string {
         // Render any Mustache variables first
         $text = $helper->render($text);
 

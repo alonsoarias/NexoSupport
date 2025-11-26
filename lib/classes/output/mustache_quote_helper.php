@@ -25,10 +25,10 @@ class mustache_quote_helper {
      * Escape content for JavaScript
      *
      * @param string $text The text to escape
-     * @param \Mustache\LambdaHelper $helper The lambda helper
+     * @param \Mustache_LambdaHelper $helper The lambda helper
      * @return string Escaped and quoted string
      */
-    public function __invoke(string $text, \Mustache\LambdaHelper $helper): string {
+    public function __invoke(string $text, \Mustache_LambdaHelper $helper): string {
         // Render any Mustache variables first
         $text = $helper->render($text);
 

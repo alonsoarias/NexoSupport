@@ -22,10 +22,10 @@ class mustache_shortentext_helper {
      * Shorten text
      *
      * @param string $text The helper arguments (length, text)
-     * @param \Mustache\LambdaHelper $helper The lambda helper
+     * @param \Mustache_LambdaHelper $helper The lambda helper
      * @return string Shortened text
      */
-    public function __invoke(string $text, \Mustache\LambdaHelper $helper): string {
+    public function __invoke(string $text, \Mustache_LambdaHelper $helper): string {
         // Render any Mustache variables first
         $text = $helper->render($text);
 

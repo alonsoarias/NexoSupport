@@ -24,10 +24,10 @@ class mustache_pix_helper {
      * Render a pix icon
      *
      * @param string $text The helper arguments
-     * @param \Mustache\LambdaHelper $helper The lambda helper
+     * @param \Mustache_LambdaHelper $helper The lambda helper
      * @return string Rendered icon HTML
      */
-    public function __invoke(string $text, \Mustache\LambdaHelper $helper): string {
+    public function __invoke(string $text, \Mustache_LambdaHelper $helper): string {
         global $CFG;
 
         // Render any Mustache variables in the text first

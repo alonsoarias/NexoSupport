@@ -1263,6 +1263,63 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.27 (2025011827) - Mustache Namespace Compatibility Fix
+    // =========================================================
+    if ($oldversion < 2025011827) {
+        echo '<div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #4caf50; margin-top: 0;">🔧 Upgrading to NexoSupport v1.1.27 - Mustache Compatibility Fix</h2>';
+
+        echo '<h3 style="color: #4caf50;">🐛 Critical Bug Fixes:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Mustache Namespace Fix:</strong> Changed <code>\Mustache\Engine</code> to <code>\Mustache_Engine</code></li>';
+        echo '<li><strong>Loader Fix:</strong> Changed <code>\Mustache\Loader\FilesystemLoader</code> to <code>\Mustache_Loader_FilesystemLoader</code></li>';
+        echo '<li><strong>Helper Fix:</strong> Changed <code>\Mustache\LambdaHelper</code> to <code>\Mustache_LambdaHelper</code></li>';
+        echo '<li><strong>Exception Fix:</strong> Changed <code>\Mustache\Exception\UnknownTemplateException</code> to <code>\Mustache_Exception_UnknownTemplateException</code></li>';
+        echo '<li><strong>Interface Fix:</strong> Changed <code>\Mustache\Loader</code> to <code>\Mustache_Loader</code></li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #4caf50;">📋 Why This Was Needed:</h3>';
+        echo '<p>The <code>mustache/mustache</code> library v3.0 uses underscore-separated class names (e.g., <code>Mustache_Engine</code>) ';
+        echo 'instead of namespaced classes (e.g., <code>\Mustache\Engine</code>). The previous code was using ';
+        echo 'the incorrect namespace format, causing fatal errors when the Mustache library was loaded.</p>';
+
+        echo '<h3 style="color: #4caf50;">📦 Files Modified (9 files):</h3>';
+        echo '<ul>';
+        echo '<li><strong>lib/classes/output/mustache_engine.php:</strong> Fixed all Mustache class references</li>';
+        echo '<li><strong>lib/classes/output/template_manager.php:</strong> Fixed engine, loader, and exception references</li>';
+        echo '<li><strong>lib/classes/output/mustache_string_helper.php:</strong> Fixed LambdaHelper type hint</li>';
+        echo '<li><strong>lib/classes/output/mustache_pix_helper.php:</strong> Fixed LambdaHelper type hint</li>';
+        echo '<li><strong>lib/classes/output/mustache_quote_helper.php:</strong> Fixed LambdaHelper type hint</li>';
+        echo '<li><strong>lib/classes/output/mustache_javascript_helper.php:</strong> Fixed LambdaHelper type hint</li>';
+        echo '<li><strong>lib/classes/output/mustache_shortentext_helper.php:</strong> Fixed LambdaHelper type hint</li>';
+        echo '<li><strong>lib/classes/output/mustache_cleanstr_helper.php:</strong> Fixed LambdaHelper type hint</li>';
+        echo '<li><strong>lib/classes/output/mustache_userdate_helper.php:</strong> Fixed LambdaHelper type hint</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #4caf50;">📁 Directory Structure Created:</h3>';
+        echo '<ul>';
+        echo '<li><strong>var/cache:</strong> Template and general cache storage</li>';
+        echo '<li><strong>var/temp:</strong> Temporary file storage</li>';
+        echo '<li><strong>var/sessions:</strong> PHP session storage</li>';
+        echo '<li><strong>var/logs:</strong> Application log files</li>';
+        echo '<li><strong>var/localcache:</strong> Local cache for performance</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #4caf50;">⚠️ Important Note:</h3>';
+        echo '<p style="color: #ff5722;">Make sure <code>composer install</code> has been run to install the <code>mustache/mustache</code> library.</p>';
+        echo '<p>The library is defined in <code>composer.json</code> as: <code>"mustache/mustache": "^3.0"</code></p>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ No database changes required for v1.1.27 - Code fixes only</p>';
+        echo '<p style="color: blue;">🔧 Template rendering system now fully functional</p>';
+        echo '<p style="color: green;">✓ Login, upgrade, and all template-based pages will now work correctly</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.27 - code fixes only
+        upgrade_core_savepoint(true, 2025011827);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 

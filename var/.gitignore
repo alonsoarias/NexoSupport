@@ -1,0 +1,15 @@
+# Ignore all files in these directories but keep the directories
+cache/*
+!cache/.gitkeep
+
+temp/*
+!temp/.gitkeep
+
+sessions/*
+!sessions/.gitkeep
+
+logs/*
+!logs/.gitkeep
+
+localcache/*
+!localcache/.gitkeep
