@@ -343,3 +343,27 @@ $string['yuicomboloading_desc'] = 'Combinar múltiples archivos JavaScript en un
 $string['systeminfo'] = 'Información del sistema';
 $string['cacheadmin'] = 'Administrar caché';
 $string['javascriptsettings'] = 'Configuración JavaScript';
+
+// Purge caches page (v1.1.30)
+$string['administrationsite'] = 'Administración del sitio';
+$string['purgeallcaches'] = 'Purgar todos los cachés';
+$string['purgecachesinfo'] = 'Seleccione los tipos de caché que desea purgar. Purgar cachés puede causar una disminución temporal del rendimiento mientras se regeneran.';
+$string['purgecachesselective'] = 'Purga selectiva';
+$string['purgeselectedcaches'] = 'Purgar cachés seleccionados';
+$string['purgecachesfinished'] = 'Los cachés seleccionados han sido purgados exitosamente.';
+$string['purgecaches_muc'] = 'Caché de aplicación (MUC)';
+$string['purgecaches_muc_desc'] = 'Moodle Universal Cache - caché de nivel de aplicación para datos procesados.';
+$string['purgecaches_theme'] = 'Caché de tema';
+$string['purgecaches_theme_desc'] = 'CSS compilado y recursos del tema.';
+$string['purgecaches_lang'] = 'Caché de idioma';
+$string['purgecaches_lang_desc'] = 'Strings de idioma compilados.';
+$string['purgecaches_js'] = 'Caché de JavaScript';
+$string['purgecaches_js_desc'] = 'Archivos JavaScript combinados y minificados.';
+$string['purgecaches_template'] = 'Caché de plantillas';
+$string['purgecaches_template_desc'] = 'Plantillas Mustache compiladas.';
+$string['purgecaches_other'] = 'Otros cachés';
+$string['purgecaches_other_desc'] = 'OPcache de PHP y otros cachés del sistema.';
+$string['cachestats'] = 'Estadísticas de caché';
+$string['cachedefinitions'] = 'Definiciones de caché';
+$string['cacheapplication'] = 'Caché de aplicación';
+$string['memoryusage'] = 'Uso de memoria';
