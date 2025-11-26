@@ -1,0 +1,115 @@
+{{!
+    Mobile Drawer Template
+
+    Full-screen navigation drawer for mobile devices.
+    Contains user info, primary navigation, and sidebar navigation.
+
+    Context variables:
+    * user - User data object
+    * has_user - boolean
+    * site_name - string
+    * logo_url - string (optional)
+    * has_logo - boolean
+    * sidebar_nodes - array of navigation nodes
+
+    @package core
+    @template navigation/mobile_drawer
+}}
+<div class="nexo-mobile-overlay" id="nexoMobileOverlay"></div>
+
+<div class="nexo-mobile-drawer" id="nexoMobileDrawer" role="dialog" aria-modal="true" aria-label="{{#str}}navigation, core{{/str}}">
+    {{! Drawer Header }}
+    <div class="nexo-drawer-header">
+        <div class="nexo-drawer-logo">
+            {{#has_logo}}
+            <img src="{{logo_url}}" alt="" />
+            {{/has_logo}}
+            <span>{{site_name}}</span>
+        </div>
+        <button class="nexo-drawer-close" id="nexoDrawerClose" aria-label="{{#str}}closedrawer, core{{/str}}">
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    {{! User Info (if logged in) }}
+    {{#has_user}}
+    {{#user}}
+    {{#logged_in}}
+    <div class="nexo-drawer-user">
+        <div class="nexo-drawer-user-info">
+            {{#has_avatar}}
+            <img src="{{avatar_url}}" alt="" class="nexo-drawer-user-avatar" />
+            {{/has_avatar}}
+            {{^has_avatar}}
+            <div class="nexo-drawer-user-avatar">{{initials}}</div>
+            {{/has_avatar}}
+            <div class="nexo-drawer-user-details">
+                <div class="nexo-drawer-user-name">{{fullname}}</div>
+                <div class="nexo-drawer-user-email">{{email}}</div>
+            </div>
+        </div>
+    </div>
+    {{/logged_in}}
+    {{/user}}
+    {{/has_user}}
+
+    {{! Primary Navigation Links }}
+    <div class="nexo-drawer-nav-primary">
+        <ul class="nexo-drawer-nav-list">
+            {{#primary_nodes}}
+            <li class="nexo-drawer-nav-item{{#active}} active{{/active}}">
+                <a href="{{url}}">
+                    {{#has_icon}}
+                    {{#icon_class}}<i class="{{icon_class}}" aria-hidden="true"></i>{{/icon_class}}
+                    {{/has_icon}}
+                    <span>{{text}}</span>
+                </a>
+            </li>
+            {{/primary_nodes}}
+        </ul>
+    </div>
+
+    <div class="nexo-drawer-divider"></div>
+
+    {{! Sidebar Navigation }}
+    <div class="nexo-drawer-nav-sidebar">
+        {{#has_sidebar_nodes}}
+        <ul class="nexo-sidebar-list">
+            {{#sidebar_nodes}}
+            {{> navigation/sidebar_node}}
+            {{/sidebar_nodes}}
+        </ul>
+        {{/has_sidebar_nodes}}
+    </div>
+
+    {{! Footer Actions }}
+    {{#has_user}}
+    {{#user}}
+    {{#logged_in}}
+    <div class="nexo-drawer-footer">
+        <div class="nexo-drawer-divider"></div>
+        <ul class="nexo-drawer-nav-list">
+            <li class="nexo-drawer-nav-item">
+                <a href="{{profile_url}}">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    <span>{{#str}}profile, core{{/str}}</span>
+                </a>
+            </li>
+            <li class="nexo-drawer-nav-item">
+                <a href="/user/edit">
+                    <i class="fas fa-edit" aria-hidden="true"></i>
+                    <span>{{#str}}editprofile, core{{/str}}</span>
+                </a>
+            </li>
+            <li class="nexo-drawer-nav-item nexo-drawer-nav-item-danger">
+                <a href="{{logout_url}}">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                    <span>{{#str}}logout, core{{/str}}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    {{/logged_in}}
+    {{/user}}
+    {{/has_user}}
+</div>

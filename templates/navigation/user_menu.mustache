@@ -1,0 +1,117 @@
+{{!
+    User Menu Template
+
+    Renders the user menu dropdown in the primary navigation header.
+    Contains user avatar, name, and dropdown with profile options.
+
+    Context variables:
+    * user - User data object
+        - logged_in: boolean
+        - id: int
+        - username: string
+        - fullname: string
+        - firstname: string
+        - lastname: string
+        - email: string
+        - initials: string
+        - avatar_url: string (optional)
+        - has_avatar: boolean
+        - profile_url: string
+        - preferences_url: string
+        - logout_url: string
+        - is_siteadmin: boolean
+
+    @package core
+    @template navigation/user_menu
+}}
+{{#user}}
+{{#logged_in}}
+<div class="nexo-user-menu">
+    {{! Notifications }}
+    <div class="nexo-notifications">
+        <button class="nexo-notification-icon" aria-label="{{#str}}notifications, core{{/str}}" id="nexoNotificationBtn">
+            <i class="fas fa-bell" aria-hidden="true"></i>
+            {{#notification_count}}
+            <span class="nexo-notification-badge">{{notification_count}}</span>
+            {{/notification_count}}
+        </button>
+    </div>
+
+    {{! User Dropdown }}
+    <div class="nexo-user-dropdown" id="nexoUserDropdown">
+        <button class="nexo-user-trigger" aria-expanded="false" aria-haspopup="true" aria-controls="nexoUserDropdownMenu">
+            {{! Avatar }}
+            {{#has_avatar}}
+            <img src="{{avatar_url}}" alt="" class="nexo-user-avatar" />
+            {{/has_avatar}}
+            {{^has_avatar}}
+            <div class="nexo-user-avatar" aria-hidden="true">{{initials}}</div>
+            {{/has_avatar}}
+
+            {{! Name }}
+            <span class="nexo-user-name">{{fullname}}</span>
+
+            {{! Arrow }}
+            <i class="fas fa-chevron-down nexo-dropdown-arrow" aria-hidden="true"></i>
+        </button>
+
+        {{! Dropdown Menu }}
+        <div class="nexo-dropdown-menu" id="nexoUserDropdownMenu" role="menu">
+            {{! Profile Header }}
+            <div class="nexo-dropdown-header">
+                <div class="nexo-dropdown-header-name">{{fullname}}</div>
+                <div class="nexo-dropdown-header-email">{{email}}</div>
+            </div>
+
+            <div class="nexo-dropdown-divider" role="separator"></div>
+
+            {{! Profile Link }}
+            <a href="{{profile_url}}" class="nexo-dropdown-item" role="menuitem">
+                <i class="fas fa-user" aria-hidden="true"></i>
+                {{#str}}viewprofile, core{{/str}}
+            </a>
+
+            {{! Edit Profile }}
+            <a href="/user/edit" class="nexo-dropdown-item" role="menuitem">
+                <i class="fas fa-edit" aria-hidden="true"></i>
+                {{#str}}editprofile, core{{/str}}
+            </a>
+
+            {{! Preferences }}
+            <a href="{{preferences_url}}" class="nexo-dropdown-item" role="menuitem">
+                <i class="fas fa-cog" aria-hidden="true"></i>
+                {{#str}}preferences, core{{/str}}
+            </a>
+
+            {{! Change Password }}
+            <a href="/login/change_password" class="nexo-dropdown-item" role="menuitem">
+                <i class="fas fa-key" aria-hidden="true"></i>
+                {{#str}}changepassword, core{{/str}}
+            </a>
+
+            {{! Admin Link (only for site admins) }}
+            {{#is_siteadmin}}
+            <div class="nexo-dropdown-divider" role="separator"></div>
+            <a href="/admin" class="nexo-dropdown-item" role="menuitem">
+                <i class="fas fa-cogs" aria-hidden="true"></i>
+                {{#str}}siteadministration, core{{/str}}
+            </a>
+            {{/is_siteadmin}}
+
+            <div class="nexo-dropdown-divider" role="separator"></div>
+
+            {{! Logout }}
+            <a href="{{logout_url}}" class="nexo-dropdown-item nexo-dropdown-item-danger" role="menuitem">
+                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                {{#str}}logout, core{{/str}}
+            </a>
+        </div>
+    </div>
+</div>
+{{/logged_in}}
+{{^logged_in}}
+<div class="nexo-user-menu">
+    <a href="/login" class="nexo-login-btn">{{#str}}login, core{{/str}}</a>
+</div>
+{{/logged_in}}
+{{/user}}

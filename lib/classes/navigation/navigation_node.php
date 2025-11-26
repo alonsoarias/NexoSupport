@@ -61,6 +61,18 @@ class navigation_node {
     /** @var array Additional custom data */
     private array $data = [];
 
+    /** @var string|null Badge text (for notifications/counters) */
+    private ?string $badge = null;
+
+    /** @var string Badge type (default, primary, warning, danger) */
+    private string $badge_type = 'default';
+
+    /** @var bool Add visual divider after this node */
+    private bool $divider_after = false;
+
+    /** @var bool Force this item into "More" menu */
+    private bool $force_into_more = false;
+
     /**
      * Constructor
      *
@@ -92,6 +104,24 @@ class navigation_node {
         // Additional data
         if (isset($config['data'])) {
             $this->data = $config['data'];
+        }
+
+        // Badge
+        if (isset($config['badge'])) {
+            $this->badge = $config['badge'];
+        }
+        if (isset($config['badge_type'])) {
+            $this->badge_type = $config['badge_type'];
+        }
+
+        // Divider after
+        if (isset($config['divider_after'])) {
+            $this->divider_after = (bool)$config['divider_after'];
+        }
+
+        // Force into more menu
+        if (isset($config['force_into_more'])) {
+            $this->force_into_more = (bool)$config['force_into_more'];
         }
     }
 
@@ -381,6 +411,86 @@ class navigation_node {
     }
 
     /**
+     * Get badge text
+     *
+     * @return string|null
+     */
+    public function get_badge(): ?string {
+        return $this->badge;
+    }
+
+    /**
+     * Set badge text and type
+     *
+     * @param string $text Badge text
+     * @param string $type Badge type (default, primary, warning, danger)
+     * @return self
+     */
+    public function set_badge(string $text, string $type = 'default'): self {
+        $this->badge = $text;
+        $this->badge_type = $type;
+        return $this;
+    }
+
+    /**
+     * Get badge type
+     *
+     * @return string
+     */
+    public function get_badge_type(): string {
+        return $this->badge_type;
+    }
+
+    /**
+     * Has badge?
+     *
+     * @return bool
+     */
+    public function has_badge(): bool {
+        return $this->badge !== null && $this->badge !== '';
+    }
+
+    /**
+     * Check if divider should be added after this node
+     *
+     * @return bool
+     */
+    public function has_divider_after(): bool {
+        return $this->divider_after;
+    }
+
+    /**
+     * Add divider after this node
+     *
+     * @param bool $divider
+     * @return self
+     */
+    public function add_divider_after(bool $divider = true): self {
+        $this->divider_after = $divider;
+        return $this;
+    }
+
+    /**
+     * Check if should force into more menu
+     *
+     * @return bool
+     */
+    public function should_force_into_more(): bool {
+        return $this->force_into_more;
+    }
+
+    /**
+     * Force this item into more menu
+     *
+     * @param bool $force
+     * @return self
+     */
+    public function set_force_into_more(bool $force = true): self {
+        $this->force_into_more = $force;
+        return $this;
+    }
+
+    /**
      * Set custom data
      *
      * @param string $key
@@ -436,6 +546,19 @@ class navigation_node {
                 $array['has_icon'] = true;
             }
         }
+
+        // Add badge
+        if ($this->badge !== null) {
+            $array['badge'] = $this->badge;
+            $array['badge_type'] = $this->badge_type;
+            $array['has_badge'] = true;
+        } else {
+            $array['has_badge'] = false;
+        }
+
+        // Add divider and force_into_more
+        $array['divider_after'] = $this->divider_after;
+        $array['force_into_more'] = $this->force_into_more;
 
         // Add children if recursive
         if ($recursive && $this->has_children()) {
