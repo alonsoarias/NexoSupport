@@ -10,8 +10,8 @@ defined('NEXOSUPPORT_INTERNAL') || die();
 $plugin = new stdClass();
 
 // Información del core
-$plugin->version  = 2025011828;      // YYYYMMDDXX - v1.1.28: Moodle-style install/upgrade system
-$plugin->release  = '1.1.28';        // Versión semántica
+$plugin->version  = 2025011829;      // YYYYMMDDXX - v1.1.29: Boost theme architecture with Moodle templates
+$plugin->release  = '1.1.29';        // Versión semántica
 $plugin->maturity = MATURITY_STABLE; // Nivel de madurez
 $plugin->component = 'core';         // Componente
 

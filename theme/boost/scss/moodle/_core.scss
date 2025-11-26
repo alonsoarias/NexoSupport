@@ -1,0 +1,243 @@
+// NexoSupport Core Styles
+// Moodle-compatible core component styles
+// ============================================
+
+// Activity Icons
+.activityiconcontainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--bs-border-radius);
+    background: var(--bs-light);
+}
+
+// Activity type styling
+.activity-item {
+    margin-bottom: 0.5rem;
+}
+
+.activity-instance {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: var(--bs-border-radius);
+    transition: background var(--transition-fast);
+}
+
+.activity-instance:hover {
+    background: var(--bs-light);
+}
+
+// Course content
+#region-main-box {
+    min-height: calc(100vh - var(--navbar-height) - 3rem);
+}
+
+.course-content {
+    padding: 1rem 0;
+}
+
+// Section styling
+.section {
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--bs-light);
+    border-radius: var(--bs-border-radius);
+    margin-bottom: 1rem;
+}
+
+.sectionname {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--bs-dark);
+    margin: 0;
+}
+
+// Content area
+.content {
+    padding: 0 1rem;
+}
+
+// User pictures
+.userpicture {
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+}
+
+// Help icons
+.helptooltip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    font-size: 0.75rem;
+    color: var(--bs-secondary);
+    cursor: help;
+}
+
+// Page headers
+.page-header-headings h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--bs-dark);
+    margin-bottom: 0.5rem;
+}
+
+// Context headers
+.page-context-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--bs-border-color);
+    margin-bottom: 1.5rem;
+}
+
+.page-context-header .page-header-image {
+    flex-shrink: 0;
+}
+
+.page-context-header .page-header-headings {
+    flex: 1;
+}
+
+// Action menu
+.action-menu {
+    position: relative;
+}
+
+.action-menu-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--bs-border-radius);
+    background: transparent;
+    border: 1px solid var(--bs-border-color);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.action-menu-trigger:hover {
+    background: var(--bs-light);
+    border-color: var(--bs-primary);
+}
+
+// Empty states
+.no-content,
+.emptystate {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--bs-secondary);
+}
+
+.emptystate .lead {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+}
+
+// Loading indicator
+.loading-icon {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid var(--bs-border-color);
+    border-radius: 50%;
+    border-top-color: var(--bs-primary);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+// Icons
+.icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+}
+
+// Edit icons
+.editing_delete .icon {
+    color: var(--bs-danger);
+}
+
+.editing_move .icon {
+    color: var(--bs-secondary);
+}
+
+// Path navigation
+.path-mod .navbar {
+    margin-bottom: 0;
+}
+
+// General box styling
+.generalbox {
+    background: var(--bs-white);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+// Moodle specific selectors
+#page-wrapper {
+    min-height: 100vh;
+}
+
+#page-content {
+    padding: 1.5rem;
+}
+
+// Footer
+#page-footer {
+    margin-top: auto;
+    padding: 2rem 0;
+    background: var(--bs-light);
+    border-top: 1px solid var(--bs-border-color);
+}
+
+.footer-content {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    text-align: center;
+    color: var(--bs-secondary);
+    font-size: 0.875rem;
+}
+
+// Skip links for accessibility
+.skiplinks {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+}
+
+.skip {
+    position: absolute;
+    top: -100px;
+    left: 0;
+    padding: 0.5rem 1rem;
+    background: var(--bs-dark);
+    color: var(--bs-white);
+    text-decoration: none;
+}
+
+.skip:focus {
+    top: 0;
+}

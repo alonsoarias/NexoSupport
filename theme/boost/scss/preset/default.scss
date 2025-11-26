@@ -13,29 +13,39 @@
    ============================================ */
 
 :root {
-    /* Primary Colors */
-    --bs-primary: #6366f1;
-    --bs-primary-rgb: 99, 102, 241;
-    --bs-secondary: #64748b;
-    --bs-secondary-rgb: 100, 116, 139;
-    --bs-success: #10b981;
-    --bs-success-rgb: 16, 185, 129;
-    --bs-info: #06b6d4;
-    --bs-info-rgb: 6, 182, 212;
-    --bs-warning: #f59e0b;
-    --bs-warning-rgb: 245, 158, 11;
-    --bs-danger: #ef4444;
-    --bs-danger-rgb: 239, 68, 68;
+    /* ISER Brand Colors */
+    --iser-verde: #1B9E88;
+    --iser-amarillo: #FCBD05;
+    --iser-rojo: #EB4335;
+    --iser-blanco: #FFFFFF;
+    --iser-naranja: #E27C32;
+    --iser-lima: #CFDA4B;
+    --iser-azul: #5894EF;
+    --iser-magenta: #C82260;
+
+    /* Primary Colors - ISER Theme */
+    --bs-primary: #1B9E88;
+    --bs-primary-rgb: 27, 158, 136;
+    --bs-secondary: #9C9C9B;
+    --bs-secondary-rgb: 156, 156, 155;
+    --bs-success: #28a745;
+    --bs-success-rgb: 40, 167, 69;
+    --bs-info: #5894EF;
+    --bs-info-rgb: 88, 148, 239;
+    --bs-warning: #FCBD05;
+    --bs-warning-rgb: 252, 189, 5;
+    --bs-danger: #EB4335;
+    --bs-danger-rgb: 235, 67, 53;
     --bs-light: #f8fafc;
     --bs-light-rgb: 248, 250, 252;
-    --bs-dark: #1e293b;
-    --bs-dark-rgb: 30, 41, 59;
+    --bs-dark: #646363;
+    --bs-dark-rgb: 100, 99, 99;
     --bs-white: #ffffff;
     --bs-black: #000000;
 
-    /* Gradient */
-    --gradient-start: #6366f1;
-    --gradient-end: #8b5cf6;
+    /* Gradient - ISER Verde to Azul */
+    --gradient-start: #1B9E88;
+    --gradient-end: #5894EF;
     --gradient-primary: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
 
     /* Body */

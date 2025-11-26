@@ -1389,6 +1389,54 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.29 (2025011829) - Boost Theme Architecture
+    // =========================================================
+    if ($oldversion < 2025011829) {
+        echo '<div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #2e7d32; margin-top: 0;">🎨 Upgrading to NexoSupport v1.1.29 - Boost Theme Architecture</h2>';
+
+        echo '<h3 style="color: #2e7d32;">🗑️ Removed:</h3>';
+        echo '<ul>';
+        echo '<li><strong>theme/core/:</strong> Legacy theme directory removed</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #2e7d32;">🎯 Boost Theme Enhancements:</h3>';
+        echo '<ul>';
+        echo '<li><strong>config.php:</strong> Complete Moodle-style theme configuration</li>';
+        echo '<li><strong>lib.php:</strong> Extended with template context, body attributes, SCSS functions</li>';
+        echo '<li><strong>layouts/:</strong> Improved drawers.php, login.php with Moodle patterns</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #2e7d32;">🎨 SCSS System:</h3>';
+        echo '<ul>';
+        echo '<li><strong>scss/_variables.scss:</strong> ISER brand colors and Bootstrap overrides</li>';
+        echo '<li><strong>scss/preset/default.scss:</strong> Updated with ISER color palette</li>';
+        echo '<li><strong>scss/moodle/_core.scss:</strong> Moodle-compatible component styles</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #2e7d32;">💻 JavaScript AMD:</h3>';
+        echo '<ul>';
+        echo '<li><strong>amd/src/loader.js:</strong> Theme initialization module</li>';
+        echo '<li><strong>amd/src/drawers.js:</strong> Drawer functionality with swipe gestures</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #2e7d32;">🖌️ ISER Branding Colors:</h3>';
+        echo '<ul>';
+        echo '<li><strong>Verde primario:</strong> #1B9E88</li>';
+        echo '<li><strong>Amarillo:</strong> #FCBD05</li>';
+        echo '<li><strong>Azul:</strong> #5894EF</li>';
+        echo '<li><strong>Rojo:</strong> #EB4335</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ Boost theme now follows Moodle 4.x architecture</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.29 - theme only
+        upgrade_core_savepoint(true, 2025011829);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 
