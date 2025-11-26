@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    NexoSupport Environment Requirements
+
+    This file defines the system requirements for NexoSupport.
+    Similar to Moodle's admin/environment.xml
+
+    Levels:
+    - required: Must be met for installation/upgrade
+    - optional: Recommended but not required
+
+    @package    core
+    @copyright  NexoSupport
+    @license    Proprietary - NexoSupport
+-->
+<COMPATIBILITY_MATRIX>
+
+    <!-- NexoSupport 1.x requirements -->
+    <NEXOSUPPORT version="1.0">
+
+        <!-- PHP Requirements -->
+        <PHP version="8.1.0" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="PHP 8.1 o superior es requerido para ejecutar NexoSupport."/>
+            </FEEDBACK>
+        </PHP>
+
+        <!-- PHP Extensions - Required -->
+        <PHP_EXTENSION name="pdo" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="La extensión PDO es requerida para conexiones de base de datos."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="json" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="La extensión JSON es requerida."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="mbstring" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="La extensión mbstring es requerida para manejo de cadenas multibyte."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="session" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="La extensión session es requerida para manejo de sesiones."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="ctype" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="La extensión ctype es requerida."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="fileinfo" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="La extensión fileinfo es requerida para detección de tipos de archivo."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="openssl" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="La extensión openssl es requerida para operaciones criptográficas."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="curl" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="La extensión curl es requerida para peticiones HTTP."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="dom" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="La extensión DOM es requerida para procesamiento XML."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="simplexml" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="La extensión SimpleXML es requerida."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="xml" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="La extensión XML es requerida."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <!-- PHP Extensions - Optional -->
+        <PHP_EXTENSION name="intl" level="optional">
+            <FEEDBACK>
+                <ON_CHECK message="La extensión intl es recomendada para internacionalización."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="gd" level="optional">
+            <FEEDBACK>
+                <ON_CHECK message="La extensión GD es recomendada para procesamiento de imágenes."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="zip" level="optional">
+            <FEEDBACK>
+                <ON_CHECK message="La extensión zip es recomendada para manejo de archivos comprimidos."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="soap" level="optional">
+            <FEEDBACK>
+                <ON_CHECK message="La extensión SOAP es recomendada para servicios web."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="exif" level="optional">
+            <FEEDBACK>
+                <ON_CHECK message="La extensión EXIF es recomendada para metadatos de imágenes."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <PHP_EXTENSION name="opcache" level="optional">
+            <FEEDBACK>
+                <ON_CHECK message="La extensión OPcache es recomendada para mejor rendimiento."/>
+            </FEEDBACK>
+        </PHP_EXTENSION>
+
+        <!-- PHP Settings -->
+        <PHP_SETTING name="memory_limit" value="128M" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="Se requiere un mínimo de 128M de memoria. Se recomienda 256M o más."/>
+            </FEEDBACK>
+        </PHP_SETTING>
+
+        <PHP_SETTING name="post_max_size" value="64M" level="optional">
+            <FEEDBACK>
+                <ON_CHECK message="Se recomienda post_max_size de al menos 64M para subida de archivos."/>
+            </FEEDBACK>
+        </PHP_SETTING>
+
+        <PHP_SETTING name="upload_max_filesize" value="64M" level="optional">
+            <FEEDBACK>
+                <ON_CHECK message="Se recomienda upload_max_filesize de al menos 64M."/>
+            </FEEDBACK>
+        </PHP_SETTING>
+
+        <PHP_SETTING name="max_execution_time" value="120" level="optional">
+            <FEEDBACK>
+                <ON_CHECK message="Se recomienda max_execution_time de al menos 120 segundos."/>
+            </FEEDBACK>
+        </PHP_SETTING>
+
+        <PHP_SETTING name="max_input_vars" value="5000" level="optional">
+            <FEEDBACK>
+                <ON_CHECK message="Se recomienda max_input_vars de al menos 5000."/>
+            </FEEDBACK>
+        </PHP_SETTING>
+
+        <!-- Database Requirements -->
+        <DATABASE name="mysql" version="8.0" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="Se requiere MySQL 8.0 o superior."/>
+            </FEEDBACK>
+        </DATABASE>
+
+        <DATABASE name="mariadb" version="10.6" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="Se requiere MariaDB 10.6 o superior."/>
+            </FEEDBACK>
+        </DATABASE>
+
+        <DATABASE name="postgres" version="13" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="Se requiere PostgreSQL 13 o superior."/>
+            </FEEDBACK>
+        </DATABASE>
+
+    </NEXOSUPPORT>
+
+    <!-- NexoSupport 1.1 requirements (inherits from 1.0) -->
+    <NEXOSUPPORT version="1.1">
+
+        <PHP version="8.1.0" level="required"/>
+
+        <!-- Additional requirements for 1.1 -->
+        <PHP_SETTING name="memory_limit" value="256M" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="NexoSupport 1.1 requiere al menos 256M de memoria."/>
+            </FEEDBACK>
+        </PHP_SETTING>
+
+    </NEXOSUPPORT>
+
+    <!-- NexoSupport 2.0 requirements (future) -->
+    <NEXOSUPPORT version="2.0">
+
+        <PHP version="8.2.0" level="required">
+            <FEEDBACK>
+                <ON_ERROR message="NexoSupport 2.0 requerirá PHP 8.2 o superior."/>
+            </FEEDBACK>
+        </PHP>
+
+        <PHP_SETTING name="memory_limit" value="512M" level="required"/>
+
+        <DATABASE name="mysql" version="8.0" level="required"/>
+        <DATABASE name="mariadb" version="10.11" level="required"/>
+        <DATABASE name="postgres" version="15" level="required"/>
+
+    </NEXOSUPPORT>
+
+</COMPATIBILITY_MATRIX>

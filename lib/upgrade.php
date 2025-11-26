@@ -1320,6 +1320,75 @@ function xmldb_core_upgrade(int $oldversion): bool {
     }
 
     // =========================================================
+    // v1.1.28 (2025011828) - Moodle-style Install/Upgrade System
+    // =========================================================
+    if ($oldversion < 2025011828) {
+        echo '<div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 20px; margin: 20px 0;">';
+        echo '<h2 style="color: #1565c0; margin-top: 0;">🚀 Upgrading to NexoSupport v1.1.28 - Moodle-style Install/Upgrade System</h2>';
+
+        echo '<h3 style="color: #1565c0;">📦 New Installation System:</h3>';
+        echo '<ul>';
+        echo '<li><strong>install.php:</strong> Web-based installation wizard with 6 phases</li>';
+        echo '<li><strong>admin/cli/install.php:</strong> Command-line installation tool</li>';
+        echo '<li><strong>lib/installlib.php:</strong> Core installation functions (install_core, install_from_xmldb_file)</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #1565c0;">🔄 Enhanced Upgrade System:</h3>';
+        echo '<ul>';
+        echo '<li><strong>admin/upgrade.php:</strong> Refactored Moodle-style upgrade page</li>';
+        echo '<li><strong>admin/cli/upgrade.php:</strong> Command-line upgrade tool</li>';
+        echo '<li><strong>lib/upgradelib.php:</strong> Upgrade functions (upgrade_core, upgrade_noncore, upgrade_plugins)</li>';
+        echo '<li><strong>Savepoint functions:</strong> upgrade_main_savepoint, upgrade_plugin_savepoint, upgrade_mod_savepoint</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #1565c0;">🔍 Environment Validation:</h3>';
+        echo '<ul>';
+        echo '<li><strong>lib/environmentlib.php:</strong> System requirements checking functions</li>';
+        echo '<li><strong>admin/environment.xml:</strong> Requirements definition (PHP 8.1+, extensions, settings)</li>';
+        echo '<li><strong>check_nexosupport_environment():</strong> Validates PHP version, extensions, settings, database</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #1565c0;">🛠️ CLI Tools Created:</h3>';
+        echo '<ul>';
+        echo '<li><code>php admin/cli/install.php --help</code> - Full installation wizard</li>';
+        echo '<li><code>php admin/cli/upgrade.php --help</code> - Command-line upgrade</li>';
+        echo '<li>Both support <code>--non-interactive</code> mode for automation</li>';
+        echo '<li>Both support <code>--verbose</code> for detailed output</li>';
+        echo '</ul>';
+
+        echo '<h3 style="color: #1565c0;">📋 Installation Phases:</h3>';
+        echo '<ol>';
+        echo '<li><strong>INSTALL_WELCOME:</strong> Welcome and language selection</li>';
+        echo '<li><strong>INSTALL_ENVIRONMENT:</strong> System requirements check</li>';
+        echo '<li><strong>INSTALL_PATHS:</strong> Configure wwwroot and dataroot</li>';
+        echo '<li><strong>INSTALL_DATABASE:</strong> Database connection configuration</li>';
+        echo '<li><strong>INSTALL_ADMIN:</strong> Admin account and site name setup</li>';
+        echo '<li><strong>INSTALL_SAVE:</strong> Execute installation</li>';
+        echo '</ol>';
+
+        echo '<h3 style="color: #1565c0;">📁 Files Created/Modified:</h3>';
+        echo '<ul>';
+        echo '<li><strong>install.php</strong> - Web installation entry point (NEW)</li>';
+        echo '<li><strong>lib/environmentlib.php</strong> - Environment checking library (NEW)</li>';
+        echo '<li><strong>admin/environment.xml</strong> - Requirements XML (NEW)</li>';
+        echo '<li><strong>admin/cli/install.php</strong> - CLI installation (NEW)</li>';
+        echo '<li><strong>admin/cli/upgrade.php</strong> - CLI upgrade (NEW)</li>';
+        echo '<li><strong>admin/upgrade.php</strong> - Refactored upgrade page</li>';
+        echo '<li><strong>lib/installlib.php</strong> - Enhanced installation functions</li>';
+        echo '<li><strong>lib/upgradelib.php</strong> - Enhanced upgrade functions</li>';
+        echo '</ul>';
+
+        echo '<p style="color: green; font-weight: bold; margin-top: 20px;">✅ Moodle-compatible install/upgrade system now available</p>';
+        echo '<p style="color: blue;">🔧 Use <code>php admin/cli/install.php --help</code> for CLI installation</p>';
+        echo '<p style="color: blue;">🔧 Use <code>php admin/cli/upgrade.php --help</code> for CLI upgrades</p>';
+
+        echo '</div>';
+
+        // No database changes for v1.1.28 - system infrastructure only
+        upgrade_core_savepoint(true, 2025011828);
+    }
+
+    // =========================================================
     // Future upgrades go here
     // =========================================================
 
